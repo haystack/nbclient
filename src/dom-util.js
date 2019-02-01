@@ -49,18 +49,13 @@ function getLastTextNodeUpTo(n) {
 }
 
 /*
-  Flatten a nested array structure
-  Returns an array
-  Helper function for getTextNodes()
+  Flatten a nested array structure and returns an array.
+  Helper function for getTextNodes().
 */
 function flatten(array) {
   let flat = []
   for (let el of array) {
-    if (el && $.isArray(el)) {
-      flat = flat.concat(flatten(el))
-    } else {
-      flat = flat.concat(el)
-    }
+    flat = flat.concat(Array.isArray(el) ? flatten(el) : el)
   }
   return flat
 }
@@ -68,10 +63,10 @@ function flatten(array) {
 /*
   Finds all text nodes within the elements in the current collection.
   Returns a new jQuery collection of text nodes.
-  Helper function for deserializeRange().
+  Helper function for serializeTextNode() and deserializeNbRange().
 */
-function getTextNodes(jq) {
-  let getThisTextNodes = (node) => { // TODO: Change back name
+function getTextNodes(node) {
+  let findTextNodes = (node) => {
     if (node && node.nodeType !== Node.TEXT_NODE) {
       let nodes = []
 
@@ -81,10 +76,10 @@ function getTextNodes(jq) {
       // .splitText() is called on a child text node.
       if (node.nodeType !== Node.COMMENT_NODE) {
         // Start at the last child and walk backwards through siblings.
-        node = node.lastChild
-        while (node) {
-          nodes.push(getTextNodes(node))
-          node = node.previousSibling
+        let child = node.lastChild
+        while (child) {
+          nodes.push(findTextNodes(child))
+          child = child.previousSibling
         }
       }
       // Finally reverse the array so that nodes are in the correct order.
@@ -94,25 +89,13 @@ function getTextNodes(jq) {
     }
   }
 
-  console.log(jq)
-
-  jq.map(function() {
-    return flatten(getThisTextNodes(this))
-  })
+  let textNodes = findTextNodes(node)
+  return flatten(textNodes)
 }
 
-// /* Helper function for getXpathFromNode */
-// function simpleXPathJQuery(el, relativeRoot) {
-//   // TODO?
-// }
-//
-// /* Helper function for getXpathFromNode */
-// function simpleXPathPure(el, relativeRoot) {
-//   // TODO?
-// }
-
-function getXpathFromNode(element, relativeRoot) {
-  if (!element || element === relativeRoot) {
+// Implementation from the other nb demo I made.
+function getXpathFromNode(element, root) {
+  if (!element || element === root) {
     return ''
   }
 
@@ -120,86 +103,56 @@ function getXpathFromNode(element, relativeRoot) {
     return getXpathFromNode(element.parentNode, relativeRoot)
   }
 
-  let index = 0
+  let index = 1 // xpath index starts with 1 (not 0-indexed).
   let prevSibling = element.previousElementSibling
 
   while (prevSibling) {
+    if (prevSibling.nodeName === element.nodeName) {
+      index++
+    }
     prevSibling = prevSibling.previousElementSibling
-    index++
   }
-  return `${getXpathFromNode(element.parentNode, relativeRoot)}/${element.nodeName}[${index + 1}]`
+
+  let nodeName = element.nodeName.toLowerCase()
+  return `${getXpathFromNode(element.parentNode, root)}/${nodeName}[${index}]`
 }
 
-// function getXpathFromNode(el, relativeRoot) {
-  // let result
-  // try {
-  //   result = simpleXPathJQuery(el, relativeRoot)
-  // } catch (e) {
-  //   console.warn('jQuery-based XPath construction failed! Falling back to manual.')
-  //   result = simpleXPathPure(el, relativeRoot)
-  // }
-  // return result
-// }
+// Implementation from the other nb demo I made.
+function getNodeFromXpath(xpath, root) {
+  var nodes = [], result, item
 
-/*
-  Get the node name for use in generating an xpath expression.
-  Helper function for findChild()
-*/
-function getNodeName(node) {
-  let nodeName = node.nodeName.toLowerCase()
-  switch (nodeName) {
-    case "#text":
-      return "text()"
-    case "#comment":
-      return "comment()"
-    case "#cdata-section":
-      return "cdata-section()"
-    default:
-      return nodeName
-  }
-}
+  try {
+    result = document.evaluate(xpath, root, null, XPathResult.ANY_TYPE, null);
+    for (item = result.iterateNext(); item; item = result.iterateNext()) {
+    nodes.push(item);}
 
-/* Helper function for getNodeFromXPath() */
-function findChild(node, type, index) {
-  if (!node.hasChildNodes()) {
-    console.error('XPath error: node has no children!')
-  }
-  let children = node.childNodes
-  let found = 0
-  for (let child of children) {
-    let name = getNodeName(child)
-    if (name === type) {
-      found += 1
-      if (found === index) {
-        return child
-      }
+    if (nodes.length === 0) {
+      //try a hack to handle namespace defaults in xhtml documents
+      xpath = xpath.replace(/\/([a-z])/ig, '/my:$1');
+      result = document.evaluate(xpath, root, function () {
+        return document.body.namespaceURI;
+      }, XPathResult.ANY_TYPE, null);
+      for (item = result.iterateNext(); item; item = result.iterateNext()) {
+      nodes.push(item);}
     }
   }
-  console.error('XPath error: wanted child not found.')
-}
-
-/* Helper function for deserializeRange() */
-function getNodeFromXPath(xp, root = document) {
-  let steps = xp.substring(1).split("/")
-  let node = root
-  for (let step of steps) {
-    let s = step.split("[") // [name, idx]
-    let idx = s[1] ? parseInt(idx.split("]"))[0] : 1
-    node = findChild(node, s[0].toLowerCase(), idx)
+  catch (exc) {
+    // Invalid xpath expressions make their way here sometimes.  If that happens,
+    // we still want to return an empty set without an exception.
   }
-  return node
+
+  return nodes[0]
 }
 
 /* Helper function for NbRange.serialize() */
 function serializeTextNode(root, node, isEnd) {
-  let parent = $(node).parent() // TODO: no jquery?
-  let xpath = getXpathFromNode(parent, root)[0]
-  let textNodes = getTextNodes(parent)
+  let xpath = getXpathFromNode(node.parentNode, root)
+  let textNodes = getTextNodes(node.parentNode)
 
   // Calculate real offset as the combined length of all the
   // preceding textNode siblings. We include the length of the
   // node if it's the end node.
-  let nodes = textNodes.slice(0, textNodes.index(node))
+  let nodes = textNodes.slice(0, textNodes.indexOf(node))
   let offset = 0
   for (let n of nodes) {
     offset += n.nodeValue.length
@@ -212,7 +165,9 @@ function serializeTextNode(root, node, isEnd) {
 }
 
 export {
+  getTextNodes,
   getFirstTextNodeNotBefore,
   getLastTextNodeUpTo,
-  serializeTextNode
+  serializeTextNode,
+  getNodeFromXpath
 }

@@ -1,4 +1,4 @@
-import {getFirstTextNodeNotBefore, getLastTextNodeUpTo, serializeTextNode} from './util.js'
+import { getFirstTextNodeNotBefore, getLastTextNodeUpTo, serializeTextNode, getNodeFromXpath, getElementsByXPath, getTextNodes } from './dom-util.js'
 
 class NbRange {
   constructor(start, end, commonAncestor) {
@@ -21,7 +21,6 @@ class NbRange {
   /*
     Returns nbRange as a JSON object of start and end xpaths + offsets.
     implmentation from NormalizedRange.serialize in h/client.
-    TODO: FIX IT
   */
   serialize(root = document) {
     let start = serializeTextNode(root, this.start)
@@ -52,7 +51,6 @@ function createNbRange(range) {
   Takes in a JSON object of start and end xpaths + offsets.
   Returns normalized start node, end node, and common ancestor.
   Implementation from SerializedRange.normalize.
-  TODO: FIX IT
 */
 function deserializeNbRange(json, root = document) {
   let r = {}
@@ -60,7 +58,7 @@ function deserializeNbRange(json, root = document) {
   for (let p of ['start', 'end']) {
     let node
     try {
-      node = getNodeFromXPath(json[p], root)
+      node = getNodeFromXpath(json[p], root)
     } catch (e) {
       console.error(`Error while finding ${p} node: ${json[p]}: ${e}`)
     }
@@ -81,7 +79,7 @@ function deserializeNbRange(json, root = document) {
       targetOffset--
     }
 
-    for (let tn of getTextNodes($(node))) { // TODO: is there a way to do this withou jquery?
+    for (let tn of getTextNodes(node)) {
       if ((length + tn.nodeValue.length) > targetOffset) {
         r[`${p}Container`] = tn
         r[`${p}Offset`] = json[`${p}Offset`] - length
@@ -94,7 +92,7 @@ function deserializeNbRange(json, root = document) {
     // If we fall off the end of the for loop without having set
     // 'startOffset'/'endOffset', the element has shorter content than when
     // we annotated, so throw an error:
-    if (!json[`${p}Container`]) {
+    if (!r[`${p}Container`]) {
       console.error(`Couldn't find offset ${json[p+'Offset']} in element ${json[p]}`)
     }
   }
@@ -129,12 +127,14 @@ function deserializeNbRange(json, root = document) {
     contains = (a, b) => { return a.compareDocumentPosition(b) & 16 }
   }
 
-  $(r.startContainer).parents().forEach(function() { // TODO: Do without jquery?
-    if (contains(this, r.endContainer)) {
-      r.commonAncestorContainer = this
-      return false
+  let parent = r.startContainer.parentNode
+  while (parent) {
+    if (contains(parent, r.endContainer)) {
+      r.commonAncestorContainer = parent
+      break
     }
-  })
+    parent = parent.parentNode
+  }
 
   let nr = normalizeRange(
     r.startContainer,
