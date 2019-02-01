@@ -1,4 +1,4 @@
-import { getFirstTextNodeNotBefore, getLastTextNodeUpTo, serializeTextNode, getNodeFromXpath, getElementsByXPath, getTextNodes } from './dom-util.js'
+import * as DomUtil from './dom-util.js'
 
 class NbRange {
   constructor(start, end, commonAncestor) {
@@ -23,8 +23,8 @@ class NbRange {
     implmentation from NormalizedRange.serialize in h/client.
   */
   serialize(root = document) {
-    let start = serializeTextNode(root, this.start)
-    let end = serializeTextNode(root, this.end, true)
+    let start = DomUtil.serializeTextNode(root, this.start)
+    let end = DomUtil.serializeTextNode(root, this.end, true)
 
     return {
       // XPath strings
@@ -58,7 +58,7 @@ function deserializeNbRange(json, root = document) {
   for (let p of ['start', 'end']) {
     let node
     try {
-      node = getNodeFromXpath(json[p], root)
+      node = DomUtil.getNodeFromXpath(json[p], root)
     } catch (e) {
       console.error(`Error while finding ${p} node: ${json[p]}: ${e}`)
     }
@@ -79,7 +79,7 @@ function deserializeNbRange(json, root = document) {
       targetOffset--
     }
 
-    for (let tn of getTextNodes(node)) {
+    for (let tn of DomUtil.getTextNodes(node)) {
       if ((length + tn.nodeValue.length) > targetOffset) {
         r[`${p}Container`] = tn
         r[`${p}Offset`] = json[`${p}Offset`] - length
@@ -159,9 +159,9 @@ function normalizeRange(start, startOffset, end, endOffset, commonAncestor) {
   if (start.nodeType === Node.ELEMENT_NODE) {
     // We are dealing with element nodes
     if (startOffset < start.childNodes.length) {
-      r.start = getFirstTextNodeNotBefore(start.childNodes[startOffset])
+      r.start = DomUtil.getFirstTextNodeNotBefore(start.childNodes[startOffset])
     } else {
-      r.start = getFirstTextNodeNotBefore(start)
+      r.start = DomUtil.getFirstTextNodeNotBefore(start)
     }
     r.startOffset = 0
   } else {
@@ -195,7 +195,7 @@ function normalizeRange(start, startOffset, end, endOffset, commonAncestor) {
       } else {
         node = end.previousSibling
       }
-      r.end = getLastTextNodeUpTo(node)
+      r.end = DomUtil.getLastTextNodeUpTo(node)
       r.endOffset = r.end.nodeValue.length
     }
   } else {
