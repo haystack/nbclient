@@ -109,8 +109,8 @@ class Highlight {
 
   bind(element) {
     this.element = element
-    this.element.setAttribute('fill', 'rgb(255, 10, 10)')
-    this.element.setAttribute('fill-opacity', '0.3')
+    this.element.setAttribute('fill', 'rgb(255, 204, 1)')
+    this.element.setAttribute('fill-opacity', '0.2')
   }
 
   unbind() {
@@ -210,41 +210,148 @@ class Pane {
 
 /////////////// Pane implmentation ends here.
 
+var el = document.querySelector('#document-pane')
+var pane = new Pane(el)
+var selecting = false
+let draftHighlight = null
 
 /* Helper function for checkForSelection */
 function makeHighlight(range) {
-    var h = pane.addHighlight(new Highlight(range));
-    h.element.addEventListener("click", function () {
-        if (!selecting) { pane.removeHighlight(h); }
-    }, false)
+    draftHighlight = pane.addHighlight(new Highlight(range));
 }
 
 function redrawHighlights() {
     pane.render()
 }
 
-function checkForSelection() {
+function checkForSelection(event) {
     var selection = window.getSelection();
 
     if (!selection.isCollapsed) {
         // Set global state to reflect the fact we're making a selection.
-        // Used to stop click events from deleting older highlights when
-        // the click event is the result of a selection.
+        // Used to stop click events from showing contents of older highlights
+        // when the click event is the result of a selection.
         selecting = true;
 
-        makeHighlight(selection.getRangeAt(0));
+        let range = selection.getRangeAt(0)
 
-        // Clear the selection
-        selection.removeAllRanges();
+        // Check if range is inside #document-pane
+        if (el.contains(range.commonAncestorContainer)) {
+          if (selecting) {
+            // Reset the draft (i.e. cancel the previous draft)
+            quill.setContents([])
+            pane.removeHighlight(draftHighlight)
+            draftHighlight = null
+          }
 
-        // Reset the selecting state in the next tick.
-        setTimeout(function () { selecting = false; }, 0);
+          makeHighlight(range)
+
+          // Display the editor pane
+          editorPane.style.display = 'block'
+
+          // Commented out for now b/c NB does not do this, but maybe it's a good idea.
+          // We could highlight the draft with different highlight color.
+          // Clear the selection
+          // selection.removeAllRanges()
+        }
+
+    } else if (selecting && el.contains(event.target)) {
+        // If clicked on document outside of previous selection, cancel the draft.
+        // TODO: Is this a good design choice?
+        cancelDraft()
     }
 }
 
 document.addEventListener("mouseup", checkForSelection, false)
 window.addEventListener("resize", redrawHighlights, false)
 
-var el = document.querySelector('#document-pane')
-var pane = new Pane(el)
-var selecting = false
+/////////////// Annotation implmentation starts here.
+
+class Annotation {
+  constructor(id, range, parent, timestamp, content, author) {
+    this.id = id
+    this.range = range // null if this is a reply
+
+    this.parent = parent // null if this is a head annotation
+    this.children = []
+
+    this.timestamp = timestamp
+    this.content = content
+    this.author = author
+
+    // TODO: do we need more fields? e.g. visibility
+  }
+
+  addChild(child) {
+    this.children.push(child)
+  }
+}
+
+/////////////// Annotation implmentation ends here.
+
+/////////////// Text editor + annotation stuff starts here.
+
+let editorPane = document.querySelector('#editor-pane')
+editorPane.style.display = 'none' // Hidden by default.
+
+let quill = new Quill('#text-editor', {
+  modules: {
+    toolbar: [
+      // TODO: Which options should we include?
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [ 'bold', 'italic', 'underline', 'strike' ],
+      [{ 'script': 'super' }, { 'script': 'sub' }],
+      [ 'blockquote', 'code-block', 'link', 'formula' ],
+      [{ 'list': 'ordered' }, { 'list': 'bullet'}, { 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      [ 'clean' ]
+    ]
+  },
+  theme: 'snow'
+})
+
+let headAnnotations = {} // {id: Annotation()}
+
+function submitDraft() {
+  let now = Date.now()
+  let annotation = new Annotation(
+    now, //TODO: id
+    draftHighlight.range, //range
+    null, //parent
+    now, //timestamp
+    quill.getContents(), //content
+    'alisa' //TODO: author
+  )
+
+  headAnnotations[now] = annotation
+
+  draftHighlight.annotationID = now
+  draftHighlight.element.addEventListener("click", function () {
+      if (!selecting) {
+        console.log(`clicked on annotation ${now}...`)
+        console.log(annotation) // TODO: show annotation on the right pane instead
+      }
+  }, false)
+
+  editorPane.style.display = 'none'
+  quill.setContents([])
+
+  draftHighlight = null
+  selecting = false
+}
+
+function cancelDraft() {
+  editorPane.style.display = 'none'
+  quill.setContents([])
+
+  pane.removeHighlight(draftHighlight)
+  window.getSelection().removeAllRanges()
+
+  draftHighlight = null
+  selecting = false
+}
+
+document.querySelector('#submit-draft').addEventListener("click", submitDraft, false)
+document.querySelector('#cancel-draft').addEventListener("click", cancelDraft, false)
+
+/////////////// Text editor + annotation stuff ends here.
