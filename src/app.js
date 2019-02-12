@@ -291,6 +291,7 @@ class Annotation {
 
 /////////////// Text editor + annotation stuff starts here.
 
+let threadPane = document.querySelector('#thread-pane')
 let editorPane = document.querySelector('#editor-pane')
 editorPane.style.display = 'none' // Hidden by default.
 
@@ -311,6 +312,7 @@ let quill = new Quill('#text-editor', {
 })
 
 let headAnnotations = {} // {id: Annotation()}
+// TODO: how should we order annotations in the list pane?
 
 function submitDraft() {
   let now = Date.now()
@@ -319,7 +321,7 @@ function submitDraft() {
     draftHighlight.range, //range
     null, //parent
     now, //timestamp
-    quill.getContents(), //content
+    quill.root.innerHTML, //content (TODO: sanitize?)
     'alisa' //TODO: author
   )
 
@@ -327,10 +329,10 @@ function submitDraft() {
 
   draftHighlight.annotationID = now
   draftHighlight.element.addEventListener("click", function () {
-      if (!selecting) {
-        console.log(`clicked on annotation ${now}...`)
-        console.log(annotation) // TODO: show annotation on the right pane instead
-      }
+    if (!selecting) {
+      console.log(annotation)
+      threadPane.innerHTML = annotation.content
+    }
   }, false)
 
   editorPane.style.display = 'none'
