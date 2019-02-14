@@ -3,7 +3,7 @@ body {
 }
 #document-pane {
   width: 54%;
-  margin: 4%;
+  margin: 40px 4%;
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   font-size: 22px;
   line-height: 1.5;
@@ -11,6 +11,19 @@ body {
 #annotation-pane {
   width: 30%;
   position: fixed;
-  top: 4%;
+  top: 40px;
   right: 4%;
+}
+
+#list-pane {
+  border: solid 1px #ddd;
+}
+#list-pane > .row {
+  padding: 4px;
+}
+#list-pane > .row:nth-child(even) {
+  background-color: #f0f0f0;
+}
+#editor-pane {
+  margin-top: 10px;
 }

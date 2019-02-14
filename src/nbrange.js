@@ -14,7 +14,7 @@ class NbRange {
   toRange() {
     let range = new Range()
     range.setStartBefore(this.start)
-    range.setEndAfter(this.end)
+    range.setEndBefore(this.end)
     return range
   }
 
@@ -24,7 +24,7 @@ class NbRange {
   */
   serialize(root = document) {
     let start = DomUtil.serializeTextNode(root, this.start)
-    let end = DomUtil.serializeTextNode(root, this.end, true)
+    let end = DomUtil.serializeTextNode(root, this.end)
 
     return {
       // XPath strings
@@ -223,16 +223,11 @@ function normalizeRange(start, startOffset, end, endOffset, commonAncestor) {
 
   // is the whole selection inside one text element ?
   if (r.start === r.end) {
-    if (nr.start.nodeValue.length > (r.endOffset - r.startOffset)) {
-      nr.start.splitText(r.endOffset - r.startOffset)
-    }
-    nr.end = nr.start
+    nr.end = nr.start.splitText(
+      Math.min(nr.start.nodeValue.length, r.endOffset - r.startOffset))
   } else { // no, the end of the selection is in a separate text element
     // does the end need to be cut?
-    if (r.end.nodeValue.length > r.endOffset) {
-      r.end.splitText(r.endOffset)
-    }
-    nr.end = r.end
+    nr.end = r.end.splitText(Math.min(r.end.nodeValue.length, r.endOffset))
   }
 
   // Make sure the common ancestor is an element node.

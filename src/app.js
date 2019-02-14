@@ -98,9 +98,9 @@ function svgCreateElement(name) {
 
 
 class Highlight {
-  constructor(range) {
+  constructor(nbRange) {
     this.element = null
-    this.range = createNbRange(range)
+    this.range = nbRange
     // let sr = this.range.serialize()
     // console.log(sr)
     // let dr = deserializeNbRange(sr)
@@ -217,7 +217,8 @@ let draftHighlight = null
 
 /* Helper function for checkForSelection */
 function makeHighlight(range) {
-    draftHighlight = pane.addHighlight(new Highlight(range));
+  let nbRange = createNbRange(range)
+  draftHighlight = pane.addHighlight(new Highlight(nbRange))
 }
 
 function redrawHighlights() {
@@ -291,6 +292,7 @@ class Annotation {
 
 /////////////// Text editor + annotation stuff starts here.
 
+let listPane = document.querySelector('#list-pane')
 let threadPane = document.querySelector('#thread-pane')
 let editorPane = document.querySelector('#editor-pane')
 editorPane.style.display = 'none' // Hidden by default.
@@ -312,7 +314,6 @@ let quill = new Quill('#text-editor', {
 })
 
 let headAnnotations = {} // {id: Annotation()}
-// TODO: how should we order annotations in the list pane?
 
 function submitDraft() {
   let now = Date.now()
@@ -340,6 +341,8 @@ function submitDraft() {
 
   draftHighlight = null
   selecting = false
+
+  renderListPane()
 }
 
 function cancelDraft() {
@@ -351,6 +354,50 @@ function cancelDraft() {
 
   draftHighlight = null
   selecting = false
+}
+
+// TODO: Use Vue list to do this.
+function renderListPane() {
+  let threads = Object.values(headAnnotations)
+  threads.sort(compareAnnotations)
+
+  while (listPane.firstChild) {
+    listPane.removeChild(listPane.firstChild)
+  }
+
+  for (let t of threads) {
+    let temp = document.createElement('div')
+    temp.innerHTML = t.content
+
+    let row = document.createElement('div')
+    row.className = 'row'
+    row.textContent = temp.textContent
+    listPane.appendChild(row)
+  }
+}
+
+function compareAnnotations(a, b) {
+  if (a.range.start.isSameNode(b.range.start)) {
+    // a and b have the same start
+    if (a.range.end.isSameNode(b.range.end)) {
+      // a and b have the same range
+      return 0
+    } else if (a.range.end.compareDocumentPosition(b.range.end)
+        & Node.DOCUMENT_POSITION_FOLLOWING) {
+      // a ends before b
+      return -1
+    } else {
+      // b ends before a
+      return 1
+    }
+  } else if (a.range.start.compareDocumentPosition(b.range.start)
+      & Node.DOCUMENT_POSITION_FOLLOWING) {
+    // a starts before b
+    return -1
+  } else {
+    // b starts before a
+    return 1
+  }
 }
 
 document.querySelector('#submit-draft').addEventListener("click", submitDraft, false)

@@ -145,7 +145,7 @@ function getNodeFromXpath(xpath, root) {
 }
 
 /* Helper function for NbRange.serialize() */
-function serializeTextNode(root, node, isEnd) {
+function serializeTextNode(root, node) {
   let xpath = getXpathFromNode(node.parentNode, root)
   let textNodes = getTextNodes(node.parentNode)
 
@@ -158,9 +158,6 @@ function serializeTextNode(root, node, isEnd) {
     offset += n.nodeValue.length
   }
 
-  if (isEnd) {
-    offset += node.nodeValue.length
-  }
   return [xpath, offset]
 }
 
