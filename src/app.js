@@ -67,6 +67,7 @@ function eventsProxyMouse(target, tracked) {
         }
     }
 
+    //TODO: add hover event
     for (var ev of ['mouseup', 'mousedown', 'click']) {
         target.addEventListener(ev, (e) => dispatch(e), false);
     }
@@ -98,9 +99,10 @@ function svgCreateElement(name) {
 
 
 class Highlight {
-  constructor(nbRange) {
+  constructor(nbRange, annotationID) {
     this.element = null
     this.range = nbRange
+    this.annotationID = annotationID // undefined for draft
     // let sr = this.range.serialize()
     // console.log(sr)
     // let dr = deserializeNbRange(sr)
@@ -109,8 +111,16 @@ class Highlight {
 
   bind(element) {
     this.element = element
-    this.element.setAttribute('fill', 'rgb(255, 204, 1)')
-    this.element.setAttribute('fill-opacity', '0.2')
+    this.element.classList.add('nb-highlight')
+    if (this.annotationID) {
+      this.element.setAttribute('annotation_id', this.annotationID)
+    }
+    this.element.addEventListener("click", function () {
+      let annotationID = this.getAttribute('annotation_id')
+      if (annotationID && !selecting) {
+        selectAnnotation(annotationID)
+      }
+    }, false)
   }
 
   unbind() {
@@ -137,6 +147,11 @@ class Highlight {
       el.setAttribute('width', r.width)
       this.element.appendChild(el)
     }
+  }
+
+  setAnnotationID(annotationID) {
+    this.annotationID = annotationID
+    this.element.setAttribute('annotation_id', annotationID)
   }
 
   dispatchEvent(e) {
@@ -327,14 +342,7 @@ function submitDraft() {
   )
 
   headAnnotations[now] = annotation
-
-  draftHighlight.annotationID = now
-  draftHighlight.element.addEventListener("click", function () {
-    if (!selecting) {
-      console.log(annotation)
-      threadPane.innerHTML = annotation.content
-    }
-  }, false)
+  draftHighlight.setAnnotationID(now)
 
   editorPane.style.display = 'none'
   quill.setContents([])
@@ -370,10 +378,29 @@ function renderListPane() {
     temp.innerHTML = t.content
 
     let row = document.createElement('div')
-    row.className = 'row'
+    row.className = 'list-row'
     row.textContent = temp.textContent
+    row.setAttribute('annotation_id', t.id)
+    row.addEventListener('click', function() {
+      selectAnnotation(t.id)
+    })
     listPane.appendChild(row)
   }
+}
+
+function selectAnnotation(annotationID) {
+  let annotation = headAnnotations[annotationID]
+  let highlight = document.getElementsByClassName('nb-highlight selected')[0]
+  if (highlight) {
+    highlight.classList.remove('selected')
+  }
+  let row = document.getElementsByClassName('list-row selected')[0]
+  if (row) {
+    row.classList.remove('selected')
+  }
+  document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
+  document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
+  threadPane.innerHTML = annotation.content
 }
 
 function compareAnnotations(a, b) {

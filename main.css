@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  font-family: Tahoma, Helvetica, arial, sans-serif;
 }
 #document-pane {
   width: 54%;
@@ -18,12 +19,32 @@ body {
 #list-pane {
   border: solid 1px #ddd;
 }
-#list-pane > .row {
+.list-row {
   padding: 4px;
+  cursor: pointer;
 }
-#list-pane > .row:nth-child(even) {
+.list-row:nth-child(even) {
   background-color: #f0f0f0;
 }
+.list-row:hover {
+  background-color: #ffffd0;
+}
+.list-row.selected {
+  background-color: #70a0f0;
+}
+
 #editor-pane {
   margin-top: 10px;
+}
+
+.nb-highlight {
+  fill: rgb(255, 204, 1);
+  opacity: 0.2;
+}
+.nb-highlight:hover {
+  fill: red;
+}
+.nb-highlight.selected {
+  fill: rgb(1, 99, 255);
+  opacity: 0.3;
 }
