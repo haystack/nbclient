@@ -229,6 +229,7 @@ var el = document.querySelector('#document-pane')
 var pane = new Pane(el)
 var selecting = false
 let draftHighlight = null
+let replyToAnnotation = null
 
 /* Helper function for checkForSelection */
 function makeHighlight(range) {
@@ -248,6 +249,7 @@ function checkForSelection(event) {
         // Used to stop click events from showing contents of older highlights
         // when the click event is the result of a selection.
         selecting = true;
+        //TODO: the whole selcting logic seems a bit off, e.g. shouldn't line 258 check if draftHighlight
 
         let range = selection.getRangeAt(0)
 
@@ -259,6 +261,9 @@ function checkForSelection(event) {
             pane.removeHighlight(draftHighlight)
             draftHighlight = null
           }
+
+          // Cannot reply and create at the same time.
+          replyToAnnotation = null
 
           makeHighlight(range)
 
@@ -335,33 +340,41 @@ function submitDraft() {
   let annotation = new Annotation(
     now, //TODO: id
     draftHighlight.range, //range
-    null, //parent
+    replyToAnnotation, //parent, null if this is head annotation
     now, //timestamp
     quill.root.innerHTML, //content (TODO: sanitize?)
     'alisa' //TODO: author
   )
 
-  headAnnotations[now] = annotation
-  draftHighlight.setAnnotationID(now)
-
   editorPane.style.display = 'none'
   quill.setContents([])
 
-  draftHighlight = null
-  selecting = false
+  if (replyToAnnotation) {
+    replyToAnnotation.children.push(annotation)
+    renderThreadPane(replyToAnnotation)
 
-  renderListPane()
+    replyToAnnotation = null
+  } else {
+    draftHighlight.setAnnotationID(now)
+    headAnnotations[now] = annotation
+    renderListPane()
+
+    draftHighlight = null
+    selecting = false
+  }
 }
 
 function cancelDraft() {
   editorPane.style.display = 'none'
   quill.setContents([])
 
-  pane.removeHighlight(draftHighlight)
-  window.getSelection().removeAllRanges()
+  if (draftHighlight) {
+    pane.removeHighlight(draftHighlight)
+    window.getSelection().removeAllRanges() // TODO: might not need this.
 
-  draftHighlight = null
-  selecting = false
+    draftHighlight = null
+    selecting = false
+  }
 }
 
 // TODO: Use Vue list to do this.
@@ -379,7 +392,7 @@ function renderListPane() {
 
     let row = document.createElement('div')
     row.className = 'list-row'
-    row.textContent = temp.textContent
+    row.textContent = temp.textContent // TODO: equations break
     row.setAttribute('annotation_id', t.id)
     row.addEventListener('click', function() {
       selectAnnotation(t.id)
@@ -389,7 +402,6 @@ function renderListPane() {
 }
 
 function selectAnnotation(annotationID) {
-  let annotation = headAnnotations[annotationID]
   let highlight = document.getElementsByClassName('nb-highlight selected')[0]
   if (highlight) {
     highlight.classList.remove('selected')
@@ -400,7 +412,45 @@ function selectAnnotation(annotationID) {
   }
   document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
   document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
-  threadPane.innerHTML = annotation.content
+
+  renderThreadPane(headAnnotations[annotationID])
+}
+
+// Render thread pane for the thread containing 'annotation'
+function renderThreadPane(annotation) {
+  while (threadPane.firstChild) {
+    threadPane.removeChild(threadPane.firstChild)
+  }
+
+  let headAnnotation = annotation
+  while (headAnnotation.parent) {
+    headAnnotation = headAnnotation.parent
+  }
+
+  renderThread(headAnnotation)
+}
+
+function renderThread(thread, parent = threadPane, depth = 0) {
+  let row = document.createElement('div')
+  row.className = 'thread-row'
+  row.innerHTML = thread.content
+  row.style.paddingLeft = `${depth * 20}px`
+
+  row.addEventListener('click', function() {
+    replyToAnnotation = thread
+    editorPane.style.display = 'block'
+  })
+
+  parent.appendChild(row)
+
+  if (thread.children.length > 0) {
+    let childRows = document.createElement('div')
+    for (let child of thread.children) {
+        renderThread(child, childRows, depth + 1)
+    }
+
+    parent.appendChild(childRows)
+  }
 }
 
 function compareAnnotations(a, b) {
