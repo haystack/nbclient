@@ -1,4 +1,5 @@
 // TODO: Follow the JS doc style
+import Vue from 'vue'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import { getTextBoundingBoxes } from './overlay-util.js'
 
@@ -300,6 +301,9 @@ class Annotation {
     this.content = content
     this.author = author
 
+    let temp = document.createElement('div')
+    temp.innerHTML = content
+    this.excerpt = temp.textContent // TODO: equations break
     // TODO: do we need more fields? e.g. visibility
   }
 
@@ -312,7 +316,6 @@ class Annotation {
 
 /////////////// Text editor + annotation stuff starts here.
 
-let listPane = document.querySelector('#list-pane')
 let threadPane = document.querySelector('#thread-pane')
 let editorPane = document.querySelector('#editor-pane')
 editorPane.style.display = 'none' // Hidden by default.
@@ -334,6 +337,23 @@ let quill = new Quill('#text-editor', {
 })
 
 let headAnnotations = {} // {id: Annotation()}
+
+let listPane = new Vue({
+  el: '#list-pane',
+  data: {
+    threadHeads: []
+  },
+  computed: {
+    sorted: function () {
+      return this.threadHeads.sort(compareAnnotations)
+    }
+  },
+  methods: {
+    select: function(id) {
+      selectAnnotation(id)
+    }
+  }
+})
 
 function submitDraft() {
   let now = Date.now()
@@ -357,7 +377,7 @@ function submitDraft() {
   } else {
     draftHighlight.setAnnotationID(now)
     headAnnotations[now] = annotation
-    renderListPane()
+    listPane.threadHeads.push(annotation)
 
     draftHighlight = null
     selecting = false
@@ -374,30 +394,6 @@ function cancelDraft() {
 
     draftHighlight = null
     selecting = false
-  }
-}
-
-// TODO: Use Vue list to do this.
-function renderListPane() {
-  let threads = Object.values(headAnnotations)
-  threads.sort(compareAnnotations)
-
-  while (listPane.firstChild) {
-    listPane.removeChild(listPane.firstChild)
-  }
-
-  for (let t of threads) {
-    let temp = document.createElement('div')
-    temp.innerHTML = t.content
-
-    let row = document.createElement('div')
-    row.className = 'list-row'
-    row.textContent = temp.textContent // TODO: equations break
-    row.setAttribute('annotation_id', t.id)
-    row.addEventListener('click', function() {
-      selectAnnotation(t.id)
-    })
-    listPane.appendChild(row)
   }
 }
 

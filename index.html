@@ -54,6 +54,12 @@
 
       <div id="annotation-pane">
         <div id="list-pane">
+          <div class="list-row"
+            v-for="thread in sorted"
+            v-bind:annotation_id="thread.id"
+            v-on:click="select(thread.id)">
+            {{ thread.excerpt }}
+          </div>
         </div>
 
         <div id="thread-pane">
