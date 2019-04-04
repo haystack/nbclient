@@ -294,7 +294,8 @@ window.addEventListener("resize", redrawHighlights, false)
 /////////////// Annotation implmentation starts here.
 
 class Annotation {
-  constructor(id, range, parent, timestamp, content, author) {
+  constructor(id, range, parent, timestamp, author, content,
+      hashtagsUsed, usersTagged, visibility, anonymity, replyRequested) {
     this.id = id
     this.range = range // null if this is a reply
 
@@ -302,8 +303,20 @@ class Annotation {
     this.children = []
 
     this.timestamp = timestamp
-    this.content = content
     this.author = author
+    this.content = content
+
+    this.hashtags = hashtagsUsed
+    this.people = usersTagged
+
+    this.visibility = visibility
+    this.isAnonymous = (anonymity === 'anonymous')
+
+    this.replyRequestedByMe = replyRequested
+    this.replyRequestCount = replyRequested ? 1 : 0
+
+    this.starredByMe = false
+    this.starCount = 0
 
     let temp = document.createElement('div')
     temp.innerHTML = content
@@ -397,6 +410,23 @@ function renderMention(item, searchTerm) {
   return label
 }
 
+
+// TODO: cleaner?
+let selectVisibility = document.querySelector('#select-visibility')
+let selectAnonymity = document.querySelector('#select-anonymity')
+let checkboxRequestReply = document.querySelector('#checkbox-request-reply')
+
+selectVisibility.addEventListener('change', (event) => {
+  // Disable 'anonymous' and choose 'identified' unless post to entire class.
+  if (event.target.value === 'everyone') {
+    selectAnonymity.options[1].disabled = false //TODO: change 1 to const?
+  } else {
+    selectAnonymity.value = 'identified'
+    selectAnonymity.options[1].disabled = true
+  }
+})
+
+
 let headAnnotations = {} // {id: Annotation()}
 
 let listPane = new Vue({
@@ -418,13 +448,31 @@ let listPane = new Vue({
 
 function submitDraft() {
   let now = Date.now()
+  let hashtagsUsed = []
+  let usersTagged = []
+
+  let mentions = editorPane.getElementsByClassName('mention')
+  for (let mention of mentions) {
+    let tagID = mention.getAttribute('data-id')
+    if (mention.getAttribute('data-denotation-char') === '@') {
+      usersTagged.push(tagID)
+    } else { // data-denotation-char = '#'
+      hashtagsUsed.push(tagID)
+    }
+  }
+
   let annotation = new Annotation(
     now, //TODO: id
     (draftHighlight != null) ? draftHighlight.range : null, //range, null if this is reply
     replyToAnnotation, //parent, null if this is head annotation
     now, //timestamp
+    'alisa', //TODO: author
     quill.root.innerHTML, //content (TODO: sanitize?)
-    'alisa' //TODO: author
+    hashtagsUsed, //hashtagsUsed
+    usersTagged, //usersTagged
+    selectVisibility.value, //visibility (TODO: create enum?)
+    selectAnonymity.value, //anonymity
+    checkboxRequestReply.checked //replyRequested
   )
 
   editorPane.style.display = 'none'

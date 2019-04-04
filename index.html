@@ -67,8 +67,25 @@
         <div id="editor-pane">
           <div id="editor-header"></div> <!-- TODO: temp -->
           <div id="text-editor"></div>
-          <button id="cancel-draft">Cancel</button>
+          <div id="editor-visibility"> <!-- TODO: temp -->
+            Post to
+            <select id="select-visibility">
+              <option value="everyone">Entire Class</option>
+              <option value="instructors">instructors and TAs</option>
+              <option value="myself">Myself Only</option>
+            </select>
+            as
+            <select id="select-anonymity">
+              <option value="identified">Alisa Ono</option>
+              <option value="anonymous">Anonymous to Classmates</option>
+            </select>
+          </div>
+          <div id="editor-request-reply"> <!-- TODO: temp -->
+            <input type="checkbox" id="checkbox-request-reply" name="checkbox-request-reply">
+            <label for="checkbox-request-reply">Request replies</label>
+          </div>
           <button id="submit-draft">Submit</button>
+          <button id="cancel-draft">Cancel</button>
         </div>
       </div>
     </div>
