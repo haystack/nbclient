@@ -36,9 +36,14 @@ body {
 
 #thread-pane {
   height: 25vh; /* TODO: temp */
+  margin-top: 10px;
 }
 .thread-row:hover {
   background-color: #f0f0f0;
+}
+.thread-row > p {
+  margin: 0;
+  padding: 10px;
 }
 
 #editor-pane {

@@ -318,6 +318,8 @@ class Annotation {
     this.starredByMe = false
     this.starCount = 0
 
+    //TODO: need field for 'seen'
+
     let temp = document.createElement('div')
     temp.innerHTML = content
     this.excerpt = temp.textContent // TODO: equations break
@@ -373,6 +375,7 @@ let quill = new Quill('#text-editor', {
       renderItem: renderMention
     }
   },
+  placeholder: 'Include tags with @ or #',
   theme: 'snow'
 })
 
@@ -425,6 +428,7 @@ selectVisibility.addEventListener('change', (event) => {
     selectAnonymity.options[1].disabled = true
   }
 })
+//TODO: if replying to private comment, should the visibility also be private?
 
 
 let headAnnotations = {} // {id: Annotation()}
@@ -475,8 +479,7 @@ function submitDraft() {
     checkboxRequestReply.checked //replyRequested
   )
 
-  editorPane.style.display = 'none'
-  quill.setContents([])
+  resetEditorPane()
 
   if (replyToAnnotation) {
     replyToAnnotation.children.push(annotation)
@@ -494,8 +497,7 @@ function submitDraft() {
 }
 
 function cancelDraft() {
-  editorPane.style.display = 'none'
-  quill.setContents([])
+  resetEditorPane()
 
   if (draftHighlight) {
     pane.removeHighlight(draftHighlight)
@@ -503,6 +505,15 @@ function cancelDraft() {
     draftHighlight = null
     selecting = false
   }
+}
+
+function resetEditorPane() {
+  editorPane.style.display = 'none'
+  quill.setContents([])
+
+  selectVisibility.selectedIndex = 0
+  selectAnonymity.selectedIndex = 0
+  checkboxRequestReply.checked = false
 }
 
 function selectAnnotation(annotationID) {
@@ -538,7 +549,6 @@ function renderThread(thread, parent = threadPane, depth = 0) {
   let row = document.createElement('div')
   row.className = 'thread-row'
   row.innerHTML = thread.content
-  row.style.paddingLeft = `${depth * 20}px`
 
   row.addEventListener('click', function() {
     replyToAnnotation = thread
@@ -550,6 +560,9 @@ function renderThread(thread, parent = threadPane, depth = 0) {
 
   if (thread.children.length > 0) {
     let childRows = document.createElement('div')
+    childRows.style.marginLeft = `${(depth + 1) * 20}px`
+    childRows.style.borderLeft = '1px solid #ddd' // TODO: add class instead?
+
     for (let child of thread.children) {
         renderThread(child, childRows, depth + 1)
     }
