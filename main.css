@@ -47,6 +47,18 @@ body {
 #editor-header { /* TODO: temp */
   color: #444;
 }
+.ql-mention-list-container {
+  max-height: 150px; /* TODO: temp */
+  overflow-y: scroll;
+}
+.ql-mention-list-item > img {
+  height: 24px;
+  padding: 0 10px 0 0;
+  margin: 0 0 0 -5px;
+  box-sizing: content-box;
+  cursor: pointer;
+  vertical-align: middle;
+}
 
 .nb-highlight {
   fill: rgb(255, 204, 1);

@@ -1,5 +1,7 @@
 // TODO: Follow the JS doc style
 import Vue from 'vue'
+import Quill from 'quill'
+import 'quill-mention'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import { getTextBoundingBoxes } from './overlay-util.js'
 
@@ -323,6 +325,22 @@ let editorPane = document.querySelector('#editor-pane')
 let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
 editorPane.style.display = 'none' // Hidden by default.
 
+// TODO: should these be alphabetically sorted?
+let users = [
+  { id: 1, value: 'Alisa Ono' },
+  { id: 2, value: 'Adrian Sy' }
+]
+let hashtags = [
+  { id: 1, value: "curious", icon: "https://nb.mit.edu/content/views/emoticons/curious.png" },
+  { id: 2, value: "confused", icon: "https://nb.mit.edu/content/views/emoticons/confused.png" },
+  { id: 3, value: "useful", icon: "https://nb.mit.edu/content/views/emoticons/useful.png" },
+  { id: 4, value: "interested", icon: "https://nb.mit.edu/content/views/emoticons/interested.png" },
+  { id: 5, value: "frustrated", icon: "https://nb.mit.edu/content/views/emoticons/frustrated.png" },
+  { id: 6, value: "help", icon: "https://nb.mit.edu/content/views/emoticons/help.png" },
+  { id: 7, value: "question", icon: "https://nb.mit.edu/content/views/emoticons/question.png" },
+  { id: 8, value: "idea", icon: "https://nb.mit.edu/content/views/emoticons/idea.png" }
+]
+
 let quill = new Quill('#text-editor', {
   modules: {
     toolbar: [
@@ -334,10 +352,50 @@ let quill = new Quill('#text-editor', {
       [{ 'list': 'ordered' }, { 'list': 'bullet'}, { 'indent': '-1' }, { 'indent': '+1' }],
       [{ 'align': [] }],
       [ 'clean' ]
-    ]
+    ],
+    mention: {
+      allowedChars: /^[a-zA-Z\s]*$/,
+      mentionDenotationChars: ["@", "#"],
+      source: handleMention,
+      renderItem: renderMention
+    }
   },
   theme: 'snow'
 })
+
+let MAX_SUGGEST_USERS = 10
+
+function handleMention(searchTerm, renderList, mentionChar) {
+  let items
+  if (mentionChar === "@") {
+    items = users
+  } else { // mentionChar === "#"
+    items = hashtags
+  }
+
+  let matches = items
+
+  if (searchTerm.length > 0) {
+    let toMatch = searchTerm.toLowerCase()
+    matches = items.filter(
+      item => item.value.toLowerCase().includes(toMatch)
+    )
+  }
+
+  if (mentionChar === "@" && matches.length > MAX_SUGGEST_USERS) {
+    matches = matches.slice(0, MAX_SUGGEST_USERS)
+  }
+
+  renderList(matches, searchTerm)
+}
+
+function renderMention(item, searchTerm) {
+  let label = `${item.value}`
+  if (item.hasOwnProperty('icon')) {
+    label = `<img src="${item.icon}">` + label
+  }
+  return label
+}
 
 let headAnnotations = {} // {id: Annotation()}
 
