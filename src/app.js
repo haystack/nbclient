@@ -115,6 +115,8 @@ class Highlight {
     this.element.classList.add('nb-highlight')
     if (this.annotationID) {
       this.element.setAttribute('annotation_id', this.annotationID)
+    } else {
+      this.element.classList.add('draft')
     }
     this.element.addEventListener("click", function () {
       let annotationID = this.getAttribute('annotation_id')
@@ -153,6 +155,7 @@ class Highlight {
   setAnnotationID(annotationID) {
     this.annotationID = annotationID
     this.element.setAttribute('annotation_id', annotationID)
+    this.element.classList.remove('draft')
   }
 
   dispatchEvent(e) {
@@ -269,12 +272,11 @@ function checkForSelection(event) {
           makeHighlight(range)
 
           // Display the editor pane
+          editorHeader.textContent = 'New Comment' // TODO: cleaner?
           editorPane.style.display = 'block'
 
-          // Commented out for now b/c NB does not do this, but maybe it's a good idea.
-          // We could highlight the draft with different highlight color.
           // Clear the selection
-          // selection.removeAllRanges()
+          selection.removeAllRanges()
         }
 
     } else if (selecting && el.contains(event.target)) {
@@ -318,6 +320,7 @@ class Annotation {
 
 let threadPane = document.querySelector('#thread-pane')
 let editorPane = document.querySelector('#editor-pane')
+let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
 editorPane.style.display = 'none' // Hidden by default.
 
 let quill = new Quill('#text-editor', {
@@ -359,7 +362,7 @@ function submitDraft() {
   let now = Date.now()
   let annotation = new Annotation(
     now, //TODO: id
-    draftHighlight.range, //range
+    (draftHighlight != null) ? draftHighlight.range : null, //range, null if this is reply
     replyToAnnotation, //parent, null if this is head annotation
     now, //timestamp
     quill.root.innerHTML, //content (TODO: sanitize?)
@@ -390,7 +393,6 @@ function cancelDraft() {
 
   if (draftHighlight) {
     pane.removeHighlight(draftHighlight)
-    window.getSelection().removeAllRanges() // TODO: might not need this.
 
     draftHighlight = null
     selecting = false
@@ -434,6 +436,7 @@ function renderThread(thread, parent = threadPane, depth = 0) {
 
   row.addEventListener('click', function() {
     replyToAnnotation = thread
+    editorHeader.textContent = `re: ${thread.excerpt}` // TODO: cleaner?
     editorPane.style.display = 'block'
   })
 

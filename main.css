@@ -17,6 +17,7 @@ body {
 }
 
 #list-pane {
+  height: 25vh; /* TODO: temp */
   border: solid 1px #ddd;
 }
 .list-row {
@@ -33,12 +34,18 @@ body {
   background-color: #70a0f0;
 }
 
+#thread-pane {
+  height: 25vh; /* TODO: temp */
+}
 .thread-row:hover {
   background-color: #f0f0f0;
 }
 
 #editor-pane {
   margin-top: 10px;
+}
+#editor-header { /* TODO: temp */
+  color: #444;
 }
 
 .nb-highlight {
@@ -47,6 +54,10 @@ body {
 }
 .nb-highlight:hover {
   fill: red;
+}
+.nb-highlight.draft {
+  fill: rgb(231, 76, 60);
+  opacity: 0.3;
 }
 .nb-highlight.selected {
   fill: rgb(1, 99, 255);
