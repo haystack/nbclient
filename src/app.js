@@ -346,14 +346,14 @@ let users = [
   { id: 2, value: 'Adrian Sy' }
 ]
 let hashtags = [
-  { id: 1, value: "curious", icon: "https://nb.mit.edu/content/views/emoticons/curious.png" },
-  { id: 2, value: "confused", icon: "https://nb.mit.edu/content/views/emoticons/confused.png" },
-  { id: 3, value: "useful", icon: "https://nb.mit.edu/content/views/emoticons/useful.png" },
-  { id: 4, value: "interested", icon: "https://nb.mit.edu/content/views/emoticons/interested.png" },
-  { id: 5, value: "frustrated", icon: "https://nb.mit.edu/content/views/emoticons/frustrated.png" },
-  { id: 6, value: "help", icon: "https://nb.mit.edu/content/views/emoticons/help.png" },
-  { id: 7, value: "question", icon: "https://nb.mit.edu/content/views/emoticons/question.png" },
-  { id: 8, value: "idea", icon: "https://nb.mit.edu/content/views/emoticons/idea.png" }
+  { id: 1, value: "curious", emoji: "1F914" },
+  { id: 2, value: "confused", emoji: "1F616" },
+  { id: 3, value: "useful", emoji: "1F600" },
+  { id: 4, value: "interested", emoji: "1F9D0" },
+  { id: 5, value: "frustrated", emoji: "1F621" },
+  { id: 6, value: "help", emoji: "1F61F" },
+  { id: 7, value: "question", emoji: "2753" },
+  { id: 8, value: "idea", emoji: "1F4A1" }
 ]
 
 let quill = new Quill('#text-editor', {
@@ -406,11 +406,11 @@ function handleMention(searchTerm, renderList, mentionChar) {
 }
 
 function renderMention(item, searchTerm) {
-  let label = `${item.value}`
-  if (item.hasOwnProperty('icon')) {
-    label = `<img src="${item.icon}">` + label
+  if (item.hasOwnProperty('emoji')) {
+    return `<span>&#x${item.emoji};</span> ${item.value}`
+  } else {
+    return `${item.value}`
   }
-  return label
 }
 
 

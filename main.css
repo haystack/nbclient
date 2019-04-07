@@ -70,12 +70,9 @@ body {
   max-height: 154px; /* TODO: temp */
   overflow-y: scroll;
 }
-.ql-mention-list-item > img {
-  height: 24px;
-  padding: 0 10px 0 0;
-  margin: 0 0 0 -5px;
-  box-sizing: content-box;
-  cursor: pointer;
+.ql-mention-list-item > span {
+  font-size: 24px;
+  margin: 0 5px 0 -5px;
   vertical-align: middle;
 }
 
