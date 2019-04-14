@@ -2,8 +2,11 @@
 import Vue from 'vue'
 import Quill from 'quill'
 import 'quill-mention'
+import tippy from 'tippy.js'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import { getTextBoundingBoxes } from './overlay-util.js'
+
+var moment = require('moment')
 
 /////////////// Pane implmentation starts here.
 
@@ -329,6 +332,44 @@ class Annotation {
   addChild(child) {
     this.children.push(child)
   }
+
+  countReplies() {
+    let total = this.children.length
+    for (let child of this.children) {
+      total += child.countReplies()
+    }
+    return total
+  }
+
+  countReplyRequests() {
+    let total = this.replyRequestCount
+    for (let child of this.children) {
+      total += child.countReplyRequests()
+    }
+    return total
+  }
+
+  toggleStar() {
+    if (this.starredByMe) {
+      this.starCount -= 1
+      this.starredByMe = false
+    } else {
+      this.starCount += 1
+      this.starredByMe = true
+    }
+    // TODO: Also async update backend
+  }
+
+  toggleReplyRequest() {
+    if (this.replyRequestedByMe) {
+      this.replyRequestCount -= 1
+      this.replyRequestedByMe = false
+    } else {
+      this.replyRequestCount += 1
+      this.replyRequestedByMe = true
+    }
+    // TODO: async update backend
+  }
 }
 
 /////////////// Annotation implmentation ends here.
@@ -340,21 +381,88 @@ let editorPane = document.querySelector('#editor-pane')
 let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
 editorPane.style.display = 'none' // Hidden by default.
 
-// TODO: should these be alphabetically sorted?
-let users = [
-  { id: 1, value: 'Alisa Ono' },
-  { id: 2, value: 'Adrian Sy' }
-]
-let hashtags = [
-  { id: 1, value: "curious", emoji: "1F914" },
-  { id: 2, value: "confused", emoji: "1F616" },
-  { id: 3, value: "useful", emoji: "1F600" },
-  { id: 4, value: "interested", emoji: "1F9D0" },
-  { id: 5, value: "frustrated", emoji: "1F621" },
-  { id: 6, value: "help", emoji: "1F61F" },
-  { id: 7, value: "question", emoji: "2753" },
-  { id: 8, value: "idea", emoji: "1F4A1" }
-]
+let users = {
+  '1': {
+    id: '1',
+    name: {
+      first: 'Alisa',
+      last: 'Ono'
+    },
+    role: 'student'
+  },
+  '2': {
+    id: '2',
+    name: {
+      first: 'Adrian',
+      last: 'Sy'
+    },
+    role: 'student'
+  }
+}
+
+let hashtags = {
+  '1': {
+    id: '1',
+    value: "curious",
+    emoji: "1F914"
+  },
+  '2': {
+    id: '2',
+    value: "confused",
+    emoji: "1F616"
+  },
+  '3': {
+    id: '3',
+    value: "useful",
+    emoji: "1F600"
+  },
+  '4': {
+    id: '4',
+    value: "interested",
+    emoji: "1F9D0"
+  },
+  '5': {
+    id: '5',
+    value: "frustrated",
+    emoji: "1F621"
+  },
+  '6': {
+    id: '6',
+    value: "help",
+    emoji: "1F61F"
+  },
+  '7': {
+    id: '7',
+    value: "question",
+    emoji: "2753"
+  },
+  '8': {
+    id: '8',
+    value: "idea",
+    emoji: "1F4A1"
+  }
+}
+
+let userSuggestions = Object.values(users)
+userSuggestions.map(function(x) {
+  Object.assign(x, { value: `${x.name.first} ${x.name.last}` })
+})
+userSuggestions.sort(sortByKey('value'))
+
+let hashtagSuggestions = Object.values(hashtags)
+hashtagSuggestions.sort(sortByKey('value'))
+
+function sortByKey(key) {
+  return function(a, b) {
+    if (a[key] < b[key]) {
+      return -1
+    }
+    if (a[key] < b[key]) {
+      return 1
+    }
+    return 0
+  }
+}
 
 let quill = new Quill('#text-editor', {
   modules: {
@@ -384,9 +492,9 @@ let MAX_SUGGEST_USERS = 10
 function handleMention(searchTerm, renderList, mentionChar) {
   let items
   if (mentionChar === "@") {
-    items = users
+    items = userSuggestions
   } else { // mentionChar === "#"
-    items = hashtags
+    items = hashtagSuggestions
   }
 
   let matches = items
@@ -470,7 +578,7 @@ function submitDraft() {
     (draftHighlight != null) ? draftHighlight.range : null, //range, null if this is reply
     replyToAnnotation, //parent, null if this is head annotation
     now, //timestamp
-    'alisa', //TODO: author
+    '1', //TODO: author
     quill.root.innerHTML, //content (TODO: sanitize?)
     hashtagsUsed, //hashtagsUsed
     usersTagged, //usersTagged
@@ -483,7 +591,6 @@ function submitDraft() {
 
   if (replyToAnnotation) {
     replyToAnnotation.children.push(annotation)
-    renderThreadPane(replyToAnnotation)
 
     replyToAnnotation = null
   } else {
@@ -525,50 +632,88 @@ function selectAnnotation(annotationID) {
   if (row) {
     row.classList.remove('selected')
   }
+  // TODO: fix bug with wrong row highlighted when new comments created
+  // or just select the annotation when it's created
+  // but this could be inside vue component
   document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
   document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
 
   renderThreadPane(headAnnotations[annotationID])
 }
 
+Vue.component('thread-comment', {
+  props: ['comment'],
+  methods: {
+    reply: function() {
+      replyToAnnotation = this.comment
+      editorHeader.textContent = `re: ${this.comment.excerpt}` // TODO: cleaner?
+      editorPane.style.display = 'block'
+    }
+  },
+  template: '\
+    <div>\
+      <div class="thread-row">\
+        <div class="thread-row-header">\
+          <span><b>{{ authorName }}</b></span> <span>{{ timeString }}</span>\
+        </div>\
+        <div class="thread-row-body" v-html="comment.content">\
+        </div>\
+        <div class="thread-row-footer">\
+          <span class="tippy" data-tippy-content="reply" v-on:click="reply">\
+            <i class="fas fa-reply"></i> {{ comment.countReplies() }}\
+          </span> &middot;\
+          <span class="tippy" data-tippy-content="give star" v-on:click="comment.toggleStar()">\
+            <i class="fas fa-star" :style="starStyle"></i> {{ comment.starCount }}\
+          </span> &middot;\
+          <span class="tippy" data-tippy-content="request reply" v-on:click="comment.toggleReplyRequest()">\
+            <i class="fas fa-question" :style="questionStyle"></i> {{ comment.replyRequestCount }}\
+          </span>\
+        </div>\
+      </div>\
+      <div class="thread-block" v-if="comment.children.length">\
+        <thread-comment v-for="child in comment.children" v-bind:comment="child"></thread-comment>\
+      </div>\
+    </div>\
+  ',
+  computed: {
+    authorName: function() {
+      if (this.comment.isAnonymous || this.comment.author === null) {
+        return 'Anonymous'
+      }
+      let author = users[this.comment.author]
+      return `${author.name.first} ${author.name.last}`
+    },
+    timeString: function() {
+      return moment(this.comment.timestamp).fromNow()
+    },
+    starStyle: function() {
+      if (this.comment.starredByMe) return 'color: #1B95E0'
+    },
+    questionStyle: function() {
+      if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
+    }
+  },
+  mounted: function() {
+    tippy('.tippy', {arrow: true})
+  }
+  //TODO: toggle tooltip contents
+})
+
+let threadPaneVue = new Vue({
+  el: '#thread-pane',
+  data: {
+    annotation: null
+  }
+})
+
 // Render thread pane for the thread containing 'annotation'
 function renderThreadPane(annotation) {
-  while (threadPane.firstChild) {
-    threadPane.removeChild(threadPane.firstChild)
-  }
-
   let headAnnotation = annotation
   while (headAnnotation.parent) {
     headAnnotation = headAnnotation.parent
   }
 
-  renderThread(headAnnotation)
-}
-
-function renderThread(thread, parent = threadPane, depth = 0) {
-  let row = document.createElement('div')
-  row.className = 'thread-row'
-  row.innerHTML = thread.content
-
-  row.addEventListener('click', function() {
-    replyToAnnotation = thread
-    editorHeader.textContent = `re: ${thread.excerpt}` // TODO: cleaner?
-    editorPane.style.display = 'block'
-  })
-
-  parent.appendChild(row)
-
-  if (thread.children.length > 0) {
-    let childRows = document.createElement('div')
-    childRows.style.marginLeft = `${(depth + 1) * 20}px`
-    childRows.style.borderLeft = '1px solid #ddd' // TODO: add class instead?
-
-    for (let child of thread.children) {
-        renderThread(child, childRows, depth + 1)
-    }
-
-    parent.appendChild(childRows)
-  }
+  threadPaneVue.annotation = headAnnotation
 }
 
 function compareAnnotations(a, b) {
