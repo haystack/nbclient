@@ -4,295 +4,65 @@ import Quill from 'quill'
 import 'quill-mention'
 import tippy from 'tippy.js'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
-import { getTextBoundingBoxes } from './overlay-util.js'
+import { Highlights } from './highlighter.js'
 
 var moment = require('moment')
 
-/////////////// Pane implmentation starts here.
+let docPane = document.querySelector('#document-pane')
+let highlights = new Highlights(docPane)
 
-/* Helper function for eventsProxyMouse */
-function clone(e) {
-    var opts = Object.assign({}, e, {bubbles: false});
-    try {
-        return new MouseEvent(e.type, opts);
-    } catch(err) { // compat: webkit
-        var copy = document.createEvent('MouseEvents');
-        copy.initMouseEvent(e.type, false, opts.cancelable, opts.view,
-                            opts.detail, opts.screenX, opts.screenY,
-                            opts.clientX, opts.clientY, opts.ctrlKey,
-                            opts.altKey, opts.shiftKey, opts.metaKey,
-                            opts.button, opts.relatedTarget);
-        return copy;
-    }
-}
-
-/* Helper function for eventsProxyMouse */
-function contains(item, x, y) {
-    function rectContains(r, x, y) {
-        var bottom = r.top + r.height;
-        var right = r.left + r.width;
-        return (r.top <= y && r.left <= x && bottom > y && right > x);
-    }
-
-    // Check overall bounding box first
-    var rect = item.getBoundingClientRect();
-    if (!rectContains(rect, x, y)) {
-        return false;
-    }
-
-    // Then continue to check each child rect
-    var rects = item.getClientRects();
-    for (var i = 0, len = rects.length; i < len; i++) {
-        if (rectContains(rects[i], x, y)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/* Helper function for Pane.constructor */
-function eventsProxyMouse(target, tracked) {
-    function dispatch(e) {
-        // We walk through the set of tracked elements in reverse order so that
-        // events are sent to those most recently added first.
-        //
-        // This is the least surprising behaviour as it simulates the way the
-        // browser would work if items added later were drawn "on top of"
-        // earlier ones.
-        for (var i = tracked.length - 1; i >= 0; i--) {
-            var t = tracked[i];
-
-            if (!contains(t, e.clientX, e.clientY)) {
-                continue;
-            }
-
-            // The event targets this highlight, so dispatch a cloned event:
-            t.dispatchEvent(clone(e));
-            // We only dispatch the cloned event to the first matching highlight.
-            break;
-        }
-    }
-
-    //TODO: add hover event
-    for (var ev of ['mouseup', 'mousedown', 'click']) {
-        target.addEventListener(ev, (e) => dispatch(e), false);
-    }
-}
-
-/* Helper function for Pane.render */
-function coords(el) {
-    var rect = el.getBoundingClientRect();
-    return {
-        top: rect.top + document.body.scrollTop,
-        left: rect.left + document.body.scrollLeft,
-        height: rect.height,
-        width: rect.width
-    };
-}
-
-/* Helper function for Pane.render */
-function setCoords(el, coords) {
-    el.style.top = `${coords.top}px`;
-    el.style.left = `${coords.left}px`;
-    el.style.height = `${coords.height}px`;
-    el.style.width = `${coords.width}px`;
-}
-
-/* Helper function for Pane and Highlight */
-function svgCreateElement(name) {
-    return document.createElementNS('http://www.w3.org/2000/svg', name);
-}
-
-
-class Highlight {
-  constructor(nbRange, annotationID) {
-    this.element = null
-    this.range = nbRange
-    this.annotationID = annotationID // undefined for draft
-    // let sr = this.range.serialize()
-    // console.log(sr)
-    // let dr = deserializeNbRange(sr)
-    // console.log(dr)
-  }
-
-  bind(element) {
-    this.element = element
-    this.element.classList.add('nb-highlight')
-    if (this.annotationID) {
-      this.element.setAttribute('annotation_id', this.annotationID)
-    } else {
-      this.element.classList.add('draft')
-    }
-    this.element.addEventListener("click", function () {
-      let annotationID = this.getAttribute('annotation_id')
-      if (annotationID && !selecting) {
-        selectAnnotation(annotationID)
-      }
-    }, false)
-  }
-
-  unbind() {
-    let el = this.element
-    this.element = null
-    return el
-  }
-
-  render() {
-    // Empty element
-    while (this.element.firstChild) {
-      this.element.removeChild(this.element.firstChild)
-    }
-
-    let rects = getTextBoundingBoxes(this.range.toRange())
-    let offset = this.element.getBoundingClientRect()
-
-    for (let i = 0, len = rects.length; i < len; i++) {
-      let r = rects[i]
-      let el = svgCreateElement('rect')
-      el.setAttribute('x', r.left - offset.left)
-      el.setAttribute('y', r.top - offset.top)
-      el.setAttribute('height', r.height)
-      el.setAttribute('width', r.width)
-      this.element.appendChild(el)
-    }
-  }
-
-  setAnnotationID(annotationID) {
-    this.annotationID = annotationID
-    this.element.setAttribute('annotation_id', annotationID)
-    this.element.classList.remove('draft')
-  }
-
-  dispatchEvent(e) {
-    if (!this.element) return
-    this.element.dispatchEvent(e)
-  }
-
-  getBoundingClientRect() {
-    return this.element.getBoundingClientRect()
-  }
-
-  getClientRects() {
-    let rects = []
-    let el = this.element.firstChild
-    while (el) {
-      rects.push(el.getBoundingClientRect())
-      el = el.nextSibling
-    }
-    return rects
-  }
-}
-
-
-class Pane {
-  constructor(target, container = document.body) {
-    this.target = target
-    this.element = svgCreateElement('svg')
-    this.highlights = []
-
-    // Match the coordinates of the target element
-    this.element.style.position = 'absolute'
-    // Disable pointer events
-    this.element.setAttribute('pointer-events', 'none')
-
-    // // Set up mouse event proxying between the target element and the highlights
-    eventsProxyMouse(this.target, this.highlights)
-
-    container.appendChild(this.element)
-
-    this.render()
-  }
-
-  addHighlight(highlight) {
-    let g = svgCreateElement('g')
-    this.element.appendChild(g)
-    highlight.bind(g)
-
-    this.highlights.push(highlight)
-
-    highlight.render();
-    return highlight
-  }
-
-  removeHighlight(highlight) {
-    let idx = this.highlights.indexOf(highlight)
-    if (idx === -1) {
-        return;
-    }
-    let el = highlight.unbind()
-    this.element.removeChild(el)
-    this.highlights.splice(idx, 1)
-  }
-
-  render() {
-    setCoords(this.element, coords(this.target))
-    for (let m of this.highlights) {
-      m.render()
-    }
-  }
-}
-
-/////////////// Pane implmentation ends here.
-
-var el = document.querySelector('#document-pane')
-var pane = new Pane(el)
-var selecting = false
+let selecting = false
 let draftHighlight = null
 let replyToAnnotation = null
+
+document.addEventListener("mouseup", checkForSelection, false)
+window.addEventListener("resize", redrawHighlights, false)
+
+function checkForSelection(event) {
+  let selection = window.getSelection()
+
+  if (!selection.isCollapsed) {
+    // Set global state to reflect the fact we're making a selection.
+    // Used to stop click events from showing contents of older highlights
+    // when the click event is the result of a selection.
+    selecting = true
+    //TODO: the whole selcting logic seems a bit off
+
+    let range = selection.getRangeAt(0)
+
+    // Check if range is inside #document-pane
+    if (docPane.contains(range.commonAncestorContainer)) {
+      if (selecting) {
+        // Reset the draft (i.e. cancel the previous draft)
+        quill.setContents([])
+        highlights.removeHighlight(draftHighlight)
+        draftHighlight = null
+      }
+
+      // Cannot reply and create at the same time.
+      replyToAnnotation = null
+
+      makeHighlight(range)
+
+      // Display the editor pane
+      editorHeader.textContent = 'New Comment' // TODO: cleaner?
+      editorPane.style.display = 'block'
+
+      // Clear the selection
+      selection.removeAllRanges()
+    }
+  }
+}
 
 /* Helper function for checkForSelection */
 function makeHighlight(range) {
   let nbRange = createNbRange(range)
-  draftHighlight = pane.addHighlight(new Highlight(nbRange))
+  draftHighlight = highlights.createHighlight(nbRange)
 }
 
 function redrawHighlights() {
-    pane.render()
+  highlights.render()
 }
-
-function checkForSelection(event) {
-    var selection = window.getSelection();
-
-    if (!selection.isCollapsed) {
-        // Set global state to reflect the fact we're making a selection.
-        // Used to stop click events from showing contents of older highlights
-        // when the click event is the result of a selection.
-        selecting = true;
-        //TODO: the whole selcting logic seems a bit off, e.g. shouldn't line 258 check if draftHighlight
-
-        let range = selection.getRangeAt(0)
-
-        // Check if range is inside #document-pane
-        if (el.contains(range.commonAncestorContainer)) {
-          if (selecting) {
-            // Reset the draft (i.e. cancel the previous draft)
-            quill.setContents([])
-            pane.removeHighlight(draftHighlight)
-            draftHighlight = null
-          }
-
-          // Cannot reply and create at the same time.
-          replyToAnnotation = null
-
-          makeHighlight(range)
-
-          // Display the editor pane
-          editorHeader.textContent = 'New Comment' // TODO: cleaner?
-          editorPane.style.display = 'block'
-
-          // Clear the selection
-          selection.removeAllRanges()
-        }
-
-    } else if (selecting && el.contains(event.target)) {
-        // If clicked on document outside of previous selection, cancel the draft.
-        // TODO: Is this a good design choice?
-        cancelDraft()
-    }
-}
-
-document.addEventListener("mouseup", checkForSelection, false)
-window.addEventListener("resize", redrawHighlights, false)
 
 /////////////// Annotation implmentation starts here.
 
@@ -325,7 +95,7 @@ class Annotation {
 
     let temp = document.createElement('div')
     temp.innerHTML = content
-    this.excerpt = temp.textContent // TODO: equations break
+    this.excerpt = temp.textContent // TODO: equations break, maybe use quill.getText instead?
     // TODO: do we need more fields? e.g. visibility
   }
 
@@ -345,6 +115,14 @@ class Annotation {
     let total = this.replyRequestCount
     for (let child of this.children) {
       total += child.countReplyRequests()
+    }
+    return total
+  }
+
+  countStars() {
+    let total = this.starCount
+    for (let child of this.children) {
+      total += child.countStars()
     }
     return total
   }
@@ -369,6 +147,30 @@ class Annotation {
       this.replyRequestedByMe = true
     }
     // TODO: async update backend
+  }
+
+  hasText(text) {
+    if (this.excerpt.includes(text)) {
+      return true
+    }
+    for (let child of this.children) {
+      if (child.hasText(text)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasHashtag(hashtag) {
+    if (this.hashtags.includes(hashtag)) {
+      return true
+    }
+    for (let child of this.children) {
+      if (child.hasHashtag(hashtag)) {
+        return true
+      }
+    }
+    return false
   }
 }
 
@@ -452,13 +254,15 @@ userSuggestions.sort(sortByKey('value'))
 let hashtagSuggestions = Object.values(hashtags)
 hashtagSuggestions.sort(sortByKey('value'))
 
-function sortByKey(key) {
+function sortByKey(key, ascending = true, func = false) {
   return function(a, b) {
-    if (a[key] < b[key]) {
-      return -1
+    let valueA = func ? a[key]() : a[key]
+    let valueB = func ? b[key]() : b[key]
+    if (valueA < valueB) {
+      return ascending ? -1 : 1
     }
-    if (a[key] < b[key]) {
-      return 1
+    if (valueA > valueB) {
+      return ascending ? 1 : -1
     }
     return 0
   }
@@ -544,17 +348,101 @@ let headAnnotations = {} // {id: Annotation()}
 let listPane = new Vue({
   el: '#list-pane',
   data: {
-    threadHeads: []
+    threadHeads: [],
+    filterText: "",
+    filterHashtags: [],
+    sort: compareAnnotations
   },
   computed: {
-    sorted: function () {
-      return this.threadHeads.sort(compareAnnotations)
+    processed: function () {
+      let results = this.threadHeads
+      if (this.filterText !== "") {
+        results = results.filter(thread => thread.hasText(this.filterText))
+      }
+      if (this.filterHashtags.length > 0) {
+        results = results.filter(thread => {
+          for (let hashtag of this.filterHashtags) {
+            if (thread.hasHashtag(hashtag)) {
+              return true
+            }
+          }
+          return false
+        })
+      }
+      return results.sort(this.sort)
     }
   },
   methods: {
     select: function(id) {
       selectAnnotation(id)
     }
+  }
+})
+
+let searchBar = new Quill('#search-bar', {
+  modules: {
+    toolbar: false,
+    mention: {
+      allowedChars: /^[a-zA-Z\s]*$/,
+      mentionDenotationChars: ["@", "#"],
+      source: handleMention,
+      renderItem: renderMention
+    }
+  },
+  placeholder: 'Search for comments',
+  theme: 'snow'
+})
+searchBar.on('text-change', function(delta, oldDelta, source) {
+  listPane.filterText = searchBar.getText(0, searchBar.getLength() - 1)
+})
+
+let hashtagOptions = document.querySelector('#hashtag-options')
+for (let hashtag of hashtagSuggestions) {
+  let div = document.createElement('div')
+  let input = document.createElement('input')
+  input.setAttribute('type', 'checkbox')
+  input.setAttribute('name', `hashtag-${hashtag.id}`)
+  input.setAttribute('value', hashtag.id)
+  let label = document.createElement('label')
+  label.setAttribute('for', `hashtag-${hashtag.id}`)
+  label.textContent = hashtag.value
+  div.appendChild(input)
+  div.appendChild(label)
+  hashtagOptions.appendChild(div)
+}
+document.querySelector('#apply-filter').addEventListener('click', (event) => {
+  let options = hashtagOptions.querySelectorAll(`input[type=checkbox]`)
+  let toFilter = []
+  for (let option of options) {
+    if (option.checked) {
+      toFilter.push(option.getAttribute('value'))
+    }
+  }
+  listPane.filterHashtags = toFilter
+  console.log(toFilter)
+})
+
+// TODO: move sort-by to inside the list pane?
+document.querySelector('#sort-by').addEventListener('change', (event) => {
+  let value = event.target.value
+  switch (value) {
+    case 'position':
+      listPane.sort = compareAnnotations
+      break
+    case 'recent':
+      listPane.sort = sortByKey('timestamp', false)
+      break
+    case 'comment':
+      listPane.sort = sortByKey('countReplies', false, true)
+      break
+    case 'reply_request':
+      listPane.sort = sortByKey('countReplyRequests', false, true)
+      break
+    case 'star':
+      listPane.sort = sortByKey('countStars', false, true)
+      break
+    default:
+      // Nothing
   }
 })
 
@@ -607,7 +495,7 @@ function cancelDraft() {
   resetEditorPane()
 
   if (draftHighlight) {
-    pane.removeHighlight(draftHighlight)
+    highlights.removeHighlight(draftHighlight)
 
     draftHighlight = null
     selecting = false
@@ -635,6 +523,7 @@ function selectAnnotation(annotationID) {
   // TODO: fix bug with wrong row highlighted when new comments created
   // or just select the annotation when it's created
   // but this could be inside vue component
+  // TODO: check if list-row exists (when filtered)
   document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
   document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
 

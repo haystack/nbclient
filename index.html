@@ -54,9 +54,30 @@
       </div>
 
       <div id="annotation-pane">
+        <div id="list-header"><!--TODO: temp-->
+          <div id="search-bar"></div>
+          <button id="list-filter">More filters</button>
+          <div id="filter-options">
+            <h1>Hashtags</h1>
+            <div id="hashtag-options"></div>
+            <button id="apply-filter">Apply filters</button>
+          </div>
+          <div>
+            <span class="list-count">10 of 10 threads</span><!--TODO: temp-->
+            <span class="list-sort">Sort by:
+              <select id="sort-by">
+                <option value="position">Position</option>
+                <option value="recent">Most Recent</option>
+                <option value="comment">Total Comments</option>
+                <option value="reply_request">Reply Requests</option>
+                <option value="star">Stars</option>
+              </select>
+            </span>
+          </div>
+        </div>
         <div id="list-pane">
           <div class="list-row"
-            v-for="thread in sorted"
+            v-for="thread in processed"
             v-bind:annotation_id="thread.id"
             v-on:click="select(thread.id)">
             {{ thread.excerpt }}
