@@ -9,14 +9,14 @@
         <span
             class="tippy"
             data-tippy-content="reply"
-            @click="$emit('draft-reply', comment)">
-          <i class="fas fa-reply"></i> {{ comment.countReplies() }}
+            @click="draftReply(comment)">
+          <i class="fas fa-reply"></i> {{ comment.countAllReplies() }}
         </span>
         &nbsp;·&nbsp;
         <span
             class="tippy"
             data-tippy-content="give star"
-            @click="comment.toggleStar()">
+            @click="toggleStar(comment)">
           <i class="fas fa-star" :style="styleStar"></i>
           {{ comment.starCount }}
         </span>
@@ -24,7 +24,7 @@
         <span
             class="tippy"
             data-tippy-content="request reply"
-            @click="comment.toggleReplyRequest()">
+            @click="toggleReplyRequest(comment)">
           <i class="fas fa-question" :style="styleQuestion"></i>
           {{ comment.replyRequestCount }}
         </span>
@@ -34,7 +34,10 @@
       <thread-comment
           v-for="child in comment.children"
           :comment="child"
-          :key="child.id">
+          :key="child.id"
+          @draft-reply="draftReply"
+          @toggle-star="toggleStar"
+          @toggle-reply-request="toggleReplyRequest">
       </thread-comment>
     </div>
   </div>
@@ -47,6 +50,17 @@
   export default {
     name: 'thread-comment',
     props: ['comment'],
+    methods: {
+      draftReply: function(comment) {
+        this.$emit('draft-reply', comment)
+      },
+      toggleStar: function(comment) {
+        this.$emit('toggle-star', comment)
+      },
+      toggleReplyRequest: function(comment) {
+        this.$emit('toggle-reply-request', comment)
+      }
+    },
     computed: {
       authorName: function() {
         if (this.comment.isAnonymous || this.comment.author === null) {
@@ -61,7 +75,7 @@
         if (this.comment.starredByMe) return 'color: #1B95E0'
       },
       styleQuestion: function() {
-          if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
+        if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
       }
     },
     mounted: function() {

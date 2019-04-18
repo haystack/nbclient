@@ -3,7 +3,8 @@ import Vue from 'vue'
 import Quill from 'quill'
 import 'quill-mention'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
-import { Highlights } from './highlighter.js'
+import Highlights from './highlighter.js'
+import Annotation from "./annotation.js"
 import ThreadComment from './ThreadComment.vue'
 
 let docPane = document.querySelector('#document-pane')
@@ -62,127 +63,7 @@ function redrawHighlights() {
   highlights.render()
 }
 
-/////////////// Annotation implmentation starts here.
-
-class Annotation {
-  constructor(id, range, parent, timestamp, author, content,
-      hashtagsUsed, usersTagged, visibility, anonymity, replyRequested) {
-    this.id = id
-    this.range = range // null if this is a reply
-
-    this.parent = parent // null if this is a head annotation
-    this.children = []
-
-    this.timestamp = timestamp
-    this.author = author
-    this.content = content
-
-    let name = users[author].name
-    this.authorName = `${name.first} ${name.last}`
-
-    this.hashtags = hashtagsUsed
-    this.people = usersTagged
-
-    this.visibility = visibility
-    this.isAnonymous = (anonymity === 'anonymous')
-
-    this.replyRequestedByMe = replyRequested
-    this.replyRequestCount = replyRequested ? 1 : 0
-
-    this.starredByMe = false
-    this.starCount = 0
-
-    //TODO: need field for 'seen'
-
-    let temp = document.createElement('div')
-    temp.innerHTML = content
-    this.excerpt = temp.textContent // TODO: equations break, maybe use quill.getText instead?
-    // TODO: do we need more fields? e.g. visibility
-  }
-
-  addChild(child) {
-    this.children.push(child)
-  }
-
-  countReplies() {
-    let total = this.children.length
-    for (let child of this.children) {
-      total += child.countReplies()
-    }
-    return total
-  }
-
-  countReplyRequests() {
-    let total = this.replyRequestCount
-    for (let child of this.children) {
-      total += child.countReplyRequests()
-    }
-    return total
-  }
-
-  countStars() {
-    let total = this.starCount
-    for (let child of this.children) {
-      total += child.countStars()
-    }
-    return total
-  }
-
-  toggleStar() {
-    if (this.starredByMe) {
-      this.starCount -= 1
-      this.starredByMe = false
-    } else {
-      this.starCount += 1
-      this.starredByMe = true
-    }
-    // TODO: Also async update backend
-  }
-
-  toggleReplyRequest() {
-    if (this.replyRequestedByMe) {
-      this.replyRequestCount -= 1
-      this.replyRequestedByMe = false
-    } else {
-      this.replyRequestCount += 1
-      this.replyRequestedByMe = true
-    }
-    // TODO: async update backend
-  }
-
-  hasText(text) {
-    if (this.excerpt.includes(text)) {
-      return true
-    }
-    for (let child of this.children) {
-      if (child.hasText(text)) {
-        return true
-      }
-    }
-    return false
-  }
-
-  hasHashtag(hashtag) {
-    if (this.hashtags.includes(hashtag)) {
-      return true
-    }
-    for (let child of this.children) {
-      if (child.hasHashtag(hashtag)) {
-        return true
-      }
-    }
-    return false
-  }
-}
-
-/////////////// Annotation implmentation ends here.
-
 /////////////// Text editor + annotation stuff starts here.
-
-let threadPane = document.querySelector('#thread-pane')
-let editorPane = document.querySelector('#editor-pane')
-let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
-editorPane.style.display = 'none' // Hidden by default.
 
 let users = {
   '1': {
@@ -269,6 +150,13 @@ function sortByKey(key, ascending = true, func = false) {
   }
 }
 
+let headAnnotations = {} // {id: Annotation()}
+
+let threadPane = document.querySelector('#thread-pane')
+let editorPane = document.querySelector('#editor-pane')
+let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
+editorPane.style.display = 'none' // Hidden by default.
+
 let quill = new Quill('#text-editor', {
   modules: {
     toolbar: [
@@ -343,16 +231,13 @@ selectVisibility.addEventListener('change', (event) => {
 })
 //TODO: if replying to private comment, should the visibility also be private?
 
-
-let headAnnotations = {} // {id: Annotation()}
-
 let listPane = new Vue({
   el: '#list-pane',
   data: {
     threadHeads: [],
     filterText: "",
     filterHashtags: [],
-    sort: compareAnnotations
+    sort: compareAnnotationPositons
   },
   computed: {
     processed: function () {
@@ -434,13 +319,13 @@ document.querySelector('#sort-by').addEventListener('change', (event) => {
       listPane.sort = sortByKey('timestamp', false)
       break
     case 'comment':
-      listPane.sort = sortByKey('countReplies', false, true)
+      listPane.sort = sortByKey('countAllReplies', false, true)
       break
     case 'reply_request':
-      listPane.sort = sortByKey('countReplyRequests', false, true)
+      listPane.sort = sortByKey('countAllReplyRequests', false, true)
       break
     case 'star':
-      listPane.sort = sortByKey('countStars', false, true)
+      listPane.sort = sortByKey('countAllStars', false, true)
       break
     default:
       // Nothing
@@ -464,16 +349,21 @@ function submitDraft() {
 
   let annotation = new Annotation(
     now, //TODO: id
-    (draftHighlight != null) ? draftHighlight.range : null, //range, null if this is reply
+    (draftHighlight !== null) ? draftHighlight.range : null, //range, null if this is reply
     replyToAnnotation, //parent, null if this is head annotation
     now, //timestamp
     '1', //TODO: author
+    `${users['1'].name.first} ${users['1'].name.last}`, //TODO: authorName
     quill.root.innerHTML, //content (TODO: sanitize?)
     hashtagsUsed, //hashtagsUsed
     usersTagged, //usersTagged
     selectVisibility.value, //visibility (TODO: create enum?)
     selectAnonymity.value, //anonymity
-    checkboxRequestReply.checked //replyRequested
+    checkboxRequestReply.checked, //replyRequestedByMe
+    checkboxRequestReply.checked ? 1 : 0, //replyRequestCount
+    false, //starredByMe
+    0, //starCount
+    true //seenByMe
   )
 
   resetEditorPane()
@@ -542,6 +432,12 @@ let threadPaneVue = new Vue({
       replyToAnnotation = comment
       editorHeader.textContent = `re: ${comment.excerpt}` // TODO: cleaner?
       editorPane.style.display = 'block'
+    },
+    toggleStar: function(comment) {
+      comment.toggleStar()
+    },
+    toggleReplyRequest: function(comment) {
+      comment.toggleReplyRequest()
     }
   },
   components: {
@@ -559,7 +455,7 @@ function renderThreadPane(annotation) {
   threadPaneVue.annotation = headAnnotation
 }
 
-function compareAnnotations(a, b) {
+function compareAnnotationPositons(a, b) {
   if (a.range.start.isSameNode(b.range.start)) {
     // a and b have the same start
     if (a.range.end.isSameNode(b.range.end)) {

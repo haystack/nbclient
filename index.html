@@ -87,11 +87,15 @@
 
         <div id="thread-pane" v-if="annotation">
           <div class="thread-header">
-            {{ annotation.countReplies() + 1 }} comments
+            {{ annotation.countAllReplies() + 1 }} comments
             &nbsp;·&nbsp;
-            {{ annotation.countReplyRequests() }} reply requests
+            {{ annotation.countAllReplyRequests() }} reply requests
           </div>
-          <thread-comment :comment="annotation" @draft-reply="draftReply">
+          <thread-comment
+              :comment="annotation"
+              @draft-reply="draftReply"
+              @toggle-star="toggleStar"
+              @toggle-reply-request="toggleReplyRequest">
           </thread-comment>
         </div>
 
