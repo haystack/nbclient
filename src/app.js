@@ -1,11 +1,14 @@
 // TODO: Follow the JS doc style
 import Vue from 'vue'
-import Quill from 'quill'
-import 'quill-mention'
+import VueQuill from 'vue-quill'
+Vue.use(VueQuill)
+
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import Highlights from './highlighter.js'
 import Annotation from "./annotation.js"
 import ThreadComment from './ThreadComment.vue'
+import CommentEditor from './CommentEditor.vue'
+import SearchBar from './SearchBar.vue'
 
 let docPane = document.querySelector('#document-pane')
 let highlights = new Highlights(docPane)
@@ -32,8 +35,6 @@ function checkForSelection(event) {
     // Check if range is inside #document-pane
     if (docPane.contains(range.commonAncestorContainer)) {
       if (selecting) {
-        // Reset the draft (i.e. cancel the previous draft)
-        quill.setContents([])
         highlights.removeHighlight(draftHighlight)
         draftHighlight = null
       }
@@ -45,7 +46,7 @@ function checkForSelection(event) {
 
       // Display the editor pane
       editorHeader.textContent = 'New Comment' // TODO: cleaner?
-      editorPane.style.display = 'block'
+      editor.visible = true
 
       // Clear the selection
       selection.removeAllRanges()
@@ -155,65 +156,59 @@ let headAnnotations = {} // {id: Annotation()}
 let threadPane = document.querySelector('#thread-pane')
 let editorPane = document.querySelector('#editor-pane')
 let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
-editorPane.style.display = 'none' // Hidden by default.
 
-let quill = new Quill('#text-editor', {
-  modules: {
-    toolbar: [
-      // TODO: Which options should we include?
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [ 'bold', 'italic', 'underline', 'strike' ],
-      [{ 'script': 'super' }, { 'script': 'sub' }],
-      [ 'blockquote', 'code-block', 'link', 'formula' ],
-      [{ 'list': 'ordered' }, { 'list': 'bullet'}, { 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'align': [] }],
-      [ 'clean' ]
-    ],
-    mention: {
-      allowedChars: /^[a-zA-Z\s]*$/,
-      mentionDenotationChars: ["@", "#"],
-      source: handleMention,
-      renderItem: renderMention
+let editor = new Vue({
+  el: '#text-editor',
+  data: {
+    visible: false, // hidden by default
+    editorKey: Date.now(),
+    initialContent: null,
+    content: null,
+    users: userSuggestions,
+    hashtags: hashtagSuggestions
+  },
+  components: {
+    CommentEditor
+  },
+  computed: {
+    editorStyle: function() {
+      return this.visible ? 'display: block' : 'display: none'
     }
   },
-  placeholder: 'Include tags with @ or #',
-  theme: 'snow'
+  methods: {
+    resetContent: function() {
+      this.editorKey = Date.now()
+      this.initialContent = null // TODO: combine initialContent and content
+      this.content = {
+        html: null,
+        text: null
+      }
+    },
+    initializeContent: function(content) {
+      this.resetContent()
+      this.initialContent = content
+    },
+    onContentChange: function(content) { // may not be needed at this level.
+      this.content = content
+    }
+  }
 })
 
-let MAX_SUGGEST_USERS = 10
-
-function handleMention(searchTerm, renderList, mentionChar) {
-  let items
-  if (mentionChar === "@") {
-    items = userSuggestions
-  } else { // mentionChar === "#"
-    items = hashtagSuggestions
+let searchBar = new Vue({
+  el: '#search-bar',
+  data: {
+    users: userSuggestions,
+    hashtags: hashtagSuggestions
+  },
+  components: {
+    SearchBar
+  },
+  methods: {
+    onTextChange(text) {
+      listPane.filterText = text
+    }
   }
-
-  let matches = items
-
-  if (searchTerm.length > 0) {
-    let toMatch = searchTerm.toLowerCase()
-    matches = items.filter(
-      item => item.value.toLowerCase().includes(toMatch)
-    )
-  }
-
-  if (mentionChar === "@" && matches.length > MAX_SUGGEST_USERS) {
-    matches = matches.slice(0, MAX_SUGGEST_USERS)
-  }
-
-  renderList(matches, searchTerm)
-}
-
-function renderMention(item, searchTerm) {
-  if (item.hasOwnProperty('emoji')) {
-    return `<span>&#x${item.emoji};</span> ${item.value}`
-  } else {
-    return `${item.value}`
-  }
-}
-
+})
 
 // TODO: cleaner?
 let selectVisibility = document.querySelector('#select-visibility')
@@ -265,23 +260,6 @@ let listPane = new Vue({
   }
 })
 
-let searchBar = new Quill('#search-bar', {
-  modules: {
-    toolbar: false,
-    mention: {
-      allowedChars: /^[a-zA-Z\s]*$/,
-      mentionDenotationChars: ["@", "#"],
-      source: handleMention,
-      renderItem: renderMention
-    }
-  },
-  placeholder: 'Search for comments',
-  theme: 'snow'
-})
-searchBar.on('text-change', function(delta, oldDelta, source) {
-  listPane.filterText = searchBar.getText(0, searchBar.getLength() - 1)
-})
-
 let hashtagOptions = document.querySelector('#hashtag-options')
 for (let hashtag of hashtagSuggestions) {
   let div = document.createElement('div')
@@ -305,7 +283,6 @@ document.querySelector('#apply-filter').addEventListener('click', (event) => {
     }
   }
   listPane.filterHashtags = toFilter
-  console.log(toFilter)
 })
 
 // TODO: move sort-by to inside the list pane?
@@ -337,7 +314,7 @@ function submitDraft() {
   let hashtagsUsed = []
   let usersTagged = []
 
-  let mentions = editorPane.getElementsByClassName('mention')
+  let mentions = document.getElementsByClassName('mention')
   for (let mention of mentions) {
     let tagID = mention.getAttribute('data-id')
     if (mention.getAttribute('data-denotation-char') === '@') {
@@ -354,7 +331,7 @@ function submitDraft() {
     now, //timestamp
     '1', //TODO: author
     `${users['1'].name.first} ${users['1'].name.last}`, //TODO: authorName
-    quill.root.innerHTML, //content (TODO: sanitize?)
+    editor.content.html, //content (TODO: sanitize?)
     hashtagsUsed, //hashtagsUsed
     usersTagged, //usersTagged
     selectVisibility.value, //visibility (TODO: create enum?)
@@ -394,8 +371,8 @@ function cancelDraft() {
 }
 
 function resetEditorPane() {
-  editorPane.style.display = 'none'
-  quill.setContents([])
+  editor.resetContent()
+  editor.visible = false
 
   selectVisibility.selectedIndex = 0
   selectAnonymity.selectedIndex = 0
@@ -431,7 +408,7 @@ let threadPaneVue = new Vue({
     draftReply: function(comment) {
       replyToAnnotation = comment
       editorHeader.textContent = `re: ${comment.excerpt}` // TODO: cleaner?
-      editorPane.style.display = 'block'
+      editor.visible = true
     },
     toggleStar: function(comment) {
       comment.toggleStar()

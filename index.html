@@ -55,7 +55,9 @@
 
       <div id="annotation-pane">
         <div id="list-header"><!--TODO: temp-->
-          <div id="search-bar"></div>
+          <div id="search-bar">
+            <search-bar :users="users" :hashtags="hashtags" @text-change="onTextChange"/>
+          </div>
           <button id="list-filter">More filters</button>
           <div id="filter-options">
             <h1>Hashtags</h1>
@@ -95,13 +97,20 @@
               :comment="annotation"
               @draft-reply="draftReply"
               @toggle-star="toggleStar"
-              @toggle-reply-request="toggleReplyRequest">
-          </thread-comment>
+              @toggle-reply-request="toggleReplyRequest" />
         </div>
 
         <div id="editor-pane">
           <div id="editor-header"></div> <!-- TODO: temp -->
-          <div id="text-editor"></div>
+          <div id="text-editor">
+            <comment-editor
+                :key="editorKey"
+                :editor-style="editorStyle"
+                :initial-content="initialContent"
+                :users="users"
+                :hashtags="hashtags"
+                @content-change="onContentChange" />
+          </div>
           <div id="editor-visibility"> <!-- TODO: temp -->
             Post to
             <select id="select-visibility">
