@@ -75,6 +75,7 @@
             </span>
           </div>
         </div>
+
         <div id="list-pane">
           <div class="list-row"
             v-for="thread in processed"
@@ -86,9 +87,12 @@
 
         <div id="thread-pane" v-if="annotation">
           <div class="thread-header">
-            {{ annotation.countReplies() + 1 }} comments &middot; {{ annotation.countReplyRequests() }} reply requests
+            {{ annotation.countReplies() + 1 }} comments
+            &nbsp;·&nbsp;
+            {{ annotation.countReplyRequests() }} reply requests
           </div>
-          <thread-comment v-bind:comment="annotation"></thread-comment>
+          <thread-comment :comment="annotation" @draft-reply="draftReply">
+          </thread-comment>
         </div>
 
         <div id="editor-pane">

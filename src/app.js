@@ -2,11 +2,9 @@
 import Vue from 'vue'
 import Quill from 'quill'
 import 'quill-mention'
-import tippy from 'tippy.js'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import { Highlights } from './highlighter.js'
-
-var moment = require('moment')
+import ThreadComment from './ThreadComment.vue'
 
 let docPane = document.querySelector('#document-pane')
 let highlights = new Highlights(docPane)
@@ -78,6 +76,9 @@ class Annotation {
     this.timestamp = timestamp
     this.author = author
     this.content = content
+
+    let name = users[author].name
+    this.authorName = `${name.first} ${name.last}`
 
     this.hashtags = hashtagsUsed
     this.people = usersTagged
@@ -530,68 +531,21 @@ function selectAnnotation(annotationID) {
   renderThreadPane(headAnnotations[annotationID])
 }
 
-Vue.component('thread-comment', {
-  props: ['comment'],
-  methods: {
-    reply: function() {
-      replyToAnnotation = this.comment
-      editorHeader.textContent = `re: ${this.comment.excerpt}` // TODO: cleaner?
-      editorPane.style.display = 'block'
-    }
-  },
-  template: '\
-    <div>\
-      <div class="thread-row">\
-        <div class="thread-row-header">\
-          <span><b>{{ authorName }}</b></span> <span>{{ timeString }}</span>\
-        </div>\
-        <div class="thread-row-body" v-html="comment.content">\
-        </div>\
-        <div class="thread-row-footer">\
-          <span class="tippy" data-tippy-content="reply" v-on:click="reply">\
-            <i class="fas fa-reply"></i> {{ comment.countReplies() }}\
-          </span> &middot;\
-          <span class="tippy" data-tippy-content="give star" v-on:click="comment.toggleStar()">\
-            <i class="fas fa-star" :style="starStyle"></i> {{ comment.starCount }}\
-          </span> &middot;\
-          <span class="tippy" data-tippy-content="request reply" v-on:click="comment.toggleReplyRequest()">\
-            <i class="fas fa-question" :style="questionStyle"></i> {{ comment.replyRequestCount }}\
-          </span>\
-        </div>\
-      </div>\
-      <div class="thread-block" v-if="comment.children.length">\
-        <thread-comment v-for="child in comment.children" v-bind:comment="child"></thread-comment>\
-      </div>\
-    </div>\
-  ',
-  computed: {
-    authorName: function() {
-      if (this.comment.isAnonymous || this.comment.author === null) {
-        return 'Anonymous'
-      }
-      let author = users[this.comment.author]
-      return `${author.name.first} ${author.name.last}`
-    },
-    timeString: function() {
-      return moment(this.comment.timestamp).fromNow()
-    },
-    starStyle: function() {
-      if (this.comment.starredByMe) return 'color: #1B95E0'
-    },
-    questionStyle: function() {
-      if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
-    }
-  },
-  mounted: function() {
-    tippy('.tippy', {arrow: true})
-  }
-  //TODO: toggle tooltip contents
-})
 
 let threadPaneVue = new Vue({
   el: '#thread-pane',
   data: {
     annotation: null
+  },
+  methods: {
+    draftReply: function(comment) {
+      replyToAnnotation = comment
+      editorHeader.textContent = `re: ${comment.excerpt}` // TODO: cleaner?
+      editorPane.style.display = 'block'
+    }
+  },
+  components: {
+    ThreadComment
   }
 })
 

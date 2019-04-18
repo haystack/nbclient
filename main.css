@@ -80,41 +80,6 @@ body {
   color: #444;
   border-bottom: 1px solid #666;
 }
-.thread-row {
-  padding: 10px 0 10px 10px;
-}
-.thread-row:hover {
-  background-color: #f0f0f0;
-}
-.thread-block {
-  border-left: 1px solid #ddd;
-  margin-left: 20px;
-}
-.thread-row-header {
-  margin-bottom: 5px;
-}
-.thread-row-header > span:nth-child(2) {
-  font-size: 14px;
-  color: #444;
-}
-.thread-row-body > p {
-  margin: 0;
-}
-.thread-row-footer {
-  text-align: right;
-  font-size: 14px;
-  color: #444;
-  margin-top: 8px;
-}
-.thread-row-footer > span {
-  cursor: pointer;
-}
-.thread-row-footer > span:hover {
-  color: #1B95E0;
-}
-.thread-row-footer > span:focus {
-  outline: none;
-}
 
 
 #editor-pane {
