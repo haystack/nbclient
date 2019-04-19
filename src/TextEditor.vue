@@ -80,3 +80,16 @@
     }
   }
 </script>
+
+<style scoped>
+  /* TODO: clean up styling */
+  /deep/ .ql-mention-list-container {
+    max-height: 154px;
+    overflow-y: scroll;
+  }
+  /deep/ .ql-mention-list-item > span {
+    font-size: 24px;
+    margin: 0 5px 0 -5px;
+    vertical-align: middle;
+  }
+</style>

@@ -18,15 +18,6 @@ body {
   overflow-y: scroll; /* TODO: temp */
 }
 
-#search-bar {
-  width: 75%;
-  display: inline-block;
-  vertical-align: middle;
-  border-radius: 5px;
-}
-#search-bar .ql-blank, #search-bar .ql-editor {
-  padding: 6px 9px;
-}
 #list-filter {
   font-size: 13px;
   padding: 6px 9px;
@@ -42,16 +33,6 @@ body {
 #hashtag-options > div {
   width: 50%;
   display: inline-block;
-}
-
-.ql-mention-list-container {
-  max-height: 154px; /* TODO: temp */
-  overflow-y: scroll;
-}
-.ql-mention-list-item > span {
-  font-size: 24px;
-  margin: 0 5px 0 -5px;
-  vertical-align: middle;
 }
 
 .nb-highlight {

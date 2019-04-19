@@ -55,10 +55,6 @@
 
       <div id="annotation-pane">
         <div id="list-header"><!--TODO: temp-->
-          <div id="search-bar">
-            <search-bar :users="users" :hashtags="hashtags" @text-change="onTextChange">
-            </search-bar>
-          </div>
           <button id="list-filter">More filters</button>
           <div id="filter-options">
             <h1>Hashtags</h1>
@@ -68,6 +64,10 @@
         </div>
 
         <div id="list-pane">
+          <filter-view
+              :users="sortedUsers"
+              :hashtags="sortedHashtags">
+          </filter-view>
           <list-view
               :threads="threadHeads"
               @select-thread="onSelectThread">
@@ -82,8 +82,8 @@
               :visible="editor.visible"
               :header="editor.header"
               :initial-content="editor.initialContent"
-              :users="users"
-              :hashtags="hashtags"
+              :users="sortedUsers"
+              :hashtags="sortedHashtags"
               @submit-comment="onSubmitComment"
               @cancel-comment="onCancelComment">
           </editor-view>

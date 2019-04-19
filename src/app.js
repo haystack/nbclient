@@ -11,7 +11,7 @@ import Annotation from "./annotation.js"
 import ListView from './ListView.vue'
 import ThreadView from './ThreadView.vue'
 import EditorView from './EditorView.vue'
-import SearchBar from './SearchBar.vue'
+import FilterView from './FilterView.vue'
 
 let docPane = document.querySelector('#document-pane')
 let highlights = new Highlights(docPane)
@@ -66,77 +66,6 @@ function redrawHighlights() {
   highlights.render()
 }
 
-let users = {
-  '1': {
-    id: '1',
-    name: {
-      first: 'Alisa',
-      last: 'Ono'
-    },
-    role: 'student'
-  },
-  '2': {
-    id: '2',
-    name: {
-      first: 'Adrian',
-      last: 'Sy'
-    },
-    role: 'student'
-  }
-}
-
-let hashtags = {
-  '1': {
-    id: '1',
-    value: "curious",
-    emoji: "1F914"
-  },
-  '2': {
-    id: '2',
-    value: "confused",
-    emoji: "1F616"
-  },
-  '3': {
-    id: '3',
-    value: "useful",
-    emoji: "1F600"
-  },
-  '4': {
-    id: '4',
-    value: "interested",
-    emoji: "1F9D0"
-  },
-  '5': {
-    id: '5',
-    value: "frustrated",
-    emoji: "1F621"
-  },
-  '6': {
-    id: '6',
-    value: "help",
-    emoji: "1F61F"
-  },
-  '7': {
-    id: '7',
-    value: "question",
-    emoji: "2753"
-  },
-  '8': {
-    id: '8',
-    value: "idea",
-    emoji: "1F4A1"
-  }
-}
-
-let userSuggestions = Object.values(users)
-userSuggestions.map(function(x) {
-  Object.assign(x, { value: `${x.name.first} ${x.name.last}` })
-})
-userSuggestions.sort(compare('value'))
-
-let hashtagSuggestions = Object.values(hashtags)
-hashtagSuggestions.sort(compare('value'))
-
 let headAnnotations = {} // {id: Annotation()}
 
 let app = new Vue({
@@ -152,13 +81,26 @@ let app = new Vue({
       header: "",
       initialContent: null
     },
-    users: userSuggestions,
-    hashtags: hashtagSuggestions
+    users: [],
+    hashtags: []
   },
   components: {
+    FilterView,
     ListView,
     ThreadView,
     EditorView
+  },
+  computed: {
+    sortedUsers: function() {
+      let items = Object.values(this.users)
+      for (let item of items) {
+        Object.assign(item, { value: `${item.name.first} ${item.name.last}` })
+      }
+      return items.sort(compare('value'))
+    },
+    sortedHashtags: function() {
+      return Object.values(this.hashtags).sort(compare('value'))
+    }
   },
   methods: {
     initEditor: function(header, content, visible) {
@@ -238,24 +180,70 @@ let app = new Vue({
 //         })
 //       }
 
-let searchBar = new Vue({
-  el: '#search-bar',
-  data: {
-    users: userSuggestions,
-    hashtags: hashtagSuggestions
+app.users = {
+  '1': {
+    id: '1',
+    name: {
+      first: 'Alisa',
+      last: 'Ono'
+    },
+    role: 'student'
   },
-  components: {
-    SearchBar
-  },
-  methods: {
-    onTextChange(text) {
-      app.filterText = text
-    }
+  '2': {
+    id: '2',
+    name: {
+      first: 'Adrian',
+      last: 'Sy'
+    },
+    role: 'student'
   }
-})
+}
+
+app.hashtags = {
+  '1': {
+    id: '1',
+    value: "curious",
+    emoji: "1F914"
+  },
+  '2': {
+    id: '2',
+    value: "confused",
+    emoji: "1F616"
+  },
+  '3': {
+    id: '3',
+    value: "useful",
+    emoji: "1F600"
+  },
+  '4': {
+    id: '4',
+    value: "interested",
+    emoji: "1F9D0"
+  },
+  '5': {
+    id: '5',
+    value: "frustrated",
+    emoji: "1F621"
+  },
+  '6': {
+    id: '6',
+    value: "help",
+    emoji: "1F61F"
+  },
+  '7': {
+    id: '7',
+    value: "question",
+    emoji: "2753"
+  },
+  '8': {
+    id: '8',
+    value: "idea",
+    emoji: "1F4A1"
+  }
+}
 
 let hashtagOptions = document.querySelector('#hashtag-options')
-for (let hashtag of hashtagSuggestions) {
+for (let hashtag of Object.values(app.hashtags)) {
   let div = document.createElement('div')
   let input = document.createElement('input')
   input.setAttribute('type', 'checkbox')
