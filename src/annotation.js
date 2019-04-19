@@ -1,7 +1,7 @@
 // TODO: lint
 
 class Annotation {
-  constructor(id, range, parent, timestamp, author, authorName, content,
+  constructor(id, range, parent, timestamp, author, authorName, html,
       hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
       replyRequestCount, starredByMe, starCount, seenByMe) {
     this.id = id
@@ -13,13 +13,14 @@ class Annotation {
     this.timestamp = timestamp
     this.author = author
     this.authorName = authorName
-    this.content = content
+
+    this.html = html
 
     this.hashtags = hashtagsUsed
     this.people = usersTagged
 
     this.visibility = visibility
-    this.isAnonymous = (anonymity === 'anonymous') // TODO: enum?
+    this.isAnonymous = anonymity
 
     this.replyRequestedByMe = replyRequestedByMe
     this.replyRequestCount = replyRequestCount
@@ -29,9 +30,10 @@ class Annotation {
 
     this.seenByMe = seenByMe
 
+    // TODO: for now work around to generate plain text, formula breaks
     let temp = document.createElement('div')
-    temp.innerHTML = content
-    this.excerpt = temp.textContent // TODO: equations break, maybe use quill.getText instead?
+    temp.innerHTML = this.html
+    this.text = temp.textContent
   }
 
   countAllReplies() {
@@ -59,7 +61,7 @@ class Annotation {
   }
 
   hasText(text) {
-    if (this.excerpt.includes(text)) {
+    if (this.text.includes(text)) {
       return true
     }
     for (let child of this.children) {

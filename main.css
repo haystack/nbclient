@@ -85,23 +85,6 @@ body {
 #editor-pane {
   margin-top: 10px;
 }
-#editor-header { /* TODO: temp */
-  color: #444;
-  padding-bottom: 5px;
-}
-#editor-visibility { /* TODO: temp */
-  color: #444;
-  font-size: 14px;
-  padding-top: 5px;
-}
- #editor-request-reply { /* TODO: temp */
-  color: #444;
-  font-size: 14px;
-  padding: 5px 0;
-}
-#editor-pane button { /* TODO: temp */
-  float: right;
-}
 .ql-mention-list-container {
   max-height: 154px; /* TODO: temp */
   overflow-y: scroll;

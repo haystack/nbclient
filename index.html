@@ -83,7 +83,7 @@
             v-for="thread in processed"
             v-bind:annotation_id="thread.id"
             v-on:click="select(thread.id)">
-            {{ thread.excerpt }}
+            {{ thread.text }}
           </div>
         </div>
 
@@ -101,35 +101,15 @@
         </div>
 
         <div id="editor-pane">
-          <div id="editor-header"></div> <!-- TODO: temp -->
-          <div id="text-editor">
-            <comment-editor
-                :key="editorKey"
-                :editor-style="editorStyle"
-                :initial-content="initialContent"
-                :users="users"
-                :hashtags="hashtags"
-                @content-change="onContentChange" />
-          </div>
-          <div id="editor-visibility"> <!-- TODO: temp -->
-            Post to
-            <select id="select-visibility">
-              <option value="everyone">Entire Class</option>
-              <option value="instructors">instructors and TAs</option>
-              <option value="myself">Myself Only</option>
-            </select>
-            as
-            <select id="select-anonymity">
-              <option value="identified">Alisa Ono</option>
-              <option value="anonymous">Anonymous to Classmates</option>
-            </select>
-          </div>
-          <div id="editor-request-reply"> <!-- TODO: temp -->
-            <input type="checkbox" id="checkbox-request-reply" name="checkbox-request-reply">
-            <label for="checkbox-request-reply">Request replies</label>
-          </div>
-          <button id="submit-draft">Submit</button>
-          <button id="cancel-draft">Cancel</button>
+          <comment-editor
+              :key="editorKey"
+              :visible="visible"
+              :header="header"
+              :initial-content="initialContent"
+              :users="users"
+              :hashtags="hashtags"
+              @submit-comment="onSubmitComment"
+              @cancel-comment="onCancelComment" />
         </div>
       </div>
     </div>

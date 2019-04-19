@@ -3,7 +3,7 @@
       v-model="content"
       output="html"
       :config="config"
-      @text-change="onTextChange" />
+      @input="onTextChange" />
 </template>
 
 <script>
@@ -73,10 +73,8 @@
         }
         return `${item.value}`
       },
-      onTextChange: function(editor, delta, source) {
-        let html = editor.root.innerHTML
-        let text = editor.getText(0, editor.getLength() - 1)
-        this.$emit('text-change', html, text)
+      onTextChange: function(html) {
+        this.$emit('text-change', html)
       }
     }
   }

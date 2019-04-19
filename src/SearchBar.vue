@@ -24,8 +24,11 @@
       TextEditor
     },
     methods: {
-      onTextChange: function(html, text) {
-        this.$emit('text-change', text)
+      onTextChange: function(html) {
+        // TODO: for now work around to generate plain text, formula breaks
+        let temp = document.createElement('div')
+        temp.innerHTML = html
+        this.$emit('text-change', temp.textContent)
       }
     }
   }

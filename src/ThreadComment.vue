@@ -4,7 +4,7 @@
       <div class="thread-row-header">
         <span><b>{{ authorName }}</b></span> <span>{{ timeString }}</span>
       </div>
-      <div class="thread-row-body" v-html="comment.content"></div>
+      <div class="thread-row-body" v-html="comment.html"></div>
       <div class="thread-row-footer">
         <span
             class="tippy"
@@ -63,7 +63,7 @@
     },
     computed: {
       authorName: function() {
-        if (this.comment.isAnonymous || this.comment.author === null) {
+        if (this.comment.anonymity === 'anonymity' || this.comment.author === null) { // TODO: enum?
           return 'Anonymous'
         }
         return this.comment.authorName

@@ -45,8 +45,8 @@ function checkForSelection(event) {
       makeHighlight(range)
 
       // Display the editor pane
-      editorHeader.textContent = 'New Comment' // TODO: cleaner?
-      editor.visible = true
+      editorPane.init('New Comment', null)
+      editorPane.show()
 
       // Clear the selection
       selection.removeAllRanges()
@@ -63,8 +63,6 @@ function makeHighlight(range) {
 function redrawHighlights() {
   highlights.render()
 }
-
-/////////////// Text editor + annotation stuff starts here.
 
 let users = {
   '1': {
@@ -153,15 +151,12 @@ function sortByKey(key, ascending = true, func = false) {
 
 let headAnnotations = {} // {id: Annotation()}
 
-let threadPane = document.querySelector('#thread-pane')
-let editorPane = document.querySelector('#editor-pane')
-let editorHeader = document.querySelector(`#editor-header`) // TODO: cleaner?
-
-let editor = new Vue({
-  el: '#text-editor',
+let editorPane = new Vue({
+  el: '#editor-pane',
   data: {
     visible: false, // hidden by default
     editorKey: Date.now(),
+    header: "",
     initialContent: null,
     content: null,
     users: userSuggestions,
@@ -170,26 +165,60 @@ let editor = new Vue({
   components: {
     CommentEditor
   },
-  computed: {
-    editorStyle: function() {
-      return this.visible ? 'display: block' : 'display: none'
-    }
-  },
   methods: {
-    resetContent: function() {
+    show: function() {
+      this.visible = true
+    },
+    hide: function() {
+      this.visible = false
+    },
+    init: function(header, content) {
       this.editorKey = Date.now()
-      this.initialContent = null // TODO: combine initialContent and content
-      this.content = {
-        html: null,
-        text: null
+      this.header = header
+      this.initialContent = content // null if empty
+    },
+    onSubmitComment: function(comment) {
+      let id = comment.timestamp //TODO: get actual annotation ID
+      let author = '1' //TODO: get actual user ID
+      let name = this.users[author].name
+
+      let annotation = new Annotation(
+        id,
+        (draftHighlight !== null) ? draftHighlight.range : null, //range, null if this is reply
+        replyToAnnotation, //parent, null if this is head annotation
+        comment.timestamp,
+        author,
+        `${name.first} ${name.last}`, //authorName
+        comment.html, //content
+        comment.mentions.hashtags,
+        comment.mentions.users,
+        comment.visibility, //TODO: create enum?
+        comment.anonymity,
+        comment.replyRequested, //replyRequestedByMe
+        comment.replyRequested ? 1 : 0, //replyRequestCount
+        false, //starredByMe
+        0, //starCount
+        true //seenByMe
+      )
+
+      if (replyToAnnotation) {
+        replyToAnnotation.children.push(annotation)
+        replyToAnnotation = null
+      } else {
+        draftHighlight.setAnnotationID(id)
+        headAnnotations[id] = annotation
+        listPane.threadHeads.push(annotation)
+
+        draftHighlight = null
+        selecting = false
       }
     },
-    initializeContent: function(content) {
-      this.resetContent()
-      this.initialContent = content
-    },
-    onContentChange: function(content) { // may not be needed at this level.
-      this.content = content
+    onCancelComment: function() {
+      if (draftHighlight) {
+        highlights.removeHighlight(draftHighlight)
+        draftHighlight = null
+        selecting = false
+      }
     }
   }
 })
@@ -209,22 +238,6 @@ let searchBar = new Vue({
     }
   }
 })
-
-// TODO: cleaner?
-let selectVisibility = document.querySelector('#select-visibility')
-let selectAnonymity = document.querySelector('#select-anonymity')
-let checkboxRequestReply = document.querySelector('#checkbox-request-reply')
-
-selectVisibility.addEventListener('change', (event) => {
-  // Disable 'anonymous' and choose 'identified' unless post to entire class.
-  if (event.target.value === 'everyone') {
-    selectAnonymity.options[1].disabled = false //TODO: change 1 to const?
-  } else {
-    selectAnonymity.value = 'identified'
-    selectAnonymity.options[1].disabled = true
-  }
-})
-//TODO: if replying to private comment, should the visibility also be private?
 
 let listPane = new Vue({
   el: '#list-pane',
@@ -309,76 +322,6 @@ document.querySelector('#sort-by').addEventListener('change', (event) => {
   }
 })
 
-function submitDraft() {
-  let now = Date.now()
-  let hashtagsUsed = []
-  let usersTagged = []
-
-  let mentions = document.getElementsByClassName('mention')
-  for (let mention of mentions) {
-    let tagID = mention.getAttribute('data-id')
-    if (mention.getAttribute('data-denotation-char') === '@') {
-      usersTagged.push(tagID)
-    } else { // data-denotation-char = '#'
-      hashtagsUsed.push(tagID)
-    }
-  }
-
-  let annotation = new Annotation(
-    now, //TODO: id
-    (draftHighlight !== null) ? draftHighlight.range : null, //range, null if this is reply
-    replyToAnnotation, //parent, null if this is head annotation
-    now, //timestamp
-    '1', //TODO: author
-    `${users['1'].name.first} ${users['1'].name.last}`, //TODO: authorName
-    editor.content.html, //content (TODO: sanitize?)
-    hashtagsUsed, //hashtagsUsed
-    usersTagged, //usersTagged
-    selectVisibility.value, //visibility (TODO: create enum?)
-    selectAnonymity.value, //anonymity
-    checkboxRequestReply.checked, //replyRequestedByMe
-    checkboxRequestReply.checked ? 1 : 0, //replyRequestCount
-    false, //starredByMe
-    0, //starCount
-    true //seenByMe
-  )
-
-  resetEditorPane()
-
-  if (replyToAnnotation) {
-    replyToAnnotation.children.push(annotation)
-
-    replyToAnnotation = null
-  } else {
-    draftHighlight.setAnnotationID(now)
-    headAnnotations[now] = annotation
-    listPane.threadHeads.push(annotation)
-
-    draftHighlight = null
-    selecting = false
-  }
-}
-
-function cancelDraft() {
-  resetEditorPane()
-
-  if (draftHighlight) {
-    highlights.removeHighlight(draftHighlight)
-
-    draftHighlight = null
-    selecting = false
-  }
-}
-
-function resetEditorPane() {
-  editor.resetContent()
-  editor.visible = false
-
-  selectVisibility.selectedIndex = 0
-  selectAnonymity.selectedIndex = 0
-  checkboxRequestReply.checked = false
-}
-
 function selectAnnotation(annotationID) {
   let highlight = document.getElementsByClassName('nb-highlight selected')[0]
   if (highlight) {
@@ -399,7 +342,7 @@ function selectAnnotation(annotationID) {
 }
 
 
-let threadPaneVue = new Vue({
+let threadPane = new Vue({
   el: '#thread-pane',
   data: {
     annotation: null
@@ -407,8 +350,8 @@ let threadPaneVue = new Vue({
   methods: {
     draftReply: function(comment) {
       replyToAnnotation = comment
-      editorHeader.textContent = `re: ${comment.excerpt}` // TODO: cleaner?
-      editor.visible = true
+      editorPane.init(`re: ${comment.excerpt}`,  null)
+      editorPane.show()
     },
     toggleStar: function(comment) {
       comment.toggleStar()
@@ -429,7 +372,7 @@ function renderThreadPane(annotation) {
     headAnnotation = headAnnotation.parent
   }
 
-  threadPaneVue.annotation = headAnnotation
+  threadPane.annotation = headAnnotation
 }
 
 function compareAnnotationPositons(a, b) {
@@ -455,8 +398,3 @@ function compareAnnotationPositons(a, b) {
     return 1
   }
 }
-
-document.querySelector('#submit-draft').addEventListener("click", submitDraft, false)
-document.querySelector('#cancel-draft').addEventListener("click", cancelDraft, false)
-
-/////////////// Text editor + annotation stuff ends here.
