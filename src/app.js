@@ -3,9 +3,12 @@ import Vue from 'vue'
 import VueQuill from 'vue-quill'
 Vue.use(VueQuill)
 
+import { compare } from './compare-util.js'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import Highlights from './highlighter.js'
 import Annotation from "./annotation.js"
+
+import ListView from './ListView.vue'
 import ThreadComment from './ThreadComment.vue'
 import CommentEditor from './CommentEditor.vue'
 import SearchBar from './SearchBar.vue'
@@ -130,24 +133,10 @@ let userSuggestions = Object.values(users)
 userSuggestions.map(function(x) {
   Object.assign(x, { value: `${x.name.first} ${x.name.last}` })
 })
-userSuggestions.sort(sortByKey('value'))
+userSuggestions.sort(compare('value'))
 
 let hashtagSuggestions = Object.values(hashtags)
-hashtagSuggestions.sort(sortByKey('value'))
-
-function sortByKey(key, ascending = true, func = false) {
-  return function(a, b) {
-    let valueA = func ? a[key]() : a[key]
-    let valueB = func ? b[key]() : b[key]
-    if (valueA < valueB) {
-      return ascending ? -1 : 1
-    }
-    if (valueA > valueB) {
-      return ascending ? 1 : -1
-    }
-    return 0
-  }
-}
+hashtagSuggestions.sort(compare('value'))
 
 let headAnnotations = {} // {id: Annotation()}
 
@@ -207,7 +196,7 @@ let editorPane = new Vue({
       } else {
         draftHighlight.setAnnotationID(id)
         headAnnotations[id] = annotation
-        listPane.threadHeads.push(annotation)
+        app.threadHeads.push(annotation)
 
         draftHighlight = null
         selecting = false
@@ -234,44 +223,41 @@ let searchBar = new Vue({
   },
   methods: {
     onTextChange(text) {
-      listPane.filterText = text
+      app.filterText = text
     }
   }
 })
 
-let listPane = new Vue({
+let app = new Vue({
   el: '#list-pane',
   data: {
     threadHeads: [],
     filterText: "",
-    filterHashtags: [],
-    sort: compareAnnotationPositons
+    filterHashtags: []
   },
-  computed: {
-    processed: function () {
-      let results = this.threadHeads
-      if (this.filterText !== "") {
-        results = results.filter(thread => thread.hasText(this.filterText))
-      }
-      if (this.filterHashtags.length > 0) {
-        results = results.filter(thread => {
-          for (let hashtag of this.filterHashtags) {
-            if (thread.hasHashtag(hashtag)) {
-              return true
-            }
-          }
-          return false
-        })
-      }
-      return results.sort(this.sort)
-    }
+  components: {
+    ListView
   },
   methods: {
-    select: function(id) {
+    onSelectThread: function(id) {
       selectAnnotation(id)
     }
   }
 })
+// TODO: filter before passing threads to ListView
+//       if (this.filterText !== "") {
+//         results = results.filter(thread => thread.hasText(this.filterText))
+//       }
+//       if (this.filterHashtags.length > 0) {
+//         results = results.filter(thread => {
+//           for (let hashtag of this.filterHashtags) {
+//             if (thread.hasHashtag(hashtag)) {
+//               return true
+//             }
+//           }
+//           return false
+//         })
+//       }
 
 let hashtagOptions = document.querySelector('#hashtag-options')
 for (let hashtag of hashtagSuggestions) {
@@ -295,31 +281,7 @@ document.querySelector('#apply-filter').addEventListener('click', (event) => {
       toFilter.push(option.getAttribute('value'))
     }
   }
-  listPane.filterHashtags = toFilter
-})
-
-// TODO: move sort-by to inside the list pane?
-document.querySelector('#sort-by').addEventListener('change', (event) => {
-  let value = event.target.value
-  switch (value) {
-    case 'position':
-      listPane.sort = compareAnnotations
-      break
-    case 'recent':
-      listPane.sort = sortByKey('timestamp', false)
-      break
-    case 'comment':
-      listPane.sort = sortByKey('countAllReplies', false, true)
-      break
-    case 'reply_request':
-      listPane.sort = sortByKey('countAllReplyRequests', false, true)
-      break
-    case 'star':
-      listPane.sort = sortByKey('countAllStars', false, true)
-      break
-    default:
-      // Nothing
-  }
+  app.filterHashtags = toFilter
 })
 
 function selectAnnotation(annotationID) {
@@ -350,7 +312,7 @@ let threadPane = new Vue({
   methods: {
     draftReply: function(comment) {
       replyToAnnotation = comment
-      editorPane.init(`re: ${comment.excerpt}`,  null)
+      editorPane.init(`re: ${comment.text}`,  null)
       editorPane.show()
     },
     toggleStar: function(comment) {
@@ -373,28 +335,4 @@ function renderThreadPane(annotation) {
   }
 
   threadPane.annotation = headAnnotation
-}
-
-function compareAnnotationPositons(a, b) {
-  if (a.range.start.isSameNode(b.range.start)) {
-    // a and b have the same start
-    if (a.range.end.isSameNode(b.range.end)) {
-      // a and b have the same range
-      return 0
-    } else if (a.range.end.compareDocumentPosition(b.range.end)
-        & Node.DOCUMENT_POSITION_FOLLOWING) {
-      // a ends before b
-      return -1
-    } else {
-      // b ends before a
-      return 1
-    }
-  } else if (a.range.start.compareDocumentPosition(b.range.start)
-      & Node.DOCUMENT_POSITION_FOLLOWING) {
-    // a starts before b
-    return -1
-  } else {
-    // b starts before a
-    return 1
-  }
 }

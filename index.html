@@ -64,27 +64,12 @@
             <div id="hashtag-options"></div>
             <button id="apply-filter">Apply filters</button>
           </div>
-          <div>
-            <span class="list-count">10 of 10 threads</span><!--TODO: temp-->
-            <span class="list-sort">Sort by:
-              <select id="sort-by">
-                <option value="position">Position</option>
-                <option value="recent">Most Recent</option>
-                <option value="comment">Total Comments</option>
-                <option value="reply_request">Reply Requests</option>
-                <option value="star">Stars</option>
-              </select>
-            </span>
-          </div>
         </div>
 
         <div id="list-pane">
-          <div class="list-row"
-            v-for="thread in processed"
-            v-bind:annotation_id="thread.id"
-            v-on:click="select(thread.id)">
-            {{ thread.text }}
-          </div>
+          <list-view
+              :threads="threadHeads"
+              @select-thread="onSelectThread" />
         </div>
 
         <div id="thread-pane" v-if="annotation">

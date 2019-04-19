@@ -43,33 +43,6 @@ body {
   width: 50%;
   display: inline-block;
 }
-#list-header .list-count {
-  font-size: 13px;
-}
-#list-header .list-sort {
-  font-size: 13px;
-  float: right;
-}
-
-#list-pane {
-  margin-top: 5px; /* TODO: temp */
-  height: 15vh; /* TODO: temp */
-  border: solid 1px #ddd;
-  overflow-y: scroll;
-}
-.list-row {
-  padding: 4px;
-  cursor: pointer;
-}
-.list-row:nth-child(even) {
-  background-color: #f0f0f0;
-}
-.list-row:hover {
-  background-color: #ffffd0;
-}
-.list-row.selected {
-  background-color: #70a0f0;
-}
 
 #thread-pane {
   height: 40vh; /* TODO: temp */

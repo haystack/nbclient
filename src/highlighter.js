@@ -68,8 +68,8 @@ class Highlight {
     }
     this.element.addEventListener("click", function () {
       let annotationID = this.getAttribute('annotation_id')
-      if (annotationID && !selecting) {
-        selectAnnotation(annotationID)
+      if (annotationID && !selecting) { // TODO: selecting not defined?
+        selectAnnotation(annotationID) // TODO: select annotation not defined?
       }
     }, false)
   }
