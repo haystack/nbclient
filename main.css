@@ -44,10 +44,6 @@ body {
   display: inline-block;
 }
 
-
-#editor-pane {
-  margin-top: 10px;
-}
 .ql-mention-list-container {
   max-height: 154px; /* TODO: temp */
   overflow-y: scroll;

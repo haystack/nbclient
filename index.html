@@ -77,14 +77,11 @@
               :thread="threadSelected"
               @draft-reply="onDraftReply">
           </thread-view>
-        </div>
-
-        <div id="editor-pane">
           <editor-view
-              :key="editorKey"
-              :visible="visible"
-              :header="header"
-              :initial-content="initialContent"
+              :key="editor.key"
+              :visible="editor.visible"
+              :header="editor.header"
+              :initial-content="editor.initialContent"
               :users="users"
               :hashtags="hashtags"
               @submit-comment="onSubmitComment"

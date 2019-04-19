@@ -1,5 +1,5 @@
 <template>
-  <div v-show="visible" ref="view">
+  <div class="editor-view" ref="view" v-show="visible">
     <div class="editor-header">{{ header }}</div>
     <text-editor
         :key="key"
@@ -81,7 +81,7 @@
           { text: this.author, value: 'identified', disabled: false },
           { text: "Anonymous to Classmates", value: 'anonymous', disabled: false }
         ],
-        ANONYMOUS_IDX: 1, //index for 'anonymous' in anonymityOptions
+        anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
         replyRequested: false
       }
     },
@@ -113,27 +113,25 @@
           anonymity: this.anonymity,
           replyRequested: this.replyRequested
         }
-        this.visible = false
         this.$emit('submit-comment', comment)
-        this.resetCommentPrefs()
+        this.resetPreferences()
       },
       cancel: function() {
-        this.visible = false
         this.$emit('cancel-comment')
-        this.resetCommentPrefs()
+        this.resetPreferences()
       },
       onVisibilityChange: function(event) { //comment visibility
         // Disable 'anonymous' and choose 'identified' unless post to entire class.
         if (event.target.value === 'everyone') { //TODO: enum?
-          this.anonymityOptions[this.ANONYMOUS_IDX].disabled = false
+          this.anonymityOptions[this.anonymousIdx].disabled = false
         } else {
           this.anonymity = 'identified'
-          this.anonymityOptions[this.ANONYMOUS_IDX].disabled = true
+          this.anonymityOptions[this.anonymousIdx].disabled = true
         }
       },
-      resetCommentPrefs: function() {
-        this.visibility = this.defaultVisibility
-        this.anonymity = this.defaultAnonymity
+      resetPreferences: function() {
+        this.visibility = 'everyone'
+        this.anonymity = 'identified'
         this.replyRequested = false
       }
     }
@@ -142,6 +140,9 @@
 
 <style scoped>
   /* TODO: clean up styling */
+  .editor-view {
+    margin-top: 10px;
+  }
   .editor-header {
     color: #444;
     padding-bottom: 5px;

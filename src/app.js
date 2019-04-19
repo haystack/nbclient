@@ -48,8 +48,7 @@ function checkForSelection(event) {
       makeHighlight(range)
 
       // Display the editor pane
-      editorPane.init('New Comment', null)
-      editorPane.show()
+      app.initEditor('New Comment', null, true)
 
       // Clear the selection
       selection.removeAllRanges()
@@ -140,33 +139,44 @@ hashtagSuggestions.sort(compare('value'))
 
 let headAnnotations = {} // {id: Annotation()}
 
-let editorPane = new Vue({
-  el: '#editor-pane',
+let app = new Vue({
+  el: '#list-pane',
   data: {
-    visible: false, // hidden by default
-    editorKey: Date.now(),
-    header: "",
-    initialContent: null,
-    content: null,
+    threadHeads: [],
+    threadSelected: null,
+    filterText: "",
+    filterHashtags: [],
+    editor: {
+      key: Date.now(),
+      visible: false,
+      header: "",
+      initialContent: null
+    },
     users: userSuggestions,
     hashtags: hashtagSuggestions
   },
   components: {
+    ListView,
+    ThreadView,
     EditorView
   },
   methods: {
-    show: function() {
-      this.visible = true
+    initEditor: function(header, content, visible) {
+      this.editor.key = Date.now()
+      this.editor.header = header
+      this.editor.initialContent = content
+      this.editor.visible = visible
     },
-    hide: function() {
-      this.visible = false
+    onSelectThread: function(id) {
+      selectAnnotation(id)
     },
-    init: function(header, content) {
-      this.editorKey = Date.now()
-      this.header = header
-      this.initialContent = content // null if empty
+    onDraftReply: function(comment) {
+      replyToAnnotation = comment
+      this.initEditor(`re: ${comment.text}`,  null, true)
     },
     onSubmitComment: function(comment) {
+      this.editor.visible = false
+
       let id = comment.timestamp //TODO: get actual annotation ID
       let author = '1' //TODO: get actual user ID
       let name = this.users[author].name
@@ -196,58 +206,20 @@ let editorPane = new Vue({
       } else {
         draftHighlight.setAnnotationID(id)
         headAnnotations[id] = annotation
-        app.threadHeads.push(annotation)
+        this.threadHeads.push(annotation)
 
         draftHighlight = null
         selecting = false
       }
     },
     onCancelComment: function() {
+      this.editor.visible = false
+
       if (draftHighlight) {
         highlights.removeHighlight(draftHighlight)
         draftHighlight = null
         selecting = false
       }
-    }
-  }
-})
-
-let searchBar = new Vue({
-  el: '#search-bar',
-  data: {
-    users: userSuggestions,
-    hashtags: hashtagSuggestions
-  },
-  components: {
-    SearchBar
-  },
-  methods: {
-    onTextChange(text) {
-      app.filterText = text
-    }
-  }
-})
-
-let app = new Vue({
-  el: '#list-pane',
-  data: {
-    threadHeads: [],
-    threadSelected: null,
-    filterText: "",
-    filterHashtags: []
-  },
-  components: {
-    ListView,
-    ThreadView
-  },
-  methods: {
-    onSelectThread: function(id) {
-      selectAnnotation(id)
-    },
-    onDraftReply: function(comment) {
-      replyToAnnotation = comment
-      editorPane.init(`re: ${comment.text}`,  null)
-      editorPane.show()
     }
   }
 })
@@ -265,6 +237,22 @@ let app = new Vue({
 //           return false
 //         })
 //       }
+
+let searchBar = new Vue({
+  el: '#search-bar',
+  data: {
+    users: userSuggestions,
+    hashtags: hashtagSuggestions
+  },
+  components: {
+    SearchBar
+  },
+  methods: {
+    onTextChange(text) {
+      app.filterText = text
+    }
+  }
+})
 
 let hashtagOptions = document.querySelector('#hashtag-options')
 for (let hashtag of hashtagSuggestions) {
@@ -307,15 +295,9 @@ function selectAnnotation(annotationID) {
   document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
   document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
 
-  renderThreadPane(headAnnotations[annotationID])
-}
-
-// Render thread pane for the thread containing 'annotation'
-function renderThreadPane(annotation) {
-  let headAnnotation = annotation
+  let headAnnotation = headAnnotations[annotationID]
   while (headAnnotation.parent) {
     headAnnotation = headAnnotation.parent
   }
-
   app.threadSelected = headAnnotation
 }
