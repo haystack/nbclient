@@ -3,7 +3,8 @@
       :placeholder="placeholder"
       :users="users"
       :hashtags="hashtags"
-      @text-change="onTextChange" />
+      @text-change="onTextChange">
+  </text-editor>
 </template>
 
 <script>

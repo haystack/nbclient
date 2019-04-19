@@ -44,16 +44,6 @@ body {
   display: inline-block;
 }
 
-#thread-pane {
-  height: 40vh; /* TODO: temp */
-  overflow-y: scroll;
-}
-.thread-header {
-  padding: 10px 0;
-  color: #444;
-  border-bottom: 1px solid #666;
-}
-
 
 #editor-pane {
   margin-top: 10px;

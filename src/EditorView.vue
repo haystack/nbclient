@@ -1,5 +1,5 @@
 <template>
-  <div v-show="visible" ref="container">
+  <div v-show="visible" ref="view">
     <div class="editor-header">{{ header }}</div>
     <text-editor
         :key="key"
@@ -8,7 +8,8 @@
         :initial-content="initialContent"
         :users="users"
         :hashtags="hashtags"
-        @text-change="onTextChange" />
+        @text-change="onTextChange">
+    </text-editor>
     <div class="editor-footer">
       <div class="editor-selection">
         Post to
@@ -40,7 +41,7 @@
   import TextEditor from './TextEditor.vue'
 
   export default {
-    name: 'comment-editor',
+    name: 'editor-view',
     props: {
       key: String,
       header: String,
@@ -92,7 +93,7 @@
         this.content = html
       },
       extractMentions() {
-        let tags = this.$refs.container.getElementsByClassName('mention')
+        let tags = this.$refs.view.getElementsByClassName('mention')
         let extracted = {
           users: [],
           hashtags: []

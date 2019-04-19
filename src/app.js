@@ -9,8 +9,8 @@ import Highlights from './highlighter.js'
 import Annotation from "./annotation.js"
 
 import ListView from './ListView.vue'
-import ThreadComment from './ThreadComment.vue'
-import CommentEditor from './CommentEditor.vue'
+import ThreadView from './ThreadView.vue'
+import EditorView from './EditorView.vue'
 import SearchBar from './SearchBar.vue'
 
 let docPane = document.querySelector('#document-pane')
@@ -152,7 +152,7 @@ let editorPane = new Vue({
     hashtags: hashtagSuggestions
   },
   components: {
-    CommentEditor
+    EditorView
   },
   methods: {
     show: function() {
@@ -232,15 +232,22 @@ let app = new Vue({
   el: '#list-pane',
   data: {
     threadHeads: [],
+    threadSelected: null,
     filterText: "",
     filterHashtags: []
   },
   components: {
-    ListView
+    ListView,
+    ThreadView
   },
   methods: {
     onSelectThread: function(id) {
       selectAnnotation(id)
+    },
+    onDraftReply: function(comment) {
+      replyToAnnotation = comment
+      editorPane.init(`re: ${comment.text}`,  null)
+      editorPane.show()
     }
   }
 })
@@ -303,30 +310,6 @@ function selectAnnotation(annotationID) {
   renderThreadPane(headAnnotations[annotationID])
 }
 
-
-let threadPane = new Vue({
-  el: '#thread-pane',
-  data: {
-    annotation: null
-  },
-  methods: {
-    draftReply: function(comment) {
-      replyToAnnotation = comment
-      editorPane.init(`re: ${comment.text}`,  null)
-      editorPane.show()
-    },
-    toggleStar: function(comment) {
-      comment.toggleStar()
-    },
-    toggleReplyRequest: function(comment) {
-      comment.toggleReplyRequest()
-    }
-  },
-  components: {
-    ThreadComment
-  }
-})
-
 // Render thread pane for the thread containing 'annotation'
 function renderThreadPane(annotation) {
   let headAnnotation = annotation
@@ -334,5 +317,5 @@ function renderThreadPane(annotation) {
     headAnnotation = headAnnotation.parent
   }
 
-  threadPane.annotation = headAnnotation
+  app.threadSelected = headAnnotation
 }

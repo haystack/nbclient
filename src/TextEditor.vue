@@ -3,7 +3,8 @@
       v-model="content"
       output="html"
       :config="config"
-      @input="onTextChange" />
+      @input="onTextChange">
+  </quill>
 </template>
 
 <script>

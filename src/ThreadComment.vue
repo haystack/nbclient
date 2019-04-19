@@ -55,10 +55,12 @@
         this.$emit('draft-reply', comment)
       },
       toggleStar: function(comment) {
-        this.$emit('toggle-star', comment)
+        comment.toggleStar()
+        // this.$emit('toggle-star', comment)
       },
       toggleReplyRequest: function(comment) {
-        this.$emit('toggle-reply-request', comment)
+        comment.toggleReplyRequest()
+        // this.$emit('toggle-reply-request', comment)
       }
     },
     computed: {

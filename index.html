@@ -56,7 +56,8 @@
       <div id="annotation-pane">
         <div id="list-header"><!--TODO: temp-->
           <div id="search-bar">
-            <search-bar :users="users" :hashtags="hashtags" @text-change="onTextChange"/>
+            <search-bar :users="users" :hashtags="hashtags" @text-change="onTextChange">
+            </search-bar>
           </div>
           <button id="list-filter">More filters</button>
           <div id="filter-options">
@@ -69,24 +70,17 @@
         <div id="list-pane">
           <list-view
               :threads="threadHeads"
-              @select-thread="onSelectThread" />
-        </div>
-
-        <div id="thread-pane" v-if="annotation">
-          <div class="thread-header">
-            {{ annotation.countAllReplies() + 1 }} comments
-            &nbsp;·&nbsp;
-            {{ annotation.countAllReplyRequests() }} reply requests
-          </div>
-          <thread-comment
-              :comment="annotation"
-              @draft-reply="draftReply"
-              @toggle-star="toggleStar"
-              @toggle-reply-request="toggleReplyRequest" />
+              @select-thread="onSelectThread">
+          </list-view>
+          <thread-view
+              v-if="threadSelected"
+              :thread="threadSelected"
+              @draft-reply="onDraftReply">
+          </thread-view>
         </div>
 
         <div id="editor-pane">
-          <comment-editor
+          <editor-view
               :key="editorKey"
               :visible="visible"
               :header="header"
@@ -94,7 +88,8 @@
               :users="users"
               :hashtags="hashtags"
               @submit-comment="onSubmitComment"
-              @cancel-comment="onCancelComment" />
+              @cancel-comment="onCancelComment">
+          </editor-view>
         </div>
       </div>
     </div>
