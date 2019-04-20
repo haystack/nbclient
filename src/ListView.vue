@@ -2,7 +2,7 @@
   <div>
     <div class="list-header">
       <span class="count">
-        {{ threads.length }} of {{ totalCount }} threads <!-- TODO -->
+        {{ threads.length }} of {{ totalCount }} threads
       </span>
       <span class="sort">
         Sort by:
@@ -14,19 +14,18 @@
       </span>
     </div>
     <div class="list-table">
-      <!-- should this be a seperate vue component, like ListRow.vue -->
-      <div class="list-row"
-        v-for="thread in sorted"
-        :key="thread.id"
-        :annotation_id="thread.id"
-        @click="selectThread(thread.id)">
-        {{ thread.text }}
-      </div>
+      <list-row
+          v-for="thread in sorted"
+          :thread="thread"
+          :threadSelected="threadSelected"
+          @select-thread="$emit('select-thread', thread)">
+      </list-row>
     </div>
   </div>
 </template>
 
 <script>
+  import ListRow from './ListRow.vue'
   import { compare, compareDomPosition } from './compare-util.js'
 
   export default {
@@ -39,7 +38,8 @@
       totalCount: { //number of total threads before filter
         type: Number,
         default: 0
-      }
+      },
+      threadSelected: Object
     },
     data() {
       return {
@@ -71,10 +71,8 @@
         }
       }
     },
-    methods: {
-      selectThread: function(id) {
-        this.$emit('select-thread', id)
-      }
+    components: {
+      ListRow
     }
   }
 </script>
@@ -93,18 +91,5 @@
     height: 15vh;
     border: solid 1px #ddd;
     overflow-y: scroll;
-  }
-  .list-row {
-    padding: 4px;
-    cursor: pointer;
-  }
-  .list-row:nth-child(even) {
-    background-color: #f0f0f0;
-  }
-  .list-row:hover {
-    background-color: #ffffd0;
-  }
-  .list-row.selected { /* TODO: do this in computed? */
-    background-color: #70a0f0;
   }
 </style>

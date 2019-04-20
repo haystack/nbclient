@@ -21,9 +21,6 @@
         placeholder: 'Search for comments'
       }
     },
-    components: {
-      TextEditor
-    },
     methods: {
       onTextChange: function(html) {
         // TODO: for now work around to generate plain text, formula breaks
@@ -31,6 +28,9 @@
         temp.innerHTML = html
         this.$emit('text-change', temp.textContent)
       }
+    },
+    components: {
+      TextEditor
     }
   }
 </script>

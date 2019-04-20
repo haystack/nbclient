@@ -66,15 +66,15 @@ function redrawHighlights() {
   highlights.render()
 }
 
-let headAnnotations = {} // {id: Annotation()}
-
 let app = new Vue({
-  el: '#list-pane',
+  el: '#app',
   data: {
-    threadHeads: [],
+    threads: {},
     threadSelected: null,
-    filterText: "",
-    filterHashtags: [],
+    filter: {
+      searchText: "",
+      hashtags: []
+    },
     editor: {
       key: Date.now(),
       visible: false,
@@ -83,12 +83,6 @@ let app = new Vue({
     },
     users: [],
     hashtags: []
-  },
-  components: {
-    FilterView,
-    ListView,
-    ThreadView,
-    EditorView
   },
   computed: {
     sortedUsers: function() {
@@ -100,17 +94,70 @@ let app = new Vue({
     },
     sortedHashtags: function() {
       return Object.values(this.hashtags).sort(compare('value'))
+    },
+    filteredThreads: function() {
+      let items = Object.values(this.threads)
+      let searchText = this.filter.searchText
+      if (searchText !== "") {
+        items = items.filter(item => item.hasText(searchText))
+      }
+      let filterHashtags = this.filter.hashtags
+      if (filterHashtags.length > 0) {
+        items = items.filter(item => {
+          for (let hashtag of filterHashtags) {
+            if (item.hasHashtag(hashtag)) {
+              return true
+            }
+          }
+          return false
+        })
+      }
+      return items
+    },
+    totalThreads: function() {
+      return Object.keys(this.threads).length
     }
   },
   methods: {
+    onSearchText: function(text) {
+      if (
+        this.threadSelected
+        && text !== ""
+        && !this.threadSelected.hasText(text)
+      ) {
+        this.threadSelected = null // reset selection if filtered
+      }
+      this.filter.searchText = text
+    },
+    onFilterHashtags: function(hashtags) {
+      if (this.threadSelected && hashtags.length > 0) {
+        let filtered = true
+        for (let hashtag of hashtags) {
+          if (this.threadSelected.hasHashtag(hashtag)) {
+            filtered = false
+            break
+          }
+        }
+        if (filtered) {
+          this.threadSelected = null // reset selection if filtered
+        }
+      }
+      this.filter.hashtags = hashtags
+    },
     initEditor: function(header, content, visible) {
       this.editor.key = Date.now()
       this.editor.header = header
       this.editor.initialContent = content
       this.editor.visible = visible
     },
-    onSelectThread: function(id) {
-      selectAnnotation(id)
+    onSelectThread: function(thread) {
+      app.threadSelected = thread
+      // TODO: Convert Highlights to Vue
+      let highlight = document.getElementsByClassName('nb-highlight selected')[0]
+      if (highlight) {
+        highlight.classList.remove('selected')
+      }
+      document.querySelector(`.nb-highlight[annotation_id='${thread.id}']`).classList.add('selected')
     },
     onDraftReply: function(comment) {
       replyToAnnotation = comment
@@ -147,9 +194,7 @@ let app = new Vue({
         replyToAnnotation = null
       } else {
         draftHighlight.setAnnotationID(id)
-        headAnnotations[id] = annotation
-        this.threadHeads.push(annotation)
-
+        this.$set(this.threads, id, annotation)
         draftHighlight = null
         selecting = false
       }
@@ -163,22 +208,14 @@ let app = new Vue({
         selecting = false
       }
     }
+  },
+  components: {
+    FilterView,
+    ListView,
+    ThreadView,
+    EditorView
   }
 })
-// TODO: filter before passing threads to ListView
-//       if (this.filterText !== "") {
-//         results = results.filter(thread => thread.hasText(this.filterText))
-//       }
-//       if (this.filterHashtags.length > 0) {
-//         results = results.filter(thread => {
-//           for (let hashtag of this.filterHashtags) {
-//             if (thread.hasHashtag(hashtag)) {
-//               return true
-//             }
-//           }
-//           return false
-//         })
-//       }
 
 app.users = {
   '1': {
@@ -240,52 +277,4 @@ app.hashtags = {
     value: "idea",
     emoji: "1F4A1"
   }
-}
-
-let hashtagOptions = document.querySelector('#hashtag-options')
-for (let hashtag of Object.values(app.hashtags)) {
-  let div = document.createElement('div')
-  let input = document.createElement('input')
-  input.setAttribute('type', 'checkbox')
-  input.setAttribute('name', `hashtag-${hashtag.id}`)
-  input.setAttribute('value', hashtag.id)
-  let label = document.createElement('label')
-  label.setAttribute('for', `hashtag-${hashtag.id}`)
-  label.textContent = hashtag.value
-  div.appendChild(input)
-  div.appendChild(label)
-  hashtagOptions.appendChild(div)
-}
-document.querySelector('#apply-filter').addEventListener('click', (event) => {
-  let options = hashtagOptions.querySelectorAll(`input[type=checkbox]`)
-  let toFilter = []
-  for (let option of options) {
-    if (option.checked) {
-      toFilter.push(option.getAttribute('value'))
-    }
-  }
-  app.filterHashtags = toFilter
-})
-
-function selectAnnotation(annotationID) {
-  let highlight = document.getElementsByClassName('nb-highlight selected')[0]
-  if (highlight) {
-    highlight.classList.remove('selected')
-  }
-  let row = document.getElementsByClassName('list-row selected')[0]
-  if (row) {
-    row.classList.remove('selected')
-  }
-  // TODO: fix bug with wrong row highlighted when new comments created
-  // or just select the annotation when it's created
-  // but this could be inside vue component
-  // TODO: check if list-row exists (when filtered)
-  document.querySelector(`.list-row[annotation_id='${annotationID}']`).classList.add('selected')
-  document.querySelector(`.nb-highlight[annotation_id='${annotationID}']`).classList.add('selected')
-
-  let headAnnotation = headAnnotations[annotationID]
-  while (headAnnotation.parent) {
-    headAnnotation = headAnnotation.parent
-  }
-  app.threadSelected = headAnnotation
 }

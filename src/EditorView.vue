@@ -85,9 +85,6 @@
         replyRequested: false
       }
     },
-    components: {
-      TextEditor
-    },
     methods: {
       onTextChange: function(html) {
         this.content = html
@@ -134,6 +131,9 @@
         this.anonymity = 'identified'
         this.replyRequested = false
       }
+    },
+    components: {
+      TextEditor
     }
   }
 </script>

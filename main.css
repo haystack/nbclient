@@ -9,30 +9,13 @@ body {
   font-size: 22px;
   line-height: 1.5;
 }
-#annotation-pane {
+#app {
   width: 30%;
   position: fixed;
   top: 40px;
   right: 4%;
   height: 92vh; /* TODO: temp */
   overflow-y: scroll; /* TODO: temp */
-}
-
-#list-filter {
-  font-size: 13px;
-  padding: 6px 9px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-#filter-options { /* TODO: temp */
-  padding: 10px;
-}
-#filter-options > h1 {
-  font-size: 14px;
-}
-#hashtag-options > div {
-  width: 50%;
-  display: inline-block;
 }
 
 .nb-highlight {

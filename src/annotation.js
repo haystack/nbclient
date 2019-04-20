@@ -20,7 +20,7 @@ class Annotation {
     this.people = usersTagged
 
     this.visibility = visibility
-    this.isAnonymous = anonymity
+    this.anonymity = anonymity
 
     this.replyRequestedByMe = replyRequestedByMe
     this.replyRequestCount = replyRequestCount
