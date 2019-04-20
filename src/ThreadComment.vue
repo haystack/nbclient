@@ -65,7 +65,6 @@
     },
     computed: {
       authorName: function() {
-        console.log(this.comment)
         if (this.comment.anonymity === 'anonymous' || this.comment.author === null) { // TODO: enum?
           return 'Anonymous'
         }

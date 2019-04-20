@@ -53,33 +53,40 @@
     </div>
 
     <div id="app">
-      <filter-view
-          :users="sortedUsers"
-          :hashtags="sortedHashtags"
-          @search-text="onSearchText"
-          @filter-hashtags="onFilterHashtags">
-      </filter-view>
-      <list-view
+      <nb-highlights
           :threads="filteredThreads"
-          :total-count="totalThreads"
           :thread-selected="threadSelected"
-          @select-thread="onSelectThread">
-      </list-view>
-      <thread-view
-          v-if="threadSelected"
-          :thread="threadSelected"
-          @draft-reply="onDraftReply">
-      </thread-view>
-      <editor-view
-          :key="editor.key"
-          :visible="editor.visible"
-          :header="editor.header"
-          :initial-content="editor.initialContent"
-          :users="sortedUsers"
-          :hashtags="sortedHashtags"
-          @submit-comment="onSubmitComment"
-          @cancel-comment="onCancelComment">
-      </editor-view>
+          :draft-range="draftRange">
+      </nb-highlights>
+      <div class="nb-sidebar">
+        <filter-view
+            :users="sortedUsers"
+            :hashtags="sortedHashtags"
+            @search-text="onSearchText"
+            @filter-hashtags="onFilterHashtags">
+        </filter-view>
+        <list-view
+            :threads="filteredThreads"
+            :total-count="totalThreads"
+            :thread-selected="threadSelected"
+            @select-thread="onSelectThread">
+        </list-view>
+        <thread-view
+            v-if="threadSelected"
+            :thread="threadSelected"
+            @draft-reply="onDraftReply">
+        </thread-view>
+        <editor-view
+            :key="editor.key"
+            :visible="editor.visible"
+            :header="editor.header"
+            :initial-content="editor.initialContent"
+            :users="sortedUsers"
+            :hashtags="sortedHashtags"
+            @submit-comment="onSubmitComment"
+            @cancel-comment="onCancelComment">
+        </editor-view>
+      </div>
     </div>
     <script type="text/javascript" src="dist/bundle.js"></script>
   </body>

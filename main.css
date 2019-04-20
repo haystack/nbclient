@@ -10,26 +10,14 @@ body {
   line-height: 1.5;
 }
 #app {
+  position: absolute;
+  top: 0;
+}
+.nb-sidebar {
   width: 30%;
   position: fixed;
   top: 40px;
   right: 4%;
   height: 92vh; /* TODO: temp */
   overflow-y: scroll; /* TODO: temp */
-}
-
-.nb-highlight {
-  fill: rgb(255, 204, 1);
-  opacity: 0.2;
-}
-.nb-highlight:hover {
-  fill: red;
-}
-.nb-highlight.draft {
-  fill: rgb(231, 76, 60);
-  opacity: 0.3;
-}
-.nb-highlight.selected {
-  fill: rgb(1, 99, 255);
-  opacity: 0.3;
 }
