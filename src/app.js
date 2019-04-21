@@ -39,7 +39,7 @@ function checkForSelection(event) {
 }
 
 function redrawHighlights() {
-  // highlights.render()
+  // TODO: rerender highlights on width / height change
 }
 
 let app = new Vue({

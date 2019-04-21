@@ -2,8 +2,8 @@
   <g class="nb-highlight" :style="style" @click="onClick">
     <rect
         v-for="box in boundingBoxes"
-        :x="box.left"
-        :y="box.top"
+        :x="box.left + getOffsetX()"
+        :y="box.top + getOffsetY()"
         :height="box.height"
         :width="box.width">
     </rect>
@@ -38,33 +38,22 @@
       }
     },
     methods: {
+      getOffsetX: function() {
+        return window.pageXOffset
+          || document.documentElement.scrollLeft
+          || document.body.scrollLeft
+          || 0
+      },
+      getOffsetY: function() {
+        return window.pageYOffset
+          || document.documentElement.scrollTop
+          || document.body.scrollTop
+          || 0
+      },
       onClick: function() {
-        if (this.thread) $emit('select-thread', this.thread)
+        this.$emit('select-thread', this.thread)
       }
     }
-    // TODO: offset?
-    // :x="box.left - offset.left"
-    // :y="box.top - offset.top"
-    //
-    // TODO: this.element = '<g>'
-    // dispatchEvent(e) {
-    //   if (!this.element) return
-    //   this.element.dispatchEvent(e)
-    // }
-    //
-    // getBoundingClientRect() {
-    //   return this.element.getBoundingClientRect()
-    // }
-    //
-    // getClientRects() {
-    //   let rects = []
-    //   let el = this.element.firstChild
-    //   while (el) {
-    //     rects.push(el.getBoundingClientRect())
-    //     el = el.nextSibling
-    //   }
-    //   return rects
-    // }
   }
 </script>
 

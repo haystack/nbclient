@@ -61,6 +61,9 @@
 
 <style scoped>
   /* TODO: clean up styling */
+  .filter-header {
+    margin-top: 10px;
+  }
   .filter-header .search-bar {
     width: 75%;
     display: inline-block;
