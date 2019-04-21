@@ -30,8 +30,8 @@
         <label for="draft-request-reply">Request replies</label>
       </div>
       <div class="editor-button">
-        <button class="submit" @click="submit">Submit</button>
         <button class="cancel" @click="cancel">Cancel</button>
+        <button class="submit" @click="submit">Submit</button>
       </div>
     </div>
   </div>
@@ -141,7 +141,7 @@
 <style scoped>
   /* TODO: clean up styling */
   .editor-view {
-    margin-top: 10px;
+    margin: 10px 0;
   }
   .editor-header {
     color: #444;
@@ -156,8 +156,5 @@
   }
   .editor-checkbox {
     padding: 5px 0;
-  }
-  .editor-button > button {
-    float: right;
   }
 </style>

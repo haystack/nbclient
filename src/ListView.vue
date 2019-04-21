@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="list-view">
     <div class="list-header">
       <span class="count">
         {{ threads.length }} of {{ totalCount }} threads
@@ -79,6 +79,9 @@
 
 <style scoped>
   /* TODO: clean up styling */
+  .list-view {
+    margin-bottom: 10px;
+  }
   .list-header .count {
     font-size: 13px;
   }

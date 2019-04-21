@@ -3,75 +3,93 @@ import Vue from 'vue'
 import VueQuill from 'vue-quill'
 Vue.use(VueQuill)
 
-import { compare } from './compare-util.js'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
-import Annotation from "./annotation.js"
 
 import NbHighlights from './NbHighlights.vue'
-import ListView from './ListView.vue'
-import ThreadView from './ThreadView.vue'
-import EditorView from './EditorView.vue'
-import FilterView from './FilterView.vue'
-
-// to serialize NBRange: sr = range.serialize()
-// to deserialize: dsr = deserializeNbRange(sr)
+import NbSidebar from './NbSidebar.vue'
 
 let selecting = false
 
-document.addEventListener("mouseup", checkForSelection, false)
-window.addEventListener("resize", redrawHighlights, false)
+let element = document.createElement('div')
+element.id = "nb-app"
+document.body.appendChild(element)
 
-function checkForSelection(event) {
-  let selection = window.getSelection()
-  if (!selection.isCollapsed) {
-    // Set global state to reflect the fact we're making a selection.
-    // Used to stop click events from showing contents of older highlights
-    // when the click event is the result of a selection.
-    selecting = true
-    // TODO: the whole selcting logic seems a bit off
-    let range = selection.getRangeAt(0)
-    // TODO: check if range is in body, not sidebar
-    // e.g. sidebar.contains(range.commonAncestorContainer)
-    // or check if either start / end of range is in sidebar
-    app.onDraftThread(range)
-    selection.removeAllRanges() // Clear the selection
+document.body.style.margin= '0 375px 0 0'
+
+document.addEventListener("mouseup", function(){
+  function isNodeSidebar(node) {
+    while (node) {
+      if (node.id === "nb-sidebar") return true
+      node = node.parentNode
+    }
+    return false
   }
-}
 
-function redrawHighlights() {
-  // TODO: rerender highlights on width / height change
-}
+  let selection = window.getSelection()
+  if (selection.isCollapsed) return
+
+  // Set global state to reflect the fact we're making a selection.
+  // Used to stop click events from showing contents of older highlights
+  // when the click event is the result of a selection.
+  selecting = true
+  // TODO: the whole selcting logic seems a bit off
+
+  let range = selection.getRangeAt(0)
+  if ( // check selection does not overlap sidebar
+    !isNodeSidebar(range.startContainer)
+    && !isNodeSidebar(range.endContainer)
+  ) {
+    app.draftThread(range)
+    selection.removeAllRanges()
+  }
+})
+
+window.addEventListener("resize", function() {
+  // TODO: rerender highlights on width
+})
 
 let app = new Vue({
-  el: '#app',
+  el: '#nb-app',
+  template: `
+    <div id="nb-app" :style="style">
+      <nb-highlights
+          :threads="filteredThreads"
+          :thread-selected="threadSelected"
+          :draft-range="draftRange"
+          @select-thread="onSelectThread">
+      </nb-highlights>
+      <nb-sidebar
+          :users="users"
+          :hashtags="hashtags"
+          :total-threads="totalThreads"
+          :threads="filteredThreads"
+          :thread-selected="threadSelected"
+          :draft-range="draftRange"
+          @search-text="onSearchText"
+          @filter-hashtags="onFilterHashtags"
+          @select-thread="onSelectThread"
+          @new-thread="onNewThread"
+          @cancel-draft="onCancelDraft">
+      </nb-sidebar>
+    </div>
+  `,
   data: {
-    draftRange: null,
-    replyToComment: null,
+    users: {},
+    hashtags: {},
     threads: {},
     threadSelected: null, // TODO: Reset when you click on document outside of highlights?
+    draftRange: null,
     filter: {
       searchText: "",
       hashtags: []
-    },
-    editor: {
-      key: Date.now(),
-      visible: false,
-      header: "",
-      initialContent: null
-    },
-    users: [],
-    hashtags: []
+    }
   },
   computed: {
-    sortedUsers: function() {
-      let items = Object.values(this.users)
-      for (let item of items) {
-        Object.assign(item, { value: `${item.name.first} ${item.name.last}` })
-      }
-      return items.sort(compare('value'))
+    style: function() { // TODO: put it in template?
+      return `position: absolute; top: 0; right: 0;height: ${document.body.clientHeight}px`
     },
-    sortedHashtags: function() {
-      return Object.values(this.hashtags).sort(compare('value'))
+    totalThreads: function() {
+      return Object.keys(this.threads).length
     },
     filteredThreads: function() {
       let items = Object.values(this.threads)
@@ -89,12 +107,21 @@ let app = new Vue({
         })
       }
       return items
-    },
-    totalThreads: function() {
-      return Object.keys(this.threads).length
     }
   },
   methods: {
+    draftThread: function(range) {
+      this.draftRange = createNbRange(range)
+    },
+    onNewThread: function(thread) {
+      this.$set(this.threads, thread.id, thread)
+      this.draftRange = null
+      selecting = false
+    },
+    onCancelDraft: function() {
+      this.draftRange = null
+      selecting = false
+    },
     onSearchText: function(text) {
       if (
         this.threadSelected
@@ -120,74 +147,13 @@ let app = new Vue({
       }
       this.filter.hashtags = hashtags
     },
-    initEditor: function(header, content, visible) {
-      this.editor.key = Date.now()
-      this.editor.header = header
-      this.editor.initialContent = content
-      this.editor.visible = visible
-    },
     onSelectThread: function(thread) {
       this.threadSelected = thread
-    },
-    onDraftThread: function(range) {
-      this.replyToComment = null // Cannot reply and create at the same time.
-      this.draftRange = createNbRange(range)
-      this.initEditor('New Comment', null, true)
-    },
-    onDraftReply: function(comment) {
-      this.replyToComment = comment
-      this.initEditor(`re: ${comment.text}`,  null, true)
-    },
-    onSubmitComment: function(comment) {
-      this.editor.visible = false
-
-      let id = comment.timestamp //TODO: get actual annotation ID
-      let author = '1' //TODO: get actual user ID
-      let name = this.users[author].name
-
-      let annotation = new Annotation(
-        id,
-        this.draftRange, //range, null if this is reply
-        this.replyToComment, //parent, null if this is the head of thread
-        comment.timestamp,
-        author,
-        `${name.first} ${name.last}`, //authorName
-        comment.html, //content
-        comment.mentions.hashtags,
-        comment.mentions.users,
-        comment.visibility, //TODO: create enum?
-        comment.anonymity,
-        comment.replyRequested, //replyRequestedByMe
-        comment.replyRequested ? 1 : 0, //replyRequestCount
-        false, //starredByMe
-        0, //starCount
-        true //seenByMe
-      )
-
-      if (this.replyToComment) {
-        this.replyToComment.children.push(annotation)
-        this.replyToComment = null
-      } else {
-        this.$set(this.threads, id, annotation)
-        this.draftRange = null
-        selecting = false
-      }
-    },
-    onCancelComment: function() {
-      this.editor.visible = false
-
-      if (this.draftRange) {
-        this.draftRange = null
-        selecting = false
-      }
     }
   },
   components: {
     NbHighlights,
-    FilterView,
-    ListView,
-    ThreadView,
-    EditorView
+    NbSidebar
   }
 })
 
@@ -252,3 +218,7 @@ app.hashtags = {
     emoji: "1F4A1"
   }
 }
+
+//app.threads = Object.assign({}, app.threads, threadsRestored)
+// to serialize NBRange: sr = range.serialize()
+// to deserialize: dsr = deserializeNbRange(sr)

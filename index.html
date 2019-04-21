@@ -5,10 +5,18 @@
     <meta http-equiv="content-language" content="en">
     <title> Demo </title>
 
+    <style>
+      body {
+        padding: 10px;
+        line-height: 1.5;
+        font-size: 22px;
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+    </style>
+
     <link href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css" rel="stylesheet" >
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link href="main.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js"></script>
   </head>
@@ -50,43 +58,6 @@
       pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
       culpa qui officia deserunt mollit anim id est laborum.</p>
 
-    <div id="app">
-      <nb-highlights
-          :threads="filteredThreads"
-          :thread-selected="threadSelected"
-          :draft-range="draftRange"
-          @select-thread="onSelectThread">
-      </nb-highlights>
-      <div class="nb-sidebar">
-        <filter-view
-            :users="sortedUsers"
-            :hashtags="sortedHashtags"
-            @search-text="onSearchText"
-            @filter-hashtags="onFilterHashtags">
-        </filter-view>
-        <list-view
-            :threads="filteredThreads"
-            :total-count="totalThreads"
-            :thread-selected="threadSelected"
-            @select-thread="onSelectThread">
-        </list-view>
-        <thread-view
-            v-if="threadSelected"
-            :thread="threadSelected"
-            @draft-reply="onDraftReply">
-        </thread-view>
-        <editor-view
-            :key="editor.key"
-            :visible="editor.visible"
-            :header="editor.header"
-            :initial-content="editor.initialContent"
-            :users="sortedUsers"
-            :hashtags="sortedHashtags"
-            @submit-comment="onSubmitComment"
-            @cancel-comment="onCancelComment">
-        </editor-view>
-      </div>
-    </div>
     <script type="text/javascript" src="dist/bundle.js"></script>
   </body>
 </html>
