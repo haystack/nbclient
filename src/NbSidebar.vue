@@ -1,5 +1,5 @@
 <template>
-  <div class="nb-sidebar">
+  <div id="nb-sidebar">
     <filter-view
         :users="sortedUsers"
         :hashtags="sortedHashtags"
@@ -168,7 +168,7 @@
 </script>
 
 <style>
-.nb-sidebar {
+#nb-sidebar {
   width: 350px;
   height: 100vh;
   padding: 0 10px;
