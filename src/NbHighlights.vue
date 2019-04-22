@@ -47,8 +47,8 @@
   svg {
     position: absolute;
     top: 0;
-    right: 375px; /* assuming sidebar is 350px wide + 2 * 10px padding + 5px margin */
-    width: calc(100vw - 375px);;
+    right: 395px; /* assuming sidebar is 350px wide + 2 * 10px padding + 5px margin */
+    width: calc(100vw - 395px);;
     height: 100%;
     pointer-events: none;
   }

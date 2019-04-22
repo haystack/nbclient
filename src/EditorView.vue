@@ -142,19 +142,22 @@
   /* TODO: clean up styling */
   .editor-view {
     margin: 10px 0;
+    overflow-x: visible; /* for tooltips */
   }
   .editor-header {
+    font-size: 14px;
     color: #444;
     padding-bottom: 5px;
   }
   .editor-footer {
     color: #444;
-    font-size: 14px;
   }
   .editor-selection {
     padding-top: 5px;
+    font-size: 12px;
   }
   .editor-checkbox {
     padding: 5px 0;
+    font-size: 12px;
   }
 </style>

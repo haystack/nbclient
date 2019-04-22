@@ -8,9 +8,9 @@
             @text-change="onTextChange">
         </search-bar>
       </div>
-      <button>More filters</button>
+      <button @click="toggleFilters">{{ toggleFiltersLabel }}</button>
     </div>
-    <div class="filter-options">
+    <div class="filter-options" v-show="filterVisible">
       <h1>Hashtags</h1>
       <div class="hashtags">
         <div v-for="hashtag in hashtags">
@@ -40,18 +40,27 @@
     },
     data() {
       return {
+        filterVisible: false,
         filterHashtags: []
       }
     },
+    computed: {
+      toggleFiltersLabel: function() {
+        return this.filterVisible ? "Close filters" : "More filters"
+      }
+    },
     methods: {
-      onTextChange(text) {
+      onTextChange: function(text) {
         this.$emit('search-text', text)
       },
-      onFilterChange(type) {
+      toggleFilters: function(event) {
+        this.filterVisible = !this.filterVisible
+      },
+      onFilterChange: function(type) {
         if (type === 'hashtags') { // in case we add different kinds of filters
           this.$emit('filter-hashtags', this.filterHashtags)
         }
-      },
+      }
     },
     components: {
       SearchBar
@@ -61,18 +70,19 @@
 
 <style scoped>
   /* TODO: clean up styling */
-  .filter-header {
-    margin-top: 10px;
+  .filter-view {
+    margin: 10px 0;
   }
   .filter-header .search-bar {
-    width: 75%;
+    width: 270px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 5px;
   }
   .filter-header button {
     font-size: 13px;
-    padding: 6px 9px;
+    width: 94px;
+    padding: 8px;
     border-radius: 5px;
     cursor: pointer;
   }

@@ -1,9 +1,9 @@
 <template>
-  <g class="nb-highlight" :style="style" @click="onClick">
+  <g class="nb-highlight" :style="style" @click="$emit('select-thread',thread)">
     <rect
-        v-for="box in boundingBoxes"
-        :x="box.left + getOffsetX()"
-        :y="box.top + getOffsetY()"
+        v-for="box in bounds.boxes"
+        :x="box.left + bounds.offsetX"
+        :y="box.top + bounds.offsetY"
         :height="box.height"
         :width="box.width">
     </rect>
@@ -30,28 +30,22 @@
           return 'fill: rgb(1, 99, 255); opacity: 0.3;'
         }
       },
-      boundingBoxes: function() {
+      bounds: function() {
+        let bounds = {}
         if (this.thread) {
-          return getTextBoundingBoxes(this.thread.range.toRange())
+          bounds.boxes = getTextBoundingBoxes(this.thread.range.toRange())
+        } else {
+          bounds.boxes = getTextBoundingBoxes(this.range.toRange())
         }
-        return getTextBoundingBoxes(this.range.toRange())
-      }
-    },
-    methods: {
-      getOffsetX: function() {
-        return window.pageXOffset
-          || document.documentElement.scrollLeft
-          || document.body.scrollLeft
-          || 0
-      },
-      getOffsetY: function() {
-        return window.pageYOffset
-          || document.documentElement.scrollTop
-          || document.body.scrollTop
-          || 0
-      },
-      onClick: function() {
-        this.$emit('select-thread', this.thread)
+        bounds.offsetX = window.pageXOffset
+            || document.documentElement.scrollLeft
+            || document.body.scrollLeft
+            || 0
+        bounds.offsetY = window.pageYOffset
+            || document.documentElement.scrollTop
+            || document.body.scrollTop
+            || 0
+        return bounds
       }
     }
   }

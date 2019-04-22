@@ -169,12 +169,13 @@
 
 <style>
 #nb-sidebar {
-  width: 350px;
+  width: 370px;
   height: 100vh;
   padding: 0 10px;
   position: fixed;
   top: 0;
   right: 0;
+  overflow-x: visible; /* for editor tooltips */
   overflow-y: scroll;
   line-height: normal;
   font-size: 16px;
