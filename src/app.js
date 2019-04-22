@@ -1,9 +1,9 @@
 // TODO: Follow the JS doc style
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
-import { createNbRange, deserializeNbRange } from './nbrange.js'
-import NbHighlights from './NbHighlights.vue'
-import NbSidebar from './NbSidebar.vue'
+import { createNbRange, deserializeNbRange } from './models/nbrange.js'
+import NbHighlights from './components/NbHighlights.vue'
+import NbSidebar from './components/NbSidebar.vue'
 
 if (
   (document.attachEvent && document.readyState === "complete")

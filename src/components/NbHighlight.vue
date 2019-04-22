@@ -11,7 +11,7 @@
 </template>
 
 <script>
-  import { getTextBoundingBoxes } from './overlay-util.js'
+  import { getTextBoundingBoxes } from '../utils/overlay-util.js'
 
   export default {
     name: 'nb-highlight',

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import { compare, compareDomPosition } from './compare-util.js'
+  import { compare, compareDomPosition } from '../utils/compare-util.js'
 
   export default {
     name: 'list-view',

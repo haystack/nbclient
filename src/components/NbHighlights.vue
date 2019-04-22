@@ -15,8 +15,8 @@
 
 <script>
   import NbHighlight from './NbHighlight.vue'
-  import { eventsProxyMouse } from './highlight-util.js'
-  import { compare } from './compare-util.js'
+  import { eventsProxyMouse } from '../utils/highlight-util.js'
+  import { compare } from '../utils/compare-util.js'
 
   export default {
     name: 'nb-highlights',

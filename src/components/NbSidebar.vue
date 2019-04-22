@@ -31,8 +31,8 @@
 </template>
 
 <script>
-  import { compare } from './compare-util.js'
-  import Annotation from "./annotation.js"
+  import { compare } from '../utils/compare-util.js'
+  import Annotation from "../models/annotation.js"
 
   import FilterView from './FilterView.vue'
   import ListView from './ListView.vue'
