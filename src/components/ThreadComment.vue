@@ -47,6 +47,8 @@
   import tippy from 'tippy.js'
   var moment = require('moment') // TODO: ES6 import syntax?
 
+  import { CommentAnonymity } from "../models/enums.js"
+
   export default {
     name: 'thread-comment',
     props: ['comment'],
@@ -65,7 +67,10 @@
     },
     computed: {
       authorName: function() {
-        if (this.comment.anonymity === 'anonymous' || this.comment.author === null) { // TODO: enum?
+        if (
+          this.comment.anonymity === CommentAnonymity.ANONYMOUS
+          || this.comment.author === null
+        ) {
           return 'Anonymous'
         }
         return this.comment.authorName
@@ -88,7 +93,6 @@
 </script>
 
 <style scoped>
-  /* TODO: lint */
   .thread-row {
     padding: 10px 0 10px 10px;
   }

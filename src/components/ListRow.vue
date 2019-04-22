@@ -37,7 +37,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .list-row {
     padding: 4px;
     cursor: pointer;

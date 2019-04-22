@@ -1,4 +1,3 @@
-// TODO: Follow the JS doc style
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
@@ -117,8 +116,9 @@ function embedNbApp() {
       }
     },
     computed: {
-      style: function() { // TODO: put it in template?
-        return `position: absolute; top: 0; right: 0; height: ${document.body.clientHeight}px`
+      style: function() {
+        return 'position: absolute; top: 0; right: 0;'
+            + `height: ${document.body.clientHeight}px`
       },
       totalThreads: function() {
         return Object.keys(this.threads).length

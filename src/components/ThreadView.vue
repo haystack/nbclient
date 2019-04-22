@@ -28,7 +28,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .thread-view {
     height: 40vh;
     overflow-y: scroll;

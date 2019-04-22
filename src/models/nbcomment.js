@@ -1,13 +1,11 @@
-// TODO: lint
-
-class Annotation {
+class NbComment {
   constructor(id, range, parent, timestamp, author, authorName, html,
       hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
       replyRequestCount, starredByMe, starCount, seenByMe) {
     this.id = id
     this.range = range // null if this is a reply
 
-    this.parent = parent // null if this is a head annotation
+    this.parent = parent // null if this is the head of thread
     this.children = []
 
     this.timestamp = timestamp
@@ -107,4 +105,4 @@ class Annotation {
   }
 }
 
-export default Annotation
+export default NbComment

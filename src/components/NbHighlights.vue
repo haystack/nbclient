@@ -43,7 +43,6 @@
 </script>
 
 <style scoped>
-  /* TODO: fix offset and dim */
   svg {
     position: absolute;
     top: 0;

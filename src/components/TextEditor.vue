@@ -82,7 +82,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   /deep/ .ql-mention-list-container {
     max-height: 154px;
     overflow-y: scroll;

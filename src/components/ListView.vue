@@ -78,7 +78,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .list-view {
     margin-bottom: 10px;
   }

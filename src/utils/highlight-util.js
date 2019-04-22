@@ -1,4 +1,3 @@
-// TODO: lint
 /* Helper function for eventsProxyMouse */
 function clone(e) {
   let opts = Object.assign({}, e, {bubbles: false})

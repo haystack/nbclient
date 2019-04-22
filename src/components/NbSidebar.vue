@@ -32,7 +32,7 @@
 
 <script>
   import { compare } from '../utils/compare-util.js'
-  import Annotation from "../models/annotation.js"
+  import NbComment from "../models/NbComment.js"
 
   import FilterView from './FilterView.vue'
   import ListView from './ListView.vue'
@@ -112,36 +112,36 @@
         this.replyToComment = comment
         this.initEditor(`re: ${comment.text}`,  null, true)
       },
-      onSubmitComment: function(comment) {
+      onSubmitComment: function(data) {
         this.editor.visible = false
 
-        let id = comment.timestamp //TODO: get actual annotation ID
+        let id = data.timestamp //TODO: get actual ID
         let author = '1' //TODO: get actual user ID
         let name = this.users[author].name
 
-        let annotation = new Annotation(
+        let comment = new NbComment(
           id,
           this.draftRange, //range, null if this is reply
           this.replyToComment, //parent, null if this is the head of thread
-          comment.timestamp,
+          data.timestamp,
           author,
           `${name.first} ${name.last}`, //authorName
-          comment.html, //content
-          comment.mentions.hashtags,
-          comment.mentions.users,
-          comment.visibility, //TODO: create enum?
-          comment.anonymity,
-          comment.replyRequested, //replyRequestedByMe
-          comment.replyRequested ? 1 : 0, //replyRequestCount
+          data.html, //content
+          data.mentions.hashtags,
+          data.mentions.users,
+          data.visibility,
+          data.anonymity,
+          data.replyRequested, //replyRequestedByMe
+          data.replyRequested ? 1 : 0, //replyRequestCount
           false, //starredByMe
           0, //starCount
           true //seenByMe
         )
 
         if (this.draftRange) {
-          this.$emit('new-thread', annotation)
+          this.$emit('new-thread', comment)
         } else if (this.replyToComment) {
-          this.replyToComment.children.push(annotation)
+          this.replyToComment.children.push(comment)
           this.replyToComment = null
         }
       },

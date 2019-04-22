@@ -69,7 +69,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .filter-view {
     margin: 10px 0;
   }

@@ -38,6 +38,7 @@
 </template>
 
 <script>
+  import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import TextEditor from './TextEditor.vue'
 
   export default {
@@ -70,16 +71,16 @@
         ],
         placeholder: 'Include tags with @ or #',
         content: this.initialContent,
-        visibility: 'everyone', //comment visibility TODO: enum?
+        visibility: CommentVisibility.EVERYONE,
         visibilityOptions: [
-          { text: "Entire class", value: 'everyone' },
-          { text: "Instructors and TAs", value: 'instructors' },
-          { text: "Myself only", value: 'myself' }
-        ], //TODO: if replying to private comment, should the visibility also be private?
-        anonymity: 'identified', //comment anonymity TODO: enum?
+          { text: "Entire class", value: CommentVisibility.EVERYONE },
+          { text: "Instructors and TAs", value: CommentVisibility.INSTRUCTORS },
+          { text: "Myself only", value: CommentVisibility.MYSELF }
+        ],
+        anonymity: CommentAnonymity.IDENTIFIED,
         anonymityOptions: [
-          { text: this.author, value: 'identified', disabled: false },
-          { text: "Anonymous to Classmates", value: 'anonymous', disabled: false }
+          { text: this.author, value: CommentAnonymity.IDENTIFIED, disabled: false },
+          { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
         replyRequested: false
@@ -119,16 +120,16 @@
       },
       onVisibilityChange: function(event) { //comment visibility
         // Disable 'anonymous' and choose 'identified' unless post to entire class.
-        if (event.target.value === 'everyone') { //TODO: enum?
+        if (event.target.value === CommentVisibility.EVERYONE) {
           this.anonymityOptions[this.anonymousIdx].disabled = false
         } else {
-          this.anonymity = 'identified'
+          this.anonymity = CommentAnonymity.IDENTIFIED
           this.anonymityOptions[this.anonymousIdx].disabled = true
         }
       },
       resetPreferences: function() {
-        this.visibility = 'everyone'
-        this.anonymity = 'identified'
+        this.visibility = CommentVisibility.EVERYONE
+        this.anonymity = CommentAnonymity.IDENTIFIED
         this.replyRequested = false
       }
     },
@@ -139,7 +140,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .editor-view {
     margin: 10px 0;
     overflow-x: visible; /* for tooltips */
