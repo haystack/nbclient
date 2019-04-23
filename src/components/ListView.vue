@@ -17,8 +17,11 @@
       <list-row
           v-for="thread in sorted"
           :thread="thread"
-          :threadSelected="threadSelected"
-          @select-thread="$emit('select-thread', thread)">
+          :thread-selected="threadSelected"
+          :threads-hovered="threadsHovered"
+          @select-thread="$emit('select-thread', thread)"
+          @hover-thread="$emit('hover-thread', thread)"
+          @unhover-thread="$emit('unhover-thread', thread)">
       </list-row>
     </div>
   </div>
@@ -26,7 +29,7 @@
 
 <script>
   import ListRow from './ListRow.vue'
-  import { compare, compareDomPosition } from './compare-util.js'
+  import { compare, compareDomPosition } from '../utils/compare-util.js'
 
   export default {
     name: 'list-view',
@@ -39,7 +42,11 @@
         type: Number,
         default: 0
       },
-      threadSelected: Object
+      threadSelected: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      }
     },
     data() {
       return {
@@ -78,7 +85,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .list-view {
     margin-bottom: 10px;
   }

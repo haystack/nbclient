@@ -1,5 +1,5 @@
 <template>
-  <div class="editor-view" ref="view" v-show="visible">
+  <div class="editor-view" v-show="visible">
     <div class="editor-header">{{ header }}</div>
     <text-editor
         :key="key"
@@ -28,16 +28,20 @@
       <div class="editor-checkbox">
         <input type="checkbox" id="draft-request-reply" v-model="replyRequested">
         <label for="draft-request-reply">Request replies</label>
-      </div>
-      <div class="editor-button">
-        <button class="cancel" @click="cancel">Cancel</button>
-        <button class="submit" @click="submit">Submit</button>
+        <div class="editor-button">
+          <button class="cancel" @click="cancel">Cancel</button>
+          <button class="submit" @click="submit" :disabled="submitDisabled">
+            Submit
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import htmlToText from 'html-to-text'
+  import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import TextEditor from './TextEditor.vue'
 
   export default {
@@ -48,10 +52,6 @@
       initialContent: {
         type: String,
         default: "<p></p>"
-      },
-      author: { // TODO: Use actual name
-        type: String,
-        default: "Alisa Ono"
       },
       users: Array,
       hashtags: Array,
@@ -70,19 +70,24 @@
         ],
         placeholder: 'Include tags with @ or #',
         content: this.initialContent,
-        visibility: 'everyone', //comment visibility TODO: enum?
+        visibility: CommentVisibility.EVERYONE,
         visibilityOptions: [
-          { text: "Entire class", value: 'everyone' },
-          { text: "Instructors and TAs", value: 'instructors' },
-          { text: "Myself only", value: 'myself' }
-        ], //TODO: if replying to private comment, should the visibility also be private?
-        anonymity: 'identified', //comment anonymity TODO: enum?
+          { text: "Entire class", value: CommentVisibility.EVERYONE },
+          { text: "Instructors and TAs", value: CommentVisibility.INSTRUCTORS },
+          { text: "Myself only", value: CommentVisibility.MYSELF }
+        ],
+        anonymity: CommentAnonymity.IDENTIFIED,
         anonymityOptions: [
-          { text: this.author, value: 'identified', disabled: false },
-          { text: "Anonymous to Classmates", value: 'anonymous', disabled: false }
+          { text: "Tim Beaver", value: CommentAnonymity.IDENTIFIED, disabled: false }, // TODO: get actual user name
+          { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
         replyRequested: false
+      }
+    },
+    computed: {
+      submitDisabled: function() {
+        return htmlToText.fromString(this.content, { wordwrap: false }) === ""
       }
     },
     methods: {
@@ -90,7 +95,7 @@
         this.content = html
       },
       extractMentions() {
-        let tags = this.$refs.view.getElementsByClassName('mention')
+        let tags = this.$el.getElementsByClassName('mention')
         let extracted = {
           users: [],
           hashtags: []
@@ -119,16 +124,16 @@
       },
       onVisibilityChange: function(event) { //comment visibility
         // Disable 'anonymous' and choose 'identified' unless post to entire class.
-        if (event.target.value === 'everyone') { //TODO: enum?
+        if (event.target.value === CommentVisibility.EVERYONE) {
           this.anonymityOptions[this.anonymousIdx].disabled = false
         } else {
-          this.anonymity = 'identified'
+          this.anonymity = CommentAnonymity.IDENTIFIED
           this.anonymityOptions[this.anonymousIdx].disabled = true
         }
       },
       resetPreferences: function() {
-        this.visibility = 'everyone'
-        this.anonymity = 'identified'
+        this.visibility = CommentVisibility.EVERYONE
+        this.anonymity = CommentAnonymity.IDENTIFIED
         this.replyRequested = false
       }
     },
@@ -139,10 +144,8 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .editor-view {
     margin: 10px 0;
-    overflow-x: visible; /* for tooltips */
   }
   .editor-header {
     font-size: 14px;
@@ -159,5 +162,39 @@
   .editor-checkbox {
     padding: 5px 0;
     font-size: 12px;
+  }
+  .editor-button {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+  }
+  .editor-button button {
+    width: 80px;
+    padding: 6px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .editor-button button.cancel {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  .editor-button button.cancel:hover {
+    background-color: #5a6268;
+  }
+  .editor-button button.submit {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  .editor-button button.submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .editor-button button.submit:enabled:hover {
+    background-color: #0069d9;
+  }
+  /deep/ .ql-tooltip {
+    z-index: 1;
   }
 </style>

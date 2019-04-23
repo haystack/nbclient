@@ -10,7 +10,10 @@
         :threads="threads"
         :total-count="totalThreads"
         :thread-selected="threadSelected"
-        @select-thread="onSelectThread">
+        :threads-hovered="threadsHovered"
+        @select-thread="onSelectThread"
+        @hover-thread="onHoverThread"
+        @unhover-thread="onUnhoverThread">
     </list-view>
     <thread-view
         v-if="threadSelected"
@@ -32,8 +35,8 @@
 </template>
 
 <script>
-  import { compare } from './compare-util.js'
-  import Annotation from "./annotation.js"
+  import { compare } from '../utils/compare-util.js'
+  import NbComment from "../models/NbComment.js"
 
   import FilterView from './FilterView.vue'
   import ListView from './ListView.vue'
@@ -64,6 +67,10 @@
         default: {}
       },
       threadSelected: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
       draftRange: Object
     },
     data() {
@@ -113,6 +120,12 @@
       onSelectThread: function(thread) {
         this.$emit('select-thread', thread)
       },
+      onHoverThread: function(thread) {
+        this.$emit('hover-thread', thread)
+      },
+      onUnhoverThread: function(thread) {
+        this.$emit('unhover-thread', thread)
+      },
       onDraftReply: function(comment) {
         if (this.draftRange) {
           this.$emit('cancel-draft', this.draftRange)
@@ -120,36 +133,36 @@
         this.replyToComment = comment
         this.initEditor(`re: ${comment.text}`,  null, true)
       },
-      onSubmitComment: function(comment) {
+      onSubmitComment: function(data) {
         this.editor.visible = false
 
-        let id = comment.timestamp //TODO: get actual annotation ID
-        let author = '1' //TODO: get actual user ID
+        let id = data.timestamp //TODO: get actual ID
+        let author = '0' //TODO: get actual user ID
         let name = this.users[author].name
 
-        let annotation = new Annotation(
+        let comment = new NbComment(
           id,
           this.draftRange, //range, null if this is reply
           this.replyToComment, //parent, null if this is the head of thread
-          comment.timestamp,
+          data.timestamp,
           author,
           `${name.first} ${name.last}`, //authorName
-          comment.html, //content
-          comment.mentions.hashtags,
-          comment.mentions.users,
-          comment.visibility, //TODO: create enum?
-          comment.anonymity,
-          comment.replyRequested, //replyRequestedByMe
-          comment.replyRequested ? 1 : 0, //replyRequestCount
+          data.html, //content
+          data.mentions.hashtags,
+          data.mentions.users,
+          data.visibility,
+          data.anonymity,
+          data.replyRequested, //replyRequestedByMe
+          data.replyRequested ? 1 : 0, //replyRequestCount
           false, //starredByMe
           0, //starCount
           true //seenByMe
         )
 
         if (this.draftRange) {
-          this.$emit('new-thread', annotation)
+          this.$emit('new-thread', comment)
         } else if (this.replyToComment) {
-          this.replyToComment.children.push(annotation)
+          this.replyToComment.children.push(comment)
           this.replyToComment = null
         }
       },
@@ -160,7 +173,7 @@
         }
       },
       initEditor: function(header, content, visible) {
-        this.editor.key = Date.now()
+        this.editor.key = Date.now() // work around to force redraw editor
         this.editor.header = header
         this.editor.initialContent = content
         this.editor.visible = visible
@@ -179,12 +192,11 @@
 #nb-sidebar {
   width: 370px;
   height: 100vh;
+  overflow-y: scroll;
   padding: 0 10px;
   position: fixed;
   top: 0;
   right: 0;
-  overflow-x: visible; /* for editor tooltips */
-  overflow-y: scroll;
   line-height: normal;
   font-size: 16px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;

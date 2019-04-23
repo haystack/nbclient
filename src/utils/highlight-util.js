@@ -1,12 +1,13 @@
-// TODO: lint
+import { isNodePartOf } from './dom-util.js'
+
 /* Helper function for eventsProxyMouse */
-function clone(e) {
+function clone(e, type) {
   let opts = Object.assign({}, e, {bubbles: false})
   try {
-    return new MouseEvent(e.type, opts)
+    return new MouseEvent(type, opts)
   } catch(err) { // compat: webkit
     let copy = document.createEvent('MouseEvents')
-    copy.initMouseEvent(e.type, false, opts.cancelable, opts.view,
+    copy.initMouseEvent(type, false, opts.cancelable, opts.view,
                         opts.detail, opts.screenX, opts.screenY,
                         opts.clientX, opts.clientY, opts.ctrlKey,
                         opts.altKey, opts.shiftKey, opts.metaKey,
@@ -49,23 +50,42 @@ function contains(item, x, y) {
 
 /* Helper function for Highlights.constructor */
 function eventsProxyMouse(src, target) {
-  function dispatch(e) {
+  src.addEventListener('click', function(e) {
+    if (!window.getSelection().isCollapsed) { return } // selection, not click
+    // ignore mouse click on the side bar
+    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
+
     for (let child of target.childNodes) {
       if (
         child.classList
         && child.classList.contains('nb-highlight')
         && contains(child, e.clientX, e.clientY)
       ) {
-        // We only dispatch the cloned event to the first matching highlight
-        child.dispatchEvent(clone(e))
-        break
+        // We only dispatch the click event to the first matching highlight
+        child.dispatchEvent(clone(e, e.type))
+        return
       }
     }
-  }
-  //TODO: add hover event
-  for (let eventType of ['mouseup', 'mousedown', 'click']) {
-    src.addEventListener(eventType, (e) => dispatch(e), false)
-  }
+    // clicked outside of highlights, unselect all threads
+    target.dispatchEvent(new CustomEvent('unselect-thread'))
+  })
+
+  src.addEventListener('mousemove', function(e) {
+    // ignore mouse hover on the side bar
+    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
+
+    for (let child of target.childNodes) {
+      if (
+        child.classList
+        && child.classList.contains('nb-highlight')
+      ) {
+        let type = contains(child, e.clientX, e.clientY)
+            ? 'mouseenter'
+            : 'mouseleave'
+        child.dispatchEvent(clone(e, type))
+      }
+    }
+  })
 }
 
 export {

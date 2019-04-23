@@ -21,9 +21,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "html-to-text": "^5.1.1",
     "moment": "^2.24.0",
     "quill-mention": "^2.1.1",
-    "tippy.js": "^4.2.1",
+    "v-tooltip": "^2.0.1",
     "vue": "^2.6.10",
     "vue-quill": "^1.5.1"
   }

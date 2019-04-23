@@ -7,23 +7,20 @@
       <div class="thread-row-body" v-html="comment.html"></div>
       <div class="thread-row-footer">
         <span
-            class="tippy"
-            data-tippy-content="reply"
+            v-tooltip="'reply'"
             @click="draftReply(comment)">
           <i class="fas fa-reply"></i> {{ comment.countAllReplies() }}
         </span>
         &nbsp;·&nbsp;
         <span
-            class="tippy"
-            data-tippy-content="give star"
+            v-tooltip="comment.starredByMe ? 'undo star' : 'give star'"
             @click="toggleStar(comment)">
           <i class="fas fa-star" :style="styleStar"></i>
           {{ comment.starCount }}
         </span>
         &nbsp;·&nbsp;
         <span
-            class="tippy"
-            data-tippy-content="request reply"
+            v-tooltip="comment.replyRequestedByMe ? 'undo request' : 'request reply'"
             @click="toggleReplyRequest(comment)">
           <i class="fas fa-question" :style="styleQuestion"></i>
           {{ comment.replyRequestCount }}
@@ -44,8 +41,8 @@
 </template>
 
 <script>
-  import tippy from 'tippy.js'
-  var moment = require('moment') // TODO: ES6 import syntax?
+  import moment from 'moment'
+  import { CommentAnonymity } from "../models/enums.js"
 
   export default {
     name: 'thread-comment',
@@ -65,7 +62,10 @@
     },
     computed: {
       authorName: function() {
-        if (this.comment.anonymity === 'anonymous' || this.comment.author === null) { // TODO: enum?
+        if (
+          this.comment.anonymity === CommentAnonymity.ANONYMOUS
+          || this.comment.author === null
+        ) {
           return 'Anonymous'
         }
         return this.comment.authorName
@@ -79,16 +79,11 @@
       styleQuestion: function() {
         if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
       }
-    },
-    mounted: function() {
-      tippy('.tippy', {arrow: true})
     }
-    //TODO: toggle tooltip contents
   }
 </script>
 
 <style scoped>
-  /* TODO: lint */
   .thread-row {
     padding: 10px 0 10px 10px;
   }
@@ -125,3 +120,4 @@
     outline: none;
   }
 </style>
+<style src="./style/tooltip.css"></style>

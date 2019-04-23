@@ -1,4 +1,12 @@
 /*
+  Determine if node is part of container.
+  Inclusive i.e. the node can be the container itself.
+*/
+function isNodePartOf(node, container) {
+  return (node === container) ? true : container.contains(node)
+}
+
+/*
   Determine the first text node in or after the given node.
   Helper function for normalizeRange().
 */
@@ -162,6 +170,7 @@ function serializeTextNode(root, node) {
 }
 
 export {
+  isNodePartOf,
   getTextNodes,
   getFirstTextNodeNotBefore,
   getLastTextNodeUpTo,

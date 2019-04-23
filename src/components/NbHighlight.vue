@@ -1,5 +1,10 @@
 <template>
-  <g class="nb-highlight" :style="style" @click="$emit('select-thread',thread)">
+  <g
+      class="nb-highlight"
+      :style="style"
+      @click="$emit('select-thread',thread)"
+      @mouseenter="onHover(true)"
+      @mouseleave="onHover(false)">
     <rect
         v-for="box in bounds.boxes"
         :x="box.left + bounds.offsetX"
@@ -11,23 +16,29 @@
 </template>
 
 <script>
-  import { getTextBoundingBoxes } from './overlay-util.js'
+  import { getTextBoundingBoxes } from '../utils/overlay-util.js'
 
   export default {
     name: 'nb-highlight',
     props: {
       thread: Object,
       threadSelected: Object,
-      range: Object,
-      selecting: Boolean // TODO: is this necessary? should we just check for window.selection? maybe high level?
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
+      range: Object
     },
     computed: {
       style: function() {
         if (!this.thread) {
           return 'fill: rgb(231, 76, 60); opacity: 0.3;'
         }
-        if (this.threadSelected && this.threadSelected.id === this.thread.id) {
+        if (this.thread === this.threadSelected) {
           return 'fill: rgb(1, 99, 255); opacity: 0.3;'
+        }
+        if (this.threadsHovered.includes(this.thread)) {
+          return 'fill: rgb(1, 99, 255); opacity: 0.12;'
         }
       },
       bounds: function() {
@@ -46,6 +57,11 @@
             || document.body.scrollTop
             || 0
         return bounds
+      }
+    },
+    methods: {
+      onHover: function(state) {
+        this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
       }
     }
   }

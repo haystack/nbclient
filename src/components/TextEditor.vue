@@ -23,6 +23,10 @@
         type: String,
         default: ""
       },
+      bounds: {
+        type: String,
+        default: "#nb-sidebar"
+      },
       initialContent: {
         type: String,
         default: ""
@@ -50,6 +54,7 @@
             }
           },
           placeholder: this.placeholder,
+          bounds: this.bounds,
           theme: 'snow'
         }
       }
@@ -82,7 +87,6 @@
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   /deep/ .ql-mention-list-container {
     max-height: 154px;
     overflow-y: scroll;

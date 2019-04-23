@@ -1,4 +1,4 @@
-import * as DomUtil from './dom-util.js'
+import * as DomUtil from '../utils/dom-util.js'
 
 class NbRange {
   constructor(start, end, commonAncestor) {

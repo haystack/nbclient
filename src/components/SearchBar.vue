@@ -9,6 +9,7 @@
 
 <script>
   import TextEditor from './TextEditor.vue'
+  import htmlToText from 'html-to-text'
 
   export default {
     name: 'search-bar',
@@ -23,10 +24,8 @@
     },
     methods: {
       onTextChange: function(html) {
-        // TODO: for now work around to generate plain text, formula breaks
-        let temp = document.createElement('div')
-        temp.innerHTML = html
-        this.$emit('text-change', temp.textContent)
+        let text = htmlToText.fromString(html, { wordwrap: false })
+        this.$emit('text-change', text)
       }
     },
     components: {

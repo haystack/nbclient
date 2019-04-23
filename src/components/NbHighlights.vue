@@ -1,10 +1,13 @@
 <template>
-  <svg ref="highlights">
+  <svg @unselect-thread="$emit('unselect-thread', null)">
     <nb-highlight
         v-for="thread in threads"
         :thread="thread"
-        :threadSelected="threadSelected"
-        @select-thread="onSelectThread">
+        :thread-selected="threadSelected"
+        :threads-hovered="threadsHovered"
+        @select-thread="$emit('select-thread',thread)"
+        @hover-thread="$emit('hover-thread',thread)"
+        @unhover-thread="$emit('unhover-thread',thread)">
     </nb-highlight>
     <nb-highlight
         v-if="draftRange"
@@ -15,8 +18,8 @@
 
 <script>
   import NbHighlight from './NbHighlight.vue'
-  import { eventsProxyMouse } from './highlight-util.js'
-  import { compare } from './compare-util.js'
+  import { eventsProxyMouse } from '../utils/highlight-util.js'
+  import { compare } from '../utils/compare-util.js'
 
   export default {
     name: 'nb-highlights',
@@ -26,15 +29,14 @@
         default: []
       },
       threadSelected: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
       draftRange: Object
     },
-    methods: {
-      onSelectThread: function(thread) {
-        this.$emit('select-thread', thread)
-      }
-    },
     mounted: function() {
-      eventsProxyMouse(document.body, this.$refs.highlights)
+      eventsProxyMouse(document.body, this.$el, this.$root.$el)
     },
     components: {
       NbHighlight
@@ -43,7 +45,6 @@
 </script>
 
 <style scoped>
-  /* TODO: fix offset and dim */
   svg {
     position: absolute;
     top: 0;

@@ -3,17 +3,19 @@
       class="list-row"
       :style="style"
       :key="thread.id"
+      @mouseenter="$emit('hover-thread', thread)"
+      @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
     {{ thread.text }}
   </div>
 </template>
 
 <script>
-  import { compare, compareDomPosition } from './compare-util.js'
+  import { compare, compareDomPosition } from '../utils/compare-util.js'
 
   export default {
     name: 'list-view',
-    props: ['thread', 'threadSelected'],
+    props: ['thread', 'threadSelected', 'threadsHovered'],
     data() {
       return {
         sortBy: 'position',
@@ -31,16 +33,21 @@
         if (this.threadSelected && this.thread.id === this.threadSelected.id) {
           return 'background-color: #70a0f0;'
         }
+        if (this.threadsHovered.includes(this.thread)) {
+          return 'background-color: #b5cef7'
+        }
       }
     }
   }
 </script>
 
 <style scoped>
-  /* TODO: clean up styling */
   .list-row {
     padding: 4px;
     cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .list-row:nth-child(even) {
     background-color: #f0f0f0;
