@@ -194,4 +194,7 @@
   .editor-button button.submit:enabled:hover {
     background-color: #0069d9;
   }
+  /deep/ .ql-tooltip {
+    z-index: 1;
+  }
 </style>

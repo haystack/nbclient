@@ -33,7 +33,7 @@
     overflow-y: scroll;
   }
   .thread-header {
-    padding: 10px 0;
+    padding: 0 0 10px 0;
     color: #444;
     border-bottom: 1px solid #666;
   }

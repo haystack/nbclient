@@ -23,6 +23,10 @@
         type: String,
         default: ""
       },
+      bounds: {
+        type: String,
+        default: "#nb-sidebar"
+      },
       initialContent: {
         type: String,
         default: ""
@@ -50,6 +54,7 @@
             }
           },
           placeholder: this.placeholder,
+          bounds: this.bounds,
           theme: 'snow'
         }
       }

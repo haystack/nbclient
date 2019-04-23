@@ -7,23 +7,20 @@
       <div class="thread-row-body" v-html="comment.html"></div>
       <div class="thread-row-footer">
         <span
-            class="tippy"
-            data-tippy-content="reply"
+            v-tooltip="'reply'"
             @click="draftReply(comment)">
           <i class="fas fa-reply"></i> {{ comment.countAllReplies() }}
         </span>
         &nbsp;·&nbsp;
         <span
-            class="tippy"
-            data-tippy-content="give star"
+            v-tooltip="comment.starredByMe ? 'undo star' : 'give star'"
             @click="toggleStar(comment)">
           <i class="fas fa-star" :style="styleStar"></i>
           {{ comment.starCount }}
         </span>
         &nbsp;·&nbsp;
         <span
-            class="tippy"
-            data-tippy-content="request reply"
+            v-tooltip="comment.replyRequestedByMe ? 'undo request' : 'request reply'"
             @click="toggleReplyRequest(comment)">
           <i class="fas fa-question" :style="styleQuestion"></i>
           {{ comment.replyRequestCount }}
@@ -44,9 +41,7 @@
 </template>
 
 <script>
-  import tippy from 'tippy.js'
   import moment from 'moment'
-
   import { CommentAnonymity } from "../models/enums.js"
 
   export default {
@@ -84,11 +79,7 @@
       styleQuestion: function() {
         if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
       }
-    },
-    mounted: function() {
-      tippy('.tippy', {arrow: true})
     }
-    //TODO: toggle tooltip contents
   }
 </script>
 
@@ -129,3 +120,4 @@
     outline: none;
   }
 </style>
+<style src="./style/tooltip.css"></style>

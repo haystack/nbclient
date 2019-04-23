@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
+import VTooltip from 'v-tooltip'
 Vue.use(VueQuill)
+Vue.use(VTooltip)
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import { isNodePartOf } from './utils/dom-util.js'

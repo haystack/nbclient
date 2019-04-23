@@ -184,6 +184,7 @@
 #nb-sidebar {
   width: 370px;
   height: 100vh;
+  overflow-y: scroll;
   padding: 0 10px;
   position: fixed;
   top: 0;
