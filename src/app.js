@@ -4,6 +4,11 @@ import VueQuill from 'vue-quill'
 import { createNbRange, deserializeNbRange } from './nbrange.js'
 import NbHighlights from './NbHighlights.vue'
 import NbSidebar from './NbSidebar.vue'
+import Login from './Login.vue'
+import axios from 'axios'
+
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
 
 if (
   (document.attachEvent && document.readyState === "complete")
@@ -39,29 +44,29 @@ function embedNbApp() {
 
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
-  let selecting = false
+  let selecting = false;
 
-  let element = document.createElement('div')
-  element.id = "nb-app"
-  document.body.appendChild(element)
-  document.body.style.margin= '0 375px 0 0'
+  let element = document.createElement('div');
+  element.id = "nb-app";
+  document.body.appendChild(element);
+  document.body.style.margin= '0 375px 0 0';
 
   document.addEventListener("mouseup", function(){
     function isNodeSidebar(node) {
       while (node) {
-        if (node.id === "nb-sidebar") return true
-        node = node.parentNode
+        if (node.id === "nb-sidebar") return true;
+        node = node.parentNode;
       }
-      return false
+      return false;
     }
 
-    let selection = window.getSelection()
-    if (selection.isCollapsed) return
+    let selection = window.getSelection();
+    if (selection.isCollapsed) return;
 
     // Set global state to reflect the fact we're making a selection.
     // Used to stop click events from showing contents of older highlights
     // when the click event is the result of a selection.
-    selecting = true
+    selecting = true;
     // TODO: the whole selcting logic seems a bit off
 
     let range = selection.getRangeAt(0)
@@ -84,28 +89,33 @@ function embedNbApp() {
     el: '#nb-app',
     template: `
       <div id="nb-app" :style="style">
-        <nb-highlights
-            :threads="filteredThreads"
-            :thread-selected="threadSelected"
-            :draft-range="draftRange"
-            @select-thread="onSelectThread">
-        </nb-highlights>
-        <nb-sidebar
-            :users="users"
-            :hashtags="hashtags"
-            :total-threads="totalThreads"
-            :threads="filteredThreads"
-            :thread-selected="threadSelected"
-            :draft-range="draftRange"
-            @search-text="onSearchText"
-            @filter-hashtags="onFilterHashtags"
-            @select-thread="onSelectThread"
-            @new-thread="onNewThread"
-            @cancel-draft="onCancelDraft">
-        </nb-sidebar>
+        <login @login="setUser" v-if="!user"/>
+        <div v-else>
+          <nb-highlights
+              :threads="filteredThreads"
+              :thread-selected="threadSelected"
+              :draft-range="draftRange"
+              @select-thread="onSelectThread">
+          </nb-highlights>
+          <nb-sidebar
+              :user="user"
+              :users="users"
+              :hashtags="hashtags"
+              :total-threads="totalThreads"
+              :threads="filteredThreads"
+              :thread-selected="threadSelected"
+              :draft-range="draftRange"
+              @search-text="onSearchText"
+              @filter-hashtags="onFilterHashtags"
+              @select-thread="onSelectThread"
+              @new-thread="onNewThread"
+              @cancel-draft="onCancelDraft">
+          </nb-sidebar>
+        </div>
       </div>
     `,
     data: {
+      user: null,
       users: {},
       hashtags: {},
       threads: {},
@@ -141,7 +151,15 @@ function embedNbApp() {
         return items
       }
     },
+    created: function(){
+      axios.get('/api/users/current').then(res => {
+        this.user = res.data;
+      })
+    },
     methods: {
+      setUser: function(user) {
+        this.user = user
+      },
       draftThread: function(range) {
         this.draftRange = createNbRange(range)
       },
@@ -185,7 +203,8 @@ function embedNbApp() {
     },
     components: {
       NbHighlights,
-      NbSidebar
+      NbSidebar,
+      Login
     }
   })
 
