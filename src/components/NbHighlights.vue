@@ -1,11 +1,13 @@
 <template>
-  <svg ref="highlights">
+  <svg @unselect-thread="$emit('unselect-thread', null)">
     <nb-highlight
         v-for="thread in threads"
         :thread="thread"
-        :threadSelected="threadSelected"
-        @select-thread="onSelectThread"
-        @hover-thread="onHoverThread">
+        :thread-selected="threadSelected"
+        :threads-hovered="threadsHovered"
+        @select-thread="$emit('select-thread',thread)"
+        @hover-thread="$emit('hover-thread',thread)"
+        @unhover-thread="$emit('unhover-thread',thread)">
     </nb-highlight>
     <nb-highlight
         v-if="draftRange"
@@ -27,18 +29,14 @@
         default: []
       },
       threadSelected: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
       draftRange: Object
     },
-    methods: {
-      onSelectThread: function(thread) {
-        this.$emit('select-thread', thread)
-      },
-      onHoverThread: function(thread) {
-        this.$emit('hover-thread', thread)
-      }
-    },
     mounted: function() {
-      eventsProxyMouse(document.body, this.$refs.highlights)
+      eventsProxyMouse(document.body, this.$el, this.$root.$el)
     },
     components: {
       NbHighlight

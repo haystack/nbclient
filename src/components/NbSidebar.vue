@@ -10,8 +10,10 @@
         :threads="threads"
         :total-count="totalThreads"
         :thread-selected="threadSelected"
-        :thread-hovered="threadHovered"
-        @select-thread="onSelectThread">
+        :threads-hovered="threadsHovered"
+        @select-thread="onSelectThread"
+        @hover-thread="onHoverThread"
+        @unhover-thread="onUnhoverThread">
     </list-view>
     <thread-view
         v-if="threadSelected"
@@ -60,7 +62,10 @@
         default: {}
       },
       threadSelected: Object,
-      threadHovered: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
       draftRange: Object
     },
     data() {
@@ -107,6 +112,12 @@
       onSelectThread: function(thread) {
         this.$emit('select-thread', thread)
       },
+      onHoverThread: function(thread) {
+        this.$emit('hover-thread', thread)
+      },
+      onUnhoverThread: function(thread) {
+        this.$emit('unhover-thread', thread)
+      },
       onDraftReply: function(comment) {
         if (this.draftRange) {
           this.$emit('cancel-draft', this.draftRange)
@@ -118,7 +129,7 @@
         this.editor.visible = false
 
         let id = data.timestamp //TODO: get actual ID
-        let author = '1' //TODO: get actual user ID
+        let author = '0' //TODO: get actual user ID
         let name = this.users[author].name
 
         let comment = new NbComment(
@@ -154,7 +165,7 @@
         }
       },
       initEditor: function(header, content, visible) {
-        this.editor.key = Date.now()
+        this.editor.key = Date.now() // work around to force redraw editor
         this.editor.header = header
         this.editor.initialContent = content
         this.editor.visible = visible

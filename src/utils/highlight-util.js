@@ -1,3 +1,5 @@
+import { isNodePartOf } from './dom-util.js'
+
 /* Helper function for eventsProxyMouse */
 function clone(e, type) {
   let opts = Object.assign({}, e, {bubbles: false})
@@ -50,6 +52,8 @@ function contains(item, x, y) {
 function eventsProxyMouse(src, target) {
   src.addEventListener('click', function(e) {
     if (!window.getSelection().isCollapsed) { return } // selection, not click
+    // ignore mouse click on the side bar
+    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
 
     for (let child of target.childNodes) {
       if (
@@ -59,20 +63,26 @@ function eventsProxyMouse(src, target) {
       ) {
         // We only dispatch the click event to the first matching highlight
         child.dispatchEvent(clone(e, e.type))
-        break
+        return
       }
     }
+    // clicked outside of highlights, unselect all threads
+    target.dispatchEvent(new CustomEvent('unselect-thread'))
   })
+
   src.addEventListener('mousemove', function(e) {
+    // ignore mouse hover on the side bar
+    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
+
     for (let child of target.childNodes) {
       if (
         child.classList
         && child.classList.contains('nb-highlight')
-        && contains(child, e.clientX, e.clientY)
       ) {
-        child.dispatchEvent(clone(e, 'mouseenter'))
-      } else {
-        child.dispatchEvent(clone(e, 'mouseleave'))
+        let type = contains(child, e.clientX, e.clientY)
+            ? 'mouseenter'
+            : 'mouseleave'
+        child.dispatchEvent(clone(e, type))
       }
     }
   })

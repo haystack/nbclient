@@ -23,22 +23,21 @@
     props: {
       thread: Object,
       threadSelected: Object,
+      threadsHovered: {
+        type: Array,
+        default: []
+      },
       range: Object
-    },
-    data() {
-      return {
-        hover: false
-      }
     },
     computed: {
       style: function() {
         if (!this.thread) {
           return 'fill: rgb(231, 76, 60); opacity: 0.3;'
         }
-        if (this.threadSelected && this.threadSelected.id === this.thread.id) {
+        if (this.thread === this.threadSelected) {
           return 'fill: rgb(1, 99, 255); opacity: 0.3;'
         }
-        if (this.hover) {
+        if (this.threadsHovered.includes(this.thread)) {
           return 'fill: rgb(1, 99, 255); opacity: 0.12;'
         }
       },
@@ -62,8 +61,7 @@
     },
     methods: {
       onHover: function(state) {
-        this.hover = state
-        this.$emit('hover-thread', state ? this.thread : null)
+        this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
       }
     }
   }

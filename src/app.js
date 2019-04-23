@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
+Vue.use(VueQuill)
+
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
+import { isNodePartOf } from './utils/dom-util.js'
+
 import NbHighlights from './components/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
 
@@ -13,25 +17,21 @@ if (
   document.addEventListener('DOMContentLoaded', embedNbApp)
 }
 
+function loadCSS(url) {
+  let tag = document.createElement('link')
+  tag.rel = 'stylesheet'
+  tag.type = 'text/css'
+  tag.href = url
+  document.getElementsByTagName('HEAD')[0].appendChild(tag)
+}
+
+function loadScript(url) {
+  let tag = document.createElement('script')
+  tag.src = url
+  document.getElementsByTagName('HEAD')[0].appendChild(tag)
+}
+
 function embedNbApp() {
-  let meta = document.createElement('meta')
-  meta.setAttribute('charset', 'utf-8')
-  document.getElementsByTagName('HEAD')[0].appendChild(meta)
-
-  function loadCSS(url) {
-    let tag = document.createElement('link')
-    tag.rel = 'stylesheet'
-    tag.type = 'text/css'
-    tag.href = url
-    document.getElementsByTagName('HEAD')[0].appendChild(tag)
-  }
-
-  function loadScript(url) {
-    let tag = document.createElement('script')
-    tag.src = url
-    document.getElementsByTagName('HEAD')[0].appendChild(tag)
-  }
-
   loadCSS("https://use.fontawesome.com/releases/v5.8.1/css/all.css")
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
@@ -45,18 +45,20 @@ function embedNbApp() {
   element.id = "nb-app"
   document.body.appendChild(element)
 
-  Vue.use(VueQuill)
-
   let app = new Vue({
     el: '#nb-app',
     template: `
       <div id="nb-app" :style="style">
         <nb-highlights
+            :key="resizeKey"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
+            :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             @select-thread="onSelectThread"
-            @hover-thread="onHoverThread">
+            @unselect-thread="onUnselectThread"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread">
         </nb-highlights>
         <nb-sidebar
             :users="users"
@@ -64,11 +66,13 @@ function embedNbApp() {
             :total-threads="totalThreads"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
-            :thread-hovered="threadHovered"
+            :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             @search-text="onSearchText"
             @filter-hashtags="onFilterHashtags"
             @select-thread="onSelectThread"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread"
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft">
         </nb-sidebar>
@@ -78,13 +82,14 @@ function embedNbApp() {
       users: {},
       hashtags: {},
       threads: {},
-      threadSelected: null, // TODO: Reset when you click on document outside of highlights?
-      threadHovered: null,
+      threadSelected: null,
+      threadsHovered: [], //in case of hover on overlapping highlights
       draftRange: null,
       filter: {
         searchText: "",
         hashtags: []
-      }
+      },
+      resizeKey: Date.now() // work around to force redraw highlights
     },
     computed: {
       style: function() {
@@ -151,9 +156,41 @@ function embedNbApp() {
       onSelectThread: function(thread) {
         this.threadSelected = thread
       },
+      onUnselectThread: function(thread) {
+        this.threadSelected = null
+      },
       onHoverThread: function(thread) {
-        this.threadHovered = thread
+        if (!this.threadsHovered.includes(thread)) {
+          this.threadsHovered.push(thread)
+        }
+      },
+      onUnhoverThread: function(thread) {
+        let idx = this.threadsHovered.indexOf(thread)
+        if (idx >= 0) this.threadsHovered.splice(idx, 1)
+      },
+      handleResize: function() {
+        this.resizeKey = Date.now()
       }
+    },
+    mounted: function() {
+      document.body.addEventListener("click", function() {
+        let selection = window.getSelection()
+        if (selection.isCollapsed) { return }
+
+        let sidebar = document.querySelector('#nb-app')
+        let range = selection.getRangeAt(0)
+        if ( // check selection does not overlap sidebar
+          !isNodePartOf(range.startContainer, sidebar)
+          && !isNodePartOf(range.endContainer, sidebar)
+        ) {
+          app.draftThread(range)
+          selection.removeAllRanges()
+        }
+      })
+
+      window.addEventListener("resize", function() {
+        app.handleResize()
+      })
     },
     components: {
       NbHighlights,
@@ -161,33 +198,15 @@ function embedNbApp() {
     }
   })
 
-  document.body.addEventListener("click", function(){
-    function isNodeSidebar(node) {
-      while (node) {
-        if (node.id === "nb-sidebar") return true
-        node = node.parentNode
-      }
-      return false
-    }
-
-    let selection = window.getSelection()
-    if (selection.isCollapsed) { return }
-
-    let range = selection.getRangeAt(0)
-    if ( // check selection does not overlap sidebar
-      !isNodeSidebar(range.startContainer)
-      && !isNodeSidebar(range.endContainer)
-    ) {
-      app.draftThread(range)
-      selection.removeAllRanges()
-    }
-  })
-
-  window.addEventListener("resize", function() {
-    // TODO: rerender highlights on width
-  })
-
   app.users = {
+    '0': {
+      id: '0',
+      name: {
+        first: 'Tim',
+        last: "Beaver"
+      },
+      role: 'student'
+    },
     '1': {
       id: '1',
       name: {

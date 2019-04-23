@@ -3,6 +3,8 @@
       class="list-row"
       :style="style"
       :key="thread.id"
+      @mouseenter="$emit('hover-thread', thread)"
+      @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
     {{ thread.text }}
   </div>
@@ -13,7 +15,7 @@
 
   export default {
     name: 'list-view',
-    props: ['thread', 'threadSelected', 'threadHovered'],
+    props: ['thread', 'threadSelected', 'threadsHovered'],
     data() {
       return {
         sortBy: 'position',
@@ -31,7 +33,7 @@
         if (this.threadSelected && this.thread.id === this.threadSelected.id) {
           return 'background-color: #70a0f0;'
         }
-        if (this.threadHovered && this.thread.id === this.threadHovered.id) {
+        if (this.threadsHovered.includes(this.thread)) {
           return 'background-color: #b5cef7'
         }
       }

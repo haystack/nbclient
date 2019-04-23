@@ -1,5 +1,5 @@
 <template>
-  <div class="editor-view" ref="view" v-show="visible">
+  <div class="editor-view" v-show="visible">
     <div class="editor-header">{{ header }}</div>
     <text-editor
         :key="key"
@@ -53,10 +53,6 @@
         type: String,
         default: "<p></p>"
       },
-      author: { // TODO: Use actual name
-        type: String,
-        default: "Alisa Ono"
-      },
       users: Array,
       hashtags: Array,
       visible: Boolean
@@ -82,7 +78,7 @@
         ],
         anonymity: CommentAnonymity.IDENTIFIED,
         anonymityOptions: [
-          { text: this.author, value: CommentAnonymity.IDENTIFIED, disabled: false },
+          { text: "Tim Beaver", value: CommentAnonymity.IDENTIFIED, disabled: false }, // TODO: get actual user name
           { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
@@ -99,7 +95,7 @@
         this.content = html
       },
       extractMentions() {
-        let tags = this.$refs.view.getElementsByClassName('mention')
+        let tags = this.$el.getElementsByClassName('mention')
         let extracted = {
           users: [],
           hashtags: []

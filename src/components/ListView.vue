@@ -17,9 +17,11 @@
       <list-row
           v-for="thread in sorted"
           :thread="thread"
-          :threadSelected="threadSelected"
-          :threadHovered="threadHovered"
-          @select-thread="$emit('select-thread', thread)">
+          :thread-selected="threadSelected"
+          :threads-hovered="threadsHovered"
+          @select-thread="$emit('select-thread', thread)"
+          @hover-thread="$emit('hover-thread', thread)"
+          @unhover-thread="$emit('unhover-thread', thread)">
       </list-row>
     </div>
   </div>
@@ -41,7 +43,10 @@
         default: 0
       },
       threadSelected: Object,
-      threadHovered: Object
+      threadsHovered: {
+        type: Array,
+        default: []
+      }
     },
     data() {
       return {
