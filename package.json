@@ -20,6 +20,7 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
+    "html-to-text": "^5.1.1",
     "moment": "^2.24.0",
     "quill-mention": "^2.1.1",
     "tippy.js": "^4.2.1",

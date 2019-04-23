@@ -10,6 +10,7 @@
         :threads="threads"
         :total-count="totalThreads"
         :thread-selected="threadSelected"
+        :thread-hovered="threadHovered"
         @select-thread="onSelectThread">
     </list-view>
     <thread-view
@@ -59,6 +60,7 @@
         default: {}
       },
       threadSelected: Object,
+      threadHovered: Object,
       draftRange: Object
     },
     data() {
@@ -175,8 +177,6 @@
   position: fixed;
   top: 0;
   right: 0;
-  overflow-x: visible; /* for editor tooltips */
-  overflow-y: scroll;
   line-height: normal;
   font-size: 16px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;

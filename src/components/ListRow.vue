@@ -13,7 +13,7 @@
 
   export default {
     name: 'list-view',
-    props: ['thread', 'threadSelected'],
+    props: ['thread', 'threadSelected', 'threadHovered'],
     data() {
       return {
         sortBy: 'position',
@@ -31,6 +31,9 @@
         if (this.threadSelected && this.thread.id === this.threadSelected.id) {
           return 'background-color: #70a0f0;'
         }
+        if (this.threadHovered && this.thread.id === this.threadHovered.id) {
+          return 'background-color: #b5cef7'
+        }
       }
     }
   }
@@ -40,6 +43,9 @@
   .list-row {
     padding: 4px;
     cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .list-row:nth-child(even) {
     background-color: #f0f0f0;

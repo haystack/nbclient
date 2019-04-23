@@ -28,16 +28,19 @@
       <div class="editor-checkbox">
         <input type="checkbox" id="draft-request-reply" v-model="replyRequested">
         <label for="draft-request-reply">Request replies</label>
-      </div>
-      <div class="editor-button">
-        <button class="cancel" @click="cancel">Cancel</button>
-        <button class="submit" @click="submit">Submit</button>
+        <div class="editor-button">
+          <button class="cancel" @click="cancel">Cancel</button>
+          <button class="submit" @click="submit" :disabled="submitDisabled">
+            Submit
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import htmlToText from 'html-to-text'
   import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import TextEditor from './TextEditor.vue'
 
@@ -84,6 +87,11 @@
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
         replyRequested: false
+      }
+    },
+    computed: {
+      submitDisabled: function() {
+        return htmlToText.fromString(this.content, { wordwrap: false }) === ""
       }
     },
     methods: {
@@ -142,7 +150,6 @@
 <style scoped>
   .editor-view {
     margin: 10px 0;
-    overflow-x: visible; /* for tooltips */
   }
   .editor-header {
     font-size: 14px;
@@ -159,5 +166,36 @@
   .editor-checkbox {
     padding: 5px 0;
     font-size: 12px;
+  }
+  .editor-button {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+  }
+  .editor-button button {
+    width: 80px;
+    padding: 6px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .editor-button button.cancel {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  .editor-button button.cancel:hover {
+    background-color: #5a6268;
+  }
+  .editor-button button.submit {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  .editor-button button.submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .editor-button button.submit:enabled:hover {
+    background-color: #0069d9;
   }
 </style>

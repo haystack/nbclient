@@ -1,5 +1,10 @@
 <template>
-  <g class="nb-highlight" :style="style" @click="$emit('select-thread',thread)">
+  <g
+      class="nb-highlight"
+      :style="style"
+      @click="$emit('select-thread',thread)"
+      @mouseenter="onHover(true)"
+      @mouseleave="onHover(false)">
     <rect
         v-for="box in bounds.boxes"
         :x="box.left + bounds.offsetX"
@@ -18,8 +23,12 @@
     props: {
       thread: Object,
       threadSelected: Object,
-      range: Object,
-      selecting: Boolean // TODO: is this necessary? should we just check for window.selection? maybe high level?
+      range: Object
+    },
+    data() {
+      return {
+        hover: false
+      }
     },
     computed: {
       style: function() {
@@ -28,6 +37,9 @@
         }
         if (this.threadSelected && this.threadSelected.id === this.thread.id) {
           return 'fill: rgb(1, 99, 255); opacity: 0.3;'
+        }
+        if (this.hover) {
+          return 'fill: rgb(1, 99, 255); opacity: 0.12;'
         }
       },
       bounds: function() {
@@ -46,6 +58,12 @@
             || document.body.scrollTop
             || 0
         return bounds
+      }
+    },
+    methods: {
+      onHover: function(state) {
+        this.hover = state
+        this.$emit('hover-thread', state ? this.thread : null)
       }
     }
   }

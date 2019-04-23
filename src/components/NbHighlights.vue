@@ -4,7 +4,8 @@
         v-for="thread in threads"
         :thread="thread"
         :threadSelected="threadSelected"
-        @select-thread="onSelectThread">
+        @select-thread="onSelectThread"
+        @hover-thread="onHoverThread">
     </nb-highlight>
     <nb-highlight
         v-if="draftRange"
@@ -31,6 +32,9 @@
     methods: {
       onSelectThread: function(thread) {
         this.$emit('select-thread', thread)
+      },
+      onHoverThread: function(thread) {
+        this.$emit('hover-thread', thread)
       }
     },
     mounted: function() {

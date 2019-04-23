@@ -38,44 +38,12 @@ function embedNbApp() {
 
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
-  let selecting = false
+  // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
+  document.body.style.margin= '0 395px 0 0'
 
   let element = document.createElement('div')
   element.id = "nb-app"
   document.body.appendChild(element)
-  document.body.style.margin= '0 375px 0 0'
-
-  document.addEventListener("mouseup", function(){
-    function isNodeSidebar(node) {
-      while (node) {
-        if (node.id === "nb-sidebar") return true
-        node = node.parentNode
-      }
-      return false
-    }
-
-    let selection = window.getSelection()
-    if (selection.isCollapsed) return
-
-    // Set global state to reflect the fact we're making a selection.
-    // Used to stop click events from showing contents of older highlights
-    // when the click event is the result of a selection.
-    selecting = true
-    // TODO: the whole selcting logic seems a bit off
-
-    let range = selection.getRangeAt(0)
-    if ( // check selection does not overlap sidebar
-      !isNodeSidebar(range.startContainer)
-      && !isNodeSidebar(range.endContainer)
-    ) {
-      app.draftThread(range)
-      selection.removeAllRanges()
-    }
-  })
-
-  window.addEventListener("resize", function() {
-    // TODO: rerender highlights on width
-  })
 
   Vue.use(VueQuill)
 
@@ -87,7 +55,8 @@ function embedNbApp() {
             :threads="filteredThreads"
             :thread-selected="threadSelected"
             :draft-range="draftRange"
-            @select-thread="onSelectThread">
+            @select-thread="onSelectThread"
+            @hover-thread="onHoverThread">
         </nb-highlights>
         <nb-sidebar
             :users="users"
@@ -95,6 +64,7 @@ function embedNbApp() {
             :total-threads="totalThreads"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
+            :thread-hovered="threadHovered"
             :draft-range="draftRange"
             @search-text="onSearchText"
             @filter-hashtags="onFilterHashtags"
@@ -109,6 +79,7 @@ function embedNbApp() {
       hashtags: {},
       threads: {},
       threadSelected: null, // TODO: Reset when you click on document outside of highlights?
+      threadHovered: null,
       draftRange: null,
       filter: {
         searchText: "",
@@ -148,11 +119,9 @@ function embedNbApp() {
       onNewThread: function(thread) {
         this.$set(this.threads, thread.id, thread)
         this.draftRange = null
-        selecting = false
       },
       onCancelDraft: function() {
         this.draftRange = null
-        selecting = false
       },
       onSearchText: function(text) {
         if (
@@ -181,12 +150,41 @@ function embedNbApp() {
       },
       onSelectThread: function(thread) {
         this.threadSelected = thread
+      },
+      onHoverThread: function(thread) {
+        this.threadHovered = thread
       }
     },
     components: {
       NbHighlights,
       NbSidebar
     }
+  })
+
+  document.body.addEventListener("click", function(){
+    function isNodeSidebar(node) {
+      while (node) {
+        if (node.id === "nb-sidebar") return true
+        node = node.parentNode
+      }
+      return false
+    }
+
+    let selection = window.getSelection()
+    if (selection.isCollapsed) { return }
+
+    let range = selection.getRangeAt(0)
+    if ( // check selection does not overlap sidebar
+      !isNodeSidebar(range.startContainer)
+      && !isNodeSidebar(range.endContainer)
+    ) {
+      app.draftThread(range)
+      selection.removeAllRanges()
+    }
+  })
+
+  window.addEventListener("resize", function() {
+    // TODO: rerender highlights on width
   })
 
   app.users = {

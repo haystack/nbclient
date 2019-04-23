@@ -18,6 +18,7 @@
           v-for="thread in sorted"
           :thread="thread"
           :threadSelected="threadSelected"
+          :threadHovered="threadHovered"
           @select-thread="$emit('select-thread', thread)">
       </list-row>
     </div>
@@ -39,7 +40,8 @@
         type: Number,
         default: 0
       },
-      threadSelected: Object
+      threadSelected: Object,
+      threadHovered: Object
     },
     data() {
       return {

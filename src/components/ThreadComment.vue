@@ -45,7 +45,7 @@
 
 <script>
   import tippy from 'tippy.js'
-  var moment = require('moment') // TODO: ES6 import syntax?
+  import moment from 'moment'
 
   import { CommentAnonymity } from "../models/enums.js"
 

@@ -8,7 +8,9 @@
             @text-change="onTextChange">
         </search-bar>
       </div>
-      <button @click="toggleFilters">{{ toggleFiltersLabel }}</button>
+      <button @click="toggleFilters" :style="toggleFiltersStyle">
+        {{ toggleFiltersLabel }}
+      </button>
     </div>
     <div class="filter-options" v-show="filterVisible">
       <h1>Hashtags</h1>
@@ -45,6 +47,11 @@
       }
     },
     computed: {
+      toggleFiltersStyle: function() {
+        if (this.filterVisible) {
+          return "background-color: #888; color: #fff;"
+        }
+      },
       toggleFiltersLabel: function() {
         return this.filterVisible ? "Close filters" : "More filters"
       }
@@ -76,14 +83,18 @@
     width: 270px;
     display: inline-block;
     vertical-align: middle;
-    border-radius: 5px;
   }
   .filter-header button {
     font-size: 13px;
     width: 94px;
     padding: 8px;
     border-radius: 5px;
+    border-color: #aaa;
+    color: #666;
     cursor: pointer;
+  }
+  .filter-header button:focus {
+    outline: none;
   }
   .filter-options {
     padding: 10px;
@@ -95,8 +106,12 @@
     width: 50%;
     display: inline-block;
   }
+  /deep/ .ql-container {
+    border-color: #aaa !important;
+    border-radius: 5px;
+  }
   /deep/ .ql-blank,
   /deep/ .ql-editor {
-    padding: 6px 9px;
+    padding: 7px 9px;
   }
 </style>

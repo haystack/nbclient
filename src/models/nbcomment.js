@@ -1,3 +1,5 @@
+import htmlToText from 'html-to-text'
+
 class NbComment {
   constructor(id, range, parent, timestamp, author, authorName, html,
       hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
@@ -28,10 +30,18 @@ class NbComment {
 
     this.seenByMe = seenByMe
 
-    // TODO: for now work around to generate plain text, formula breaks
-    let temp = document.createElement('div')
-    temp.innerHTML = this.html
-    this.text = temp.textContent
+    if (this.html.includes('ql-formula')) { // work around for latex formula
+      let temp = document.createElement('div')
+      temp.innerHTML = this.html
+      for (let formula of temp.querySelectorAll('span.ql-formula')) {
+        let span = document.createElement('span')
+        span.textContent = formula.getAttribute('data-value')
+        formula.parentNode.replaceChild(span, formula)
+      }
+      this.text = temp.textContent
+    } else {
+      this.text = htmlToText.fromString(this.html, { wordwrap: false })
+    }
   }
 
   countAllReplies() {
