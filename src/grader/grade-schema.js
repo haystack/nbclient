@@ -1,14 +1,9 @@
-const CriteriaType = Object.freeze({
-  CHARACTERS: 0,
-  WORDS: 1,
-  HASHTAGS: 2,
-  COMMENTS: 3
-})
+const CriteriaTypes = ["COMMENT", "HASHTAGS", "WORDS", "CHARACTERS"]
 
 class Criterion {
   constructor(id, type) {
     this.id = id
-    this.type = CriteriaType[type]
+    this.type = type
     this.label = 'Total ' +
       type.charAt(0).toUpperCase() +
       type.slice(1).toLowerCase()
@@ -26,6 +21,10 @@ class CustomCriterion extends Criterion {
 
   setFilter(type, number) {
     this.filters[type] = number
+  }
+
+  removeFilter(type) {
+    delete this.filters[type]
   }
 }
 
@@ -56,7 +55,7 @@ class Grade {
 }
 
 export {
-  CriteriaType,
+  CriteriaTypes,
   Criterion,
   CustomCriterion,
   Grade

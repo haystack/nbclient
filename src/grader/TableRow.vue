@@ -29,10 +29,11 @@
     </td>
     <td>
       <v-popover
+        class="overflow-menu"
         :disabled="!overflowMenu">
-        <button class="tooltip-target" @click="overflowMenu = true">
+        <span class="tooltip-target" @click="overflowMenu = true">
           ···
-        </button>
+        </span>
         <template slot="popover">
           <div class="overflow-btn" @click="editGrade"> Edit </div>
           <div class="overflow-btn" @click="deleteGrade"> Delete </div>
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-  import { isNumberKey } from './grade-util.js'
+  import { isNumberKey } from './input-util.js'
 
   export default {
     name: 'table-row',
@@ -93,6 +94,9 @@
 </script>
 
 <style scoped>
+  .overflow-menu {
+    cursor: pointer;
+  }
   .overflow-btn {
     padding: 8px 12px;
     cursor: pointer;

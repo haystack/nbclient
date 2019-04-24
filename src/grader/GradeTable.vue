@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="grade-table">
     <table>
       <table-head
           :criteria="criteria"
@@ -19,8 +19,8 @@
       </tbody>
       <table-foot :criteria="criteria" @add-grade="addGrade"></table-foot>
     </table>
-    <div class="add-column">
-      Add column:
+    <div class="add-column" v-show="!customFormVisible">
+      <h1>Add column:</h1>
       <div v-for="type in unusedCriteria" @click="addCriterion(type)">
         + Total {{ type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() }}
       </div>
@@ -28,14 +28,22 @@
         + Custom
       </div>
     </div>
+    <custom-form
+        v-show="customFormVisible"
+        :criterion="editableCriterion"
+        @cancel-criterion="cancelCriterion"
+        @save-criterion="saveCriterion"
+        @new-criterion="newCriterion">
+    </custom-form>
   </div>
 </template>
 
 <script>
-  import { CriteriaType, Criterion, CustomCriterion } from './grade-schema.js'
+  import { Criterion, CustomCriterion } from './grade-schema.js'
   import TableHead from './TableHead.vue'
   import TableRow from './TableRow.vue'
   import TableFoot from './TableFoot.vue'
+  import CustomForm from './CustomForm.vue'
 
   export default {
     name: 'grade-table',
@@ -52,7 +60,9 @@
     data() {
       return {
         overflowMenu: false,
-        editableGrades: []
+        editableGrades: [],
+        editableCriterion: null,
+        customFormVisible: false
       }
     },
     computed: {
@@ -63,7 +73,7 @@
       },
       unusedCriteria: function() {
         let types = ['CHARACTERS', 'WORDS', 'HASHTAGS', 'COMMENTS']
-        return types.filter(type => !this.hasCriterion(CriteriaType[type]))
+        return types.filter(type => !this.hasCriterion(type))
       }
     },
     methods: {
@@ -98,33 +108,64 @@
         this.criteria.push(new Criterion(type, type))
       },
       customCriterion: function() {
-        this.$emit('custom-criterion', null)
+        this.customFormVisible = true
       },
       editCriterion: function(criterion) {
-        this.$emit('edit-criterion', criterion)
+        if (this.customFormVisible) {
+          alert("You're currently editting another custom column! Please save or cancel first.")
+          return
+        }
+        this.editableCriterion = criterion
+        this.customFormVisible = true
+      },
+      cancelCriterion: function(criterion) {
+        this.editableCriterion = null
+        this.customFormVisible = false
+      },
+      saveCriterion: function(criterion) {
+        this.editableCriterion = null
+        this.customFormVisible = false
+      },
+      newCriterion: function(criterion) {
+        this.criteria.push(criterion)
+        this.customFormVisible = false
       },
       deleteCriterion: function(criterion) {
-        if (this.criteria.length > 1) {
-          let idx = this.criteria.indexOf(criterion)
-          if (idx >= 0) this.criteria.splice(idx, 1)
-        } else {
+        if (this.criteria.length == 1) {
           alert("Cannot delete the only criteria left!")
+          return
         }
+        if (criterion === this.editableCriterion) {
+          alert("This column is currently being editted!")
+          return
+        }
+        let idx = this.criteria.indexOf(criterion)
+        if (idx >= 0) this.criteria.splice(idx, 1)
       }
     },
     components: {
       TableHead,
       TableRow,
       TableFoot,
+      CustomForm
     }
   }
 </script>
 
 <style scoped>
+  .grade-table {
+    display: flex;
+    flex-flow: row wrap;
+  }
   table, table td {
-    padding: 5px;
-    /* border: solid 1px #666; */
+    padding: 8px;
     text-align: center;
+  }
+  .add-column {
+    width: 200px;
+  }
+  .add-column > h1 {
+    font-size: 16px;
   }
   .add-column > div {
     padding: 8px;

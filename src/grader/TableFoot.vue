@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import { isNumberKey } from './grade-util.js'
+  import { isNumberKey } from './input-util.js'
   import { Grade } from './grade-schema.js'
 
   export default {

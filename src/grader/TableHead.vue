@@ -6,10 +6,11 @@
       <th v-for="criterion in criteria">
         {{ criterion.label }}
         <v-popover
+          class="overflow-menu"
           :disabled="!overflowMenu">
-          <button class="tooltip-target" @click="overflowMenu = true">
-            ···
-          </button>
+          <span class="tooltip-target" @click="overflowMenu = true">
+            <i class="fas fa-cog"></i>
+          </span>
           <template slot="popover">
             <div
                 class="overflow-btn"
@@ -67,6 +68,10 @@
   }
   .overflow-btn {
     padding: 8px 12px;
+    cursor: pointer;
+  }
+  .overflow-menu {
+    display: inline-block;
     cursor: pointer;
   }
   .overflow-btn:hover {

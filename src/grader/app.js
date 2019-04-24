@@ -4,29 +4,27 @@ Vue.use(VTooltip)
 
 import GradeTable from './GradeTable.vue'
 
-import { CriteriaType, Criterion, Grade } from './grade-schema.js'
+import { CriteriaTypes, Criterion, Grade } from './grade-schema.js'
 
 let app = new Vue({
   el: '#app',
+  template: `
+    <grade-table
+        :criteria="criteria"
+        :grades="grades">
+    </grade-table>
+  `,
   data: {
     criteria: [],
     grades: []
-  },
-  methods: {
-    customCriterion: function() {
-      console.log('custom')
-    },
-    editCriterion: function(criterion) {
-      console.log('edit', criterion)
-    }
   },
   components: {
     GradeTable
   }
 })
 
-let criterionA = new Criterion(CriteriaType.COMMENTS, "COMMENTS")
-let criterionB = new Criterion(CriteriaType.WORDS, "WORDS")
+let criterionA = new Criterion(CriteriaTypes.indexOf("COMMENTS"), "COMMENTS")
+let criterionB = new Criterion(CriteriaTypes.indexOf("WORDS"), "WORDS")
 
 app.criteria.push(criterionA)
 app.criteria.push(criterionB)
