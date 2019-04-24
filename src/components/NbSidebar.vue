@@ -21,6 +21,7 @@
         @draft-reply="onDraftReply">
     </thread-view>
     <editor-view
+        :author="authorName"
         :key="editor.key"
         :visible="editor.visible"
         :header="editor.header"
@@ -45,6 +46,10 @@
   export default {
     name: 'nb-sidebar',
     props: {
+      user:{
+        type: Object,
+        default:{}
+      },
       users: {
         type: Object,
         default: {}
@@ -89,6 +94,9 @@
       },
       sortedHashtags: function() {
         return Object.values(this.hashtags).sort(compare('value'))
+      },
+      authorName: function() {
+        return this.user.name.first + " " + this.user.name.last
       }
     },
     watch: {

@@ -9,6 +9,12 @@ import { isNodePartOf } from './utils/dom-util.js'
 
 import NbHighlights from './components/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
+import Login from './Login.vue'
+import axios from 'axios'
+
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
+
 
 if (
   (document.attachEvent && document.readyState === "complete")
@@ -51,7 +57,9 @@ function embedNbApp() {
     el: '#nb-app',
     template: `
       <div id="nb-app" :style="style">
-        <nb-highlights
+        <login @login="setUser" v-if="!user"/>
+        <div v-else>
+          <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
@@ -61,8 +69,9 @@ function embedNbApp() {
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread">
-        </nb-highlights>
-        <nb-sidebar
+          </nb-highlights>
+          <nb-sidebar
+            :user="user"
             :users="users"
             :hashtags="hashtags"
             :total-threads="totalThreads"
@@ -77,10 +86,12 @@ function embedNbApp() {
             @unhover-thread="onUnhoverThread"
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft">
-        </nb-sidebar>
+          </nb-sidebar>
+        </div>
       </div>
     `,
     data: {
+      user: null,
       users: {},
       hashtags: {},
       threads: {},
@@ -119,7 +130,15 @@ function embedNbApp() {
         return items
       }
     },
+    created: function(){
+      axios.get('/api/users/current').then(res => {
+        this.user = res.data;
+      })
+    },
     methods: {
+      setUser: function(user) {
+        this.user = user
+      },
       draftThread: function(range) {
         this.draftRange = createNbRange(range)
       },
@@ -196,7 +215,8 @@ function embedNbApp() {
     },
     components: {
       NbHighlights,
-      NbSidebar
+      NbSidebar,
+      Login
     }
   })
 
