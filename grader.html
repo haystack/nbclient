@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"></meta>
+    <title> NB Grader </title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-size: 16px;
+        font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <grade-table :criteria="criteria" :grades="grades" @edit-criterion="editCriterion"></grade-table>
+      <criterion-form :editting="editableCriterion"></criterion-form>
+    </div>
+    <script type="text/javascript" src="./grader/bundle.js"></script>
+  </body>
+</html>
