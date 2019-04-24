@@ -1,15 +1,24 @@
 const CriteriaType = Object.freeze({
-  CHARS: 0,
+  CHARACTERS: 0,
   WORDS: 1,
   HASHTAGS: 2,
   COMMENTS: 3
 })
 
 class Criterion {
-  constructor(id, nickname, type) {
+  constructor(id, type) {
     this.id = id
-    this.nickname = nickname
-    this.type = type
+    this.type = CriteriaType[type]
+    this.label = 'Total ' +
+      type.charAt(0).toUpperCase() +
+      type.slice(1).toLowerCase()
+  }
+}
+
+class CustomCriterion extends Criterion {
+  constructor(id, label) {
+    super(id, "COMMENTS")
+    this.label = label
     this.filters = {}
   }
   // E.g. Only count COMMENTS with at least *20* WORDS and *2* HASHTAGS each.
@@ -21,9 +30,9 @@ class Criterion {
 }
 
 class Grade {
-  constructor(id, nickname, points) {
+  constructor(id, label, points) {
     this.id = id
-    this.nickname = nickname
+    this.label = label
     this.points = points
     this.thresholds = {}
   }
@@ -49,5 +58,6 @@ class Grade {
 export {
   CriteriaType,
   Criterion,
+  CustomCriterion,
   Grade
 }

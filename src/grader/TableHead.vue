@@ -1,10 +1,27 @@
 <template>
   <thead>
     <tr>
-      <th></th> <!-- nicknames -->
+      <th></th> <!-- labels -->
       <th> Points </th>
-      <th v-for="criterion in criteria" @click="$emit('edit-criterion', criterion)">
-        {{ criterion.nickname }}
+      <th v-for="criterion in criteria">
+        {{ criterion.label }}
+        <v-popover
+          :disabled="!overflowMenu">
+          <button class="tooltip-target" @click="overflowMenu = true">
+            ···
+          </button>
+          <template slot="popover">
+            <div
+                class="overflow-btn"
+                v-if="isEditable(criterion)"
+                @click="editCriterion(criterion)">
+              Edit
+            </div>
+            <div class="overflow-btn" @click="deleteCriterion(criterion)">
+              Delete
+            </div>
+          </template>
+        </v-popover>
       </th>
       <th></th> <!-- edit buttons -->
     </tr>
@@ -12,12 +29,32 @@
 </template>
 
 <script>
+  import { CustomCriterion } from './grade-schema.js'
+
   export default {
     name: 'table-head',
     props: {
       criteria: {
         type: Array,
         default: []
+      }
+    },
+    data() {
+      return {
+        overflowMenu: false
+      }
+    },
+    methods: {
+      isEditable(criterion) {
+        return criterion instanceof CustomCriterion
+      },
+      editCriterion(criterion) {
+        this.overflowMenu = false
+        this.$emit('edit-criterion', criterion)
+      },
+      deleteCriterion(criterion) {
+        this.overflowMenu = false
+        this.$emit('delete-criterion', criterion)
       }
     }
   }
@@ -27,5 +64,12 @@
   th, td {
     padding: 5px;
     text-align: center;
+  }
+  .overflow-btn {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .overflow-btn:hover {
+    background-color: #444;
   }
 </style>

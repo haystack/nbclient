@@ -2,7 +2,7 @@
   <tfoot>
     <tr>
       <td>
-        <input type="text" placeholder="Label (optional)" v-model="nickname">
+        <input type="text" placeholder="Label (optional)" v-model="label">
       </td>
       <td>
         <input
@@ -39,7 +39,7 @@
     },
     data() {
       return {
-        nickname: null,
+        label: null,
         points: null,
         thresholds: {}
       }
@@ -51,7 +51,7 @@
       addGrade: function() {
         let grade = new Grade(
           Date.now(),
-          this.nickname ? this.nickname : "",
+          this.label ? this.label : "",
           this.points ? parseFloat(this.points) : 0,
         )
         for (let id of Object.keys(this.thresholds)) {
@@ -61,7 +61,7 @@
         this.reset()
       },
       reset: function() {
-        this.nickname = null
+        this.label = null
         this.points = null
         this.thresholds = {}
       }

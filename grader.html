@@ -14,8 +14,12 @@
   </head>
   <body>
     <div id="app">
-      <grade-table :criteria="criteria" :grades="grades" @edit-criterion="editCriterion"></grade-table>
-      <criterion-form :editting="editableCriterion"></criterion-form>
+      <grade-table
+          :criteria="criteria"
+          :grades="grades"
+          @custom-criterion="customCriterion"
+          @edit-criterion="editCriterion">
+      </grade-table>
     </div>
     <script type="text/javascript" src="./grader/bundle.js"></script>
   </body>

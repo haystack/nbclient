@@ -1,7 +1,7 @@
 <template>
   <tr v-if="editable">
     <td>
-      <input type="text" placeholder="Label (optional)" v-model="newNickname">
+      <input type="text" placeholder="Label (optional)" v-model="newLabel">
     </td>
     <td>
       <input
@@ -22,7 +22,7 @@
     </td>
   </tr>
   <tr v-else>
-    <td>{{ grade.nickname ? grade.nickname : "[ no label ]" }}</td>
+    <td>{{ grade.label ? grade.label : "[ no label ]" }}</td>
     <td>{{ grade.points }}</td>
     <td v-for="criterion in criteria">
       {{ grade.getThreshold(criterion.id) }}
@@ -58,7 +58,7 @@
     data() {
       return {
         overflowMenu: false,
-        newNickname: this.grade.nickname,
+        newLabel: this.grade.label,
         newPoints: this.grade.points,
         newThresholds: Object.assign({}, this.grade.thresholds)
       }
@@ -76,7 +76,7 @@
         this.$emit('delete-grade', this.grade)
       },
       saveGrade: function() {
-        this.grade.nickname = this.newNickname ? this.newNickname : ""
+        this.grade.label = this.newLabel ? this.newLabel : ""
         this.grade.points = this.newPoints ? parseFloat(this.newPoints) : 0
         for (let criterion of this.criteria) {
           let id = criterion.id
@@ -105,4 +105,3 @@
     text-align: center;
   }
 </style>
-<style src="../components/style/tooltip.css"></style>
