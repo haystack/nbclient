@@ -144,11 +144,9 @@ function embedNbApp() {
       axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
       .then(res => {
         this.hashtags = res.data;
-        console.log(this.hashtags);
       });
       axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
       .then(res => {
-        console.log(res.data);
         this.threads = res.data.map(annotation => {
           annotation.range = deserializeNbRange(annotation.range);
           return new nbComment(
@@ -170,7 +168,6 @@ function embedNbApp() {
             annotation.seenByMe
           );
         });
-        console.log(this.threads);
       })
     },
     methods: {

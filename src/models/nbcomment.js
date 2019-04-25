@@ -48,7 +48,6 @@ class NbComment {
     } else {
       this.text = htmlToText.fromString(this.html, { wordwrap: false })
     }
-    console.log(this);
   }
 
   submitAnnotation(){
@@ -107,7 +106,6 @@ class NbComment {
           annotation.seenByMe
         );
       });
-      console.log(this.children);
     });
   }
 
@@ -167,7 +165,9 @@ class NbComment {
       this.starCount += 1
       this.starredByMe = true
     }
-    // TODO: Also async update backend
+    if(this.id){
+      axios.post(`/api/annotations/star/${this.id}`,{star: this.starredByMe})
+    }
   }
 
   toggleReplyRequest() {
@@ -178,7 +178,9 @@ class NbComment {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
     }
-    // TODO: async update backend
+    if(this.id){
+      axios.post(`/api/annotations/replyRequest/${this.id}`,{replyRequest: this.replyRequestedByMe})
+    }
   }
 }
 
