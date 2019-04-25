@@ -14,7 +14,7 @@
       <input
           type="text"
           placeholder="0"
-          v-model="newThresholds[criterion.id]"
+          v-model="newThresholds[criterion.getID()]"
           @keypress="event => validate(event, false)">
     </td>
     <td>
@@ -25,7 +25,7 @@
     <td>{{ grade.label ? grade.label : "[ no label ]" }}</td>
     <td>{{ grade.points }}</td>
     <td v-for="criterion in criteria">
-      {{ grade.getThreshold(criterion.id) }}
+      {{ grade.getThreshold(criterion.getID()) }}
     </td>
     <td>
       <v-popover
@@ -80,8 +80,8 @@
         this.grade.label = this.newLabel ? this.newLabel : ""
         this.grade.points = this.newPoints ? parseFloat(this.newPoints) : 0
         for (let criterion of this.criteria) {
-          let id = criterion.id
-          if (this.newThresholds[id]) {
+          let id = criterion.getID()
+          if (id in this.newThresholds) {
             this.grade.setThreshold(id, parseInt(this.newThresholds[id]))
           } else {
             this.grade.removeThreshold(id)

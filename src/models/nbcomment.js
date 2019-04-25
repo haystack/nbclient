@@ -10,7 +10,11 @@ class NbComment {
     this.range = range // null if this is a reply
 
     this.parent = parent // null if this is the head of thread
-    this.children = []
+    
+    this.children = [];
+    if(this.id){
+      this.loadReplies()
+    }
 
     this.timestamp = timestamp
     this.author = author
@@ -45,7 +49,6 @@ class NbComment {
       this.text = htmlToText.fromString(this.html, { wordwrap: false })
     }
     console.log(this);
-    console.log(this.range.serialize());
   }
 
   submitAnnotation(){
@@ -61,10 +64,51 @@ class NbComment {
         anonymity: AnonymityMap[this.anonymity],
         replyRequest: this.replyRequestedByMe,
         star: this.starredByMe
-      }).then((res) => {
+      }).then(res => {
+        this.id = res.data.id;
+        this.loadReplies();
+      });
+    }
+    else{
+      return axios.post(`/api/annotations/reply/${this.parent.id}`,{
+        content: this.html,
+        author: this.author,
+        tags: this.hashtags,
+        userTags: this.people,
+        visibility: VisibilityMap[this.visibility],
+        anonymity: AnonymityMap[this.anonymity],
+        replyRequest: this.replyRequestedByMe,
+        star: this.starredByMe
+      }).then(res => {
         this.id = res.data.id;
       });
     }
+  }
+
+  loadReplies(){
+    axios.get(`/api/annotations/reply/${this.id}`).then(res => {
+      this.children = res.data.map(annotation => {
+        return new NbComment(
+          annotation.id,
+          annotation.range,
+          annotation.parent,
+          annotation.timestamp,
+          annotation.author,
+          annotation.authorName,
+          annotation.html,
+          annotation.hashtags,
+          annotation.people,
+          annotation.visibility,
+          annotation.anonymity,
+          annotation.replyRequestedByMe,
+          annotation.replyRequestCount,
+          annotation.starredByMe,
+          annotation.starCount,
+          annotation.seenByMe
+        );
+      });
+      console.log(this.children);
+    });
   }
 
   countAllReplies() {

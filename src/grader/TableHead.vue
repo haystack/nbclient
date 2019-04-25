@@ -4,7 +4,7 @@
       <th></th> <!-- labels -->
       <th> Points </th>
       <th v-for="criterion in criteria">
-        {{ criterion.label }}
+        {{ criterion.getLabel() }}
         <v-popover
           class="overflow-menu"
           :disabled="!overflowMenu">

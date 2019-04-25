@@ -4,7 +4,7 @@ Vue.use(VTooltip)
 
 import GradeTable from './GradeTable.vue'
 
-import { CriteriaTypes, Criterion, Grade } from './grade-schema.js'
+import { DefaultCriterion, CustomCriterion, Grade } from './grade-schema.js'
 
 let app = new Vue({
   el: '#app',
@@ -23,8 +23,10 @@ let app = new Vue({
   }
 })
 
-let criterionA = new Criterion(CriteriaTypes.indexOf("COMMENTS"), "COMMENTS")
-let criterionB = new Criterion(CriteriaTypes.indexOf("WORDS"), "WORDS")
+//// For example:
+
+let criterionA = new DefaultCriterion("COMMENTS")
+let criterionB = new DefaultCriterion("WORDS")
 
 app.criteria.push(criterionA)
 app.criteria.push(criterionB)
@@ -43,3 +45,5 @@ gradeC.setThreshold(criterionB.id, 15)
 app.grades.push(gradeA)
 app.grades.push(gradeB)
 app.grades.push(gradeC)
+
+//// ... end example

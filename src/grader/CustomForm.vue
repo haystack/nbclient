@@ -3,10 +3,10 @@
     <div class="custom-label">
       <input type="text" placeholder="Label (required)" v-model="label">
     </div>
-    <div class="filter-option">
+    <div class="filter-header">
       Comments with:
     </div>
-    <div class="filter-option" v-for="type in filterTypes">
+    <div class="filter-type" v-for="type in filterTypes">
       <input
           type="text"
           placeholder="0"
@@ -33,7 +33,11 @@
     data() {
       return {
         label: "",
-        filters: {},
+        filters: {
+          CHARACTERS: null,
+          WORDS: null,
+          HASHTAGS: null
+        },
         filterTypes: ["CHARACTERS", "WORDS", "HASHTAGS"]
       }
     },
@@ -52,29 +56,38 @@
         this.reset()
       },
       save() {
-        if (this.label === "") {
+        if (this.label.length === 0) {
           alert("Label cannot be empty!")
           return
         }
-        let criterion
-        if (this.criterion) {
-          criterion = this.criterion
-        } else {
-          criterion = new CustomCriterion(Date.now(), this.label)
-        }
-        for (let type of this.filterTypes) {
-          if (type in this.filters) {
-            criterion.setFilter(type, parseInt(this.filters[type]))
-          } else {
-            criterion.removeFilter(type)
+        if (this.criterion) { // editting an existing criterion
+          this.criterion.label = this.label
+          for (let type of Object.keys(this.filters)) {
+            if (this.filters[type]) {
+              this.criterion.setFilter(type, parseInt(this.filters[type]))
+            } else {
+              this.criterion.removeFilter(type)
+            }
           }
+          this.$emit('save-criterion', this.criterion)
+        } else { // creating a new criterion
+          let criterion = new CustomCriterion(Date.now(), this.label) // TODO: Use actual ID
+          for (let type of Object.keys(this.filters)) {
+            if (this.filters[type]) {
+              criterion.setFilter(type, parseInt(this.filters[type]))
+            }
+          }
+          this.$emit('new-criterion', criterion)
         }
-        this.$emit(this.criterion ? 'save-criterion' : 'new-criterion', criterion)
         this.reset()
       },
       reset: function() {
         this.label = ""
-        this.filters = {}
+        this.filters = {
+          CHARACTERS: null,
+          WORDS: null,
+          HASHTAGS: null
+        }
       }
     }
   }
@@ -86,7 +99,8 @@
     padding: 0 8px;
   }
   .custom-label,
-  .filter-option {
+  .filter-header,
+  .filter-type {
     padding: 8px 0
   }
   .custom-label input {
@@ -94,7 +108,7 @@
     padding: 4px;
     font-size: 20px;
   }
-  .filter-option input {
+  .filter-type input {
     width: 50px;
     font-size: 16px;
     text-align: center;

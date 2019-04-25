@@ -15,7 +15,7 @@
         <input
             type="text"
             placeholder="0"
-            v-model="thresholds[criterion.id]"
+            v-model="thresholds[criterion.getID()]"
             @keypress="event => validate(event, false)">
       </td>
       <td>
@@ -50,7 +50,7 @@
       },
       addGrade: function() {
         let grade = new Grade(
-          Date.now(),
+          Date.now(), // TODO: use actual ID
           this.label ? this.label : "",
           this.points ? parseFloat(this.points) : 0,
         )
