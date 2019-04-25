@@ -79,7 +79,7 @@
         ],
         anonymity: CommentAnonymity.IDENTIFIED,
         anonymityOptions: [
-          { text: this.author.name.first + " " + this.author.name.last, value: CommentAnonymity.IDENTIFIED, disabled: false }, // TODO: get actual user name
+          { text: this.author.name.first + " " + this.author.name.last, value: CommentAnonymity.IDENTIFIED, disabled: false },
           { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions

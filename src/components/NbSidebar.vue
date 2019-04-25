@@ -136,9 +136,9 @@
       onSubmitComment: function(data) {
         this.editor.visible = false
 
-        let id = data.timestamp //TODO: get actual ID
+        let id = null
         console.log(this.user)
-        let author = this.user.id //TODO: get actual user ID
+        let author = this.user.id
         let name = this.user.name
         
         let comment = new NbComment(
