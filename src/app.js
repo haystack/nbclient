@@ -5,7 +5,9 @@ Vue.use(VueQuill)
 Vue.use(VTooltip)
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
+import nbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
+
 
 import NbHighlights from './components/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
@@ -144,15 +146,32 @@ function embedNbApp() {
         this.hashtags = res.data;
         console.log(this.hashtags);
       });
-      // axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
-      // .then(res => {
-      //   console.log(res.data);
-      //   this.threads = res.data.map(annotation => {
-      //     annotation.range = deserializeNbRange(annotation.range);
-      //     return annotation;
-      //   });
-      //   console.log(this.threads);
-      // })
+      axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
+      .then(res => {
+        console.log(res.data);
+        this.threads = res.data.map(annotation => {
+          annotation.range = deserializeNbRange(annotation.range);
+          return new nbComment(
+            annotation.id,
+            annotation.range,
+            annotation.parent,
+            annotation.timestamp,
+            annotation.author,
+            annotation.authorName,
+            annotation.html,
+            annotation.hashtags,
+            annotation.people,
+            annotation.visibility,
+            annotation.anonymity,
+            annotation.replyRequestedByMe,
+            annotation.replyRequestCount,
+            annotation.starredByMe,
+            annotation.starCount,
+            annotation.seenByMe
+          );
+        });
+        console.log(this.threads);
+      })
     },
     methods: {
       setUser: function(user) {
