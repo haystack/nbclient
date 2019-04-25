@@ -95,7 +95,7 @@ function embedNbApp() {
       source: null,
       users: {},
       hashtags: {},
-      threads: {},
+      threads: [],
       threadSelected: null,
       threadsHovered: [], //in case of hover on overlapping highlights
       draftRange: null,
@@ -111,10 +111,10 @@ function embedNbApp() {
             + `height: ${document.body.clientHeight}px`
       },
       totalThreads: function() {
-        return Object.keys(this.threads).length
+        return this.threads.length
       },
       filteredThreads: function() {
-        let items = Object.values(this.threads)
+        let items = this.threads
         let searchText = this.filter.searchText
         if (searchText !== "") {
           items = items.filter(item => item.hasText(searchText))
@@ -162,7 +162,7 @@ function embedNbApp() {
         this.draftRange = createNbRange(range)
       },
       onNewThread: function(thread) {
-        this.$set(this.threads, thread.id, thread)
+        this.threads.push(thread)
         this.draftRange = null
       },
       onCancelDraft: function() {
