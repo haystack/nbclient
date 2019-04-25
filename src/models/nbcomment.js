@@ -1,4 +1,6 @@
 import htmlToText from 'html-to-text'
+import axios from 'axios'
+import {VisibilityMap, AnonymityMap} from './enums'
 
 class NbComment {
   constructor(id, range, parent, timestamp, author, authorName, html,
@@ -41,6 +43,27 @@ class NbComment {
       this.text = temp.textContent
     } else {
       this.text = htmlToText.fromString(this.html, { wordwrap: false })
+    }
+    console.log(this);
+    console.log(this.range.serialize());
+  }
+
+  submitAnnotation(){
+    if(!this.parent){
+      return axios.post('/api/annotations/annotation', {
+        url: window.location.href.split('?')[0],
+        content: this.html,
+        range: this.range.serialize(),
+        author: this.author,
+        tags: this.hashtags,
+        userTags: this.people,
+        visibility: VisibilityMap[this.visibility],
+        anonymity: AnonymityMap[this.anonymity],
+        replyRequest: this.replyRequestedByMe,
+        star: this.starredByMe
+      }).then((res) => {
+        this.id = res.data.id;
+      });
     }
   }
 

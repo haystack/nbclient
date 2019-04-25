@@ -21,7 +21,7 @@
         @draft-reply="onDraftReply">
     </thread-view>
     <editor-view
-        :author="authorName"
+        :author="user"
         :key="editor.key"
         :visible="editor.visible"
         :header="editor.header"
@@ -137,9 +137,10 @@
         this.editor.visible = false
 
         let id = data.timestamp //TODO: get actual ID
-        let author = '0' //TODO: get actual user ID
-        let name = this.users[author].name
-
+        console.log(this.user)
+        let author = this.user.id //TODO: get actual user ID
+        let name = this.user.name
+        
         let comment = new NbComment(
           id,
           this.draftRange, //range, null if this is reply
@@ -158,6 +159,7 @@
           0, //starCount
           true //seenByMe
         )
+        comment.submitAnnotation();
 
         if (this.draftRange) {
           this.$emit('new-thread', comment)

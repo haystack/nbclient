@@ -47,6 +47,7 @@
   export default {
     name: 'editor-view',
     props: {
+      author: Object,
       key: String,
       header: String,
       initialContent: {
@@ -78,7 +79,7 @@
         ],
         anonymity: CommentAnonymity.IDENTIFIED,
         anonymityOptions: [
-          { text: "Tim Beaver", value: CommentAnonymity.IDENTIFIED, disabled: false }, // TODO: get actual user name
+          { text: this.author.name.first + " " + this.author.name.last, value: CommentAnonymity.IDENTIFIED, disabled: false }, // TODO: get actual user name
           { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions

@@ -92,6 +92,7 @@ function embedNbApp() {
     `,
     data: {
       user: null,
+      source: null,
       users: {},
       hashtags: {},
       threads: {},
@@ -133,7 +134,25 @@ function embedNbApp() {
     created: function(){
       axios.get('/api/users/current').then(res => {
         this.user = res.data;
-      })
+      });
+      axios.get('/api/annotations/allUsers',{params:{url: window.location.href.split('?')[0]}})
+      .then(res => {
+        this.users = res.data;
+      });
+      axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
+      .then(res => {
+        this.hashtags = res.data;
+        console.log(this.hashtags);
+      });
+      // axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
+      // .then(res => {
+      //   console.log(res.data);
+      //   this.threads = res.data.map(annotation => {
+      //     annotation.range = deserializeNbRange(annotation.range);
+      //     return annotation;
+      //   });
+      //   console.log(this.threads);
+      // })
     },
     methods: {
       setUser: function(user) {
@@ -220,77 +239,7 @@ function embedNbApp() {
     }
   })
 
-  app.users = {
-    '0': {
-      id: '0',
-      name: {
-        first: 'Tim',
-        last: "Beaver"
-      },
-      role: 'student'
-    },
-    '1': {
-      id: '1',
-      name: {
-        first: 'Alisa',
-        last: 'Ono'
-      },
-      role: 'student'
-    },
-    '2': {
-      id: '2',
-      name: {
-        first: 'Adrian',
-        last: 'Sy'
-      },
-      role: 'student'
-    }
-  }
-
-  app.hashtags = {
-    '1': {
-      id: '1',
-      value: "curious",
-      emoji: "1F914"
-    },
-    '2': {
-      id: '2',
-      value: "confused",
-      emoji: "1F616"
-    },
-    '3': {
-      id: '3',
-      value: "useful",
-      emoji: "1F600"
-    },
-    '4': {
-      id: '4',
-      value: "interested",
-      emoji: "1F9D0"
-    },
-    '5': {
-      id: '5',
-      value: "frustrated",
-      emoji: "1F621"
-    },
-    '6': {
-      id: '6',
-      value: "help",
-      emoji: "1F61F"
-    },
-    '7': {
-      id: '7',
-      value: "question",
-      emoji: "2753"
-    },
-    '8': {
-      id: '8',
-      value: "idea",
-      emoji: "1F4A1"
-    }
-  }
-
-  //app.threads = Object.assign({}, app.threads, threadsRestored)
+  // app.threads = Object.assign({}, app.threads, threadsRestored)
   // to serialize NBRange: sr = range.serialize()
   // to deserialize: dsr = deserializeNbRange(sr)
 }
