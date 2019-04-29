@@ -14,6 +14,8 @@
         :total-count="totalThreads"
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
+        :show-highlights="showHighlights"
+        @toggle-highlights="onToggleHighlights"
         @select-thread="onSelectThread"
         @hover-thread="onHoverThread"
         @unhover-thread="onUnhoverThread">
@@ -77,7 +79,11 @@
         type: Array,
         default: []
       },
-      draftRange: Object
+      draftRange: Object,
+      showHighlights: {
+        type: Boolean,
+        default: true
+      }
     },
     data() {
       return {
@@ -118,6 +124,9 @@
       },
     },
     methods: {
+      onToggleHighlights: function(show) {
+        this.$emit('toggle-highlights', show)
+      },
       onSearchText: function(text) {
         this.$emit('search-text', text)
       },

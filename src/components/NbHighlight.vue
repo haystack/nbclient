@@ -1,6 +1,7 @@
 <template>
   <g
       class="nb-highlight"
+      v-show="showHighlights || (thread === threadSelected)"
       :style="style"
       @click="$emit('select-thread',thread)"
       @mouseenter="onHover(true)"
@@ -27,7 +28,11 @@
         type: Array,
         default: []
       },
-      range: Object
+      range: Object,
+      showHighlights: {
+        type: Boolean,
+        default: false
+      }
     },
     computed: {
       style: function() {

@@ -4,6 +4,10 @@
       <span class="count">
         {{ threads.length }} of {{ totalCount }} threads
       </span>
+      <span class="toggle-highlights" @click="toggleHighlights">
+        <i v-if="showHighlights" class="fas fa-eye"></i>
+        <i v-else class="fas fa-eye-slash"></i>
+      </span>
       <span class="sort">
         Sort by:
         <select v-model="sortBy">
@@ -46,6 +50,10 @@
       threadsHovered: {
         type: Array,
         default: []
+      },
+      showHighlights: {
+        type: Boolean,
+        default: true
       }
     },
     data() {
@@ -78,6 +86,11 @@
         }
       }
     },
+    methods: {
+      toggleHighlights: function() {
+        this.$emit('toggle-highlights', !this.showHighlights)
+      }
+    },
     components: {
       ListRow
     }
@@ -90,6 +103,10 @@
   }
   .list-header .count {
     font-size: 13px;
+  }
+  .list-header .toggle-highlights {
+    color: #444;
+    cursor: pointer;
   }
   .list-header .sort {
     font-size: 13px;

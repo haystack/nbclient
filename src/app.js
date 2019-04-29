@@ -67,6 +67,7 @@ function embedNbApp() {
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
+            :show-highlights="showHighlights"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -81,6 +82,8 @@ function embedNbApp() {
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
+            :show-highlights="showHighlights"
+            @toggle-highlights="onToggleHighlights"
             @search-text="onSearchText"
             @filter-hashtags="onFilterHashtags"
             @filter-comments="onFilterComments"
@@ -111,6 +114,10 @@ function embedNbApp() {
         comments: [],
         replyReqs: [],
         stars: []
+      },
+      showHighlights: {
+        type: Boolean,
+        default: false
       },
       resizeKey: Date.now() // work around to force redraw highlights
     },
@@ -338,6 +345,9 @@ function embedNbApp() {
       onUnhoverThread: function(thread) {
         let idx = this.threadsHovered.indexOf(thread)
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
+      },
+      onToggleHighlights: function(show) {
+        this.showHighlights = show
       },
       handleResize: function() {
         this.resizeKey = Date.now()
