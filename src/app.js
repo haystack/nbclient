@@ -85,6 +85,7 @@ function embedNbApp() {
             :show-highlights="showHighlights"
             @toggle-highlights="onToggleHighlights"
             @search-text="onSearchText"
+            @filter-bookmarks="onFilterBookmarks"
             @filter-hashtags="onFilterHashtags"
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
@@ -110,6 +111,7 @@ function embedNbApp() {
       draftRange: null,
       filter: {
         searchText: "",
+        bookmarks: false,
         hashtags: [],
         comments: [],
         replyReqs: [],
@@ -134,6 +136,9 @@ function embedNbApp() {
         let searchText = this.filter.searchText
         if (searchText !== "") {
           items = items.filter(item => item.hasText(searchText))
+        }
+        if (this.filter.bookmarks) {
+          items = items.filter(item => item.hasBookmarks())
         }
         let filterHashtags = this.filter.hashtags
         if (filterHashtags.length > 0) {
@@ -257,6 +262,16 @@ function embedNbApp() {
           this.threadSelected = null // reset selection if filtered
         }
         this.filter.searchText = text
+      },
+      onFilterBookmarks: function(filter) {
+        if (
+          this.threadSelected
+          && filter
+          && !this.threadSelected.hasBookmarks()
+        ) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.bookmarks = filter
       },
       onFilterHashtags: function(hashtags) {
         if (this.threadSelected && hashtags.length > 0) {

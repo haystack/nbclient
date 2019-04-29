@@ -8,6 +8,15 @@
             @text-change="onTextChange">
         </search-bar>
       </div>
+      <span
+          class="filter-bookmarks"
+          v-tooltip="filterBookmarks ? 'clear filter' : 'filter saved'"
+          @click="toggleFilterBookmarks">
+        <i v-if="filterBookmarks" class="fas fa-bookmark icon"
+            style="color: #666">
+        </i>
+        <i v-else class="far fa-bookmark icon" style="color: #888"></i>
+      </span>
       <button @click="toggleFilters" :style="toggleFiltersStyle">
         {{ toggleFiltersLabel }}
       </button>
@@ -118,6 +127,7 @@
     data() {
       return {
         filterVisible: false,
+        filterBookmarks: false,
         filterHashtags: [],
         filterComments: [],
         filterReplyReqs: [],
@@ -137,6 +147,10 @@
     methods: {
       onTextChange: function(text) {
         this.$emit('search-text', text)
+      },
+      toggleFilterBookmarks: function() {
+        this.filterBookmarks = !this.filterBookmarks
+        this.$emit('filter-bookmarks', this.filterBookmarks)
       },
       toggleFilters: function(event) {
         this.filterVisible = !this.filterVisible
@@ -171,9 +185,14 @@
     margin: 10px 0;
   }
   .filter-header .search-bar {
-    width: 270px;
+    width: 242px;
     display: inline-block;
     vertical-align: middle;
+  }
+  .filter-header .filter-bookmarks .icon {
+    font-size: 32px;
+    vertical-align: top;
+    cursor: pointer;
   }
   .filter-header button {
     font-size: 13px;

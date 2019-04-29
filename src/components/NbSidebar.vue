@@ -4,6 +4,7 @@
         :users="sortedUsers"
         :hashtags="sortedHashtags"
         @search-text="onSearchText"
+        @filter-bookmarks="onFilterBookmarks"
         @filter-hashtags="onFilterHashtags"
         @filter-comments="onFilterComments"
         @filter-reply-reqs="onFilterReplyReqs"
@@ -129,6 +130,9 @@
       },
       onSearchText: function(text) {
         this.$emit('search-text', text)
+      },
+      onFilterBookmarks: function(filter) {
+        this.$emit('filter-bookmarks', filter)
       },
       onFilterHashtags: function(hashtags) {
         this.$emit('filter-hashtags', hashtags)

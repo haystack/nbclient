@@ -151,6 +151,18 @@ class NbComment {
     return false
   }
 
+  hasBookmarks() {
+    if (this.bookmarked) {
+      return true
+    }
+    for (let child of this.children) {
+      if (child.hasBookmarks()) {
+        return true
+      }
+    }
+    return false
+  }
+
   hasHashtag(hashtag) {
     if (this.hashtags.includes(hashtag)) {
       return true
