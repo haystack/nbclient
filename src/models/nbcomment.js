@@ -3,7 +3,7 @@ import axios from 'axios'
 import {VisibilityMap, AnonymityMap} from './enums'
 
 class NbComment {
-  constructor(id, range, parent, timestamp, author, authorName, html,
+  constructor(id, range, parent, timestamp, author, authorName, instructor, html,
       hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
       replyRequestCount, starredByMe, starCount, seenByMe) {
     this.id = id
@@ -15,11 +15,12 @@ class NbComment {
     if(this.id){
       this.loadReplies()
     }
-
-    this.timestamp = new Date(timestamp.replace(' ', 'T'));
+    if(timestamp){
+      this.timestamp = new Date(timestamp.replace(' ', 'T'));
+    }
     this.author = author
     this.authorName = authorName
-    this.instructor = true // TODO
+    this.instructor = instructor // TODO
 
     this.html = html
 
@@ -95,6 +96,7 @@ class NbComment {
           annotation.timestamp,
           annotation.author,
           annotation.authorName,
+          annotation.instructor,
           annotation.html,
           annotation.hashtags,
           annotation.people,
@@ -231,7 +233,7 @@ class NbComment {
   markSeenAll() { // mark this comment and all replies 'seen'
     if (!this.seenByMe) {
       this.seenByMe = true
-      //TODO: Update database
+      axios.post(`/api/annotations/seen/${this.id}`);
     }
     for (let child of this.children) {
       child.markSeenAll()

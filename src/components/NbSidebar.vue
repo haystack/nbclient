@@ -161,6 +161,7 @@
           null,
           author,
           `${name.first} ${name.last}`, //authorName
+          this.users[author].role == 'instructor',
           data.html, //content
           data.mentions.hashtags,
           data.mentions.users,
