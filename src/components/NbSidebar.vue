@@ -21,6 +21,7 @@
     <thread-view
         v-if="threadSelected"
         :thread="threadSelected"
+        :me="user"
         @draft-reply="onDraftReply">
     </thread-view>
     <editor-view

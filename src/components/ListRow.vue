@@ -10,8 +10,12 @@
       <div class="counter" :style="counterStyle">
         {{ thread.countAllReplies() + 1 }}
       </div>
-      <i class="fas fa-info icon" :style="iconStyle"></i>
-      <i class="fas fa-question icon" :style="iconStyle"></i>
+      <i v-if="thread.hasInstructorPost()" class="fas fa-info icon"
+          :style="iconStyle">
+      </i>
+      <i v-if="thread.hasReplyRequests()" class="fas fa-question icon"
+          :style="iconStyle">
+      </i>
     </div>
     {{ thread.text }}
   </div>
