@@ -145,7 +145,7 @@
           id,
           this.draftRange, //range, null if this is reply
           this.replyToComment, //parent, null if this is the head of thread
-          data.timestamp,
+          null,
           author,
           `${name.first} ${name.last}`, //authorName
           data.html, //content

@@ -16,7 +16,7 @@ class NbComment {
       this.loadReplies()
     }
 
-    this.timestamp = timestamp
+    this.timestamp = new Date(timestamp.replace(' ', 'T'));
     this.author = author
     this.authorName = authorName
 

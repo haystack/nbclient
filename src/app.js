@@ -149,6 +149,7 @@ function embedNbApp() {
       .then(res => {
         this.threads = res.data.map(annotation => {
           annotation.range = deserializeNbRange(annotation.range);
+          console.log(annotation.timestamp);
           return new nbComment(
             annotation.id,
             annotation.range,
