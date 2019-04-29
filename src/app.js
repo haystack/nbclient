@@ -211,6 +211,7 @@ function embedNbApp() {
       axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
       .then(res => {
         this.threads = res.data.map(annotation => {
+          console.log(annotation)
           annotation.range = deserializeNbRange(annotation.range);
           return new NbComment(
             annotation.id,
@@ -219,6 +220,7 @@ function embedNbApp() {
             annotation.timestamp,
             annotation.author,
             annotation.authorName,
+            annotation.instructor,
             annotation.html,
             annotation.hashtags,
             annotation.people,
@@ -235,6 +237,7 @@ function embedNbApp() {
     },
     methods: {
       setUser: function(user) {
+        console.log(user)
         this.user = user
       },
       draftThread: function(range) {
