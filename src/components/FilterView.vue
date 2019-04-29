@@ -127,7 +127,7 @@
     computed: {
       toggleFiltersStyle: function() {
         if (this.filterVisible) {
-          return "background-color: #888; color: #fff;"
+          return "background-color: #666; color: #fff;"
         }
       },
       toggleFiltersLabel: function() {

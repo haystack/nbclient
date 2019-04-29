@@ -1,11 +1,18 @@
 <template>
   <div
       class="list-row"
-      :style="style"
+      :style="rowStyle"
       :key="thread.id"
       @mouseenter="$emit('hover-thread', thread)"
       @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
+    <div class="flags">
+      <div class="counter" :style="counterStyle">
+        {{ thread.countAllReplies() + 1 }}
+      </div>
+      <i class="fas fa-info icon" :style="iconStyle"></i>
+      <i class="fas fa-question icon" :style="iconStyle"></i>
+    </div>
     {{ thread.text }}
   </div>
 </template>
@@ -29,12 +36,24 @@
       }
     },
     computed: {
-      style: function() {
-        if (this.threadSelected && this.thread.id === this.threadSelected.id) {
-          return 'background-color: #70a0f0;'
+      rowStyle: function() {
+        let style = this.thread.isUnseen() ? 'font-weight: bold;': ''
+        if (this.threadSelected && this.thread === this.threadSelected) {
+          return style + 'background-color: #70a0f0; color: #fff'
         }
         if (this.threadsHovered.includes(this.thread)) {
-          return 'background-color: #b5cef7'
+          return style + 'background-color: #ccddf9'
+        }
+        return style
+      },
+      counterStyle: function() {
+        if (this.thread.isUnseen()) {
+          return 'background-color: #ffff70; color: #7070ff;'
+        }
+      },
+      iconStyle: function() {
+        if (this.threadSelected && this.thread === this.threadSelected) {
+          return 'color: #fff'
         }
       }
     }
@@ -44,6 +63,7 @@
 <style scoped>
   .list-row {
     padding: 4px;
+    color: #226;
     cursor: pointer;
     overflow: hidden;
     white-space: nowrap;
@@ -54,5 +74,26 @@
   }
   .list-row:hover {
     background-color: #ffffd0;
+  }
+  .flags {
+    width: 50px;
+    display: inline-block;
+  }
+  .flags .counter {
+    width: 16px;
+    padding: 2px 0;
+    display: inline-block;
+    border-radius: 3px;
+    background-color: #eee;
+    color: #aaa;
+    font-size: 11px;
+    text-align: center;
+    vertical-align: bottom;
+  }
+  .flags .icon {
+    width: 12px;
+    color: #888;
+    font-size: 13px;
+    text-align: center;
   }
 </style>

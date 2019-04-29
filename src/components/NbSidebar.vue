@@ -39,7 +39,7 @@
 
 <script>
   import { compare } from '../utils/compare-util.js'
-  import NbComment from "../models/NbComment.js"
+  import NbComment from "../models/nbcomment.js"
 
   import FilterView from './FilterView.vue'
   import ListView from './ListView.vue'

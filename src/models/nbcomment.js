@@ -218,6 +218,26 @@ class NbComment {
     return false
   }
 
+  isUnseen() {
+    if (!this.seenByMe) { return true }
+    for (let child of this.children) {
+      if (child.isUnseen()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  markSeenAll() { // mark this comment and all replies 'seen'
+    if (!this.seenByMe) {
+      this.seenByMe = true
+      //TODO: Update database
+    }
+    for (let child of this.children) {
+      child.markSeenAll()
+    }
+  }
+
   toggleStar() {
     if (this.starredByMe) {
       this.starCount -= 1

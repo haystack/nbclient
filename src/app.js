@@ -5,7 +5,7 @@ Vue.use(VueQuill)
 Vue.use(VTooltip)
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
-import nbComment from './models/nbcomment.js'
+import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 
@@ -199,7 +199,7 @@ function embedNbApp() {
       .then(res => {
         this.threads = res.data.map(annotation => {
           annotation.range = deserializeNbRange(annotation.range);
-          return new nbComment(
+          return new NbComment(
             annotation.id,
             annotation.range,
             annotation.parent,
@@ -318,6 +318,7 @@ function embedNbApp() {
       },
       onSelectThread: function(thread) {
         this.threadSelected = thread
+        thread.markSeenAll()
       },
       onUnselectThread: function(thread) {
         this.threadSelected = null
