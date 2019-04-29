@@ -4,7 +4,10 @@
         :users="sortedUsers"
         :hashtags="sortedHashtags"
         @search-text="onSearchText"
-        @filter-hashtags="onFilterHashtags">
+        @filter-hashtags="onFilterHashtags"
+        @filter-comments="onFilterComments"
+        @filter-reply-reqs="onFilterReplyReqs"
+        @filter-stars="onFilterStars">
     </filter-view>
     <list-view
         :threads="threads"
@@ -18,6 +21,7 @@
     <thread-view
         v-if="threadSelected"
         :thread="threadSelected"
+        :me="user"
         @draft-reply="onDraftReply">
     </thread-view>
     <editor-view
@@ -36,7 +40,7 @@
 
 <script>
   import { compare } from '../utils/compare-util.js'
-  import NbComment from "../models/NbComment.js"
+  import NbComment from "../models/nbcomment.js"
 
   import FilterView from './FilterView.vue'
   import ListView from './ListView.vue'
@@ -116,6 +120,15 @@
       },
       onFilterHashtags: function(hashtags) {
         this.$emit('filter-hashtags', hashtags)
+      },
+      onFilterComments: function(filters) {
+        this.$emit('filter-comments', filters)
+      },
+      onFilterReplyReqs: function(filter) {
+        this.$emit('filter-reply-reqs', filter)
+      },
+      onFilterStars: function(filter){
+        this.$emit('filter-stars', filter)
       },
       onSelectThread: function(thread) {
         this.$emit('select-thread', thread)

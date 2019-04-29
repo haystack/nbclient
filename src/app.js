@@ -5,7 +5,7 @@ Vue.use(VueQuill)
 Vue.use(VTooltip)
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
-import nbComment from './models/nbcomment.js'
+import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 
@@ -83,6 +83,9 @@ function embedNbApp() {
             :draft-range="draftRange"
             @search-text="onSearchText"
             @filter-hashtags="onFilterHashtags"
+            @filter-comments="onFilterComments"
+            @filter-reply-reqs="onFilterReplyReqs"
+            @filter-stars="onFilterStars"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
@@ -103,7 +106,10 @@ function embedNbApp() {
       draftRange: null,
       filter: {
         searchText: "",
-        hashtags: []
+        hashtags: [],
+        comments: [],
+        replyReqs: [],
+        stars: []
       },
       resizeKey: Date.now() // work around to force redraw highlights
     },
@@ -130,6 +136,50 @@ function embedNbApp() {
             return false
           })
         }
+        let filterComments = this.filter.comments
+        if (filterComments.length > 0) {
+          items = items.filter(item => {
+            if (
+              filterComments.includes("instructor") && item.hasInstructorPost()
+            ) {
+              return true
+            }
+            if (
+              filterComments.includes("me") && item.hasUserPost(this.user.id)
+            ) {
+              return true
+            }
+            return false
+          })
+        }
+        let filterReplyReqs = this.filter.replyReqs
+        if (filterReplyReqs.length > 0) {
+          items = items.filter(item => {
+            if (
+              filterReplyReqs.includes("anyone") && item.hasReplyRequests()
+            ) {
+              return true
+            }
+            if (
+              filterReplyReqs.includes("me") && item.hasMyReplyRequests()
+            ) {
+              return true
+            }
+            return false
+          })
+        }
+        let filterStars = this.filter.stars
+        if (filterStars.length > 0) {
+          items = items.filter(item => {
+            if (filterStars.includes("anyone") && item.hasStars()) {
+              return true
+            }
+            if (filterStars.includes("me") && item.hasMyStars()) {
+              return true
+            }
+            return false
+          })
+        }
         return items
       }
     },
@@ -149,8 +199,7 @@ function embedNbApp() {
       .then(res => {
         this.threads = res.data.map(annotation => {
           annotation.range = deserializeNbRange(annotation.range);
-          console.log(annotation.timestamp);
-          return new nbComment(
+          return new NbComment(
             annotation.id,
             annotation.range,
             annotation.parent,
@@ -210,8 +259,66 @@ function embedNbApp() {
         }
         this.filter.hashtags = hashtags
       },
+      onFilterComments: function(filters) {
+        if (this.threadSelected && filters.length > 0) {
+          let filtered = true
+          if (
+            filters.includes("instructor")
+            && this.threadSelected.hasInstructorPost()
+          ) {
+            filtered = false
+          }
+          if (
+            filters.includes("me")
+            && this.threadSelected.hasUserPost(this.user.id)
+          ) {
+            filtered = false
+          }
+          if (filtered) {
+            this.threadSelected = null // reset selection if filtered
+          }
+        }
+        this.filter.comments = filters
+      },
+      onFilterReplyReqs: function(filters) {
+        if (this.threadSelected && filters.length > 0) {
+          let filtered = true
+          if (
+            filters.includes("anyone")
+            && this.threadSelected.hasReplyRequests()
+          ) {
+            filtered = false
+          }
+          if (
+            filters.includes("me")
+            && this.threadSelected.hasMyReplyRequests()
+          ) {
+            filtered = false
+          }
+          if (filtered) {
+            this.threadSelected = null // reset selection if filtered
+          }
+        }
+        this.filter.replyReqs = filters
+      },
+      onFilterStars: function(filters){
+        if (this.threadSelected && filters.length > 0) {
+          let filtered = true
+          if (filters.includes("anyone") && this.threadSelected.hasStars()) {
+            filtered = false
+          }
+          if (filters.includes("me") && this.threadSelected.hasMyStars()) {
+            filtered = false
+          }
+          if (filtered) {
+            this.threadSelected = null // reset selection if filtered
+          }
+        }
+        this.filter.stars = filters
+      },
       onSelectThread: function(thread) {
         this.threadSelected = thread
+        thread.markSeenAll()
       },
       onUnselectThread: function(thread) {
         this.threadSelected = null

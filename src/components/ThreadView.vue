@@ -5,7 +5,7 @@
       &nbsp;·&nbsp;
       {{ thread.countAllReplyRequests() }} reply requests
     </div>
-    <thread-comment :comment="thread" @draft-reply="draftReply">
+    <thread-comment :comment="thread" :me="me" @draft-reply="draftReply">
     </thread-comment>
   </div>
 </template>
@@ -15,7 +15,7 @@
 
   export default {
     name: 'thread-view',
-    props: ['thread'],
+    props: ['thread', 'me'],
     methods: {
       draftReply: function(comment) {
         this.$emit('draft-reply', comment)

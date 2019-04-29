@@ -2,7 +2,13 @@
   <div>
     <div class="thread-row">
       <div class="thread-row-header">
-        <span><b>{{ authorName }}</b></span> <span>{{ timeString }}</span>
+        <span class="author">
+          <i v-if="comment.instructor" class="fas fa-info icon"
+              :style="iconStyle">
+          </i>
+          <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
+        </span>
+        <span class="timestamp">{{ timeString }}</span>
       </div>
       <div class="thread-row-body" v-html="comment.html"></div>
       <div class="thread-row-footer">
@@ -31,6 +37,7 @@
       <thread-comment
           v-for="child in comment.children"
           :comment="child"
+          :me="me"
           :key="child.id"
           @draft-reply="draftReply"
           @toggle-star="toggleStar"
@@ -46,18 +53,16 @@
 
   export default {
     name: 'thread-comment',
-    props: ['comment'],
+    props: ['comment', 'me'],
     methods: {
       draftReply: function(comment) {
         this.$emit('draft-reply', comment)
       },
       toggleStar: function(comment) {
         comment.toggleStar()
-        // this.$emit('toggle-star', comment)
       },
       toggleReplyRequest: function(comment) {
         comment.toggleReplyRequest()
-        // this.$emit('toggle-reply-request', comment)
       }
     },
     computed: {
@@ -97,7 +102,17 @@
   .thread-row-header {
     margin-bottom: 5px;
   }
-  .thread-row-header > span:nth-child(2) {
+  .thread-row-header .author .icon {
+    width: 16px;
+    padding: 3px 0;
+    color: #fff;
+    background: #444;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 3px;
+    vertical-align: top;
+  }
+  .thread-row-header .timestamp {
     font-size: 14px;
     color: #444;
   }
