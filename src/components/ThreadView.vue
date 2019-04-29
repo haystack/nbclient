@@ -5,7 +5,12 @@
       &nbsp;·&nbsp;
       {{ thread.countAllReplyRequests() }} reply requests
     </div>
-    <thread-comment :comment="thread" :me="me" @draft-reply="draftReply">
+    <thread-comment
+        :comment="thread"
+        :me="me"
+        @edit-comment="editComment"
+        @delete-comment="deleteComment"
+        @draft-reply="draftReply">
     </thread-comment>
   </div>
 </template>
@@ -17,6 +22,12 @@
     name: 'thread-view',
     props: ['thread', 'me'],
     methods: {
+      editComment: function(comment) {
+        this.$emit('edit-comment', comment)
+      },
+      deleteComment: function(comment) {
+        this.$emit('delete-comment', comment)
+      },
       draftReply: function(comment) {
         this.$emit('draft-reply', comment)
       }

@@ -86,6 +86,7 @@
   .flags .counter {
     width: 16px;
     padding: 2px 0;
+    margin-right: 2px;
     display: inline-block;
     border-radius: 3px;
     background-color: #eee;
@@ -95,7 +96,7 @@
     vertical-align: bottom;
   }
   .flags .icon {
-    width: 12px;
+    width: 10px;
     color: #888;
     font-size: 13px;
     text-align: center;

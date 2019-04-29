@@ -9,6 +9,38 @@
           <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
         </span>
         <span class="timestamp">{{ timeString }}</span>
+        <div class="options">
+          <span
+              class="bookmark"
+              v-tooltip="comment.bookmarked ? 'undo save' : 'save'"
+              @click="toggleBookmark(comment)">
+            <i v-if="comment.bookmarked" class="fas fa-bookmark"
+                style="color: #70a0f0">
+            </i>
+            <i v-else class="far fa-bookmark" style="color: #444"></i>
+          </span>
+          <v-popover class="overflow-menu" :disabled="!overflowMenu">
+            <span
+                v-if="commentEditable"
+                class="tooltip-target"
+                style="color: #444"
+                @click="overflowMenu = true">
+              ···
+            </span>
+            <template slot="popover">
+              <div
+                  class="overflow-btn nb-comment-tooltip"
+                  @click="editComment(comment)">
+                Edit
+              </div>
+              <div
+                  class="overflow-btn nb-comment-tooltip"
+                  @click="deleteComment(comment)">
+                Delete
+              </div>
+            </template>
+          </v-popover>
+        </div>
       </div>
       <div class="thread-row-body" v-html="comment.html"></div>
       <div class="thread-row-footer">
@@ -39,6 +71,8 @@
           :comment="child"
           :me="me"
           :key="child.id"
+          @edit-comment="editComment"
+          @delete-comment="deleteComment"
           @draft-reply="draftReply"
           @toggle-star="toggleStar"
           @toggle-reply-request="toggleReplyRequest">
@@ -54,9 +88,25 @@
   export default {
     name: 'thread-comment',
     props: ['comment', 'me'],
+    data() {
+      return {
+        overflowMenu: false
+      }
+    },
     methods: {
+      editComment: function(comment) {
+        this.overflowMenu = false
+        this.$emit('edit-comment', comment)
+      },
+      deleteComment: function(comment) {
+        this.overflowMenu = false
+        this.$emit('delete-comment', comment)
+      },
       draftReply: function(comment) {
         this.$emit('draft-reply', comment)
+      },
+      toggleBookmark: function(comment) {
+        comment.toggleBookmark()
       },
       toggleStar: function(comment) {
         comment.toggleStar()
@@ -78,11 +128,15 @@
       timeString: function() {
         return moment(this.comment.timestamp).fromNow()
       },
+      commentEditable: function() {
+        return (this.comment.author === this.me.id)
+          && (this.comment.children.length === 0)
+      },
       styleStar: function() {
-        if (this.comment.starredByMe) return 'color: #1B95E0'
+        if (this.comment.starredByMe) return 'color: #70a0f0'
       },
       styleQuestion: function() {
-        if (this.comment.replyRequestedByMe) return 'color: #1B95E0'
+        if (this.comment.replyRequestedByMe) return 'color: #70a0f0'
       }
     }
   }
@@ -100,6 +154,7 @@
     margin-left: 20px;
   }
   .thread-row-header {
+    position: relative;
     margin-bottom: 5px;
   }
   .thread-row-header .author .icon {
@@ -116,6 +171,29 @@
     font-size: 14px;
     color: #444;
   }
+  .thread-row-header .options {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .thread-row-header .options .bookmark {
+    cursor: pointer;
+  }
+  .thread-row-header .options .bookmark:hover {
+    color: #70a0f0;
+  }
+  .overflow-menu {
+    margin-left: 5px;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .overflow-btn {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .overflow-btn:hover {
+    background-color: #444;
+  }
   .thread-row-body > p {
     margin: 0;
   }
@@ -129,7 +207,7 @@
     cursor: pointer;
   }
   .thread-row-footer > span:hover {
-    color: #1B95E0;
+    color: #70a0f0;
   }
   .thread-row-footer > span:focus {
     outline: none;
