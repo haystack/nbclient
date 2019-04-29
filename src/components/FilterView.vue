@@ -27,6 +27,81 @@
           </label>
         </div>
       </div>
+      <h1>Comments and Replies</h1>
+      <div class="comments-replies">
+        <div>
+          <input
+              type="checkbox"
+              id="instructor-comments"
+              value="instructor"
+              v-model="filterComments"
+              @change="onFilterChange('comments')">
+          <label for="instructor-comments">
+            by instructors
+          </label>
+        </div>
+        <div>
+          <input
+              type="checkbox"
+              id="my-comments"
+              value="me"
+              v-model="filterComments"
+              @change="onFilterChange('comments')">
+          <label for="my-comments">
+            by me
+          </label>
+        </div>
+      </div>
+      <h1>Reply Requests</h1>
+      <div class="reply-requests">
+        <div>
+          <input
+              type="checkbox"
+              id="anyone-reply-reqs"
+              value="anyone"
+              v-model="filterReplyReqs"
+              @change="onFilterChange('reply-reqs')">
+          <label for="anyone-reply-reqs">
+            by anyone
+          </label>
+        </div>
+        <div>
+          <input
+              type="checkbox"
+              id="my-reply-reqs"
+              value="me"
+              v-model="filterReplyReqs"
+              @change="onFilterChange('reply-reqs')">
+          <label for="my-reply-reqs">
+            by me
+          </label>
+        </div>
+      </div>
+      <h1>Stars</h1>
+      <div class="stars">
+        <div>
+          <input
+              type="checkbox"
+              id="anyone-stars"
+              value="anyone"
+              v-model="filterStars"
+              @change="onFilterChange('stars')">
+          <label for="anyone-stars">
+            by anyone
+          </label>
+        </div>
+        <div>
+          <input
+              type="checkbox"
+              id="my-stars"
+              value="me"
+              v-model="filterStars"
+              @change="onFilterChange('stars')">
+          <label for="my-stars">
+            by me
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -43,7 +118,10 @@
     data() {
       return {
         filterVisible: false,
-        filterHashtags: []
+        filterHashtags: [],
+        filterComments: [],
+        filterReplyReqs: [],
+        filterStars: []
       }
     },
     computed: {
@@ -64,8 +142,21 @@
         this.filterVisible = !this.filterVisible
       },
       onFilterChange: function(type) {
-        if (type === 'hashtags') { // in case we add different kinds of filters
-          this.$emit('filter-hashtags', this.filterHashtags)
+        switch (type) {
+          case 'hashtags':
+            this.$emit('filter-hashtags', this.filterHashtags)
+            break
+          case 'comments':
+            this.$emit('filter-comments', this.filterComments)
+            break
+          case 'reply-reqs':
+            this.$emit('filter-reply-reqs', this.filterReplyReqs)
+            break
+          case 'stars':
+            this.$emit('filter-stars', this.filterStars)
+            break
+          default:
+            return
         }
       }
     },
@@ -102,8 +193,11 @@
   .filter-options > h1 {
     font-size: 14px;
   }
-  .filter-options .hashtags > div {
-    width: 50%;
+  .filter-options .hashtags > div,
+  .filter-options .comments-replies > div,
+  .filter-options .reply-requests > div,
+  .filter-options .stars > div {
+    width: 49%;
     display: inline-block;
   }
   /deep/ .ql-container {

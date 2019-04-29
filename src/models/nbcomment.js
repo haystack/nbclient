@@ -19,6 +19,7 @@ class NbComment {
     this.timestamp = timestamp
     this.author = author
     this.authorName = authorName
+    this.instructor = true // TODO
 
     this.html = html
 
@@ -151,6 +152,66 @@ class NbComment {
     }
     for (let child of this.children) {
       if (child.hasHashtag(hashtag)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasInstructorPost() {
+    if (this.instructor) { return true }
+    for (let child of this.children) {
+      if (child.hasInstructorPost()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasUserPost(userID) {
+    if (this.author === userID) { return true }
+    for (let child of this.children) {
+      if (child.hasUserPost(userID)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasReplyRequests() {
+    if (this.replyRequestCount > 0) { return true }
+    for (let child of this.children) {
+      if (child.hasReplyRequests()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasMyReplyRequests() {
+    if (this.replyRequestedByMe) { return true }
+    for (let child of this.children) {
+      if (child.hasMyReplyRequests()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasStars() {
+    if (this.starCount > 0) { return true }
+    for (let child of this.children) {
+      if (child.hasStars()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasMyStars() {
+    if (this.starredByMe) { return true }
+    for (let child of this.children) {
+      if (child.hasMyStars()) {
         return true
       }
     }
