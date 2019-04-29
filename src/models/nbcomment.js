@@ -37,7 +37,12 @@ class NbComment {
     this.starCount = starCount
 
     this.seenByMe = seenByMe
+    this.bookmarked = false // TODO
 
+    this.setText() // populate this.text from this.html
+  }
+
+  setText() {
     if (this.html.includes('ql-formula')) { // work around for latex formula
       let temp = document.createElement('div')
       temp.innerHTML = this.html
@@ -92,7 +97,7 @@ class NbComment {
         return new NbComment(
           annotation.id,
           annotation.range,
-          annotation.parent,
+          this, // parent
           annotation.timestamp,
           annotation.author,
           annotation.authorName,
@@ -263,6 +268,34 @@ class NbComment {
     }
     if(this.id){
       axios.post(`/api/annotations/replyRequest/${this.id}`,{replyRequest: this.replyRequestedByMe})
+    }
+  }
+
+  toggleBookmark() {
+    this.bookmarked = !this.bookmarked
+    // TODO: update database
+  }
+
+  saveUpdates(data) {
+    this.timestamp = data.timestamp
+    this.html = data.html
+    this.hashtags = data.mentions.hashtags
+    this.people = data.mentions.people
+    this.visibility = data.visibility
+    this.anonymity = data.anonymity
+    if (this.replyRequestedByMe !== data.replyRequested) {
+      this.replyRequestedByMe = data.replyRequested
+      this.replyRequestCount += data.replyRequested ? 1 : -1
+    }
+    this.setText()
+    // TODO: update database
+  }
+
+  removeChild(child) {
+    let idx = this.children.indexOf(child)
+    if (idx >= 0) {
+      this.children.splice(idx, 1)
+      // TODO: update database
     }
   }
 }

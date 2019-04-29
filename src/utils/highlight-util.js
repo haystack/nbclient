@@ -53,7 +53,10 @@ function eventsProxyMouse(src, target) {
   src.addEventListener('click', function(e) {
     if (!window.getSelection().isCollapsed) { return } // selection, not click
     // ignore mouse click on the side bar
-    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
+    if (
+      isNodePartOf(e.target, document.querySelector('#nb-app'))
+      || e.target.classList.contains('nb-comment-tooltip')
+    ) { return }
 
     for (let child of target.childNodes) {
       if (

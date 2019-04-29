@@ -22,6 +22,8 @@
         v-if="threadSelected"
         :thread="threadSelected"
         :me="user"
+        @edit-comment="onEditComment"
+        @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
     </thread-view>
     <editor-view
@@ -80,6 +82,7 @@
     data() {
       return {
         replyToComment: null,
+        edittingComment: null,
         editor: {
           key: Date.now(),
           visible: false,
@@ -139,6 +142,22 @@
       onUnhoverThread: function(thread) {
         this.$emit('unhover-thread', thread)
       },
+      onEditComment: function(comment) {
+        if (this.draftRange) {
+          this.$emit('cancel-draft', this.draftRange)
+        } else if (this.replyToComment) {
+          this.replyToComment = null
+        }
+        this.edittingComment = comment
+        this.initEditor('Edit Comment', comment.html, true)
+      },
+      onDeleteComment: function(comment) {
+        if (comment.parent) { // reply
+          comment.parent.removeChild(comment)
+        } else { // head of thread
+          this.$emit('delete-thread', comment)
+        }
+      },
       onDraftReply: function(comment) {
         if (this.draftRange) {
           this.$emit('cancel-draft', this.draftRange)
@@ -149,11 +168,17 @@
       onSubmitComment: function(data) {
         this.editor.visible = false
 
+        if (this.edittingComment) {
+          this.edittingComment.saveUpdates(data)
+          this.edittingComment = null
+          return
+        }
+
         let id = null
         console.log(this.user)
         let author = this.user.id
         let name = this.user.name
-        
+
         let comment = new NbComment(
           id,
           this.draftRange, //range, null if this is reply
@@ -186,6 +211,10 @@
         this.editor.visible = false
         if (this.draftRange) {
           this.$emit('cancel-draft', this.draftRange)
+        } else if (this.replyToComment) {
+          this.replyToComment = null
+        } else if (this.edittingComment) {
+          this.edittingComment = null
         }
       },
       initEditor: function(header, content, visible) {

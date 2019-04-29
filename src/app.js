@@ -89,6 +89,7 @@ function embedNbApp() {
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
+            @delete-thread="onDeleteThread"
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft">
           </nb-sidebar>
@@ -229,6 +230,12 @@ function embedNbApp() {
       },
       draftThread: function(range) {
         this.draftRange = createNbRange(range)
+      },
+      onDeleteThread: function(thread) {
+        if (this.threadSelected === thread) { this.threadSelected = null }
+        let idx = this.threads.indexOf(thread)
+        if (idx >= 0) { this.threads.splice(idx, 1) }
+        // TODO: update database
       },
       onNewThread: function(thread) {
         this.threads.push(thread)
