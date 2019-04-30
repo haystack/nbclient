@@ -51,14 +51,22 @@ function contains(item, x, y) {
 /* Helper function for Highlights.constructor */
 function eventsProxyMouse(src, target) {
   src.addEventListener('click', function(e) {
-    if (!window.getSelection().isCollapsed) { return } // selection, not click
+    if (!window.getSelection().isCollapsed) { // selection, not click
+      // Can remove selection here because 'mouseup' on document.body is
+      // triggered first before 'click'
+      window.getSelection().removeAllRanges()
+      return
+    }
     // ignore mouse click on the side bar
     if (
       isNodePartOf(e.target, document.querySelector('#nb-app'))
       || e.target.classList.contains('nb-comment-tooltip')
     ) { return }
 
-    for (let child of target.childNodes) {
+    // Iterate in reverse order, so when clicked on overlapping highlights,
+    // we select the highlight that starts closest to the mouse click coords.
+    for (let i = target.childNodes.length - 1; i >= 0; i--) {
+      let child = target.childNodes[i]
       if (
         child.classList
         && child.classList.contains('nb-highlight')

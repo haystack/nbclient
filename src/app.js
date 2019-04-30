@@ -372,7 +372,7 @@ function embedNbApp() {
       }
     },
     mounted: function() {
-      document.body.addEventListener("click", function() {
+      document.body.addEventListener("mouseup", function() {
         let selection = window.getSelection()
         if (selection.isCollapsed) { return }
 
@@ -383,7 +383,8 @@ function embedNbApp() {
           && !isNodePartOf(range.endContainer, sidebar)
         ) {
           app.draftThread(range)
-          selection.removeAllRanges()
+          // Selection will be removed in highlight-util.eventsProxyMouse
+          // because 'click' is triggered after 'mouseup'
         }
       })
 
