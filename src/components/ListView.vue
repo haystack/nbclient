@@ -60,11 +60,11 @@
       return {
         sortBy: 'position',
         sortByOptions: [
-          { text: "Position", value: 'position' },
+          { text: "Default", value: 'position' },
           { text: "Most Recent", value: 'recent' },
-          { text: "Total Comments", value: 'comment' },
+          { text: "Longest Thread", value: 'comment' },
           { text: "Reply Requests", value: 'reply_request' },
-          { text: "Star", value: 'star' }
+          { text: "Stars", value: 'star' }
         ]
       }
     },

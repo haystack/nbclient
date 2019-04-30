@@ -54,6 +54,18 @@
         type: String,
         default: "<p></p>"
       },
+      initialVisibility: {
+        type: String,
+        default: CommentVisibility.EVERYONE
+      },
+      initialAnonymity: {
+        type: String,
+        default: CommentAnonymity.IDENTIFIED
+      },
+      initialReplyRequest: {
+        type: Boolean,
+        default: false
+      },
       users: Array,
       hashtags: Array,
       visible: Boolean
@@ -71,19 +83,19 @@
         ],
         placeholder: 'Include tags with @ or #',
         content: this.initialContent,
-        visibility: CommentVisibility.EVERYONE,
+        visibility: this.initialVisibility,
         visibilityOptions: [
           { text: "Entire class", value: CommentVisibility.EVERYONE },
           { text: "Instructors and TAs", value: CommentVisibility.INSTRUCTORS },
           { text: "Myself only", value: CommentVisibility.MYSELF }
         ],
-        anonymity: CommentAnonymity.IDENTIFIED,
+        anonymity: this.initialAnonymity,
         anonymityOptions: [
           { text: this.author.name.first + " " + this.author.name.last, value: CommentAnonymity.IDENTIFIED, disabled: false },
           { text: "Anonymous to Classmates", value: CommentAnonymity.ANONYMOUS, disabled: false }
         ],
         anonymousIdx: 1, //index for 'anonymous' in anonymityOptions
-        replyRequested: false
+        replyRequested: this.initialReplyRequest
       }
     },
     computed: {

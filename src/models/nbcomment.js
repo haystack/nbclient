@@ -15,8 +15,11 @@ class NbComment {
     if(this.id){
       this.loadReplies()
     }
-    if(timestamp){
-      this.timestamp = new Date(timestamp.replace(' ', 'T'));
+    if (timestamp) {
+      let date = new Date(timestamp.replace(' ', 'T'))
+      this.timestamp = date.getTime()
+    } else {
+      this.timestamp = Date.now()
     }
     this.author = author
     this.authorName = authorName
@@ -142,7 +145,7 @@ class NbComment {
   }
 
   hasText(text) {
-    if (this.text.includes(text)) {
+    if (this.text.toLowerCase().includes(text.toLowerCase())) {
       return true
     }
     for (let child of this.children) {

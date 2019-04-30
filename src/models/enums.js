@@ -1,23 +1,23 @@
 const CommentVisibility = Object.freeze({
-  EVERYONE: 0,
-  INSTRUCTORS: 1,
-  MYSELF: 2
+  EVERYONE: 'EVERYONE',
+  INSTRUCTORS: 'INSTRUCTORS',
+  MYSELF: 'MYSELF'
 });
 
 const CommentAnonymity = Object.freeze({
-  IDENTIFIED: 0,
-  ANONYMOUS: 1
+  IDENTIFIED: 'IDENTIFIED',
+  ANONYMOUS: 'ANONYMOUS'
 });
 
 const VisibilityMap = Object.freeze({
-  0: 'EVERYONE',
-  1: 'INSTRUCTORS',
-  2: 'MYSELF'
+  EVERYONE: 'EVERYONE',
+  INSTRUCTORS: 'INSTRUCTORS',
+  MYSELF: 'MYSELF'
 });
 
 const AnonymityMap = Object.freeze({
-  0: 'IDENTIFIED',
-  1: 'ANONYMOUS'
+  IDENTIFIED: 'IDENTIFIED',
+  ANONYMOUS: 'ANONYMOUS'
 });
 
 export {

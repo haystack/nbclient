@@ -8,18 +8,18 @@
             @text-change="onTextChange">
         </search-bar>
       </div>
+      <button @click="toggleFilters" :style="toggleFiltersStyle">
+        {{ toggleFiltersLabel }}
+      </button>
       <span
           class="filter-bookmarks"
-          v-tooltip="filterBookmarks ? 'clear filter' : 'filter saved'"
+          v-tooltip="filterBookmarks ? 'clear filter' : 'show bookmarked'"
           @click="toggleFilterBookmarks">
         <i v-if="filterBookmarks" class="fas fa-bookmark icon"
             style="color: #666">
         </i>
         <i v-else class="far fa-bookmark icon" style="color: #888"></i>
       </span>
-      <button @click="toggleFilters" :style="toggleFiltersStyle">
-        {{ toggleFiltersLabel }}
-      </button>
     </div>
     <div class="filter-options" v-show="filterVisible">
       <h1>Hashtags</h1>
@@ -189,11 +189,6 @@
     display: inline-block;
     vertical-align: middle;
   }
-  .filter-header .filter-bookmarks .icon {
-    font-size: 32px;
-    vertical-align: top;
-    cursor: pointer;
-  }
   .filter-header button {
     font-size: 13px;
     width: 94px;
@@ -205,6 +200,11 @@
   }
   .filter-header button:focus {
     outline: none;
+  }
+  .filter-header .filter-bookmarks .icon {
+    font-size: 32px;
+    vertical-align: top;
+    cursor: pointer;
   }
   .filter-options {
     padding: 10px;

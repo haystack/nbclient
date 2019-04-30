@@ -12,7 +12,7 @@
         <div class="options">
           <span
               class="bookmark"
-              v-tooltip="comment.bookmarked ? 'undo save' : 'save'"
+              v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
               @click="toggleBookmark(comment)">
             <i v-if="comment.bookmarked" class="fas fa-bookmark"
                 style="color: #70a0f0">
@@ -144,7 +144,7 @@
 
 <style scoped>
   .thread-row {
-    padding: 10px 0 10px 10px;
+    padding: 8px 6px;
   }
   .thread-row:hover {
     background-color: #f0f0f0;

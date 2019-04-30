@@ -35,6 +35,9 @@
         :visible="editor.visible"
         :header="editor.header"
         :initial-content="editor.initialContent"
+        :initial-visibility="editor.initialSettings.visibility"
+        :initial-anonymity="editor.initialSettings.anonymity"
+        :initial-reply-request="editor.initialSettings.replyRequested"
         :users="sortedUsers"
         :hashtags="sortedHashtags"
         @submit-comment="onSubmitComment"
@@ -45,6 +48,7 @@
 
 <script>
   import { compare } from '../utils/compare-util.js'
+  import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import NbComment from "../models/nbcomment.js"
 
   import FilterView from './FilterView.vue'
@@ -94,7 +98,12 @@
           key: Date.now(),
           visible: false,
           header: "",
-          initialContent: null
+          initialContent: null,
+          initialSettings: {
+            visibility: CommentVisibility.EVERYONE,
+            anonymity: CommentAnonymity.IDENTIFIED,
+            replyRequested: false
+          }
         }
       }
     },
@@ -117,7 +126,7 @@
       draftRange: function(val) {
         if (val) {
           this.replyToComment = null // Cannot reply at the same time
-          this.initEditor('New Comment', null, true)
+          this.initEditor('New Comment', null, {}, true)
         } else {
           // No new thread, not replying
           if (!this.replyToComment) this.editor.visible = false
@@ -161,8 +170,13 @@
         } else if (this.replyToComment) {
           this.replyToComment = null
         }
+        let settings = {
+          visibility: comment.visibility,
+          anonymity: comment.anonymity,
+          replyRequested: comment.replyRequestedByMe
+        }
         this.edittingComment = comment
-        this.initEditor('Edit Comment', comment.html, true)
+        this.initEditor('Edit Comment', comment.html, settings, true)
       },
       onDeleteComment: function(comment) {
         if (comment.parent) { // reply
@@ -176,7 +190,7 @@
           this.$emit('cancel-draft', this.draftRange)
         }
         this.replyToComment = comment
-        this.initEditor(`re: ${comment.text}`,  null, true)
+        this.initEditor(`re: ${comment.text}`, null, {}, true)
       },
       onSubmitComment: function(data) {
         this.editor.visible = false
@@ -230,10 +244,16 @@
           this.edittingComment = null
         }
       },
-      initEditor: function(header, content, visible) {
+      initEditor: function(header, content, settings, visible) {
         this.editor.key = Date.now() // work around to force redraw editor
         this.editor.header = header
         this.editor.initialContent = content
+        let defaultSettings = {
+          visibility: CommentVisibility.EVERYONE,
+          anonymity: CommentAnonymity.IDENTIFIED,
+          replyRequested: false
+        }
+        this.editor.initialSettings = Object.assign(defaultSettings, settings)
         this.editor.visible = visible
       }
     },
