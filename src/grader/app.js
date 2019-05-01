@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VTooltip from 'v-tooltip'
+import VModal from 'vue-js-modal'
 Vue.use(VTooltip)
+Vue.use(VModal)
 
 import GradeTable from './GradeTable.vue'
 

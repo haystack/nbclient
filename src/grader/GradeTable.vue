@@ -1,39 +1,41 @@
 <template>
   <div class="grade-table">
-    <table>
-      <table-head
-          :default-criteria="defaultCriteria"
-          :custom-criteria="customCriteria"
-          @edit-criterion="editCriterion"
-          @delete-criterion="deleteCriterion">
-      </table-head>
-      <tbody>
-        <table-row
-            v-for="grade in sortedGrades"
+    <div class="table-wrapper">
+      <table>
+        <table-head
             :default-criteria="defaultCriteria"
             :custom-criteria="customCriteria"
-            :grade="grade"
-            :editting="edittingGrades.includes(grade)"
-            @edit-grade="editGrade"
-            @delete-grade="deleteGrade"
-            @save-grade="saveGrade">
-        </table-row>
-      </tbody>
-      <table-foot
-          :default-criteria="defaultCriteria"
-          :custom-criteria="customCriteria"
-          @add-grade="addGrade">
-      </table-foot>
-    </table>
-    <div class="add-column" v-show="!customFormVisible">
+            @edit-criterion="editCriterion"
+            @delete-criterion="deleteCriterion">
+        </table-head>
+        <tbody>
+          <table-row
+              v-for="grade in sortedGrades"
+              :default-criteria="defaultCriteria"
+              :custom-criteria="customCriteria"
+              :grade="grade"
+              :editting="edittingGrades.includes(grade)"
+              @edit-grade="editGrade"
+              @delete-grade="deleteGrade"
+              @save-grade="saveGrade">
+          </table-row>
+        </tbody>
+        <table-foot
+            :default-criteria="defaultCriteria"
+            :custom-criteria="customCriteria"
+            @add-grade="addGrade">
+        </table-foot>
+      </table>
+    </div>
+    <div class="add-column">
       <div @click="createCriterion">
         + Add Custom Column
       </div>
     </div>
     <custom-form
-        v-show="customFormVisible"
+        :open="showForm"
         :editting-criterion="edittingCriterion"
-        @cancel-criterion="cancelCriterion"
+        @cancel-form="cancelForm"
         @save-criterion="saveCriterion"
         @new-criterion="newCriterion">
     </custom-form>
@@ -61,9 +63,9 @@
     },
     data() {
       return {
+        showForm: false,
         edittingGrades: [],
         edittingCriterion: null,
-        customFormVisible: false,
         defaultCriteria: [
           { type: "COMMENTS", label: "Total Comments" },
           { type: "HASHTAGS", label: "Total Hashtags" },
@@ -104,39 +106,27 @@
         // TODO: update 'grade' in database
       },
       createCriterion: function() {
-        if (this.customFormVisible) { // TODO: these conflicts should be resolved by modals.
-          alert("You're currently editting another custom column! Please save or cancel first.")
-          return
-        }
-        this.customFormVisible = true
+        this.showForm = true
       },
       editCriterion: function(criterion) {
-        if (this.customFormVisible) { // TODO: these conflicts should be resolved by modals.
-          alert("You're currently editting another custom column! Please save or cancel first.")
-          return
-        }
         this.edittingCriterion = criterion
-        this.customFormVisible = true
+        this.showForm = true
       },
-      cancelCriterion: function() {
+      cancelForm: function() {
         this.edittingCriterion = null
-        this.customFormVisible = false
+        this.showForm = false
       },
       saveCriterion: function(criterion) {
         this.edittingCriterion = null
-        this.customFormVisible = false
+        this.showForm = false
         // TODO: update this criterion in database
       },
       newCriterion: function(criterion) {
         this.customCriteria.push(criterion)
-        this.customFormVisible = false
+        this.showForm = false
         // TODO: add this criterion to database
       },
       deleteCriterion: function(criterion) {
-        if (criterion === this.edittingCriterion) { // TODO: these conflicts should be resolved by modals.
-          alert("This column is currently being editted!")
-          return
-        }
         let idx = this.customCriteria.indexOf(criterion)
         if (idx >= 0) { this.customCriteria.splice(idx, 1) }
         for (let grade of this.grades) {
@@ -156,16 +146,22 @@
 </script>
 
 <style scoped>
-  .grade-table {
-    display: flex;
-    flex-flow: row wrap;
+  .table-wrapper,
+  .add-column {
+    display: inline-block;
+  }
+  .table-wrapper {
+    width: 800px;
+    overflow-x: scroll;
   }
   table, table td {
     padding: 8px;
     text-align: center;
   }
   .add-column {
-    width: 200px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
   }
   .add-column > div {
     padding: 8px;

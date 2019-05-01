@@ -1,24 +1,26 @@
 <template>
-  <div class="custom-form">
-    <div class="custom-label">
-      <input type="text" placeholder="Label (required)" v-model="label">
+  <modal name="custom-form-modal">
+    <div class="custom-form">
+      <div class="custom-label">
+        <input type="text" placeholder="Label (required)" v-model="label">
+      </div>
+      <div class="filter-header">
+        Comments with:
+      </div>
+      <div class="filter-type" v-for="filter in filters">
+        <input
+            type="text"
+            placeholder="0"
+            v-model="filter.value"
+            @keypress="e => validate(e, false)">
+        or more {{ filter.label }}
+      </div>
+      <div class="form-buttons">
+        <button @click="cancel"> Cancel </button>
+        <button @click="save"> Save </button>
+      </div>
     </div>
-    <div class="filter-header">
-      Comments with:
-    </div>
-    <div class="filter-type" v-for="filter in filters">
-      <input
-          type="text"
-          placeholder="0"
-          v-model="filter.value"
-          @keypress="e => validate(e, false)">
-      or more {{ filter.label }}
-    </div>
-    <div class="form-buttons">
-      <button @click="cancel"> Cancel </button>
-      <button @click="save"> Save </button>
-    </div>
-  </div>
+  </modal>
 </template>
 
 <script>
@@ -28,27 +30,31 @@
   export default {
     name: 'custom-form',
     props: {
-      edittingCriterion: null
+      open: false,
+      editting: null
     },
     data() {
       return {
-        label: null,
+        label: this.editting ? this.editting.label : null,
         filters: [
-          { type: "HASHTAGS", label: "Hashtags", value: null },
-          { type: "WORDS", label: "Words", value: null },
-          { type: "CHARS", label: "Characters", value: null}
+          { type: "HASHTAGS",
+            label: "Hashtags",
+            value: this.editting ? this.editting.filters.HASHTAGS : null },
+          { type: "WORDS",
+            label: "Words",
+            value: this.editting ? this.editting.filters.WORDS : null },
+          { type: "CHARS",
+            label: "Characters",
+            value: this.editting ? this.editting.filters.CHARS : null }
         ]
       }
     },
     watch: {
-      edittingCriterion: function(val) {
+      open: function(val) {
         if (val) {
-          this.label = val.label
-          for (let filter of this.filters) {
-            filter.value = val.getFilter(filter.type)
-          }
+          this.$modal.show('custom-form-modal')
         } else {
-          this.reset()
+          this.$modal.hide('custom-form-modal')
         }
       }
     },
@@ -57,33 +63,25 @@
         return isNumberKey(event, allowDecimal)
       },
       cancel() {
-        this.$emit('cancel-criterion')
-        this.reset()
+        this.$emit('cancel-form')
       },
       save() {
         if (!this.label) {
           alert("Label cannot be empty!")
           return
         }
-        if (this.edittingCriterion) { // editting an existing criterion
-          this.edittingCriterion.label = this.label
+        if (this.editting) { // editting an existing criterion
+          this.editting.label = this.label
           for (let filter of this.filters) {
-            this.edittingCriterion.setFilter(filter.value, filter.type)
+            this.editting.setFilter(filter.value, filter.type)
           }
-          this.$emit('save-criterion', this.edittingCriterion)
+          this.$emit('save-criterion', this.editting)
         } else { // creating a new criterion
           let criterion = new CustomCriterion(Date.now(), this.label) // TODO: Use actual ID
           for (let filter of this.filters) {
             criterion.setFilter(filter.value, filter.type)
           }
           this.$emit('new-criterion', criterion)
-        }
-        this.reset()
-      },
-      reset: function() {
-        this.label = null
-        for (let filter of this.filters) {
-          filter.value = null
         }
       }
     }
@@ -92,13 +90,19 @@
 
 <style scoped>
   .custom-form {
-    width: 200px;
-    padding: 0 8px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   }
   .custom-label,
   .filter-header,
-  .filter-type {
-    padding: 8px 0
+  .filter-type,
+  .form-buttons {
+    width: 200px;
+    padding: 8px;
   }
   .custom-label input {
     width: 192px;
