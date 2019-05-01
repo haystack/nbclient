@@ -2,35 +2,37 @@
   <div class="grade-table">
     <table>
       <table-head
-          :criteria="criteria"
+          :default-criteria="defaultCriteria"
+          :custom-criteria="customCriteria"
           @edit-criterion="editCriterion"
           @delete-criterion="deleteCriterion">
       </table-head>
       <tbody>
         <table-row
             v-for="grade in sortedGrades"
-            :criteria="criteria"
+            :default-criteria="defaultCriteria"
+            :custom-criteria="customCriteria"
             :grade="grade"
-            :editable="editableGrades.includes(grade)"
+            :editting="edittingGrades.includes(grade)"
             @edit-grade="editGrade"
             @delete-grade="deleteGrade"
             @save-grade="saveGrade">
         </table-row>
       </tbody>
-      <table-foot :criteria="criteria" @add-grade="addGrade"></table-foot>
+      <table-foot
+          :default-criteria="defaultCriteria"
+          :custom-criteria="customCriteria"
+          @add-grade="addGrade">
+      </table-foot>
     </table>
     <div class="add-column" v-show="!customFormVisible">
-      <h1>Add column:</h1>
-      <div v-for="type in unusedCriteria" @click="addCriterion(type)">
-        + Total {{ type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() }} <!-- TODO: make this method -->
-      </div>
       <div @click="createCriterion">
-        + Custom
+        + Add Custom Column
       </div>
     </div>
     <custom-form
         v-show="customFormVisible"
-        :criterion="editableCriterion"
+        :editting-criterion="edittingCriterion"
         @cancel-criterion="cancelCriterion"
         @save-criterion="saveCriterion"
         @new-criterion="newCriterion">
@@ -39,7 +41,7 @@
 </template>
 
 <script>
-  import { CriteriaTypes, DefaultCriterion, CustomCriterion } from './grade-schema.js'
+  import { DefaultCriterion, CustomCriterion } from './grade-schema.js'
   import TableHead from './TableHead.vue'
   import TableRow from './TableRow.vue'
   import TableFoot from './TableFoot.vue'
@@ -48,7 +50,7 @@
   export default {
     name: 'grade-table',
     props: {
-      criteria: {
+      customCriteria: {
         type: Array,
         default: []
       },
@@ -59,10 +61,15 @@
     },
     data() {
       return {
-        overflowMenu: false,
-        editableGrades: [],
-        editableCriterion: null,
-        customFormVisible: false
+        edittingGrades: [],
+        edittingCriterion: null,
+        customFormVisible: false,
+        defaultCriteria: [
+          { type: "COMMENTS", label: "Total Comments" },
+          { type: "HASHTAGS", label: "Total Hashtags" },
+          { type: "WORDS", label: "Total Words" },
+          { type: "CHARS", label: "Total Characters" }
+        ]
       }
     },
     computed: {
@@ -70,9 +77,6 @@
         return this.grades.sort(function(a, b) {
           return b.points - a.points
         })
-      },
-      unusedCriteria: function() {
-        return CriteriaTypes.filter(type => !this.hasCriterion(type))
       }
     },
     methods: {
@@ -81,16 +85,13 @@
         // TODO: add 'grade' to database
       },
       editGrade: function(grade) {
-        this.editableGrades.push(grade)
+        this.edittingGrades.push(grade)
       },
       deleteGrade: function(grade) {
         // TODO: better alert?
         let message = "Do you really want to remove this grade: " +
             (grade.label ? grade.label : "[ no label ]") +
             " (" + grade.points + "pts) ?\n"
-        for (let criterion of this.criteria) {
-          message += criterion.label + " >= " + grade.getThreshold(criterion.getID()) + "\n"
-        }
         if (confirm(message)) {
           let idx = this.grades.indexOf(grade)
           if (idx >= 0) { this.grades.splice(idx, 1) }
@@ -98,16 +99,9 @@
         }
       },
       saveGrade: function(grade) {
-        let idx = this.editableGrades.indexOf(grade)
-        if (idx >= 0) { this.editableGrades.splice(idx, 1) }
+        let idx = this.edittingGrades.indexOf(grade)
+        if (idx >= 0) { this.edittingGrades.splice(idx, 1) }
         // TODO: update 'grade' in database
-      },
-      hasCriterion: function(type) {
-        return this.criteria.find(x => x.getType() === type)
-      },
-      addCriterion: function(type) {
-        this.criteria.push(new DefaultCriterion(type))
-        // TODO: add this criterion to database
       },
       createCriterion: function() {
         if (this.customFormVisible) { // TODO: these conflicts should be resolved by modals.
@@ -117,43 +111,39 @@
         this.customFormVisible = true
       },
       editCriterion: function(criterion) {
-        if (this.customFormVisible) {
+        if (this.customFormVisible) { // TODO: these conflicts should be resolved by modals.
           alert("You're currently editting another custom column! Please save or cancel first.")
           return
         }
-        this.editableCriterion = criterion
+        this.edittingCriterion = criterion
         this.customFormVisible = true
       },
-      cancelCriterion: function(criterion) {
-        this.editableCriterion = null
+      cancelCriterion: function() {
+        this.edittingCriterion = null
         this.customFormVisible = false
       },
       saveCriterion: function(criterion) {
-        this.editableCriterion = null
+        this.edittingCriterion = null
         this.customFormVisible = false
         // TODO: update this criterion in database
       },
       newCriterion: function(criterion) {
-        this.criteria.push(criterion)
+        this.customCriteria.push(criterion)
         this.customFormVisible = false
         // TODO: add this criterion to database
       },
       deleteCriterion: function(criterion) {
-        if (this.criteria.length == 1) {
-          alert("Cannot delete the only criteria left!")
-          return
-        }
-        if (criterion === this.editableCriterion) {
+        if (criterion === this.edittingCriterion) { // TODO: these conflicts should be resolved by modals.
           alert("This column is currently being editted!")
           return
         }
-        let idx = this.criteria.indexOf(criterion)
-        if (idx >= 0) { this.criteria.splice(idx, 1) }
+        let idx = this.customCriteria.indexOf(criterion)
+        if (idx >= 0) { this.customCriteria.splice(idx, 1) }
         for (let grade of this.grades) {
-          grade.removeThreshold(criterion.id)
+          grade.setThreshold(null, "CUSTOM", criterion.id)
         }
         // TODO: remove this criterion from database
-        // TODO: update grades accordingly in database
+        // TODO: remove corresponding thresholds from database
       }
     },
     components: {
@@ -176,9 +166,6 @@
   }
   .add-column {
     width: 200px;
-  }
-  .add-column > h1 {
-    font-size: 16px;
   }
   .add-column > div {
     padding: 8px;

@@ -1,5 +1,5 @@
 <template>
-  <tr v-if="editable">
+  <tr v-if="editting">
     <td>
       <input type="text" placeholder="Label (optional)" v-model="newLabel">
     </td>
@@ -10,11 +10,18 @@
           v-model="newPoints"
           @keypress="event => validate(event, true)">
     </td>
-    <td v-for="criterion in criteria">
+    <td v-for="criterion in defaultCriteria">
       <input
           type="text"
           placeholder="0"
-          v-model="newThresholds[criterion.getID()]"
+          v-model="newTotals[criterion.type]"
+          @keypress="event => validate(event, false)">
+    </td>
+    <td v-for="criterion in customCriteria">
+      <input
+          type="text"
+          placeholder="0"
+          v-model="newCustoms[criterion.id]"
           @keypress="event => validate(event, false)">
     </td>
     <td>
@@ -24,8 +31,11 @@
   <tr v-else>
     <td>{{ grade.label ? grade.label : "[ no label ]" }}</td>
     <td>{{ grade.points }}</td>
-    <td v-for="criterion in criteria">
-      {{ grade.getThreshold(criterion.getID()) }}
+    <td v-for="criterion in defaultCriteria">
+      {{ grade.getThreshold(criterion.type) }}
+    </td>
+    <td v-for="criterion in customCriteria">
+      {{ grade.getThreshold("CUSTOM", criterion.id) }}
     </td>
     <td>
       <v-popover
@@ -49,9 +59,16 @@
   export default {
     name: 'table-row',
     props: {
-      criteria: Array,
+      defaultCriteria: {
+        type: Array,
+        default: []
+      },
+      customCriteria: {
+        type: Array,
+        default: []
+      },
       grade: Object,
-      editable: {
+      editting: {
         type: Boolean,
         default: false
       }
@@ -61,7 +78,13 @@
         overflowMenu: false,
         newLabel: this.grade.label,
         newPoints: this.grade.points,
-        newThresholds: Object.assign({}, this.grade.thresholds)
+        newTotals: {
+          COMMENTS: this.grade.totalComments,
+          HASHTAGS: this.grade.totalHashtags,
+          WORDS: this.grade.totalWords,
+          CHARS: this.grade.totalChars
+        },
+        newCustoms: Object.assign({}, this.grade.customCriteria)
       }
     },
     methods: {
@@ -77,15 +100,20 @@
         this.$emit('delete-grade', this.grade)
       },
       saveGrade: function() {
-        this.grade.label = this.newLabel ? this.newLabel : ""
-        this.grade.points = this.newPoints ? parseFloat(this.newPoints) : 0
-        for (let criterion of this.criteria) {
-          let id = criterion.getID()
-          if (id in this.newThresholds) {
-            this.grade.setThreshold(id, parseInt(this.newThresholds[id]))
-          } else {
-            this.grade.removeThreshold(id)
-          }
+        this.grade.setLabel(this.newLabel)
+        this.grade.setPoints(this.newPoints)
+        for (let criterion of this.defaultCriteria) {
+          this.grade.setThreshold(
+            this.newTotals[criterion.type],
+            criterion.type
+          )
+        }
+        for (let criterion of this.customCriteria) {
+          this.grade.setThreshold(
+            this.newCustoms[criterion.id],
+            "CUSTOM",
+            criterion.id
+          )
         }
         this.$emit('save-grade', this.grade)
       }

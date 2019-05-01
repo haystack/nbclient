@@ -11,11 +11,18 @@
             v-model="points"
             @keypress="event => validate(event, true)">
       </td>
-      <td v-for="criterion in criteria">
+      <td v-for="criterion in defaultCriteria">
         <input
             type="text"
             placeholder="0"
-            v-model="thresholds[criterion.getID()]"
+            v-model="totals[criterion.type]"
+            @keypress="event => validate(event, false)">
+      </td>
+      <td v-for="criterion in customCriteria">
+        <input
+            type="text"
+            placeholder="0"
+            v-model="customs[criterion.id]"
             @keypress="event => validate(event, false)">
       </td>
       <td>
@@ -32,7 +39,11 @@
   export default {
     name: 'table-foot',
     props: {
-      criteria: {
+      defaultCriteria: {
+        type: Array,
+        default: []
+      },
+      customCriteria: {
         type: Array,
         default: []
       }
@@ -41,7 +52,8 @@
       return {
         label: null,
         points: null,
-        thresholds: {}
+        totals: {},
+        customs: {}
       }
     },
     methods: {
@@ -49,13 +61,12 @@
         return isNumberKey(event, allowDecimal)
       },
       addGrade: function() {
-        let grade = new Grade(
-          Date.now(), // TODO: use actual ID
-          this.label ? this.label : "",
-          this.points ? parseFloat(this.points) : 0,
-        )
-        for (let id of Object.keys(this.thresholds)) {
-           grade.setThreshold(id, parseInt(this.thresholds[id]))
+        let grade = new Grade(Date.now(), this.label, this.points) // TODO: use actual ID
+        for (let criterion of this.defaultCriteria) {
+          grade.setThreshold(this.totals[criterion.type], criterion.type)
+        }
+        for (let criterion of this.customCriteria) {
+          grade.setThreshold(this.customs[criterion.id], "CUSTOM", criterion.id)
         }
         this.$emit('add-grade', grade)
         this.reset()
@@ -63,7 +74,8 @@
       reset: function() {
         this.label = null
         this.points = null
-        this.thresholds = {}
+        this.totals = {}
+        this.customs = {}
       }
     }
   }

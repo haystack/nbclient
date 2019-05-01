@@ -3,8 +3,11 @@
     <tr>
       <th></th> <!-- labels -->
       <th> Points </th>
-      <th v-for="criterion in criteria">
-        {{ criterion.getLabel() }}
+      <th v-for="criterion in defaultCriteria">
+        {{ criterion.label }}
+      </th>
+      <th v-for="criterion in customCriteria">
+        {{ criterion.label }}
         <v-popover
           class="overflow-menu"
           :disabled="!overflowMenu">
@@ -12,10 +15,7 @@
             <i class="fas fa-cog"></i>
           </span>
           <template slot="popover">
-            <div
-                class="overflow-btn"
-                v-if="isEditable(criterion)"
-                @click="editCriterion(criterion)">
+            <div class="overflow-btn" @click="editCriterion(criterion)">
               Edit
             </div>
             <div class="overflow-btn" @click="deleteCriterion(criterion)">
@@ -35,7 +35,11 @@
   export default {
     name: 'table-head',
     props: {
-      criteria: {
+      defaultCriteria: {
+        type: Array,
+        default: []
+      },
+      customCriteria: {
         type: Array,
         default: []
       }
@@ -46,9 +50,6 @@
       }
     },
     methods: {
-      isEditable(criterion) {
-        return criterion instanceof CustomCriterion
-      },
       editCriterion(criterion) {
         this.overflowMenu = false
         this.$emit('edit-criterion', criterion)
