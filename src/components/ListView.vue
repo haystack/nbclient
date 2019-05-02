@@ -113,7 +113,7 @@
     float: right;
   }
   .list-table {
-    list-style-type: none;
+    position: relative;
     height: 15vh;
     border: solid 1px #ddd;
     overflow-y: scroll;
