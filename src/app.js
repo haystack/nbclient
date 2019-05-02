@@ -45,7 +45,6 @@ function embedNbApp() {
   loadCSS("https://use.fontawesome.com/releases/v5.8.1/css/all.css")
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
-
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
@@ -211,7 +210,6 @@ function embedNbApp() {
       axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
       .then(res => {
         this.threads = res.data.map(annotation => {
-          console.log(annotation)
           annotation.range = deserializeNbRange(annotation.range);
           return new NbComment(
             annotation.id,
@@ -230,14 +228,14 @@ function embedNbApp() {
             annotation.replyRequestCount,
             annotation.starredByMe,
             annotation.starCount,
-            annotation.seenByMe
+            annotation.seenByMe,
+            annotation.bookmarked
           );
         });
       })
     },
     methods: {
       setUser: function(user) {
-        console.log(user)
         this.user = user
       },
       draftThread: function(range) {
@@ -247,7 +245,9 @@ function embedNbApp() {
         if (this.threadSelected === thread) { this.threadSelected = null }
         let idx = this.threads.indexOf(thread)
         if (idx >= 0) { this.threads.splice(idx, 1) }
-        // TODO: update database
+        if(thread.id){
+          axios.delete(`/api/annotations/annotation/${thread.id}`);
+        }
       },
       onNewThread: function(thread) {
         this.threads.push(thread)
