@@ -125,6 +125,9 @@
   .overflow-menu {
     cursor: pointer;
   }
+  .overflow-menu span {
+    color: #666;
+  }
   .overflow-btn {
     padding: 8px 12px;
     cursor: pointer;
@@ -133,7 +136,20 @@
     background-color: #444;
   }
   input {
+    width: 100px;
     font-size: 16px;
     text-align: center;
+  }
+  button {
+    width: 50px;
+    font-size: 14px;
+    color: #fff;
+    background: #007bff;
+    border: solid 2px #007bff;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0069d9;
   }
 </style>

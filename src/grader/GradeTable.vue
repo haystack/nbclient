@@ -34,7 +34,7 @@
     </div>
     <custom-form
         :open="showForm"
-        :editting-criterion="edittingCriterion"
+        :editting="edittingCriterion"
         @cancel-form="cancelForm"
         @save-criterion="saveCriterion"
         @new-criterion="newCriterion">
@@ -151,20 +151,32 @@
     display: inline-block;
   }
   .table-wrapper {
-    width: 800px;
+    max-width: 850px;
     overflow-x: scroll;
   }
   table, table td {
     padding: 8px;
     text-align: center;
+    border: solid 1px #666;
+  }
+  table td, table th {
+    width: 100px;
+  }
+  table tr:nth-child(even) {
+    background-color: #f0f0f0;
+  }
+  table tr:hover {
+    background-color: #ffffd0;
   }
   .add-column {
     display: inline-block;
     vertical-align: top;
-    margin-left: 20px;
+    margin-left: 10px;
   }
   .add-column > div {
     padding: 8px;
+    border: solid 1px #aaa;
+    border-radius: 5px;
     cursor: pointer;
   }
   .add-column > div:hover {

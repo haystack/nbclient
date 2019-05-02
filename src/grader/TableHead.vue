@@ -1,7 +1,7 @@
 <template>
   <thead>
     <tr>
-      <th></th> <!-- labels -->
+      <th> Label </th>
       <th> Points </th>
       <th v-for="criterion in defaultCriteria">
         {{ criterion.label }}
@@ -12,7 +12,7 @@
           class="overflow-menu"
           :disabled="!overflowMenu">
           <span class="tooltip-target" @click="overflowMenu = true">
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-edit"></i>
           </span>
           <template slot="popover">
             <div class="overflow-btn" @click="editCriterion(criterion)">
@@ -63,9 +63,16 @@
 </script>
 
 <style scoped>
-  th, td {
+  th {
     padding: 5px;
     text-align: center;
+    border-bottom: solid 2px #666;
+  }
+  .fa-edit {
+    color: #666;
+  }
+  .fa-edit:hover {
+    color: #888;
   }
   .overflow-btn {
     padding: 8px 12px;

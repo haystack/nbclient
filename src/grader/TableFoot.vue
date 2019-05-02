@@ -2,7 +2,7 @@
   <tfoot>
     <tr>
       <td>
-        <input type="text" placeholder="Label (optional)" v-model="label">
+        <input type="text" placeholder="(optional)" v-model="label">
       </td>
       <td>
         <input
@@ -83,7 +83,20 @@
 
 <style scoped>
   input {
+    width: 100px;
     font-size: 16px;
     text-align: center;
+  }
+  button {
+    width: 50px;
+    font-size: 14px;
+    color: #fff;
+    background: #d9534f;
+    border: solid 2px #d9534f;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #d43f3a;
   }
 </style>

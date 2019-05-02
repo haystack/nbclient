@@ -16,8 +16,8 @@
         or more {{ filter.label }}
       </div>
       <div class="form-buttons">
-        <button @click="cancel"> Cancel </button>
-        <button @click="save"> Save </button>
+        <button class="cancel" @click="cancel"> Cancel </button>
+        <button class="save" @click="save"> Save </button>
       </div>
     </div>
   </modal>
@@ -56,6 +56,16 @@
         } else {
           this.$modal.hide('custom-form-modal')
         }
+      },
+      editting: function(val) {
+        if (val) {
+          this.label = this.editting.label
+          for (let filter of this.filters) {
+            filter.value = this.editting.filters[filter.type]
+          }
+        } else {
+          this.reset()
+        }
       }
     },
     methods: {
@@ -82,6 +92,13 @@
             criterion.setFilter(filter.value, filter.type)
           }
           this.$emit('new-criterion', criterion)
+        }
+        this.reset()
+      },
+      reset() {
+        this.label = null
+        for (let filter of this.filters) {
+          filter.value = null
         }
       }
     }
@@ -113,5 +130,27 @@
     width: 50px;
     font-size: 16px;
     text-align: center;
+  }
+  .form-buttons button {
+    width: 80px;
+    padding: 6px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .form-buttons button.cancel {
+    background-color: #6c757d;
+    border: solid 1px #6c757d;
+  }
+  .form-buttons button.cancel:hover {
+    background-color: #5a6268;
+  }
+  .form-buttons button.save {
+    background-color: #007bff;
+    border: solid 1px #007bff;
+  }
+  .form-buttons button.save:hover {
+    background-color: #0069d9;
   }
 </style>
