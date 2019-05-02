@@ -5,7 +5,7 @@ import {VisibilityMap, AnonymityMap} from './enums'
 class NbComment {
   constructor(id, range, parent, timestamp, author, authorName, instructor, html,
       hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
-      replyRequestCount, starredByMe, starCount, seenByMe) {
+      replyRequestCount, starredByMe, starCount, seenByMe, bookmarked) {
     this.id = id
     this.range = range // null if this is a reply
 
@@ -23,7 +23,7 @@ class NbComment {
     }
     this.author = author
     this.authorName = authorName
-    this.instructor = instructor // TODO
+    this.instructor = instructor
 
     this.html = html
 
@@ -40,7 +40,7 @@ class NbComment {
     this.starCount = starCount
 
     this.seenByMe = seenByMe
-    this.bookmarked = false // TODO
+    this.bookmarked = bookmarked
 
     this.setText() // populate this.text from this.html
   }
@@ -72,7 +72,8 @@ class NbComment {
         visibility: VisibilityMap[this.visibility],
         anonymity: AnonymityMap[this.anonymity],
         replyRequest: this.replyRequestedByMe,
-        star: this.starredByMe
+        star: this.starredByMe,
+        bookmark: this.bookmarked
       }).then(res => {
         this.id = res.data.id;
         this.loadReplies();
@@ -87,7 +88,8 @@ class NbComment {
         visibility: VisibilityMap[this.visibility],
         anonymity: AnonymityMap[this.anonymity],
         replyRequest: this.replyRequestedByMe,
-        star: this.starredByMe
+        star: this.starredByMe,
+        bookmark: this.bookmarked
       }).then(res => {
         this.id = res.data.id;
       });
@@ -114,7 +116,8 @@ class NbComment {
           annotation.replyRequestCount,
           annotation.starredByMe,
           annotation.starCount,
-          annotation.seenByMe
+          annotation.seenByMe,
+          annotation.bookmarked
         );
       });
     });
@@ -288,14 +291,16 @@ class NbComment {
 
   toggleBookmark() {
     this.bookmarked = !this.bookmarked
-    // TODO: update database
+    if(this.id){
+      axios.post(`/api/annotations/bookmark/${this.id}`,{bookmark: this.bookmarked})
+    }
   }
 
   saveUpdates(data) {
     this.timestamp = data.timestamp
     this.html = data.html
     this.hashtags = data.mentions.hashtags
-    this.people = data.mentions.people
+    this.people = data.mentions.users
     this.visibility = data.visibility
     this.anonymity = data.anonymity
     if (this.replyRequestedByMe !== data.replyRequested) {
@@ -303,14 +308,23 @@ class NbComment {
       this.replyRequestCount += data.replyRequested ? 1 : -1
     }
     this.setText()
-    // TODO: update database
+    return axios.put(`/api/annotations/annotation/${this.id}`,{
+      content: this.html,
+      tags: this.hashtags,
+      userTags: this.people,
+      visibility: VisibilityMap[this.visibility],
+      anonymity: AnonymityMap[this.anonymity],
+      replyRequest: this.replyRequestedByMe,
+    })
   }
 
   removeChild(child) {
     let idx = this.children.indexOf(child)
     if (idx >= 0) {
       this.children.splice(idx, 1)
-      // TODO: update database
+      if(child.id){
+        axios.delete(`/api/annotations/annotation/${child.id}`);
+      }
     }
   }
 }
