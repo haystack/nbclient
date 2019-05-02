@@ -41,7 +41,7 @@
 
 <script>
   import htmlToText from 'html-to-text'
-  import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
+  import { CommentVisibility, CommentAnonymity } from "../../models/enums.js"
   import TextEditor from './TextEditor.vue'
 
   export default {

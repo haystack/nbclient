@@ -51,10 +51,10 @@
   import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import NbComment from "../models/nbcomment.js"
 
-  import FilterView from './FilterView.vue'
-  import ListView from './ListView.vue'
-  import ThreadView from './ThreadView.vue'
-  import EditorView from './EditorView.vue'
+  import FilterView from './filters/FilterView.vue'
+  import ListView from './list/ListView.vue'
+  import ThreadView from './thread/ThreadView.vue'
+  import EditorView from './editor/EditorView.vue'
 
   export default {
     name: 'nb-sidebar',

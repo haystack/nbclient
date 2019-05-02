@@ -83,7 +83,7 @@
 
 <script>
   import moment from 'moment'
-  import { CommentAnonymity } from "../models/enums.js"
+  import { CommentAnonymity } from "../../models/enums.js"
 
   export default {
     name: 'thread-comment',
@@ -213,4 +213,4 @@
     outline: none;
   }
 </style>
-<style src="./style/tooltip.css"></style>
+<style src="../../style/tooltip.css"></style>

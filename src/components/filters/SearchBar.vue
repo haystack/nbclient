@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import TextEditor from './TextEditor.vue'
+  import TextEditor from '../editor/TextEditor.vue'
   import htmlToText from 'html-to-text'
 
   export default {

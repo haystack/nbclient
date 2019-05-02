@@ -9,9 +9,9 @@ import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 
-import NbHighlights from './components/NbHighlights.vue'
+import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
-import Login from './Login.vue'
+import Login from './components/Login.vue'
 import axios from 'axios'
 
 axios.defaults.baseURL = 'http://localhost:8080';
