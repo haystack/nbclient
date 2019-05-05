@@ -8,21 +8,25 @@
             @text-change="onTextChange">
         </search-bar>
       </div>
-      <button @click="toggleFilters" :style="toggleFiltersStyle">
+      <button
+          class="toggle-filters"
+          :style="toggleFiltersStyle"
+          @click="toggleFilters">
         {{ toggleFiltersLabel }}
       </button>
       <span
           class="filter-bookmarks"
           v-tooltip="filterBookmarks ? 'clear filter' : 'show bookmarked'"
           @click="toggleFilterBookmarks">
-        <i v-if="filterBookmarks" class="fas fa-bookmark icon"
-            style="color: #666">
-        </i>
-        <i v-else class="far fa-bookmark icon" style="color: #888"></i>
+        <font-awesome-icon v-if="filterBookmarks"
+            :icon="['fas', 'bookmark']" class="icon fas">
+        </font-awesome-icon>
+        <font-awesome-icon v-else :icon="['far', 'bookmark']" class="icon far">
+        </font-awesome-icon>
       </span>
     </div>
     <div class="filter-options" v-show="filterVisible">
-      <h1>Hashtags</h1>
+      <div class="title">Hashtags</div>
       <div class="hashtags">
         <div v-for="hashtag in hashtags">
           <input
@@ -36,7 +40,7 @@
           </label>
         </div>
       </div>
-      <h1>Comments and Replies</h1>
+      <div class="title">Comments and Replies</div>
       <div class="comments-replies">
         <div>
           <input
@@ -61,7 +65,7 @@
           </label>
         </div>
       </div>
-      <h1>Reply Requests</h1>
+      <div class="title">Reply Requests</div>
       <div class="reply-requests">
         <div>
           <input
@@ -86,7 +90,7 @@
           </label>
         </div>
       </div>
-      <h1>Stars</h1>
+      <div class="title">Stars</div>
       <div class="stars">
         <div>
           <input
@@ -179,52 +183,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .filter-view {
-    margin: 10px 0;
-  }
-  .filter-header .search-bar {
-    width: 242px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .filter-header button {
-    font-size: 13px;
-    width: 94px;
-    padding: 8px;
-    border-radius: 5px;
-    border-color: #aaa;
-    color: #666;
-    cursor: pointer;
-  }
-  .filter-header button:focus {
-    outline: none;
-  }
-  .filter-header .filter-bookmarks .icon {
-    font-size: 32px;
-    vertical-align: top;
-    cursor: pointer;
-  }
-  .filter-options {
-    padding: 10px;
-  }
-  .filter-options > h1 {
-    font-size: 14px;
-  }
-  .filter-options .hashtags > div,
-  .filter-options .comments-replies > div,
-  .filter-options .reply-requests > div,
-  .filter-options .stars > div {
-    width: 49%;
-    display: inline-block;
-  }
-  /deep/ .ql-container {
-    border-color: #aaa !important;
-    border-radius: 5px;
-  }
-  /deep/ .ql-blank,
-  /deep/ .ql-editor {
-    padding: 7px 9px;
-  }
-</style>

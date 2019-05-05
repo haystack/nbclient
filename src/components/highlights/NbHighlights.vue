@@ -1,5 +1,5 @@
 <template>
-  <svg @unselect-thread="$emit('unselect-thread', null)">
+  <svg class="nb-highlights" @unselect-thread="$emit('unselect-thread', null)">
     <nb-highlight
         v-for="thread in threads"
         :thread="thread"
@@ -48,14 +48,3 @@
     }
   }
 </script>
-
-<style scoped>
-  svg {
-    position: absolute;
-    top: 0;
-    right: 395px; /* assuming sidebar is 350px wide + 2 * 10px padding + 5px margin */
-    width: calc(100vw - 395px);;
-    height: 100%;
-    pointer-events: none;
-  }
-</style>

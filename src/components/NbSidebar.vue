@@ -1,5 +1,5 @@
 <template>
-  <div id="nb-sidebar">
+  <div id="nb-sidebar" class="nb-sidebar">
     <filter-view
         :users="sortedUsers"
         :hashtags="sortedHashtags"
@@ -265,18 +265,3 @@
     }
   }
 </script>
-
-<style>
-#nb-sidebar {
-  width: 370px;
-  height: 100vh;
-  overflow-y: scroll;
-  padding: 0 10px;
-  position: fixed;
-  top: 0;
-  right: 0;
-  line-height: normal;
-  font-size: 16px;
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-}
-</style>

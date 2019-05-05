@@ -94,3 +94,11 @@
 .tooltip:focus {
   outline: none;
 }
+
+.tooltip .tooltip-inner .overflow-option {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.tooltip .tooltip-inner .overflow-option:hover {
+  background-color: #444;
+}

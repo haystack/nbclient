@@ -5,8 +5,10 @@
         {{ threads.length }} of {{ totalCount }} threads
       </span>
       <span class="toggle-highlights" @click="toggleHighlights">
-        <i v-if="showHighlights" class="fas fa-eye"></i>
-        <i v-else class="fas fa-eye-slash"></i>
+        <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
+        </font-awesome-icon>
+        <font-awesome-icon v-else icon="eye-slash" class="icon">
+        </font-awesome-icon>
       </span>
       <span class="sort">
         Sort by:
@@ -96,26 +98,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .list-view {
-    margin-bottom: 10px;
-  }
-  .list-header .count {
-    font-size: 13px;
-  }
-  .list-header .toggle-highlights {
-    color: #444;
-    cursor: pointer;
-  }
-  .list-header .sort {
-    font-size: 13px;
-    float: right;
-  }
-  .list-table {
-    position: relative;
-    height: 15vh;
-    border: solid 1px #ddd;
-    overflow-y: scroll;
-  }
-</style>

@@ -59,7 +59,7 @@ function eventsProxyMouse(src, target) {
     }
     // ignore mouse click on the side bar
     if (
-      isNodePartOf(e.target, document.querySelector('#nb-app'))
+      isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))
       || e.target.classList.contains('nb-comment-tooltip')
     ) { return }
 
@@ -83,7 +83,9 @@ function eventsProxyMouse(src, target) {
 
   src.addEventListener('mousemove', function(e) {
     // ignore mouse hover on the side bar
-    if (isNodePartOf(e.target, document.querySelector('#nb-app'))) { return }
+    if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
+      return
+    }
 
     for (let child of target.childNodes) {
       if (

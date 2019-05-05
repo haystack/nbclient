@@ -92,10 +92,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .nb-highlight {
-    fill: rgb(255, 204, 1);
-    opacity: 0.2;
-  }
-</style>

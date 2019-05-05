@@ -1,11 +1,10 @@
 <template>
   <div>
     <div class="thread-row">
-      <div class="thread-row-header">
+      <div class="header">
         <span class="author">
-          <i v-if="comment.instructor" class="fas fa-info icon"
-              :style="iconStyle">
-          </i>
+          <font-awesome-icon v-if="comment.instructor" icon="info" class="icon">
+          </font-awesome-icon>
           <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
         </span>
         <span class="timestamp">{{ timeString }}</span>
@@ -14,27 +13,28 @@
               class="bookmark"
               v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
               @click="toggleBookmark(comment)">
-            <i v-if="comment.bookmarked" class="fas fa-bookmark"
-                style="color: #70a0f0">
-            </i>
-            <i v-else class="far fa-bookmark" style="color: #444"></i>
+            <font-awesome-icon v-if="comment.bookmarked"
+                :icon="['fas', 'bookmark']" class="fas icon">
+            </font-awesome-icon>
+            <font-awesome-icon v-else
+                :icon="['far', 'bookmark']" class="far icon">
+            </font-awesome-icon>
           </span>
           <v-popover class="overflow-menu" :disabled="!overflowMenu">
             <span
                 v-if="commentEditable"
-                class="tooltip-target"
-                style="color: #444"
+                class="tooltip-target overflow-icon"
                 @click="overflowMenu = true">
               ···
             </span>
             <template slot="popover">
               <div
-                  class="overflow-btn nb-comment-tooltip"
+                  class="overflow-option nb-comment-tooltip"
                   @click="editComment(comment)">
                 Edit
               </div>
               <div
-                  class="overflow-btn nb-comment-tooltip"
+                  class="overflow-option nb-comment-tooltip"
                   @click="deleteComment(comment)">
                 Delete
               </div>
@@ -42,25 +42,28 @@
           </v-popover>
         </div>
       </div>
-      <div class="thread-row-body" v-html="comment.html"></div>
-      <div class="thread-row-footer">
+      <div class="body" v-html="comment.html"></div>
+      <div class="footer">
         <span
             v-tooltip="'reply'"
             @click="draftReply(comment)">
-          <i class="fas fa-reply"></i> {{ comment.countAllReplies() }}
+          <font-awesome-icon icon="reply" class="icon"></font-awesome-icon>
+          {{ comment.countAllReplies() }}
         </span>
         &nbsp;·&nbsp;
         <span
             v-tooltip="comment.starredByMe ? 'undo star' : 'give star'"
             @click="toggleStar(comment)">
-          <i class="fas fa-star" :style="styleStar"></i>
+          <font-awesome-icon icon="star" class="icon" :style="styleStar">
+          </font-awesome-icon>
           {{ comment.starCount }}
         </span>
         &nbsp;·&nbsp;
         <span
             v-tooltip="comment.replyRequestedByMe ? 'undo request' : 'request reply'"
             @click="toggleReplyRequest(comment)">
-          <i class="fas fa-question" :style="styleQuestion"></i>
+          <font-awesome-icon icon="question" class="icon" :style="styleQuestion">
+          </font-awesome-icon>
           {{ comment.replyRequestCount }}
         </span>
       </div>
@@ -133,84 +136,11 @@
           && (this.comment.children.length === 0)
       },
       styleStar: function() {
-        if (this.comment.starredByMe) return 'color: #70a0f0'
+        if (this.comment.starredByMe) return { color: '#70a0f0' }
       },
       styleQuestion: function() {
-        if (this.comment.replyRequestedByMe) return 'color: #70a0f0'
+        if (this.comment.replyRequestedByMe) return { color: '#70a0f0' }
       }
     }
   }
 </script>
-
-<style scoped>
-  .thread-row {
-    padding: 8px 6px;
-  }
-  .thread-row:hover {
-    background-color: #f0f0f0;
-  }
-  .thread-block {
-    border-left: 1px solid #ddd;
-    margin-left: 20px;
-  }
-  .thread-row-header {
-    position: relative;
-    margin-bottom: 5px;
-  }
-  .thread-row-header .author .icon {
-    width: 16px;
-    padding: 3px 0;
-    color: #fff;
-    background: #444;
-    font-size: 11px;
-    text-align: center;
-    border-radius: 3px;
-    vertical-align: top;
-  }
-  .thread-row-header .timestamp {
-    font-size: 14px;
-    color: #444;
-  }
-  .thread-row-header .options {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-  .thread-row-header .options .bookmark {
-    cursor: pointer;
-  }
-  .thread-row-header .options .bookmark:hover {
-    color: #70a0f0;
-  }
-  .overflow-menu {
-    margin-left: 5px;
-    display: inline-block;
-    cursor: pointer;
-  }
-  .overflow-btn {
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  .overflow-btn:hover {
-    background-color: #444;
-  }
-  .thread-row-body > p {
-    margin: 0;
-  }
-  .thread-row-footer {
-    text-align: right;
-    font-size: 14px;
-    color: #444;
-    margin-top: 8px;
-  }
-  .thread-row-footer > span {
-    cursor: pointer;
-  }
-  .thread-row-footer > span:hover {
-    color: #70a0f0;
-  }
-  .thread-row-footer > span:focus {
-    outline: none;
-  }
-</style>
-<style src="../../style/tooltip.css"></style>

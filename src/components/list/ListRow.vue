@@ -11,14 +11,14 @@
         {{ thread.countAllReplies() + 1 }}
       </div>
       <div class="icon-wrapper">
-        <i v-if="thread.hasInstructorPost()" class="fas fa-info icon"
-            :style="iconStyle">
-        </i>
+        <font-awesome-icon v-if="thread.hasInstructorPost()"
+            icon="info" class="icon" :style="iconStyle">
+        </font-awesome-icon>
       </div>
       <div class="icon-wrapper">
-        <i v-if="thread.hasReplyRequests()" class="fas fa-question icon"
-            :style="iconStyle">
-        </i>
+        <font-awesome-icon v-if="thread.hasReplyRequests()"
+            icon="question" class="icon" :style="iconStyle">
+        </font-awesome-icon>
       </div>
     </div>
     {{ thread.text }}
@@ -61,7 +61,7 @@
       },
       iconStyle: function() {
         if (this.threadSelected && this.thread === this.threadSelected) {
-          return 'color: #fff'
+          return { color : '#fff' }
         }
       }
     },
@@ -85,46 +85,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .list-row {
-    padding: 4px;
-    color: #226;
-    cursor: pointer;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .list-row:nth-child(even) {
-    background-color: #f0f0f0;
-  }
-  .list-row:hover {
-    background-color: #ffffd0;
-  }
-  .flags {
-    width: 50px;
-    display: inline-block;
-  }
-  .flags .counter {
-    width: 16px;
-    padding: 2px 0;
-    margin-right: 2px;
-    display: inline-block;
-    border-radius: 3px;
-    background-color: #eee;
-    color: #aaa;
-    font-size: 11px;
-    text-align: center;
-    vertical-align: bottom;
-  }
-  .flags .icon-wrapper {
-    display: inline-block;
-    width: 10px;
-  }
-  .flags .icon {
-    width: 10px;
-    color: #888;
-    font-size: 13px;
-    text-align: center;
-  }
-</style>

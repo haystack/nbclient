@@ -1,6 +1,6 @@
 <template>
   <div class="editor-view" v-show="visible">
-    <div class="editor-header">{{ header }}</div>
+    <div class="header">{{ header }}</div>
     <text-editor
         :key="key"
         :toolbar="toolbar"
@@ -10,8 +10,8 @@
         :hashtags="hashtags"
         @text-change="onTextChange">
     </text-editor>
-    <div class="editor-footer">
-      <div class="editor-selection">
+    <div class="footer">
+      <div class="selections">
         Post to
         <select v-model="visibility" @change="onVisibilityChange($event)">
           <option v-for="option in visibilityOptions" :value="option.value">
@@ -25,10 +25,10 @@
           </option>
         </select>
       </div>
-      <div class="editor-checkbox">
+      <div class="checkbox-buttons">
         <input type="checkbox" id="draft-request-reply" v-model="replyRequested">
         <label for="draft-request-reply">Request replies</label>
-        <div class="editor-button">
+        <div class="buttons">
           <button class="cancel" @click="cancel">Cancel</button>
           <button class="submit" @click="submit" :disabled="submitDisabled">
             Submit
@@ -155,59 +155,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .editor-view {
-    margin: 10px 0;
-  }
-  .editor-header {
-    font-size: 14px;
-    color: #444;
-    padding-bottom: 5px;
-  }
-  .editor-footer {
-    color: #444;
-  }
-  .editor-selection {
-    padding-top: 5px;
-    font-size: 12px;
-  }
-  .editor-checkbox {
-    padding: 5px 0;
-    font-size: 12px;
-  }
-  .editor-button {
-    display: inline-block;
-    position: absolute;
-    right: 10px;
-  }
-  .editor-button button {
-    width: 80px;
-    padding: 6px;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #fff;
-    cursor: pointer;
-  }
-  .editor-button button.cancel {
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-  .editor-button button.cancel:hover {
-    background-color: #5a6268;
-  }
-  .editor-button button.submit {
-    background-color: #007bff;
-    border-color: #007bff;
-  }
-  .editor-button button.submit:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-  .editor-button button.submit:enabled:hover {
-    background-color: #0069d9;
-  }
-  /deep/ .ql-tooltip {
-    z-index: 1;
-  }
-</style>

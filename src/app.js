@@ -4,6 +4,14 @@ import VTooltip from 'v-tooltip'
 Vue.use(VueQuill)
 Vue.use(VTooltip)
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+library.add(fas, far)
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
@@ -27,12 +35,12 @@ if (
   document.addEventListener('DOMContentLoaded', embedNbApp)
 }
 
-function loadCSS(url) {
+function loadCSS(url, container = document.getElementsByTagName('HEAD')[0]) {
   let tag = document.createElement('link')
   tag.rel = 'stylesheet'
   tag.type = 'text/css'
   tag.href = url
-  document.getElementsByTagName('HEAD')[0].appendChild(tag)
+  container.appendChild(tag)
 }
 
 function loadScript(url) {
@@ -42,19 +50,32 @@ function loadScript(url) {
 }
 
 function embedNbApp() {
-  loadCSS("https://use.fontawesome.com/releases/v5.8.1/css/all.css")
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
+  loadCSS("http://localhost:8081/style/plugin.css") //TODO: update URL
+  loadCSS("http://localhost:8081/style/tooltip.css") //TODO: update URL
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
   document.body.style.margin= '0 395px 0 0'
 
   let element = document.createElement('div')
-  element.id = "nb-app"
+  element.id = "nb-app-wrapper"
+  // element.attachShadow({mode: 'open'})
+
+  let child = document.createElement('div')
+  child.id = "nb-app"
+  // element.shadowRoot.appendChild(child)
+  element.appendChild(child)
+
+  // loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css", element.shadowRoot)
+  // loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css", element.shadowRoot)
+  // loadCSS("http://localhost:8081/src/style/plugin.css", element.shadowRoot)
+
   document.body.appendChild(element)
 
   let app = new Vue({
+    // el: element.shadowRoot.querySelector('#nb-app'),
     el: '#nb-app',
     template: `
       <div id="nb-app" :style="style">
@@ -124,8 +145,7 @@ function embedNbApp() {
     },
     computed: {
       style: function() {
-        return 'position: absolute; top: 0; right: 0;'
-            + `height: ${document.body.clientHeight}px`
+        return `height: ${document.body.clientHeight}px`
       },
       totalThreads: function() {
         return this.threads.length
@@ -371,27 +391,6 @@ function embedNbApp() {
         this.resizeKey = Date.now()
       }
     },
-    mounted: function() {
-      document.body.addEventListener("mouseup", function() {
-        let selection = window.getSelection()
-        if (selection.isCollapsed) { return }
-
-        let sidebar = document.querySelector('#nb-app')
-        let range = selection.getRangeAt(0)
-        if ( // check selection does not overlap sidebar
-          !isNodePartOf(range.startContainer, sidebar)
-          && !isNodePartOf(range.endContainer, sidebar)
-        ) {
-          app.draftThread(range)
-          // Selection will be removed in highlight-util.eventsProxyMouse
-          // because 'click' is triggered after 'mouseup'
-        }
-      })
-
-      window.addEventListener("resize", function() {
-        app.handleResize()
-      })
-    },
     components: {
       NbHighlights,
       NbSidebar,
@@ -399,7 +398,23 @@ function embedNbApp() {
     }
   })
 
-  // app.threads = Object.assign({}, app.threads, threadsRestored)
-  // to serialize NBRange: sr = range.serialize()
-  // to deserialize: dsr = deserializeNbRange(sr)
+  document.body.addEventListener("mouseup", function() {
+    let selection = window.getSelection()
+    if (selection.isCollapsed) { return }
+
+    let sidebar = document.querySelector('#nb-app-wrapper')
+    let range = selection.getRangeAt(0)
+    if ( // check selection does not overlap sidebar
+      !isNodePartOf(range.startContainer, sidebar)
+      && !isNodePartOf(range.endContainer, sidebar)
+    ) {
+      app.draftThread(range)
+      // Selection will be removed in highlight-util.eventsProxyMouse
+      // because 'click' is triggered after 'mouseup'
+    }
+  })
+
+  window.addEventListener("resize", function() {
+    app.handleResize()
+  })
 }
