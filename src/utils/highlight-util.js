@@ -60,7 +60,7 @@ function eventsProxyMouse(src, target) {
     // ignore mouse click on the side bar
     if (
       isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))
-      || e.target.classList.contains('nb-comment-tooltip')
+      || e.target.classList.contains('nb-tooltip')
     ) { return }
 
     // Iterate in reverse order, so when clicked on overlapping highlights,

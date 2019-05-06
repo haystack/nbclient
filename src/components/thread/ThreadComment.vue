@@ -29,12 +29,12 @@
             </span>
             <template slot="popover">
               <div
-                  class="overflow-option nb-comment-tooltip"
+                  class="overflow-option nb-tooltip"
                   @click="editComment(comment)">
                 Edit
               </div>
               <div
-                  class="overflow-option nb-comment-tooltip"
+                  class="overflow-option nb-tooltip"
                   @click="deleteComment(comment)">
                 Delete
               </div>

@@ -19,7 +19,7 @@ import { isNodePartOf } from './utils/dom-util.js'
 
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
-import Login from './components/Login.vue'
+import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 
 axios.defaults.baseURL = 'http://localhost:8080';
@@ -79,7 +79,9 @@ function embedNbApp() {
     el: '#nb-app',
     template: `
       <div id="nb-app" :style="style">
-        <login @login="setUser" v-if="!user"/>
+        <div v-if="!user" class="nb-sidebar">
+          <nb-login @login="setUser"></nb-login>
+        </div>
         <div v-else>
           <nb-highlights
             :key="resizeKey"
@@ -115,7 +117,8 @@ function embedNbApp() {
             @unhover-thread="onUnhoverThread"
             @delete-thread="onDeleteThread"
             @new-thread="onNewThread"
-            @cancel-draft="onCancelDraft">
+            @cancel-draft="onCancelDraft"
+            @logout="onLogout">
           </nb-sidebar>
         </div>
       </div>
@@ -259,7 +262,9 @@ function embedNbApp() {
         this.user = user
       },
       draftThread: function(range) {
-        this.draftRange = createNbRange(range)
+        if (this.user) { // only if selection was after user log in
+          this.draftRange = createNbRange(range)
+        }
       },
       onDeleteThread: function(thread) {
         if (this.threadSelected === thread) { this.threadSelected = null }
@@ -389,12 +394,17 @@ function embedNbApp() {
       },
       handleResize: function() {
         this.resizeKey = Date.now()
+      },
+      onLogout: function() {
+        axios.post("/api/users/logout").then(()=>{
+          this.user = null
+        })
       }
     },
     components: {
       NbHighlights,
       NbSidebar,
-      Login
+      NbLogin
     }
   })
 

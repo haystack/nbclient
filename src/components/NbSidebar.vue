@@ -1,5 +1,6 @@
 <template>
   <div id="nb-sidebar" class="nb-sidebar">
+    <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
     <filter-view
         :users="sortedUsers"
         :hashtags="sortedHashtags"
@@ -51,6 +52,7 @@
   import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import NbComment from "../models/nbcomment.js"
 
+  import NavBar from './NavBar.vue'
   import FilterView from './filters/FilterView.vue'
   import ListView from './list/ListView.vue'
   import ThreadView from './thread/ThreadView.vue'
@@ -258,6 +260,7 @@
       }
     },
     components: {
+      NavBar,
       FilterView,
       ListView,
       ThreadView,
