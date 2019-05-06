@@ -1,6 +1,6 @@
 <template>
   <div class="nb-nav-bar">
-    <a href="http://localhost:8080/">nb</a> <!--TODO-->
+    <a href="https://nb-demo.herokuapp.com/">nb</a>
     <span>Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
     <v-popover class="overflow-menu" :disabled="!overflowMenu">
       <span class="tooltip-target overflow-icon" @click="overflowMenu = true">

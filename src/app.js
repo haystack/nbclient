@@ -22,7 +22,7 @@ import NbSidebar from './components/NbSidebar.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = 'https://nb-demo.herokuapp.com/';
 axios.defaults.withCredentials = true;
 
 
@@ -52,8 +52,8 @@ function loadScript(url) {
 function embedNbApp() {
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
-  loadCSS("http://localhost:8081/style/plugin.css") //TODO: update URL
-  loadCSS("http://localhost:8081/style/tooltip.css") //TODO: update URL
+  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo/style/plugin.css")
+  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo/style/tooltip.css")
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
