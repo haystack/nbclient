@@ -111,6 +111,7 @@
   position: absolute;
   left: 0;
   right: 0;
+  height: 15px;
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
@@ -123,7 +124,7 @@
 }
 
 #nb-app .nb-sidebar .filter-view {
-  margin: 30px 0;
+  margin: 32px 0 5px 0;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .search-bar {
   width: 242px;
@@ -137,6 +138,10 @@
 #nb-app .nb-sidebar .filter-view .filter-header .search-bar .ql-blank,
 #nb-app .nb-sidebar .filter-view .filter-header .search-bar .ql-editor {
   padding: 7px 9px;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .overflow-menu {
+  display: inline-block;
+  cursor: pointer;
 }
 #nb-app .nb-sidebar .filter-view .filter-header button.toggle-filters {
   font-size: 13px;
@@ -163,25 +168,32 @@
 #nb-app .nb-sidebar .filter-view .filter-header .filter-bookmarks .icon.far {
   color: #888;
 }
-#nb-app .nb-sidebar .filter-view .filter-options {
+
+#nb-app-wrapper .filter-options-wrapper .tooltip-arrow {
+  display: none;
+}
+#nb-app-wrapper .nb-tooltip.filter-options {
+  width: 240px;
   padding: 10px;
+  background: #fff;
+  border: solid 1px #aaa;
+  border-radius: 4px;
+  color: #000;
+  font-size: 13px;
 }
-#nb-app .nb-sidebar .filter-view .filter-options .title {
+#nb-app-wrapper .nb-tooltip.filter-options .title {
   color: #444;
-  padding: 10px 0 5px 0;
-  border-bottom: solid 1px #aaa;
-  margin-bottom: 10px;
-}
-#nb-app .nb-sidebar .filter-view .filter-options .hashtags,
-#nb-app .nb-sidebar .filter-view .filter-options .comments-replies,
-#nb-app .nb-sidebar .filter-view .filter-options .reply-requests,
-#nb-app .nb-sidebar .filter-view .filter-options .stars {
   padding-bottom: 5px;
 }
-#nb-app .nb-sidebar .filter-view .filter-options .hashtags > div,
-#nb-app .nb-sidebar .filter-view .filter-options .comments-replies > div,
-#nb-app .nb-sidebar .filter-view .filter-options .reply-requests > div,
-#nb-app .nb-sidebar .filter-view .filter-options .stars > div {
+#nb-app-wrapper .nb-tooltip.filter-options .title:not(:first-child) {
+  border-top: solid 1px #aaa;
+  padding-top: 5px;
+  margin-top: 8px;
+}
+#nb-app-wrapper .nb-tooltip.filter-options .hashtags > div,
+#nb-app-wrapper .nb-tooltip.filter-options .comments-replies > div,
+#nb-app-wrapper .nb-tooltip.filter-options .reply-requests > div,
+#nb-app-wrapper .nb-tooltip.filter-options .stars > div {
   width: 49%;
   display: inline-block;
 }
