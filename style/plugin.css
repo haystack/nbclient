@@ -93,6 +93,8 @@
 }
 
 #nb-app .nb-sidebar {
+  display: flex;
+  flex-direction: column;
   width: 370px;
   height: 100vh;
   overflow-y: scroll;
@@ -264,7 +266,7 @@
   background-color: #ffffd0;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags {
-  width: 50px;
+  min-width: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -303,7 +305,7 @@
 }
 
 #nb-app .nb-sidebar .thread-view {
-  max-height: 200px;
+  min-height: 200px;
   overflow-y: scroll;
 }
 #nb-app .nb-sidebar .thread-view .thread-header {
