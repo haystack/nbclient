@@ -51,14 +51,15 @@ function contains(item, x, y) {
 /* Helper function for Highlights.constructor */
 function eventsProxyMouse(src, target) {
   src.addEventListener('click', function(e) {
-    if (!window.getSelection().isCollapsed) { // selection, not click
-      // Can remove selection here because 'mouseup' on document.body is
-      // triggered first before 'click'
-      window.getSelection().removeAllRanges()
+    // ignore mouse click or selection on the side bar
+    if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
       return
     }
-    // ignore mouse click on the side bar
-    if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
+
+    if (!window.getSelection().isCollapsed) { // selection, not click
+      // Can remove selection here if selection was to annotate document
+      // because 'mouseup' on document.body is triggered first before 'click'
+      window.getSelection().removeAllRanges()
       return
     }
 

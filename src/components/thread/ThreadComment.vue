@@ -3,8 +3,9 @@
     <div class="thread-row">
       <div class="header">
         <span class="author">
-          <font-awesome-icon v-if="comment.instructor" icon="info" class="icon">
-          </font-awesome-icon>
+          <div v-if="comment.instructor" class="instr-icon">
+            instr
+          </div>
           <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
         </span>
         <span class="timestamp">{{ timeString }}</span>

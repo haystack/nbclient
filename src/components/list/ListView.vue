@@ -2,7 +2,7 @@
   <div class="list-view">
     <div class="list-header">
       <span class="count">
-        {{ threads.length }} of {{ totalCount }} threads
+        {{ threads.length }} of {{ totalLabel }}
       </span>
       <span class="toggle-highlights" @click="toggleHighlights">
         <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
@@ -71,6 +71,13 @@
       }
     },
     computed: {
+      totalLabel: function() {
+        if (this.totalCount === 1) {
+          return "1 thread"
+        } else {
+          return `${this.totalCount} threads`
+        }
+      },
       sorted: function () {
         switch (this.sortBy) {
           case 'position':

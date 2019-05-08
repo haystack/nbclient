@@ -1,9 +1,9 @@
 <template>
   <div class="thread-view">
     <div class="thread-header">
-      {{ thread.countAllReplies() + 1 }} comments
+      {{ numComments }}
       &nbsp;·&nbsp;
-      {{ thread.countAllReplyRequests() }} reply requests
+      {{ numReplyReqs }}
     </div>
     <thread-comment
         :comment="thread"
@@ -21,6 +21,26 @@
   export default {
     name: 'thread-view',
     props: ['thread', 'me'],
+    computed: {
+      numComments: function() {
+        let count = this.thread.countAllReplies() + 1
+        if (count === 1) {
+          return "1 comment"
+        } else {
+          return `${count} comments`
+        }
+      },
+      numReplyReqs: function() {
+        let count = this.thread.countAllReplyRequests()
+        if (count === 0) {
+          return "no reply requests"
+        } else if (count === 1) {
+          return "1 reply request"
+        } else {
+          return `${count} reply requests`
+        }
+      }
+    },
     methods: {
       editComment: function(comment) {
         this.$emit('edit-comment', comment)

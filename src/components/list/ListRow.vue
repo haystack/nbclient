@@ -7,21 +7,22 @@
       @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
     <div class="flags">
-      <div class="counter" :style="counterStyle">
+      <div class="icon-wrapper counter" :style="counterStyle">
         {{ thread.countAllReplies() + 1 }}
       </div>
-      <div class="icon-wrapper">
-        <font-awesome-icon v-if="thread.hasInstructorPost()"
-            icon="info" class="icon" :style="iconStyle">
+      <div v-if="thread.hasInstructorPost()" class="icon-wrapper instr">
+        i
+      </div>
+      <div v-else class="placeholder instr"></div>
+      <div v-if="thread.hasReplyRequests()" class="icon-wrapper question">
+        <font-awesome-icon icon="question">
         </font-awesome-icon>
       </div>
-      <div class="icon-wrapper">
-        <font-awesome-icon v-if="thread.hasReplyRequests()"
-            icon="question" class="icon" :style="iconStyle">
-        </font-awesome-icon>
-      </div>
+      <div v-else class="placeholder question"></div>
     </div>
-    {{ thread.text }}
+    <span :style="textStyle">
+      {{ thread.text }}
+    </span>
   </div>
 </template>
 
@@ -33,23 +34,21 @@
     props: ['thread', 'threadSelected', 'threadsHovered'],
     computed: {
       rowStyle: function() {
-        let style = this.thread.isUnseen() ? 'font-weight: bold;': ''
         if (this.threadSelected && this.thread === this.threadSelected) {
-          return style + 'background-color: #70a0f0; color: #fff'
+          return 'background-color: #70a0f0; color: #fff'
         }
         if (this.threadsHovered.includes(this.thread)) {
-          return style + 'background-color: #ccddf9'
+          return 'background-color: #ccddf9'
         }
-        return style
       },
       counterStyle: function() {
         if (this.thread.isUnseen()) {
           return 'background-color: #ffff70; color: #7070ff;'
         }
       },
-      iconStyle: function() {
-        if (this.threadSelected && this.thread === this.threadSelected) {
-          return { color : '#fff' }
+      textStyle: function() {
+        if (this.thread.isUnseen()) {
+          return 'font-weight: bold;'
         }
       }
     },
