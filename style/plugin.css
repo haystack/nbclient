@@ -306,6 +306,7 @@
 
 #nb-app .nb-sidebar .thread-view {
   min-height: 200px;
+  margin-bottom: 10px;
   overflow-y: scroll;
 }
 #nb-app .nb-sidebar .thread-view .thread-header {
@@ -418,7 +419,7 @@
 }
 
 #nb-app .editor-view {
-  margin: 10px 0;
+  margin: auto 0 10px 0;
   padding-bottom: 20px;
 }
 #nb-app .editor-view .header {
