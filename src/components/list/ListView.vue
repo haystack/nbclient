@@ -66,7 +66,7 @@
           { text: "Most Recent", value: 'recent' },
           { text: "Longest Thread", value: 'comment' },
           { text: "Reply Requests", value: 'reply_request' },
-          { text: "Stars", value: 'star' }
+          { text: "Upvotes", value: 'star' }
         ]
       }
     },

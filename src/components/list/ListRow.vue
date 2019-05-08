@@ -31,18 +31,6 @@
   export default {
     name: 'list-view',
     props: ['thread', 'threadSelected', 'threadsHovered'],
-    data() {
-      return {
-        sortBy: 'position',
-        sortByOptions: [
-          { text: "Position", value: 'position' },
-          { text: "Most Recent", value: 'recent' },
-          { text: "Total Comments", value: 'comment' },
-          { text: "Reply Requests", value: 'reply_request' },
-          { text: "Star", value: 'star' }
-        ]
-      }
-    },
     computed: {
       rowStyle: function() {
         let style = this.thread.isUnseen() ? 'font-weight: bold;': ''

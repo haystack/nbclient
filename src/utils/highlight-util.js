@@ -58,10 +58,9 @@ function eventsProxyMouse(src, target) {
       return
     }
     // ignore mouse click on the side bar
-    if (
-      isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))
-      || e.target.classList.contains('nb-tooltip')
-    ) { return }
+    if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
+      return
+    }
 
     // Iterate in reverse order, so when clicked on overlapping highlights,
     // we select the highlight that starts closest to the mouse click coords.

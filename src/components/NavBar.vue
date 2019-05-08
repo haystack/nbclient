@@ -2,15 +2,24 @@
   <div class="nb-nav-bar">
     <a href="https://nb-demo.herokuapp.com/">nb</a>
     <span>Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
-    <v-popover class="overflow-menu" :disabled="!overflowMenu">
-      <span class="tooltip-target overflow-icon" @click="overflowMenu = true">
+    <v-popover
+        class="overflow-menu"
+        popoverClass="nav-overflow-wrapper"
+        container="#nb-app-wrapper"
+        offset="0"
+        placement="bottom-end"
+        :open="showOverflow"
+        @hide="onHideOverflow">
+      <span class="tooltip-target overflow-icon" @click="toggleOverflow">
         <font-awesome-icon icon="bars"></font-awesome-icon>
       </span>
       <template slot="popover">
-        <div
-            class="overflow-option nb-tooltip"
-            @click="$emit('logout')">
-          Logout
+        <div class="overflow-options">
+          <div
+              class="overflow-option"
+              @click="$emit('logout')">
+            Logout
+          </div>
         </div>
       </template>
     </v-popover>
@@ -23,7 +32,15 @@
     props: ['me'],
     data() {
       return {
-        overflowMenu: false
+        showOverflow: false
+      }
+    },
+    methods: {
+      toggleOverflow: function() {
+        this.showOverflow = !this.showOverflow
+      },
+      onHideOverflow: function() {
+        this.showOverflow = false
       }
     }
   }

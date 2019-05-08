@@ -20,23 +20,33 @@
                 :icon="['far', 'bookmark']" class="far icon">
             </font-awesome-icon>
           </span>
-          <v-popover class="overflow-menu" :disabled="!overflowMenu">
+          <v-popover
+              v-if="commentEditable"
+              class="overflow-menu"
+              popoverClass="thread-overflow-wrapper"
+              container="#nb-app-wrapper"
+              boundariesElement="#nb-app-wrapper"
+              offset="0"
+              placement="bottom-end"
+              :open="showOverflow"
+              @hide="onHideOverflow">
             <span
-                v-if="commentEditable"
                 class="tooltip-target overflow-icon"
-                @click="overflowMenu = true">
-              ···
+                @click="showOverflow = true">
+              <font-awesome-icon icon="ellipsis-v"></font-awesome-icon>
             </span>
             <template slot="popover">
-              <div
-                  class="overflow-option nb-tooltip"
-                  @click="editComment(comment)">
-                Edit
-              </div>
-              <div
-                  class="overflow-option nb-tooltip"
-                  @click="deleteComment(comment)">
-                Delete
+              <div class="overflow-options">
+                <div
+                    class="overflow-option"
+                    @click="editComment(comment)">
+                  Edit
+                </div>
+                <div
+                    class="overflow-option"
+                    @click="deleteComment(comment)">
+                  Delete
+                </div>
               </div>
             </template>
           </v-popover>
@@ -52,9 +62,9 @@
         </span>
         &nbsp;·&nbsp;
         <span
-            v-tooltip="comment.starredByMe ? 'undo star' : 'give star'"
+            v-tooltip="comment.starredByMe ? 'undo upvote' : 'upvote'"
             @click="toggleStar(comment)">
-          <font-awesome-icon icon="star" class="icon" :style="styleStar">
+          <font-awesome-icon icon="thumbs-up" class="icon" :style="styleStar">
           </font-awesome-icon>
           {{ comment.starCount }}
         </span>
@@ -93,17 +103,20 @@
     props: ['comment', 'me'],
     data() {
       return {
-        overflowMenu: false
+        showOverflow: false
       }
     },
     methods: {
       editComment: function(comment) {
-        this.overflowMenu = false
+        this.showOverflow = false
         this.$emit('edit-comment', comment)
       },
       deleteComment: function(comment) {
-        this.overflowMenu = false
+        this.showOverflow = false
         this.$emit('delete-comment', comment)
+      },
+      onHideOverflow: function() {
+        this.showOverflow = false
       },
       draftReply: function(comment) {
         this.$emit('draft-reply', comment)

@@ -12,7 +12,7 @@
           class="overflow-menu"
           popoverClass="filter-options-wrapper"
           container="#nb-app-wrapper"
-          :show="filterVisible"
+          :open="filterVisible"
           @hide="onFilterHide">
         <button
             class="tooltip-target toggle-filters"
@@ -21,7 +21,7 @@
           {{ toggleFiltersLabel }}
         </button>
         <template slot="popover">
-          <div class="nb-tooltip filter-options">
+          <div class="filter-options">
             <div class="title">Hashtags</div>
             <div class="hashtags">
               <div v-for="hashtag in hashtags">
@@ -86,7 +86,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">Stars</div>
+            <div class="title">Upvotes</div>
             <div class="stars">
               <div>
                 <input
