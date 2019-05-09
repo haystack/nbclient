@@ -3,7 +3,8 @@
       v-model="content"
       output="html"
       :config="config"
-      @input="onTextChange">
+      @input="onTextChange"
+      @selection-change="onSelectionChange">
   </quill>
 </template>
 
@@ -56,7 +57,16 @@
           placeholder: this.placeholder,
           bounds: this.bounds,
           theme: 'snow'
-        }
+        },
+        editor: null
+      }
+    },
+    mounted: function() {
+      if (this.toolbar) {
+        let hashtagButton = this.$el.querySelector('.ql-hashtag')
+        hashtagButton.addEventListener('click', this.onHashtagClicked)
+        let peopleButton = this.$el.querySelector('.ql-people')
+        peopleButton.addEventListener('click', this.onPeopleClicked)
       }
     },
     methods: {
@@ -81,6 +91,27 @@
       },
       onTextChange: function(html) {
         this.$emit('text-change', html)
+      },
+      onSelectionChange(editor, range) {
+        this.editor = editor
+      },
+      onHashtagClicked() {
+        if (this.editor) {
+          let range = this.editor.getSelection()
+          if (range) {
+            this.editor.insertText(range.index, "#", "user")
+            this.editor.setSelection(range.index + 1)
+          }
+        }
+      },
+      onPeopleClicked() {
+        if (this.editor) {
+          let range = this.editor.getSelection()
+          if (range) {
+            this.editor.insertText(range.index, "@", "user")
+            this.editor.setSelection(range.index + 1)
+          }
+        }
       }
     }
   }

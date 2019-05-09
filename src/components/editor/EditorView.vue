@@ -79,9 +79,10 @@
           [ 'blockquote', 'code-block', 'link', 'formula' ],
           [{ 'list': 'ordered' }, { 'list': 'bullet'}, { 'indent': '-1' }, { 'indent': '+1' }],
           [{ 'align': [] }],
-          [ 'clean' ]
+          [ 'clean' ],
+          [ 'hashtag', 'people' ]
         ],
-        placeholder: 'Include tags with @ or #',
+        placeholder: 'Type # or @ to include tags',
         content: this.initialContent,
         visibility: this.initialVisibility,
         visibilityOptions: [

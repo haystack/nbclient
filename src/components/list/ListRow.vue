@@ -14,7 +14,8 @@
         i
       </div>
       <div v-else class="placeholder instr"></div>
-      <div v-if="thread.hasReplyRequests()" class="icon-wrapper question">
+      <div v-if="thread.hasReplyRequests()" class="icon-wrapper question"
+          :style="iconStyle">
         <font-awesome-icon icon="question">
         </font-awesome-icon>
       </div>
@@ -44,6 +45,11 @@
       counterStyle: function() {
         if (this.thread.isUnseen()) {
           return 'background-color: #ffff70; color: #7070ff;'
+        }
+      },
+      iconStyle: function() {
+        if (this.threadSelected && this.thread === this.threadSelected) {
+          return 'color: #eee;'
         }
       },
       textStyle: function() {

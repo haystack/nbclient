@@ -125,13 +125,21 @@
       }
     },
     watch: {
-      draftRange: function(val) {
+      draftRange: function(val, oldVal) {
         if (val) {
-          this.replyToComment = null // Cannot reply at the same time
-          this.initEditor('New Comment', null, {}, true)
+          if (this.replyToComment || this.edittingComment) {
+            alert("You're already working on another comment. Please save or cancel it first.")
+            this.$emit('cancel-draft', this.draftRange)
+            return
+          }
+          if (!oldVal) { // Init editor only if it's not open yet.
+            this.initEditor('New Comment', null, {}, true)
+          }
         } else {
-          // No new thread, not replying
-          if (!this.replyToComment) this.editor.visible = false
+          // No new thread, not replying or editting
+          if (!this.replyToComment && !this.edittingComment) {
+            this.editor.visible = false
+          }
         }
       },
     },
@@ -167,10 +175,9 @@
         this.$emit('unhover-thread', thread)
       },
       onEditComment: function(comment) {
-        if (this.draftRange) {
-          this.$emit('cancel-draft', this.draftRange)
-        } else if (this.replyToComment) {
-          this.replyToComment = null
+        if (this.draftRange || this.replyToComment) {
+          alert("You're already working on another comment. Please save or cancel it first.")
+          return
         }
         let settings = {
           visibility: comment.visibility,
@@ -188,8 +195,9 @@
         }
       },
       onDraftReply: function(comment) {
-        if (this.draftRange) {
-          this.$emit('cancel-draft', this.draftRange)
+        if (this.draftRange || this.edittingComment) {
+          alert("You're already working on another comment. Please save or cancel it first.")
+          return
         }
         this.replyToComment = comment
         this.initEditor(`re: ${comment.text}`, null, {}, true)

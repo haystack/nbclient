@@ -293,7 +293,7 @@
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
   width: 13px;
-  color: #b30000;
+  color: #aaa;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
   width: 16px;
@@ -452,11 +452,11 @@
   cursor: pointer;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.cancel {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: #666;
+  border-color: #666;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.cancel:hover {
-  background-color: #5a6268;
+  background-color: #444;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit {
   background-color: #007bff;
@@ -468,6 +468,17 @@
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit:enabled:hover {
   background-color: #0069d9;
+}
+
+#nb-app .ql-hashtag:after {
+  content: "#";
+  font-size: 16px;
+  color: #444;
+}
+#nb-app .ql-people:after {
+  content: "@";
+  font-size: 16px;
+  color: #444;
 }
 
 #nb-app .ql-tooltip {
