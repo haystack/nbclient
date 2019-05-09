@@ -58,6 +58,10 @@
   border: solid 1px #ddd;
   padding: 6px;
 }
+#nb-app .login-form .message {
+  color: #cf000f;
+  font-size: 13px;
+}
 #nb-app .login-form .buttons {
   text-align: right;
 }

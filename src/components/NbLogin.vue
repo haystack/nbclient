@@ -9,6 +9,7 @@
       <label for='login-password'>Password:</label>
       <input id='login-password' type='password' v-model.trim='password'>
     </div>
+    <div v-if="message" class='message'>{{ message }}</div>
     <div class='buttons'>
       <button class='submit' @click="login" :disabled="submitDisabled">
         Submit
@@ -25,7 +26,8 @@
     data() {
       return {
         username: "",
-        password: ""
+        password: "",
+        message: null
       }
     },
     computed: {
@@ -36,9 +38,14 @@
     methods: {
       login: function() {
         let bodyContent = { username: this.username, password: this.password }
-        axios.post("/api/users/login", bodyContent).then((res) => {
-          console.log(res)
-          this.$emit("login", res.data)
+        axios.post("/api/users/login", bodyContent)
+          .then(res => {
+            this.$emit("login", res.data)
+          })
+          .catch(error => {
+            if (error.response.status === 401) {
+              this.message = "Please make sure your username and password are valid!"
+            }
         })
       }
     }

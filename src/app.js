@@ -128,7 +128,6 @@ function embedNbApp() {
     `,
     data: {
       user: null,
-      source: null,
       users: {},
       hashtags: {},
       threads: [],
@@ -143,10 +142,7 @@ function embedNbApp() {
         replyReqs: [],
         stars: []
       },
-      showHighlights: {
-        type: Boolean,
-        default: false
-      },
+      showHighlights: false,
       resizeKey: Date.now() // work around to force redraw highlights
     },
     computed: {
@@ -221,44 +217,49 @@ function embedNbApp() {
         return items
       }
     },
+    watch: {
+      user: function(val) {
+        if (!val) return // logged out
+        axios.get('/api/annotations/allUsers',{params:{url: window.location.href.split('?')[0]}})
+        .then(res => {
+          this.users = res.data;
+        });
+        axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
+        .then(res => {
+          this.hashtags = res.data;
+        });
+        axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
+        .then(res => {
+          this.threads = res.data.map(annotation => {
+            annotation.range = deserializeNbRange(annotation.range);
+            return new NbComment(
+              annotation.id,
+              annotation.range,
+              annotation.parent,
+              annotation.timestamp,
+              annotation.author,
+              annotation.authorName,
+              annotation.instructor,
+              annotation.html,
+              annotation.hashtags,
+              annotation.people,
+              annotation.visibility,
+              annotation.anonymity,
+              annotation.replyRequestedByMe,
+              annotation.replyRequestCount,
+              annotation.starredByMe,
+              annotation.starCount,
+              annotation.seenByMe,
+              annotation.bookmarked
+            );
+          });
+        })
+      }
+    },
     created: function(){
       axios.get('/api/users/current').then(res => {
         this.user = res.data;
       });
-      axios.get('/api/annotations/allUsers',{params:{url: window.location.href.split('?')[0]}})
-      .then(res => {
-        this.users = res.data;
-      });
-      axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
-      .then(res => {
-        this.hashtags = res.data;
-      });
-      axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
-      .then(res => {
-        this.threads = res.data.map(annotation => {
-          annotation.range = deserializeNbRange(annotation.range);
-          return new NbComment(
-            annotation.id,
-            annotation.range,
-            annotation.parent,
-            annotation.timestamp,
-            annotation.author,
-            annotation.authorName,
-            annotation.instructor,
-            annotation.html,
-            annotation.hashtags,
-            annotation.people,
-            annotation.visibility,
-            annotation.anonymity,
-            annotation.replyRequestedByMe,
-            annotation.replyRequestCount,
-            annotation.starredByMe,
-            annotation.starCount,
-            annotation.seenByMe,
-            annotation.bookmarked
-          );
-        });
-      })
     },
     methods: {
       setUser: function(user) {
@@ -401,6 +402,21 @@ function embedNbApp() {
       onLogout: function() {
         axios.post("/api/users/logout").then(()=>{
           this.user = null
+          this.users = {}
+          this.hashtags = {}
+          this.threads = []
+          this.threadSelected = null,
+          this.threadsHovered = []
+          this.draftRange = null
+          this.filter = {
+            searchText: "",
+            bookmarks: false,
+            hashtags: [],
+            comments: [],
+            replyReqs: [],
+            stars: []
+          }
+          this.showHighlights = false
         })
       }
     },
