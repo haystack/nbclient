@@ -60,6 +60,7 @@ function embedNbApp() {
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
+  document.body.style.position = 'initial'
   document.body.style.margin= '0 395px 0 0'
 
   let element = document.createElement('div')
