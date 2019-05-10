@@ -44,7 +44,7 @@
           })
           .catch(error => {
             if (error.response.status === 401) {
-              this.message = "Please make sure your username and password are valid!"
+              this.message = "Invalid username and password. Try again!"
             }
         })
       }
