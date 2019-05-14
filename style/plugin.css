@@ -230,10 +230,13 @@
   margin-bottom: 10px;
 }
 #nb-app .nb-sidebar .list-view .list-header {
+  display: flex;
+  align-items: center;
   margin-bottom: 2px;
   color: #444;
 }
 #nb-app .nb-sidebar .list-view .list-header .count {
+  margin-right: 5px;
   font-size: 13px;
 }
 #nb-app .nb-sidebar .list-view .list-header .toggle-highlights {
@@ -246,7 +249,7 @@
 }
 #nb-app .nb-sidebar .list-view .list-header .sort {
   font-size: 13px;
-  float: right;
+  margin-left: auto;
 }
 #nb-app .nb-sidebar .list-view .list-table {
   position: relative;
