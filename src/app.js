@@ -61,8 +61,6 @@ function embedNbApp() {
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
   document.body.setAttribute('style', 'position: initial !important; margin: 0 395px 0 0 !important;')
-  console.log('nb body style set')
-  console.log(document.body.style)
 
   let element = document.createElement('div')
   element.id = "nb-app-wrapper"
