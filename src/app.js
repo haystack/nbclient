@@ -143,7 +143,7 @@ function embedNbApp() {
         replyReqs: [],
         stars: []
       },
-      showHighlights: false,
+      showHighlights: true,
       resizeKey: Date.now() // work around to force redraw highlights
     },
     computed: {
