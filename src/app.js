@@ -53,8 +53,8 @@ function loadScript(url) {
 function embedNbApp() {
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
-  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo/style/plugin.css")
-  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo/style/tooltip.css")
+  loadCSS("https://cdn.jsdelivr.net/gh/alisaono@prod/nbdemo/style/plugin.css")
+  loadCSS("https://cdn.jsdelivr.net/gh/alisaono@prod/nbdemo/style/tooltip.css")
   // loadCSS("http://localhost:8081/style/plugin.css")
   // loadCSS("http://localhost:8081/style/tooltip.css")
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")

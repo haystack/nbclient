@@ -151,10 +151,11 @@
 #nb-app .nb-sidebar .filter-view {
   margin: 32px 0 5px 0;
 }
+#nb-app .nb-sidebar .filter-view .filter-header {
+  display: flex;
+}
 #nb-app .nb-sidebar .filter-view .filter-header .search-bar {
-  width: 242px;
-  display: inline-block;
-  vertical-align: middle;
+  flex-grow: 1;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .search-bar .ql-container {
   border-color: #aaa !important;
@@ -165,13 +166,12 @@
   padding: 7px 9px;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .overflow-menu {
-  display: inline-block;
   cursor: pointer;
 }
 #nb-app .nb-sidebar .filter-view .filter-header button.toggle-filters {
   font-size: 13px;
-  width: 94px;
-  padding: 8px;
+  padding: 8px 10px;
+  margin: 0 5px;
   border-radius: 5px;
   border: solid 1px #aaa;
   background-color: #fff;
@@ -187,7 +187,6 @@
 #nb-app .nb-sidebar .filter-view .filter-header .filter-bookmarks .icon {
   width: 24px;
   height: 32px;
-  vertical-align: top;
   cursor: pointer;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .filter-bookmarks .icon.fas {
@@ -244,7 +243,6 @@
   cursor: pointer;
 }
 #nb-app .nb-sidebar .list-view .list-header .toggle-highlights .icon {
-  height: 16px;
   vertical-align: bottom;
 }
 #nb-app .nb-sidebar .list-view .list-header .sort {
@@ -312,7 +310,7 @@
 }
 
 #nb-app .nb-sidebar .thread-view {
-  min-height: 200px;
+  min-height: 100px;
   margin-bottom: 10px;
   overflow-y: scroll;
 }
@@ -426,8 +424,7 @@
 }
 
 #nb-app .editor-view {
-  margin: auto 0 10px 0;
-  padding-bottom: 20px;
+  margin-top: auto;
 }
 #nb-app .editor-view .header {
   font-size: 14px;
@@ -442,13 +439,12 @@
   font-size: 12px;
 }
 #nb-app .editor-view .footer .checkbox-buttons {
+  display: flex;
   padding: 5px 0;
   font-size: 12px;
 }
 #nb-app .editor-view .footer .checkbox-buttons .buttons {
-  display: inline-block;
-  position: absolute;
-  right: 10px;
+  margin-left: auto;
 }
 #nb-app .editor-view .footer .checkbox-buttons button {
   width: 80px;
