@@ -26,6 +26,8 @@ axios.defaults.baseURL = 'https://nb-demo.herokuapp.com/';
 // axios.defaults.baseURL = 'http://localhost:8080/'
 axios.defaults.withCredentials = true;
 
+const HOST_ROOT_URL = 'https://nb-plugin.herokuapp.com'
+// const HOST_ROOT_URL = 'http://localhost:3000'
 
 if (
   (document.attachEvent && document.readyState === "complete")
@@ -53,10 +55,8 @@ function loadScript(url) {
 function embedNbApp() {
   loadCSS("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css")
   loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css")
-  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo@prod/style/plugin.css")
-  loadCSS("https://cdn.jsdelivr.net/gh/alisaono/nbdemo@prod/style/tooltip.css")
-  // loadCSS("http://localhost:8081/style/plugin.css")
-  // loadCSS("http://localhost:8081/style/tooltip.css")
+  loadCSS(`${HOST_ROOT_URL}/style/plugin.css`)
+  loadCSS(`${HOST_ROOT_URL}/style/tooltip.css`)
   loadScript("https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js")
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
