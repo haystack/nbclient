@@ -1,9 +1,11 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const path = require('path')
 
 module.exports = {
   entry: "./src/app.js",
   devtool: "source-map",
   output: {
+    path: path.join(__dirname, "public/js"),
     filename: "bundle.js"
   },
   module: {

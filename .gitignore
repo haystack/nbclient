@@ -1,4 +1,3 @@
 node_modules/
-dist/bundle.js.map
+public/js/bundle.js.map
 package-lock.json
-sample.png
