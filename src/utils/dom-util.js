@@ -108,7 +108,7 @@ function getXpathFromNode(element, root) {
   }
 
   if (element.nodeType !== Node.ELEMENT_NODE) {
-    return getXpathFromNode(element.parentNode, relativeRoot)
+    return getXpathFromNode(element.parentNode, root)
   }
 
   let index = 1 // xpath index starts with 1 (not 0-indexed).
