@@ -417,7 +417,7 @@ function embedNbApp() {
             replyReqs: [],
             stars: []
           }
-          this.showHighlights = false
+          this.showHighlights = true
         })
       }
     },
