@@ -35,6 +35,20 @@
                 </label>
               </div>
             </div>
+            <div class="title">Users tagged</div>
+            <div class="user-tags">
+              <div>
+                <input
+                    type="checkbox"
+                    id="me-tagged"
+                    value="me"
+                    v-model="filterUserTags"
+                    @change="onFilterChange('user-tags')">
+                <label for="me-tagged">
+                  me
+                </label>
+              </div>
+            </div>
             <div class="title">Comments and Replies</div>
             <div class="comments-replies">
               <div>
@@ -141,6 +155,7 @@
         filterVisible: false,
         filterBookmarks: false,
         filterHashtags: [],
+        filterUserTags: [],
         filterComments: [],
         filterReplyReqs: [],
         filterStars: []
@@ -177,6 +192,9 @@
         switch (type) {
           case 'hashtags':
             this.$emit('filter-hashtags', this.filterHashtags)
+            break
+          case 'user-tags':
+            this.$emit('filter-user-tags', this.filterUserTags)
             break
           case 'comments':
             this.$emit('filter-comments', this.filterComments)

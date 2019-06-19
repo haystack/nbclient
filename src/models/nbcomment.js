@@ -1,6 +1,7 @@
 import htmlToText from 'html-to-text'
 import axios from 'axios'
 import {VisibilityMap, AnonymityMap} from './enums'
+import { compare } from '../utils/compare-util.js'
 
 class NbComment {
   constructor(id, range, parent, timestamp, author, authorName, instructor, html,
@@ -120,6 +121,7 @@ class NbComment {
           annotation.bookmarked
         );
       });
+      this.children.sort(compare('timestamp'))
     });
   }
 
@@ -194,6 +196,18 @@ class NbComment {
     }
     for (let child of this.children) {
       if (child.hasHashtag(hashtag)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  hasUserTag(userID) {
+    if (this.people.includes(userID)) {
+      return true
+    }
+    for (let child of this.children) {
+      if (child.hasUserTag(userID)) {
         return true
       }
     }

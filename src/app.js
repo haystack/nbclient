@@ -114,6 +114,7 @@ function embedNbApp() {
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
             @filter-hashtags="onFilterHashtags"
+            @filter-user-tags="onFilterUserTags"
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
             @filter-stars="onFilterStars"
@@ -141,6 +142,7 @@ function embedNbApp() {
         searchText: "",
         bookmarks: false,
         hashtags: [],
+        userTags: [],
         comments: [],
         replyReqs: [],
         stars: []
@@ -177,6 +179,10 @@ function embedNbApp() {
             }
             return false
           })
+        }
+        let filterUserTags = this.filter.userTags
+        if (filterUserTags.includes("me")) { // single option for now
+          items = items.filter(item => item.hasUserTag(this.user.id))
         }
         let filterComments = this.filter.comments
         if (filterComments.length > 0) {
@@ -342,6 +348,16 @@ function embedNbApp() {
         }
         this.filter.hashtags = hashtags
       },
+      onFilterUserTags: function(filters) {
+        if (
+          this.threadSelected
+          && filters.includes("me") // single option for now
+          && !this.threadSelected.hasUserTag(this.user.id)
+        ) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.userTags = filters
+      },
       onFilterComments: function(filters) {
         if (this.threadSelected && filters.length > 0) {
           let filtered = true
@@ -435,6 +451,7 @@ function embedNbApp() {
             searchText: "",
             bookmarks: false,
             hashtags: [],
+            userTags: [],
             comments: [],
             replyReqs: [],
             stars: []

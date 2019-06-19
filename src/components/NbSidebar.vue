@@ -8,6 +8,7 @@
         @search-text="onSearchText"
         @filter-bookmarks="onFilterBookmarks"
         @filter-hashtags="onFilterHashtags"
+        @filter-user-tags="onFilterUserTags"
         @filter-comments="onFilterComments"
         @filter-reply-reqs="onFilterReplyReqs"
         @filter-stars="onFilterStars">
@@ -159,6 +160,9 @@
       },
       onFilterHashtags: function(hashtags) {
         this.$emit('filter-hashtags', hashtags)
+      },
+      onFilterUserTags: function(filters) {
+        this.$emit('filter-user-tags', filters)
       },
       onFilterComments: function(filters) {
         this.$emit('filter-comments', filters)
