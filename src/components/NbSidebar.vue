@@ -4,6 +4,7 @@
     <filter-view
         :users="sortedUsers"
         :hashtags="sortedHashtags"
+        @search-option="onSearchOption"
         @search-text="onSearchText"
         @filter-bookmarks="onFilterBookmarks"
         @filter-hashtags="onFilterHashtags"
@@ -146,6 +147,9 @@
     methods: {
       onToggleHighlights: function(show) {
         this.$emit('toggle-highlights', show)
+      },
+      onSearchOption: function(option) {
+        this.$emit('search-option', option)
       },
       onSearchText: function(text) {
         this.$emit('search-text', text)

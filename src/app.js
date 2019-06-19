@@ -26,8 +26,8 @@ axios.defaults.baseURL = 'https://nb-demo.herokuapp.com/';
 // axios.defaults.baseURL = 'http://localhost:8080/'
 axios.defaults.withCredentials = true;
 
-const HOST_ROOT_URL = 'https://nb-plugin.herokuapp.com'
-// const HOST_ROOT_URL = 'http://localhost:3000'
+// const HOST_ROOT_URL = 'https://nb-plugin.herokuapp.com'
+const HOST_ROOT_URL = 'http://localhost:3000' // TODO: switch back
 
 if (
   (document.attachEvent && document.readyState === "complete")
@@ -110,6 +110,7 @@ function embedNbApp() {
             :draft-range="draftRange"
             :show-highlights="showHighlights"
             @toggle-highlights="onToggleHighlights"
+            @search-option="onSearchOption"
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
             @filter-hashtags="onFilterHashtags"
@@ -136,6 +137,7 @@ function embedNbApp() {
       threadsHovered: [], //in case of hover on overlapping highlights
       draftRange: null,
       filter: {
+        searchOption: 'text',
         searchText: "",
         bookmarks: false,
         hashtags: [],
@@ -156,8 +158,13 @@ function embedNbApp() {
       filteredThreads: function() {
         let items = this.threads
         let searchText = this.filter.searchText
-        if (searchText !== "") {
-          items = items.filter(item => item.hasText(searchText))
+        if (searchText.length > 0) {
+          if (this.filter.searchOption === 'text') {
+            items = items.filter(item => item.hasText(searchText))
+          }
+          if (this.filter.searchOption === 'author') {
+            items = items.filter(item => item.hasAuthor(searchText))
+          }
         }
         if (this.filter.bookmarks) {
           items = items.filter(item => item.hasBookmarks())
@@ -286,15 +293,29 @@ function embedNbApp() {
       onCancelDraft: function() {
         this.draftRange = null
       },
+      onSearchOption: function(option) {
+        this.filter.searchOption = option
+        this.onSearchUpdate()
+      },
       onSearchText: function(text) {
-        if (
-          this.threadSelected
-          && text !== ""
-          && !this.threadSelected.hasText(text)
-        ) {
-          this.threadSelected = null // reset selection if filtered
-        }
         this.filter.searchText = text
+        this.onSearchUpdate()
+      },
+      onSearchUpdate: function() {
+        if (this.threadSelected && this.filter.searchText.length > 0) {
+          if (
+            this.filter.searchOption === 'text'
+            && !this.threadSelected.hasText(this.filter.searchText)
+          ) {
+            this.threadSelected = null // reset selection if filtered
+          }
+          if (
+            this.filter.searchOption === 'author'
+            && !this.threadSelected.hasAuthor(this.filter.searchText)
+          ) {
+            this.threadSelected = null // reset selection if filtered
+          }
+        }
       },
       onFilterBookmarks: function(filter) {
         if (
@@ -410,6 +431,7 @@ function embedNbApp() {
           this.threadsHovered = []
           this.draftRange = null
           this.filter = {
+            searchOption: 'text',
             searchText: "",
             bookmarks: false,
             hashtags: [],

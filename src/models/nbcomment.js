@@ -159,6 +159,23 @@ class NbComment {
     return false
   }
 
+  hasAuthor(text) {
+    let searchText = text.toLowerCase()
+    if (searchText.length > 1 && searchText.charAt(0) === '@') {
+      // for autocompleted name
+      searchText = searchText.substring(1)
+    }
+    if (this.authorName.toLowerCase().includes(searchText)) {
+      return true
+    }
+    for (let child of this.children) {
+      if (child.hasAuthor(text)) {
+        return true
+      }
+    }
+    return false
+  }
+
   hasBookmarks() {
     if (this.bookmarked) {
       return true

@@ -1,13 +1,12 @@
 <template>
   <div class="filter-view">
     <div class="filter-header">
-      <div class="search-bar">
-        <search-bar
-            :users="users"
-            :hashtags="hashtags"
-            @text-change="onTextChange">
-        </search-bar>
-      </div>
+      <search-bar
+          :users="users"
+          :hashtags="hashtags"
+          @dropdown-change="onSearchOptionChange"
+          @text-change="onTextChange">
+      </search-bar>
       <v-popover
           class="overflow-menu"
           popoverClass="filter-options-wrapper"
@@ -158,6 +157,9 @@
       }
     },
     methods: {
+      onSearchOptionChange: function(option) {
+        this.$emit('search-option', option)
+      },
       onTextChange: function(text) {
         this.$emit('search-text', text)
       },
