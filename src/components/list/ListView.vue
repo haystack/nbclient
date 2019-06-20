@@ -4,7 +4,10 @@
       <span class="count">
         {{ threads.length }} of {{ totalLabel }}
       </span>
-      <span class="toggle-highlights" @click="toggleHighlights">
+      <span
+          class="toggle-highlights"
+          v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'"
+          @click="toggleHighlights">
         <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
         </font-awesome-icon>
         <font-awesome-icon v-else icon="eye-slash" class="icon">

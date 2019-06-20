@@ -1,7 +1,7 @@
 <template>
   <g
       class="nb-highlight"
-      v-show="showHighlights || (thread === threadSelected)"
+      v-if="visible"
       :style="style"
       @click="$emit('select-thread',thread)"
       @mouseenter="onHover(true)"
@@ -12,6 +12,21 @@
         :y="box.top + bounds.offsetY"
         :height="box.height"
         :width="box.width">
+    </rect>
+  </g>
+  <g
+      class="nb-highlight"
+      v-else
+      :style="style"
+      @click="$emit('select-thread',thread)"
+      @mouseenter="onHover(true)"
+      @mouseleave="onHover(false)">
+    <rect
+        v-for="box in bounds.boxes"
+        :x="bounds.offsetX"
+        :y="box.top + bounds.offsetY"
+        :height="box.height"
+        width="10">
     </rect>
   </g>
 </template>
@@ -83,6 +98,9 @@
             || document.body.scrollTop
             || 0
         return bounds
+      },
+      visible: function() {
+        return this.showHighlights || (this.thread === this.threadSelected)
       }
     },
     methods: {
