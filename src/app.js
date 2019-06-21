@@ -124,6 +124,7 @@ function embedNbApp() {
             @delete-thread="onDeleteThread"
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft"
+            @editor-empty="onEditorEmpty"
             @logout="onLogout">
           </nb-sidebar>
         </div>
@@ -137,6 +138,7 @@ function embedNbApp() {
       threadSelected: null,
       threadsHovered: [], //in case of hover on overlapping highlights
       draftRange: null,
+      isEditorEmpty: true,
       filter: {
         searchOption: 'text',
         searchText: "",
@@ -299,6 +301,9 @@ function embedNbApp() {
       onCancelDraft: function() {
         this.draftRange = null
       },
+      onEditorEmpty: function(isEmpty) {
+        this.isEditorEmpty = isEmpty
+      },
       onSearchOption: function(option) {
         this.filter.searchOption = option
         this.onSearchUpdate()
@@ -421,6 +426,9 @@ function embedNbApp() {
       },
       onUnselectThread: function(thread) {
         this.threadSelected = null
+        if (this.draftRange && this.isEditorEmpty) {
+          this.onCancelDraft()
+        }
       },
       onHoverThread: function(thread) {
         if (!this.threadsHovered.includes(thread)) {
@@ -443,9 +451,10 @@ function embedNbApp() {
           this.users = {}
           this.hashtags = {}
           this.threads = []
-          this.threadSelected = null,
+          this.threadSelected = null
           this.threadsHovered = []
           this.draftRange = null
+          this.isEditorEmpty = true
           this.filter = {
             searchOption: 'text',
             searchText: "",
@@ -480,6 +489,12 @@ function embedNbApp() {
       app.draftThread(range)
       // Selection will be removed in highlight-util.eventsProxyMouse
       // because 'click' is triggered after 'mouseup'
+    }
+  })
+
+  document.addEventListener('keyup', function(event) {
+    if (event.key === 'Escape') {
+      app.onUnselectThread()
     }
   })
 

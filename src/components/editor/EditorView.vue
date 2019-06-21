@@ -30,7 +30,7 @@
         <label for="draft-request-reply">Request replies</label>
         <div class="buttons">
           <button class="cancel" @click="cancel">Cancel</button>
-          <button class="submit" @click="submit" :disabled="submitDisabled">
+          <button class="submit" @click="submit" :disabled="isEditorEmpty">
             Submit
           </button>
         </div>
@@ -100,9 +100,14 @@
       }
     },
     computed: {
-      submitDisabled: function() {
+      isEditorEmpty: function() {
         return htmlToText.fromString(this.content, { wordwrap: false }) === ""
       }
+    },
+    watch: {
+      isEditorEmpty: function(val) {
+        this.$emit('editor-empty', val)
+      },
     },
     methods: {
       onTextChange: function(html) {

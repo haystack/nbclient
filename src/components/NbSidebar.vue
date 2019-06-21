@@ -43,6 +43,7 @@
         :initial-reply-request="editor.initialSettings.replyRequested"
         :users="sortedUsers"
         :hashtags="sortedHashtags"
+        @editor-empty="onEditorEmpty"
         @submit-comment="onSubmitComment"
         @cancel-comment="onCancelComment">
     </editor-view>
@@ -50,6 +51,7 @@
 </template>
 
 <script>
+  import htmlToText from 'html-to-text'
   import { compare } from '../utils/compare-util.js'
   import { CommentVisibility, CommentAnonymity } from "../models/enums.js"
   import NbComment from "../models/nbcomment.js"
@@ -107,7 +109,8 @@
             visibility: CommentVisibility.EVERYONE,
             anonymity: CommentAnonymity.IDENTIFIED,
             replyRequested: false
-          }
+          },
+          isEmpty: true,
         }
       }
     },
@@ -142,6 +145,13 @@
           if (!this.replyToComment && !this.edittingComment) {
             this.editor.visible = false
           }
+        }
+      },
+      threadSelected: function(val) {
+        if (!val && this.replyToComment && this.editor.isEmpty) {
+          // When thread is unselected, cancel reply if editor is empty.
+          this.editor.visible = false
+          this.replyToComment = null
         }
       },
     },
@@ -210,6 +220,10 @@
         this.replyToComment = comment
         this.initEditor(`re: ${comment.text}`, null, {}, true)
       },
+      onEditorEmpty: function(isEmpty) {
+        this.editor.isEmpty = isEmpty
+        this.$emit('editor-empty', isEmpty)
+      },
       onSubmitComment: function(data) {
         this.editor.visible = false
 
@@ -266,6 +280,11 @@
         this.editor.key = Date.now() // work around to force redraw editor
         this.editor.header = header
         this.editor.initialContent = content
+
+        let plaintext = htmlToText.fromString(content, { wordwrap: false })
+        this.editor.isEmpty = (plaintext === "")
+        this.$emit('editor-empty', this.editor.isEmpty)
+
         let defaultSettings = {
           visibility: CommentVisibility.EVERYONE,
           anonymity: CommentAnonymity.IDENTIFIED,
