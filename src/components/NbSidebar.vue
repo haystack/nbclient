@@ -2,6 +2,7 @@
   <div id="nb-sidebar" class="nb-sidebar">
     <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
     <filter-view
+        :me="user"
         :users="sortedUsers"
         :hashtags="sortedHashtags"
         @search-option="onSearchOption"
@@ -11,7 +12,14 @@
         @filter-user-tags="onFilterUserTags"
         @filter-comments="onFilterComments"
         @filter-reply-reqs="onFilterReplyReqs"
-        @filter-stars="onFilterStars">
+        @filter-stars="onFilterStars"
+        @min-words="onMinWords"
+        @max-words="onMaxWords"
+        @min-hashtags="onMinHashtags"
+        @max-hashtags="onMaxHashtags"
+        @min-replies="onMinReplies"
+        @min-reply-reqs="onMinReplyReqs"
+        @min-upvotes="onMinUpvotes">
     </filter-view>
     <list-view
         :threads="threads"
@@ -180,8 +188,29 @@
       onFilterReplyReqs: function(filter) {
         this.$emit('filter-reply-reqs', filter)
       },
-      onFilterStars: function(filter){
+      onFilterStars: function(filter) {
         this.$emit('filter-stars', filter)
+      },
+      onMinWords: function(min) {
+        this.$emit('min-words', min)
+      },
+      onMaxWords: function(max) {
+        this.$emit('max-words', max)
+      },
+      onMinHashtags: function(min) {
+        this.$emit('min-hashtags', min)
+      },
+      onMaxHashtags: function(max) {
+        this.$emit('max-hashtags', max)
+      },
+      onMinReplies: function(min) {
+        this.$emit('min-replies', min)
+      },
+      onMinReplyReqs: function(min) {
+        this.$emit('min-reply-reqs', min)
+      },
+      onMinUpvotes: function(min) {
+        this.$emit('min-upvotes', min)
       },
       onSelectThread: function(thread) {
         this.$emit('select-thread', thread)

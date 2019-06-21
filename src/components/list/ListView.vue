@@ -90,7 +90,7 @@
           case 'comment':
             return this.threads.sort(compare('countAllReplies', 'func', false))
           case 'reply_request':
-            return this.threads.sort(compare('countAllReplyRequests', 'func', false))
+            return this.threads.sort(compare('countAllReplyReqs', 'func', false))
           case 'star':
             return this.threads.sort(compare('countAllStars', 'func', false))
           default:

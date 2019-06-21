@@ -43,7 +43,7 @@ class NbComment {
     this.seenByMe = seenByMe
     this.bookmarked = bookmarked
 
-    this.setText() // populate this.text from this.html
+    this.setText() // populate this.text and this.wordCount from this.html
   }
 
   setText() {
@@ -59,6 +59,7 @@ class NbComment {
     } else {
       this.text = htmlToText.fromString(this.html, { wordwrap: false })
     }
+    this.wordCount = this.text.split(' ').length
   }
 
   submitAnnotation(){
@@ -133,10 +134,10 @@ class NbComment {
     return total
   }
 
-  countAllReplyRequests() {
+  countAllReplyReqs() {
     let total = this.replyRequestCount
     for (let child of this.children) {
-      total += child.countAllReplyRequests()
+      total += child.countAllReplyReqs()
     }
     return total
   }

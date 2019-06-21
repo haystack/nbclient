@@ -254,6 +254,15 @@
   width: 49%;
   display: inline-block;
 }
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div {
+  display: flex;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div label {
+  flex-grow: 1;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div input {
+  width: 30px;
+}
 
 #nb-app .nb-sidebar .list-view {
   margin-bottom: 10px;

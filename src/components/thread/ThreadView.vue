@@ -31,7 +31,7 @@
         }
       },
       numReplyReqs: function() {
-        let count = this.thread.countAllReplyRequests()
+        let count = this.thread.countAllReplyReqs()
         if (count === 0) {
           return "no reply requests"
         } else if (count === 1) {

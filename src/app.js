@@ -118,6 +118,13 @@ function embedNbApp() {
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
             @filter-stars="onFilterStars"
+            @min-words="onMinWords"
+            @max-words="onMaxWords"
+            @min-hashtags="onMinHashtags"
+            @max-hashtags="onMaxHashtags"
+            @min-replies="onMinReplies"
+            @min-reply-reqs="onMinReplyReqs"
+            @min-upvotes="onMinUpvotes"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
@@ -147,7 +154,14 @@ function embedNbApp() {
         userTags: [],
         comments: [],
         replyReqs: [],
-        stars: []
+        stars: [],
+        minWords: 0,
+        maxWords: null,
+        minHashtags: 0,
+        maxHashtags: null,
+        minReplies: 0,
+        minReplyReqs: 0,
+        minUpvotes: 0,
       },
       showHighlights: true,
       resizeKey: Date.now() // work around to force redraw highlights
@@ -229,6 +243,34 @@ function embedNbApp() {
             }
             return false
           })
+        }
+        let minWords = this.filter.minWords
+        if (minWords > 0) {
+          items = items.filter(item => item.wordCount >= minWords)
+        }
+        let maxWords = this.filter.maxWords
+        if (maxWords) {
+          items = items.filter(item => item.wordCount <= maxWords)
+        }
+        let minHashtags = this.filter.minHashtags
+        if (minHashtags > 0) {
+          items = items.filter(item => item.hashtags.length >= minHashtags)
+        }
+        let maxHashtags = this.filter.maxHashtags
+        if (maxHashtags) {
+          items = items.filter(item => item.hashtags.length <= maxHashtags)
+        }
+        let minReplies = this.filter.minReplies
+        if (minReplies > 0) {
+          items = items.filter(item => item.countAllReplies() >= minReplies)
+        }
+        let minReplyReqs = this.filter.minReplyReqs
+        if (minReplyReqs > 0) {
+          items = items.filter(item => item.countAllReplyReqs() >= minReplyReqs)
+        }
+        let minUpvotes = this.filter.minUpvotes
+        if (minUpvotes > 0) {
+          items = items.filter(item => item.countAllStars() >= minUpvotes)
         }
         return items
       }
@@ -420,6 +462,57 @@ function embedNbApp() {
         }
         this.filter.stars = filters
       },
+      onMinWords: function(min) {
+        if (this.threadSelected && this.threadSelected.wordCount < min) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.minWords = min
+      },
+      onMaxWords: function(max) {
+        if (this.threadSelected && this.threadSelected.wordCount > max) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.maxWords = max
+      },
+      onMinHashtags: function(min) {
+        if (this.threadSelected && this.threadSelected.hashtags.length < min) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.minHashtags = min
+      },
+      onMaxHashtags: function(max) {
+        if (this.threadSelected && this.threadSelected.hashtags.length > max) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.maxHashtags = max
+      },
+      onMinReplies: function(min) {
+        if (
+          this.threadSelected
+          && this.threadSelected.countAllReplies() < min
+        ) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.minReplies = min
+      },
+      onMinReplyReqs: function(min) {
+        if (
+          this.threadSelected
+          && this.threadSelected.countAllReplyReqs() < min
+        ) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.minReplyReqs = min
+      },
+      onMinUpvotes: function(min) {
+        if (
+          this.threadSelected
+          && this.threadSelected.countAllStars() < min
+        ) {
+          this.threadSelected = null // reset selection if filtered
+        }
+        this.filter.minUpvotes = min
+      },
       onSelectThread: function(thread) {
         this.threadSelected = thread
         thread.markSeenAll()
@@ -463,7 +556,14 @@ function embedNbApp() {
             userTags: [],
             comments: [],
             replyReqs: [],
-            stars: []
+            stars: [],
+            minWords: 0,
+            maxWords: null,
+            minHashtags: 0,
+            maxHashtags: null,
+            minReplies: 0,
+            minReplyReqs: 0,
+            minUpvotes: 0,
           }
           this.showHighlights = true
         })
