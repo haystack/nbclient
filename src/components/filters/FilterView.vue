@@ -273,8 +273,7 @@
         return this.filterVisible ? "Close filters" : "More filters"
       },
       showAdvanced: function() {
-        // return this.me.role === 'instructor' // TODO update backend
-        return true
+        return this.me.role === 'instructor'
       },
     },
     methods: {

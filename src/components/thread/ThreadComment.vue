@@ -135,7 +135,8 @@
     computed: {
       authorName: function() {
         if (
-          this.comment.anonymity === CommentAnonymity.ANONYMOUS
+          (this.comment.anonymity === CommentAnonymity.ANONYMOUS
+            && this.me.role !== 'instructor')
           || this.comment.author === null
         ) {
           return 'Anonymous'

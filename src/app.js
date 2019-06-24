@@ -278,9 +278,11 @@ function embedNbApp() {
     watch: {
       user: function(val) {
         if (!val) return // logged out
+        // TODO (backend): make sure information below gets returned only if user is enrolled in the course
         axios.get('/api/annotations/allUsers',{params:{url: window.location.href.split('?')[0]}})
         .then(res => {
           this.users = res.data;
+          this.$set(val, 'role', this.users[val.id].role)
         });
         axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
         .then(res => {
