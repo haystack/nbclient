@@ -512,15 +512,38 @@
   background-color: #0069d9;
 }
 
+#nb-app .ql-toolbar {
+  background: #eee;
+}
+#nb-app .ql-toolbar button {
+  height: 20px;
+  width: 22px;
+}
+#nb-app .ql-toolbar .ql-picker {
+  height: 22px;
+}
+#nb-app .ql-picker-label::before {
+  line-height: 20px;
+  font-size: 13px;
+}
+#nb-app .ql-toolbar .ql-icon-picker {
+  width: 26px;
+}
 #nb-app .ql-hashtag:after {
   content: "#";
-  font-size: 16px;
+  font-size: 13px;
   color: #444;
 }
 #nb-app .ql-people:after {
   content: "@";
-  font-size: 16px;
+  font-size: 13px;
   color: #444;
+}
+#nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
+  color: #06c;
+}
+#nb-app .editor-view .ql-editor.ql-blank {
+  min-height: 80px;
 }
 
 #nb-app .ql-tooltip {
