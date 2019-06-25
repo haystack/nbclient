@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="thread-row">
+    <div class="thread-row" :style="styleRow">
       <div class="header">
         <span class="author">
           <div v-if="comment.instructor" class="instr-icon">
@@ -84,6 +84,7 @@
           v-for="child in comment.children"
           :comment="child"
           :me="me"
+          :replyToComment="replyToComment"
           :key="child.id"
           @edit-comment="editComment"
           @delete-comment="deleteComment"
@@ -101,7 +102,7 @@
 
   export default {
     name: 'thread-comment',
-    props: ['comment', 'me'],
+    props: ['comment', 'me', 'replyToComment'],
     data() {
       return {
         showOverflow: false
@@ -155,7 +156,12 @@
       },
       styleQuestion: function() {
         if (this.comment.replyRequestedByMe) return { color: '#70a0f0' }
-      }
+      },
+      styleRow: function() {
+        if (this.comment === this.replyToComment) {
+          return { background: '#ffffd0' }
+        }
+      },
     }
   }
 </script>

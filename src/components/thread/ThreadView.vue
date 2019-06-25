@@ -3,11 +3,14 @@
     <div class="thread-header">
       {{ numComments }}
       &nbsp;·&nbsp;
-      {{ numReplyReqs }}
+      <font-awesome-icon icon="question">
+      </font-awesome-icon>
+      {{ thread.countAllReplyReqs() }}
     </div>
     <thread-comment
         :comment="thread"
         :me="me"
+        :replyToComment="replyToComment"
         @edit-comment="editComment"
         @delete-comment="deleteComment"
         @draft-reply="draftReply">
@@ -20,7 +23,7 @@
 
   export default {
     name: 'thread-view',
-    props: ['thread', 'me'],
+    props: ['thread', 'me', 'replyToComment'],
     computed: {
       numComments: function() {
         let count = this.thread.countAllReplies() + 1

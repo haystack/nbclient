@@ -306,9 +306,6 @@
 #nb-app .nb-sidebar .list-view .list-row:nth-child(even) {
   background-color: #f0f0f0;
 }
-#nb-app .nb-sidebar .list-view .list-row:hover {
-  background-color: #ffffd0;
-}
 #nb-app .nb-sidebar .list-view .list-row .flags {
   min-width: 50px;
   display: flex;
@@ -357,6 +354,9 @@
   padding: 0 0 10px 0;
   color: #444;
   border-bottom: 1px solid #666;
+}
+#nb-app .nb-sidebar .thread-view .thread-header .icon {
+  color: #444;
 }
 
 #nb-app .nb-sidebar .thread-view .thread-row {

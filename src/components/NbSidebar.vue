@@ -36,6 +36,7 @@
         v-if="threadSelected"
         :thread="threadSelected"
         :me="user"
+        :replyToComment="replyToComment"
         @edit-comment="onEditComment"
         @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
