@@ -7,18 +7,49 @@
           @dropdown-change="onSearchOptionChange"
           @text-change="onTextChange">
       </search-bar>
+      <span
+          v-tooltip="filterComments.includes('me') ? 'clear filter' : 'show my comments'"
+          @click="toggleFilterMyComments">
+        <font-awesome-icon v-if="filterComments.includes('me')"
+            icon="comment" class="icon active">
+        </font-awesome-icon>
+        <font-awesome-icon v-else icon="comment" class="icon">
+        </font-awesome-icon>
+      </span>
+      <span
+          v-tooltip="filterUserTags.includes('me') ? 'clear filter' : `show comments I'm tagged in`"
+          @click="toggleFilterMyTags">
+        <font-awesome-icon v-if="filterUserTags.includes('me')"
+            icon="user-tag" class="icon active">
+        </font-awesome-icon>
+        <font-awesome-icon v-else icon="user-tag" class="icon">
+        </font-awesome-icon>
+      </span>
+      <span
+          v-tooltip="filterBookmarks ? 'clear filter' : 'show bookmarked'"
+          @click="toggleFilterBookmarks">
+        <font-awesome-icon v-if="filterBookmarks"
+            icon="bookmark" class="icon active">
+        </font-awesome-icon>
+        <font-awesome-icon v-else icon="bookmark" class="icon">
+        </font-awesome-icon>
+      </span>
       <v-popover
           class="overflow-menu"
           popoverClass="filter-options-wrapper"
           container="#nb-app-wrapper"
           :open="filterVisible"
           @hide="onFilterHide">
-        <button
-            class="tooltip-target toggle-filters"
-            :style="toggleFiltersStyle"
+        <span
+            class="tooltip-target"
+            v-tooltip="filterVisible ? 'hide' : 'show all filters'"
             @click="toggleFilters">
-          {{ toggleFiltersLabel }}
-        </button>
+          <font-awesome-icon v-if="filterVisible"
+              icon="times-circle" class="icon">
+          </font-awesome-icon>
+          <font-awesome-icon v-else icon="search-plus" class="icon">
+          </font-awesome-icon>
+        </span>
         <template slot="popover">
           <div class="filter-options">
             <div class="title">Hashtags</div>
@@ -124,6 +155,20 @@
                 </label>
               </div>
             </div>
+            <div class="title">
+              Others
+            </div>
+            <div class="others">
+              <input
+                  type="checkbox"
+                  id="bookmarks"
+                  value="bookmarks"
+                  v-model="filterBookmarks"
+                  @change="onFilterChange('bookmarks')">
+              <label for="bookmarks">
+                bookmarked
+              </label>
+            </div>
             <div v-if="showAdvanced" class="title">Advanced</div>
             <div v-if="showAdvanced" class="advanced">
               <div>
@@ -221,16 +266,6 @@
           </div>
         </template>
       </v-popover>
-      <span
-          class="filter-bookmarks"
-          v-tooltip="filterBookmarks ? 'clear filter' : 'show bookmarked'"
-          @click="toggleFilterBookmarks">
-        <font-awesome-icon v-if="filterBookmarks"
-            :icon="['fas', 'bookmark']" class="icon fas">
-        </font-awesome-icon>
-        <font-awesome-icon v-else :icon="['far', 'bookmark']" class="icon far">
-        </font-awesome-icon>
-      </span>
     </div>
   </div>
 </template>
@@ -264,14 +299,6 @@
       }
     },
     computed: {
-      toggleFiltersStyle: function() {
-        if (this.filterVisible) {
-          return "background-color: #666; color: #fff;"
-        }
-      },
-      toggleFiltersLabel: function() {
-        return this.filterVisible ? "Close filters" : "More filters"
-      },
       showAdvanced: function() {
         return this.me.role === 'instructor'
       },
@@ -283,9 +310,27 @@
       onTextChange: function(text) {
         this.$emit('search-text', text)
       },
+      toggleFilterMyComments: function() {
+        let idx = this.filterComments.indexOf('me')
+        if (idx >= 0) {
+          this.filterComments.splice(idx, 1)
+        } else {
+          this.filterComments.push('me')
+        }
+        this.onFilterChange('comments')
+      },
+      toggleFilterMyTags: function() {
+        let idx = this.filterUserTags.indexOf('me')
+        if (idx >= 0) {
+          this.filterUserTags.splice(idx, 1)
+        } else {
+          this.filterUserTags.push('me')
+        }
+        this.onFilterChange('user-tags')
+      },
       toggleFilterBookmarks: function() {
         this.filterBookmarks = !this.filterBookmarks
-        this.$emit('filter-bookmarks', this.filterBookmarks)
+        this.onFilterChange('bookmarks')
       },
       toggleFilters: function(event) {
         this.filterVisible = !this.filterVisible
@@ -310,6 +355,8 @@
           case 'stars':
             this.$emit('filter-stars', this.filterStars)
             break
+          case 'bookmarks':
+            this.$emit('filter-bookmarks', this.filterBookmarks)
           case 'min-words':
             if (this.minWords) {
               this.$emit('min-words', parseInt(this.minWords))
