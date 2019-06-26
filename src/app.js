@@ -279,16 +279,17 @@ function embedNbApp() {
       user: function(val) {
         if (!val) return // logged out
         // TODO (backend): make sure information below gets returned only if user is enrolled in the course
-        axios.get('/api/annotations/allUsers',{params:{url: window.location.href.split('?')[0]}})
+        let source = window.location.origin + window.location.pathname
+        axios.get('/api/annotations/allUsers',{params:{url: source}})
         .then(res => {
           this.users = res.data;
           this.$set(val, 'role', this.users[val.id].role)
         });
-        axios.get('/api/annotations/allTagTypes',{params:{url: window.location.href.split('?')[0]}})
+        axios.get('/api/annotations/allTagTypes',{params:{url: source}})
         .then(res => {
           this.hashtags = res.data;
         });
-        axios.get('/api/annotations/annotation', {params:{url: window.location.href.split('?')[0]}})
+        axios.get('/api/annotations/annotation', {params:{url: source}})
         .then(res => {
           this.threads = res.data.map(annotation => {
             annotation.range = deserializeNbRange(annotation.range);
@@ -313,6 +314,11 @@ function embedNbApp() {
               annotation.bookmarked
             );
           });
+          let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+          if (link) {
+            let id = link[1]
+            this.threadSelected = this.threads.find(x => x.id === id)
+          }
         })
       }
     },

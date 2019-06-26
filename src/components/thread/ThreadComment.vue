@@ -22,7 +22,7 @@
             </font-awesome-icon>
           </span>
           <v-popover
-              v-if="commentEditable"
+              v-if="firstComment || commentEditable"
               class="overflow-menu"
               popoverClass="thread-overflow-wrapper"
               container="#nb-app-wrapper"
@@ -39,11 +39,19 @@
             <template slot="popover">
               <div class="overflow-options">
                 <div
+                    v-if="firstComment"
+                    class="overflow-option"
+                    @click="copyLink(comment)">
+                  Copy link
+                </div>
+                <div
+                    v-if="commentEditable"
                     class="overflow-option"
                     @click="editComment(comment)">
                   Edit
                 </div>
                 <div
+                    v-if="commentEditable"
                     class="overflow-option"
                     @click="deleteComment(comment)">
                   Delete
@@ -109,6 +117,17 @@
       }
     },
     methods: {
+      copyLink: function(comment) {
+        this.showOverflow = false
+        let url = new URL(window.location.href)
+        url.hash = `#nb-comment-${comment.id}`
+        let el = document.createElement('textarea')
+        el.value = url.href
+        document.body.appendChild(el)
+        el.select()
+        document.execCommand('copy')
+        document.body.removeChild(el)
+      },
       editComment: function(comment) {
         this.showOverflow = false
         this.$emit('edit-comment', comment)
@@ -146,6 +165,9 @@
       },
       timeString: function() {
         return moment(this.comment.timestamp).fromNow()
+      },
+      firstComment: function() {
+        return !this.comment.parent
       },
       commentEditable: function() {
         return (this.comment.author === this.me.id)
