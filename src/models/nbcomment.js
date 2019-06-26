@@ -1,6 +1,6 @@
 import htmlToText from 'html-to-text'
 import axios from 'axios'
-import {VisibilityMap, AnonymityMap} from './enums'
+import { CommentVisibility, CommentAnonymity } from './enums.js'
 import { compare } from '../utils/compare-util.js'
 
 class NbComment {
@@ -70,8 +70,8 @@ class NbComment {
         author: this.author,
         tags: this.hashtags,
         userTags: this.people,
-        visibility: VisibilityMap[this.visibility],
-        anonymity: AnonymityMap[this.anonymity],
+        visibility: CommentVisibility[this.visibility],
+        anonymity: CommentAnonymity[this.anonymity],
         replyRequest: this.replyRequestedByMe,
         star: this.upvotedByMe,
         bookmark: this.bookmarked
@@ -86,8 +86,8 @@ class NbComment {
         author: this.author,
         tags: this.hashtags,
         userTags: this.people,
-        visibility: VisibilityMap[this.visibility],
-        anonymity: AnonymityMap[this.anonymity],
+        visibility: CommentVisibility[this.visibility],
+        anonymity: CommentAnonymity[this.anonymity],
         replyRequest: this.replyRequestedByMe,
         star: this.upvotedByMe,
         bookmark: this.bookmarked
@@ -325,8 +325,8 @@ class NbComment {
       content: this.html,
       tags: this.hashtags,
       userTags: this.people,
-      visibility: VisibilityMap[this.visibility],
-      anonymity: AnonymityMap[this.anonymity],
+      visibility: CommentVisibility[this.visibility],
+      anonymity: CommentAnonymity[this.anonymity],
       replyRequest: this.replyRequestedByMe,
     })
   }
