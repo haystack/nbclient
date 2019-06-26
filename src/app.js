@@ -291,8 +291,16 @@ function embedNbApp() {
         });
         axios.get('/api/annotations/annotation', {params:{url: source}})
         .then(res => {
-          this.threads = res.data.map(annotation => {
-            annotation.range = deserializeNbRange(annotation.range);
+          let items = res.data.filter(item => {
+            try {
+              item.range = deserializeNbRange(item.range)
+              return true
+            } catch(e) {
+              console.warn(`Could not deserialize range for ${item.id}`)
+              return false
+            }
+          })
+          this.threads = items.map(annotation => {
             return new NbComment(
               annotation.id,
               annotation.range,
