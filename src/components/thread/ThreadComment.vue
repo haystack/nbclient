@@ -71,11 +71,11 @@
         </span>
         &nbsp;·&nbsp;
         <span
-            v-tooltip="comment.starredByMe ? 'undo upvote' : 'upvote'"
-            @click="toggleStar(comment)">
-          <font-awesome-icon icon="thumbs-up" class="icon" :style="styleStar">
+            v-tooltip="comment.upvotedByMe ? 'undo upvote' : 'upvote'"
+            @click="toggleUpvote(comment)">
+          <font-awesome-icon icon="thumbs-up" class="icon" :style="styleUpvote">
           </font-awesome-icon>
-          {{ comment.starCount }}
+          {{ comment.upvoteCount }}
         </span>
         &nbsp;·&nbsp;
         <span
@@ -97,7 +97,7 @@
           @edit-comment="editComment"
           @delete-comment="deleteComment"
           @draft-reply="draftReply"
-          @toggle-star="toggleStar"
+          @toggle-upvote="toggleUpvote"
           @toggle-reply-request="toggleReplyRequest">
       </thread-comment>
     </div>
@@ -145,8 +145,8 @@
       toggleBookmark: function(comment) {
         comment.toggleBookmark()
       },
-      toggleStar: function(comment) {
-        comment.toggleStar()
+      toggleUpvote: function(comment) {
+        comment.toggleUpvote()
       },
       toggleReplyRequest: function(comment) {
         comment.toggleReplyRequest()
@@ -173,8 +173,8 @@
         return (this.comment.author === this.me.id)
           && (this.comment.children.length === 0)
       },
-      styleStar: function() {
-        if (this.comment.starredByMe) return { color: '#70a0f0' }
+      styleUpvote: function() {
+        if (this.comment.upvotedByMe) return { color: '#70a0f0' }
       },
       styleQuestion: function() {
         if (this.comment.replyRequestedByMe) return { color: '#70a0f0' }

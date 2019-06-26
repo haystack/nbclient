@@ -69,7 +69,7 @@
           { text: "Most Recent", value: 'recent' },
           { text: "Longest Thread", value: 'comment' },
           { text: "Reply Requests", value: 'reply_request' },
-          { text: "Upvotes", value: 'star' }
+          { text: "Upvotes", value: 'upvote' }
         ]
       }
     },
@@ -91,8 +91,8 @@
             return this.threads.sort(compare('countAllReplies', 'func', false))
           case 'reply_request':
             return this.threads.sort(compare('countAllReplyReqs', 'func', false))
-          case 'star':
-            return this.threads.sort(compare('countAllStars', 'func', false))
+          case 'upvote':
+            return this.threads.sort(compare('countAllUpvotes', 'func', false))
           default:
             return this.threads
         }

@@ -12,7 +12,7 @@
         @filter-user-tags="onFilterUserTags"
         @filter-comments="onFilterComments"
         @filter-reply-reqs="onFilterReplyReqs"
-        @filter-stars="onFilterStars"
+        @filter-upvotes="onFilterUpvotes"
         @min-words="onMinWords"
         @max-words="onMaxWords"
         @min-hashtags="onMinHashtags"
@@ -189,8 +189,8 @@
       onFilterReplyReqs: function(filter) {
         this.$emit('filter-reply-reqs', filter)
       },
-      onFilterStars: function(filter) {
-        this.$emit('filter-stars', filter)
+      onFilterUpvotes: function(filter) {
+        this.$emit('filter-upvotes', filter)
       },
       onMinWords: function(min) {
         this.$emit('min-words', min)
@@ -278,8 +278,8 @@
           anonymity: data.anonymity,
           replyRequestedByMe: data.replyRequested,
           replyRequestCount: data.replyRequested ? 1 : 0,
-          starredByMe: false,
-          starCount: 0,
+          upvotedByMe: false,
+          upvoteCount: 0,
           seenByMe: true
         })
         comment.submitAnnotation()

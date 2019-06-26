@@ -117,7 +117,7 @@ function embedNbApp() {
             @filter-user-tags="onFilterUserTags"
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
-            @filter-stars="onFilterStars"
+            @filter-upvotes="onFilterUpvotes"
             @min-words="onMinWords"
             @max-words="onMaxWords"
             @min-hashtags="onMinHashtags"
@@ -154,7 +154,7 @@ function embedNbApp() {
         userTags: [],
         comments: [],
         replyReqs: [],
-        stars: [],
+        upvotes: [],
         minWords: 0,
         maxWords: null,
         minHashtags: 0,
@@ -232,13 +232,13 @@ function embedNbApp() {
             return false
           })
         }
-        let filterStars = this.filter.stars
-        if (filterStars.length > 0) {
+        let filterUpvotes = this.filter.upvotes
+        if (filterUpvotes.length > 0) {
           items = items.filter(item => {
-            if (filterStars.includes("anyone") && item.hasStars()) {
+            if (filterUpvotes.includes("anyone") && item.hasUpvotes()) {
               return true
             }
-            if (filterStars.includes("me") && item.hasMyStars()) {
+            if (filterUpvotes.includes("me") && item.hasMyUpvotes()) {
               return true
             }
             return false
@@ -270,7 +270,7 @@ function embedNbApp() {
         }
         let minUpvotes = this.filter.minUpvotes
         if (minUpvotes > 0) {
-          items = items.filter(item => item.countAllStars() >= minUpvotes)
+          items = items.filter(item => item.countAllUpvotes() >= minUpvotes)
         }
         return items
       }
@@ -442,20 +442,20 @@ function embedNbApp() {
         }
         this.filter.replyReqs = filters
       },
-      onFilterStars: function(filters){
+      onFilterUpvotes: function(filters){
         if (this.threadSelected && filters.length > 0) {
           let filtered = true
-          if (filters.includes("anyone") && this.threadSelected.hasStars()) {
+          if (filters.includes("anyone") && this.threadSelected.hasUpvotes()) {
             filtered = false
           }
-          if (filters.includes("me") && this.threadSelected.hasMyStars()) {
+          if (filters.includes("me") && this.threadSelected.hasMyUpvotes()) {
             filtered = false
           }
           if (filtered) {
             this.threadSelected = null // reset selection if filtered
           }
         }
-        this.filter.stars = filters
+        this.filter.upvotes = filters
       },
       onMinWords: function(min) {
         if (this.threadSelected && this.threadSelected.wordCount < min) {
@@ -502,7 +502,7 @@ function embedNbApp() {
       onMinUpvotes: function(min) {
         if (
           this.threadSelected
-          && this.threadSelected.countAllStars() < min
+          && this.threadSelected.countAllUpvotes() < min
         ) {
           this.threadSelected = null // reset selection if filtered
         }
@@ -551,7 +551,7 @@ function embedNbApp() {
             userTags: [],
             comments: [],
             replyReqs: [],
-            stars: [],
+            upvotes: [],
             minWords: 0,
             maxWords: null,
             minHashtags: 0,

@@ -249,7 +249,7 @@
 #nb-app-wrapper .filter-options-wrapper .filter-options .hashtags > div,
 #nb-app-wrapper .filter-options-wrapper .filter-options .comments-replies > div,
 #nb-app-wrapper .filter-options-wrapper .filter-options .reply-requests > div,
-#nb-app-wrapper .filter-options-wrapper .filter-options .stars > div,
+#nb-app-wrapper .filter-options-wrapper .filter-options .upvotes > div,
 #nb-app-wrapper .filter-options-wrapper .filter-options .others > div {
   width: 49%;
   display: inline-block;

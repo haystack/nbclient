@@ -36,8 +36,8 @@ class NbComment {
     this.replyRequestedByMe = data.replyRequestedByMe
     this.replyRequestCount = data.replyRequestCount
 
-    this.starredByMe = data.starredByMe
-    this.starCount = data.starCount
+    this.upvotedByMe = data.starredByMe
+    this.upvoteCount = data.starCount
 
     this.seenByMe = data.seenByMe
     this.bookmarked = data.bookmarked
@@ -73,7 +73,7 @@ class NbComment {
         visibility: VisibilityMap[this.visibility],
         anonymity: AnonymityMap[this.anonymity],
         replyRequest: this.replyRequestedByMe,
-        star: this.starredByMe,
+        star: this.upvotedByMe,
         bookmark: this.bookmarked
       }).then(res => {
         this.id = res.data.id;
@@ -89,7 +89,7 @@ class NbComment {
         visibility: VisibilityMap[this.visibility],
         anonymity: AnonymityMap[this.anonymity],
         replyRequest: this.replyRequestedByMe,
-        star: this.starredByMe,
+        star: this.upvotedByMe,
         bookmark: this.bookmarked
       }).then(res => {
         this.id = res.data.id;
@@ -123,10 +123,10 @@ class NbComment {
     return total
   }
 
-  countAllStars() {
-    let total = this.starCount
+  countAllUpvotes() {
+    let total = this.upvoteCount
     for (let child of this.children) {
-      total += child.countAllStars()
+      total += child.countAllUpvotes()
     }
     return total
   }
@@ -236,20 +236,20 @@ class NbComment {
     return false
   }
 
-  hasStars() {
-    if (this.starCount > 0) { return true }
+  hasUpvotes() {
+    if (this.upvoteCount > 0) { return true }
     for (let child of this.children) {
-      if (child.hasStars()) {
+      if (child.hasUpvotes()) {
         return true
       }
     }
     return false
   }
 
-  hasMyStars() {
-    if (this.starredByMe) { return true }
+  hasMyUpvotes() {
+    if (this.upvotedByMe) { return true }
     for (let child of this.children) {
-      if (child.hasMyStars()) {
+      if (child.hasMyUpvotes()) {
         return true
       }
     }
@@ -276,16 +276,16 @@ class NbComment {
     }
   }
 
-  toggleStar() {
-    if (this.starredByMe) {
-      this.starCount -= 1
-      this.starredByMe = false
+  toggleUpvote() {
+    if (this.upvotedByMe) {
+      this.upvoteCount -= 1
+      this.upvotedByMe = false
     } else {
-      this.starCount += 1
-      this.starredByMe = true
+      this.upvoteCount += 1
+      this.upvotedByMe = true
     }
     if(this.id){
-      axios.post(`/api/annotations/star/${this.id}`,{star: this.starredByMe})
+      axios.post(`/api/annotations/star/${this.id}`,{star: this.upvotedByMe})
     }
   }
 

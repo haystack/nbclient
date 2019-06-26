@@ -131,26 +131,26 @@
               </div>
             </div>
             <div class="title">Upvotes</div>
-            <div class="stars">
+            <div class="upvotes">
               <div>
                 <input
                     type="checkbox"
-                    id="anyone-stars"
+                    id="anyone-upvotes"
                     value="anyone"
-                    v-model="filterStars"
-                    @change="onFilterChange('stars')">
-                <label for="anyone-stars">
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="anyone-upvotes">
                   anyone
                 </label>
               </div>
               <div>
                 <input
                     type="checkbox"
-                    id="my-stars"
+                    id="my-upvotes"
                     value="me"
-                    v-model="filterStars"
-                    @change="onFilterChange('stars')">
-                <label for="my-stars">
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="my-upvotes">
                   me
                 </label>
               </div>
@@ -288,7 +288,7 @@
         filterUserTags: [],
         filterComments: [],
         filterReplyReqs: [],
-        filterStars: [],
+        filterUpvotes: [],
         minWords: null,
         maxWords: null,
         minHashtags: null,
@@ -352,8 +352,8 @@
           case 'reply-reqs':
             this.$emit('filter-reply-reqs', this.filterReplyReqs)
             break
-          case 'stars':
-            this.$emit('filter-stars', this.filterStars)
+          case 'upvotes':
+            this.$emit('filter-upvotes', this.filterUpvotes)
             break
           case 'bookmarks':
             this.$emit('filter-bookmarks', this.filterBookmarks)
