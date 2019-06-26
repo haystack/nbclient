@@ -542,7 +542,7 @@
 #nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
   color: #06c;
 }
-#nb-app .editor-view .ql-editor.ql-blank {
+#nb-app .editor-view .ql-editor {
   min-height: 80px;
 }
 

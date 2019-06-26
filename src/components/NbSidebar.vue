@@ -263,31 +263,26 @@
           return
         }
 
-        let id = null
-        console.log(this.user)
-        let author = this.user.id
-        let name = this.user.name
-
-        let comment = new NbComment(
-          id,
-          this.draftRange, //range, null if this is reply
-          this.replyToComment, //parent, null if this is the head of thread
-          null,
-          author,
-          `${name.first} ${name.last}`, //authorName
-          this.users[author].role == 'instructor',
-          data.html, //content
-          data.mentions.hashtags,
-          data.mentions.users,
-          data.visibility,
-          data.anonymity,
-          data.replyRequested, //replyRequestedByMe
-          data.replyRequested ? 1 : 0, //replyRequestCount
-          false, //starredByMe
-          0, //starCount
-          true //seenByMe
-        )
-        comment.submitAnnotation();
+        let comment = new NbComment({
+          id: null, // will be updated when submitAnnotation() is called
+          range: this.draftRange, // null if this is reply
+          parent: this.replyToComment, // null if this is the head of thread
+          timestamp: null,
+          author: this.user.id,
+          authorName: `${this.user.name.first} ${this.user.name.last}`,
+          instructor: this.user.role === 'instructor',
+          html: data.html,
+          hashtags: data.mentions.hashtags,
+          people: data.mentions.users,
+          visibility: data.visibility,
+          anonymity: data.anonymity,
+          replyRequestedByMe: data.replyRequested,
+          replyRequestCount: data.replyRequested ? 1 : 0,
+          starredByMe: false,
+          starCount: 0,
+          seenByMe: true
+        })
+        comment.submitAnnotation()
 
         if (this.draftRange) {
           this.$emit('new-thread', comment)

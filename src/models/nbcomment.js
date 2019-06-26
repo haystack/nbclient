@@ -4,44 +4,43 @@ import {VisibilityMap, AnonymityMap} from './enums'
 import { compare } from '../utils/compare-util.js'
 
 class NbComment {
-  constructor(id, range, parent, timestamp, author, authorName, instructor, html,
-      hashtagsUsed, usersTagged, visibility, anonymity, replyRequestedByMe,
-      replyRequestCount, starredByMe, starCount, seenByMe, bookmarked) {
-    this.id = id
-    this.range = range // null if this is a reply
+  constructor(data) {
+    this.id = data.id
+    this.range = data.range // null if this is a reply
 
-    this.parent = parent // null if this is the head of thread
+    this.parent = data.parent // null if this is the head of thread
 
-    this.children = [];
-    if(this.id){
+    this.children = []
+    if (this.id) {
       this.loadReplies()
     }
-    if (timestamp) {
-      let date = new Date(timestamp.replace(' ', 'T'))
+
+    if (data.timestamp) {
+      let date = new Date(data.timestamp.replace(' ', 'T'))
       this.timestamp = date.getTime()
     } else {
       this.timestamp = Date.now()
     }
-    this.author = author
-    this.authorName = authorName
-    this.instructor = instructor
+    this.author = data.author
+    this.authorName = data.authorName
+    this.instructor = data.instructor
 
-    this.html = html
+    this.html = data.html
 
-    this.hashtags = hashtagsUsed
-    this.people = usersTagged
+    this.hashtags = data.hashtags
+    this.people = data.people
 
-    this.visibility = visibility
-    this.anonymity = anonymity
+    this.visibility = data.visibility
+    this.anonymity = data.anonymity
 
-    this.replyRequestedByMe = replyRequestedByMe
-    this.replyRequestCount = replyRequestCount
+    this.replyRequestedByMe = data.replyRequestedByMe
+    this.replyRequestCount = data.replyRequestCount
 
-    this.starredByMe = starredByMe
-    this.starCount = starCount
+    this.starredByMe = data.starredByMe
+    this.starCount = data.starCount
 
-    this.seenByMe = seenByMe
-    this.bookmarked = bookmarked
+    this.seenByMe = data.seenByMe
+    this.bookmarked = data.bookmarked
 
     this.setText() // populate this.text and this.wordCount from this.html
   }
@@ -100,30 +99,12 @@ class NbComment {
 
   loadReplies(){
     axios.get(`/api/annotations/reply/${this.id}`).then(res => {
-      this.children = res.data.map(annotation => {
-        return new NbComment(
-          annotation.id,
-          annotation.range,
-          this, // parent
-          annotation.timestamp,
-          annotation.author,
-          annotation.authorName,
-          annotation.instructor,
-          annotation.html,
-          annotation.hashtags,
-          annotation.people,
-          annotation.visibility,
-          annotation.anonymity,
-          annotation.replyRequestedByMe,
-          annotation.replyRequestCount,
-          annotation.starredByMe,
-          annotation.starCount,
-          annotation.seenByMe,
-          annotation.bookmarked
-        );
-      });
+      this.children = res.data.map(item => {
+        item.parent = this
+        return new NbComment(item)
+      })
       this.children.sort(compare('timestamp'))
-    });
+    })
   }
 
   countAllReplies() {

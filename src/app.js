@@ -300,28 +300,7 @@ function embedNbApp() {
               return false
             }
           })
-          this.threads = items.map(annotation => {
-            return new NbComment(
-              annotation.id,
-              annotation.range,
-              annotation.parent,
-              annotation.timestamp,
-              annotation.author,
-              annotation.authorName,
-              annotation.instructor,
-              annotation.html,
-              annotation.hashtags,
-              annotation.people,
-              annotation.visibility,
-              annotation.anonymity,
-              annotation.replyRequestedByMe,
-              annotation.replyRequestCount,
-              annotation.starredByMe,
-              annotation.starCount,
-              annotation.seenByMe,
-              annotation.bookmarked
-            );
-          });
+          this.threads = items.map(item => new NbComment(item))
           let link = window.location.hash.match(/^#nb-comment-(.+$)/)
           if (link) {
             let id = link[1]
