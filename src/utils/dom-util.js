@@ -2,7 +2,7 @@
   Determine if node is part of container.
   Inclusive i.e. the node can be the container itself.
 */
-function isNodePartOf(node, container) {
+function isNodePartOf (node, container) {
   return (node === container) ? true : container.contains(node)
 }
 
@@ -10,7 +10,7 @@ function isNodePartOf(node, container) {
   Determine the first text node in or after the given node.
   Helper function for normalizeRange().
 */
-function getFirstTextNodeNotBefore(n) {
+function getFirstTextNodeNotBefore (n) {
   switch (n.nodeType) {
     case Node.TEXT_NODE:
       return n // We have found our text node.
@@ -22,6 +22,7 @@ function getFirstTextNodeNotBefore(n) {
           return result
         }
       }
+      break
     default:
       // Not a text or an element node.
   }
@@ -35,7 +36,7 @@ function getFirstTextNodeNotBefore(n) {
   Determine the last text node inside or before the given node.
   Helper function for normalizeRange().
 */
-function getLastTextNodeUpTo(n) {
+function getLastTextNodeUpTo (n) {
   switch (n.nodeType) {
     case Node.TEXT_NODE:
       return n // We have found our text node.
@@ -47,6 +48,7 @@ function getLastTextNodeUpTo(n) {
           return result
         }
       }
+      break
     default:
       // Not a text node, and not an element node.
   }
@@ -60,7 +62,7 @@ function getLastTextNodeUpTo(n) {
   Flatten a nested array structure and returns an array.
   Helper function for getTextNodes().
 */
-function flatten(array) {
+function flatten (array) {
   let flat = []
   for (let el of array) {
     flat = flat.concat(Array.isArray(el) ? flatten(el) : el)
@@ -73,7 +75,7 @@ function flatten(array) {
   Returns a new jQuery collection of text nodes.
   Helper function for serializeTextNode() and deserializeNbRange().
 */
-function getTextNodes(node) {
+function getTextNodes (node) {
   let findTextNodes = (node) => {
     if (node && node.nodeType !== Node.TEXT_NODE) {
       let nodes = []
@@ -102,7 +104,7 @@ function getTextNodes(node) {
 }
 
 // Implementation from the other nb demo I made.
-function getXpathFromNode(element, root) {
+function getXpathFromNode (element, root) {
   if (!element || element === root) {
     return ''
   }
@@ -126,25 +128,28 @@ function getXpathFromNode(element, root) {
 }
 
 // Implementation from the other nb demo I made.
-function getNodeFromXpath(xpath, root) {
-  var nodes = [], result, item
+function getNodeFromXpath (xpath, root) {
+  let nodes = []
+  let result
+  let item
 
   try {
-    result = document.evaluate(xpath, root, null, XPathResult.ANY_TYPE, null);
+    result = document.evaluate(xpath, root, null, XPathResult.ANY_TYPE, null)
     for (item = result.iterateNext(); item; item = result.iterateNext()) {
-    nodes.push(item);}
+      nodes.push(item)
+    }
 
     if (nodes.length === 0) {
-      //try a hack to handle namespace defaults in xhtml documents
-      xpath = xpath.replace(/\/([a-z])/ig, '/my:$1');
-      result = document.evaluate(xpath, root, function () {
-        return document.body.namespaceURI;
-      }, XPathResult.ANY_TYPE, null);
+      // try a hack to handle namespace defaults in xhtml documents
+      xpath = xpath.replace(/\/([a-z])/ig, '/my:$1')
+      result = document.evaluate(xpath, root, _ => {
+        return document.body.namespaceURI
+      }, XPathResult.ANY_TYPE, null)
       for (item = result.iterateNext(); item; item = result.iterateNext()) {
-      nodes.push(item);}
+        nodes.push(item)
+      }
     }
-  }
-  catch (exc) {
+  } catch (exc) {
     // Invalid xpath expressions make their way here sometimes.  If that happens,
     // we still want to return an empty set without an exception.
   }
@@ -153,7 +158,7 @@ function getNodeFromXpath(xpath, root) {
 }
 
 /* Helper function for NbRange.serialize() */
-function serializeTextNode(root, node) {
+function serializeTextNode (root, node) {
   let xpath = getXpathFromNode(node.parentNode, root)
   let textNodes = getTextNodes(node.parentNode)
 

@@ -2,14 +2,25 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const path = require('path')
 
 module.exports = {
-  entry: "./src/app.js",
-  devtool: "source-map",
+  entry: './src/app.js',
+  devtool: 'source-map',
+  mode: 'production',
   output: {
-    path: path.join(__dirname, "public/js"),
-    filename: "bundle.js"
+    path: path.join(__dirname, 'public/js'),
+    filename: 'bundle.js'
   },
   module: {
     rules: [
+      {
+        test: /\.(js|vue)$/,
+        enforce: 'pre',
+        loader: 'eslint-loader',
+        exclude: /node_modules/,
+        options: {
+          emitWarning: true,
+          configFile: './.eslintrc.json'
+        }
+      },
       {
         // vue-loader config to load `.vue` files or single file components.
         test: /\.vue$/,
@@ -22,7 +33,7 @@ module.exports = {
             }],
             js: [
               'babel-loader'
-            ],
+            ]
           },
           cacheBusting: true
         }
@@ -30,11 +41,11 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader"
+        loader: 'babel-loader'
       },
       {
         test: /\.css$/,
-        loader: [ "style-loader", "css-loader" ]
+        loader: [ 'style-loader', 'css-loader' ]
       }
     ]
   },

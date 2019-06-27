@@ -1,30 +1,30 @@
 import { isNodePartOf } from './dom-util.js'
 
 /* Helper function for eventsProxyMouse */
-function clone(e, type) {
-  let opts = Object.assign({}, e, {bubbles: false})
+function clone (e, type) {
+  let opts = Object.assign({}, e, { bubbles: false })
   try {
     return new MouseEvent(type, opts)
-  } catch(err) { // compat: webkit
+  } catch (err) { // compat: webkit
     let copy = document.createEvent('MouseEvents')
     copy.initMouseEvent(type, false, opts.cancelable, opts.view,
-                        opts.detail, opts.screenX, opts.screenY,
-                        opts.clientX, opts.clientY, opts.ctrlKey,
-                        opts.altKey, opts.shiftKey, opts.metaKey,
-                        opts.button, opts.relatedTarget)
+      opts.detail, opts.screenX, opts.screenY,
+      opts.clientX, opts.clientY, opts.ctrlKey,
+      opts.altKey, opts.shiftKey, opts.metaKey,
+      opts.button, opts.relatedTarget)
     return copy
   }
 }
 
 /* Helper function for eventsProxyMouse */
-function contains(item, x, y) {
-  function rectContains(r, x, y) {
+function contains (item, x, y) {
+  function rectContains (r, x, y) {
     let bottom = r.top + r.height
     let right = r.left + r.width
     return (r.top <= y && r.left <= x && bottom > y && right > x)
   }
 
-  function getClientRects(item) {
+  function getClientRects (item) {
     let rects = []
     let el = item.firstChild
     while (el) {
@@ -49,8 +49,8 @@ function contains(item, x, y) {
 }
 
 /* Helper function for Highlights.constructor */
-function eventsProxyMouse(src, target) {
-  src.addEventListener('click', function(e) {
+function eventsProxyMouse (src, target) {
+  src.addEventListener('click', e => {
     // ignore mouse click or selection on the side bar
     if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
       return
@@ -68,9 +68,9 @@ function eventsProxyMouse(src, target) {
     for (let i = target.childNodes.length - 1; i >= 0; i--) {
       let child = target.childNodes[i]
       if (
-        child.classList
-        && child.classList.contains('nb-highlight')
-        && contains(child, e.clientX, e.clientY)
+        child.classList &&
+        child.classList.contains('nb-highlight') &&
+        contains(child, e.clientX, e.clientY)
       ) {
         // We only dispatch the click event to the first matching highlight
         child.dispatchEvent(clone(e, e.type))
@@ -81,7 +81,7 @@ function eventsProxyMouse(src, target) {
     target.dispatchEvent(new CustomEvent('unselect-thread'))
   })
 
-  src.addEventListener('mousemove', function(e) {
+  src.addEventListener('mousemove', e => {
     // ignore mouse hover on the side bar
     if (isNodePartOf(e.target, document.querySelector('#nb-app-wrapper'))) {
       return
@@ -89,12 +89,12 @@ function eventsProxyMouse(src, target) {
 
     for (let child of target.childNodes) {
       if (
-        child.classList
-        && child.classList.contains('nb-highlight')
+        child.classList &&
+        child.classList.contains('nb-highlight')
       ) {
         let type = contains(child, e.clientX, e.clientY)
-            ? 'mouseenter'
-            : 'mouseleave'
+          ? 'mouseenter'
+          : 'mouseleave'
         child.dispatchEvent(clone(e, type))
       }
     }

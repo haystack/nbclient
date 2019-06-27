@@ -19,34 +19,34 @@
 </template>
 
 <script>
-  import TextEditor from '../editor/TextEditor.vue'
-  import htmlToText from 'html-to-text'
+import TextEditor from '../editor/TextEditor.vue'
+import htmlToText from 'html-to-text'
 
-  export default {
-    name: 'search-bar',
-    props: {
-      users: Array,
-      hashtags: Array
-    },
-    data() {
-      return {
-        searchBy: 'text',
-        placeholder: 'Search for comments'
-      }
-    },
-    watch: {
-      searchBy: function(val) {
-        this.$emit('dropdown-change', val)
-      },
-    },
-    methods: {
-      onTextChange: function(html) {
-        let text = htmlToText.fromString(html, { wordwrap: false })
-        this.$emit('text-change', text)
-      }
-    },
-    components: {
-      TextEditor
+export default {
+  name: 'search-bar',
+  props: {
+    users: Array,
+    hashtags: Array
+  },
+  data () {
+    return {
+      searchBy: 'text',
+      placeholder: 'Search for comments'
     }
+  },
+  watch: {
+    searchBy: function (val) {
+      this.$emit('dropdown-change', val)
+    }
+  },
+  methods: {
+    onTextChange: function (html) {
+      let text = htmlToText.fromString(html, { wordwrap: false })
+      this.$emit('text-change', text)
+    }
+  },
+  components: {
+    TextEditor
   }
+}
 </script>

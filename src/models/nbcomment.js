@@ -4,7 +4,7 @@ import { CommentVisibility, CommentAnonymity } from './enums.js'
 import { compare } from '../utils/compare-util.js'
 
 class NbComment {
-  constructor(data) {
+  constructor (data) {
     this.id = data.id
     this.range = data.range // null if this is a reply
 
@@ -45,7 +45,7 @@ class NbComment {
     this.setText() // populate this.text and this.wordCount from this.html
   }
 
-  setText() {
+  setText () {
     if (this.html.includes('ql-formula')) { // work around for latex formula
       let temp = document.createElement('div')
       temp.innerHTML = this.html
@@ -61,8 +61,8 @@ class NbComment {
     this.wordCount = this.text.split(' ').length
   }
 
-  submitAnnotation(){
-    if(!this.parent){
+  submitAnnotation () {
+    if (!this.parent) {
       return axios.post('/api/annotations/annotation', {
         url: window.location.href.split('?')[0],
         content: this.html,
@@ -76,12 +76,11 @@ class NbComment {
         star: this.upvotedByMe,
         bookmark: this.bookmarked
       }).then(res => {
-        this.id = res.data.id;
-        this.loadReplies();
-      });
-    }
-    else{
-      return axios.post(`/api/annotations/reply/${this.parent.id}`,{
+        this.id = res.data.id
+        this.loadReplies()
+      })
+    } else {
+      return axios.post(`/api/annotations/reply/${this.parent.id}`, {
         content: this.html,
         author: this.author,
         tags: this.hashtags,
@@ -92,12 +91,12 @@ class NbComment {
         star: this.upvotedByMe,
         bookmark: this.bookmarked
       }).then(res => {
-        this.id = res.data.id;
-      });
+        this.id = res.data.id
+      })
     }
   }
 
-  loadReplies(){
+  loadReplies () {
     axios.get(`/api/annotations/reply/${this.id}`).then(res => {
       this.children = res.data.map(item => {
         item.parent = this
@@ -107,7 +106,7 @@ class NbComment {
     })
   }
 
-  countAllReplies() {
+  countAllReplies () {
     let total = this.children.length
     for (let child of this.children) {
       total += child.countAllReplies()
@@ -115,7 +114,7 @@ class NbComment {
     return total
   }
 
-  countAllReplyReqs() {
+  countAllReplyReqs () {
     let total = this.replyRequestCount
     for (let child of this.children) {
       total += child.countAllReplyReqs()
@@ -123,7 +122,7 @@ class NbComment {
     return total
   }
 
-  countAllUpvotes() {
+  countAllUpvotes () {
     let total = this.upvoteCount
     for (let child of this.children) {
       total += child.countAllUpvotes()
@@ -131,7 +130,7 @@ class NbComment {
     return total
   }
 
-  hasText(text) {
+  hasText (text) {
     if (this.text.toLowerCase().includes(text.toLowerCase())) {
       return true
     }
@@ -143,7 +142,7 @@ class NbComment {
     return false
   }
 
-  hasAuthor(text) {
+  hasAuthor (text) {
     let searchText = text.toLowerCase()
     if (searchText.length > 1 && searchText.charAt(0) === '@') {
       // for autocompleted name
@@ -160,7 +159,7 @@ class NbComment {
     return false
   }
 
-  hasBookmarks() {
+  hasBookmarks () {
     if (this.bookmarked) {
       return true
     }
@@ -172,7 +171,7 @@ class NbComment {
     return false
   }
 
-  hasHashtag(hashtag) {
+  hasHashtag (hashtag) {
     if (this.hashtags.includes(hashtag)) {
       return true
     }
@@ -184,7 +183,7 @@ class NbComment {
     return false
   }
 
-  hasUserTag(userID) {
+  hasUserTag (userID) {
     if (this.people.includes(userID)) {
       return true
     }
@@ -196,7 +195,7 @@ class NbComment {
     return false
   }
 
-  hasInstructorPost() {
+  hasInstructorPost () {
     if (this.instructor) { return true }
     for (let child of this.children) {
       if (child.hasInstructorPost()) {
@@ -206,7 +205,7 @@ class NbComment {
     return false
   }
 
-  hasUserPost(userID) {
+  hasUserPost (userID) {
     if (this.author === userID) { return true }
     for (let child of this.children) {
       if (child.hasUserPost(userID)) {
@@ -216,7 +215,7 @@ class NbComment {
     return false
   }
 
-  hasReplyRequests() {
+  hasReplyRequests () {
     if (this.replyRequestCount > 0) { return true }
     for (let child of this.children) {
       if (child.hasReplyRequests()) {
@@ -226,7 +225,7 @@ class NbComment {
     return false
   }
 
-  hasMyReplyRequests() {
+  hasMyReplyRequests () {
     if (this.replyRequestedByMe) { return true }
     for (let child of this.children) {
       if (child.hasMyReplyRequests()) {
@@ -236,7 +235,7 @@ class NbComment {
     return false
   }
 
-  hasUpvotes() {
+  hasUpvotes () {
     if (this.upvoteCount > 0) { return true }
     for (let child of this.children) {
       if (child.hasUpvotes()) {
@@ -246,7 +245,7 @@ class NbComment {
     return false
   }
 
-  hasMyUpvotes() {
+  hasMyUpvotes () {
     if (this.upvotedByMe) { return true }
     for (let child of this.children) {
       if (child.hasMyUpvotes()) {
@@ -256,7 +255,7 @@ class NbComment {
     return false
   }
 
-  isUnseen() {
+  isUnseen () {
     if (!this.seenByMe) { return true }
     for (let child of this.children) {
       if (child.isUnseen()) {
@@ -266,17 +265,17 @@ class NbComment {
     return false
   }
 
-  markSeenAll() { // mark this comment and all replies 'seen'
+  markSeenAll () { // mark this comment and all replies 'seen'
     if (!this.seenByMe) {
       this.seenByMe = true
-      axios.post(`/api/annotations/seen/${this.id}`);
+      axios.post(`/api/annotations/seen/${this.id}`)
     }
     for (let child of this.children) {
       child.markSeenAll()
     }
   }
 
-  toggleUpvote() {
+  toggleUpvote () {
     if (this.upvotedByMe) {
       this.upvoteCount -= 1
       this.upvotedByMe = false
@@ -284,12 +283,12 @@ class NbComment {
       this.upvoteCount += 1
       this.upvotedByMe = true
     }
-    if(this.id){
-      axios.post(`/api/annotations/star/${this.id}`,{star: this.upvotedByMe})
+    if (this.id) {
+      axios.post(`/api/annotations/star/${this.id}`, { star: this.upvotedByMe })
     }
   }
 
-  toggleReplyRequest() {
+  toggleReplyRequest () {
     if (this.replyRequestedByMe) {
       this.replyRequestCount -= 1
       this.replyRequestedByMe = false
@@ -297,19 +296,19 @@ class NbComment {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
     }
-    if(this.id){
-      axios.post(`/api/annotations/replyRequest/${this.id}`,{replyRequest: this.replyRequestedByMe})
+    if (this.id) {
+      axios.post(`/api/annotations/replyRequest/${this.id}`, { replyRequest: this.replyRequestedByMe })
     }
   }
 
-  toggleBookmark() {
+  toggleBookmark () {
     this.bookmarked = !this.bookmarked
-    if(this.id){
-      axios.post(`/api/annotations/bookmark/${this.id}`,{bookmark: this.bookmarked})
+    if (this.id) {
+      axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked })
     }
   }
 
-  saveUpdates(data) {
+  saveUpdates (data) {
     this.timestamp = data.timestamp
     this.html = data.html
     this.hashtags = data.mentions.hashtags
@@ -321,22 +320,22 @@ class NbComment {
       this.replyRequestCount += data.replyRequested ? 1 : -1
     }
     this.setText()
-    return axios.put(`/api/annotations/annotation/${this.id}`,{
+    return axios.put(`/api/annotations/annotation/${this.id}`, {
       content: this.html,
       tags: this.hashtags,
       userTags: this.people,
       visibility: CommentVisibility[this.visibility],
       anonymity: CommentAnonymity[this.anonymity],
-      replyRequest: this.replyRequestedByMe,
+      replyRequest: this.replyRequestedByMe
     })
   }
 
-  removeChild(child) {
+  removeChild (child) {
     let idx = this.children.indexOf(child)
     if (idx >= 0) {
       this.children.splice(idx, 1)
-      if(child.id){
-        axios.delete(`/api/annotations/annotation/${child.id}`);
+      if (child.id) {
+        axios.delete(`/api/annotations/annotation/${child.id}`)
       }
     }
   }

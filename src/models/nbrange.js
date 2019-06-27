@@ -1,7 +1,7 @@
 import * as DomUtil from '../utils/dom-util.js'
 
 class NbRange {
-  constructor(start, end, commonAncestor) {
+  constructor (start, end, commonAncestor) {
     this.start = start
     this.end = end
     this.commonAncestor = commonAncestor
@@ -11,7 +11,7 @@ class NbRange {
     Returns this range as browser native range object.
     Implementation from NormalizedRange.toRange in h/client.
   */
-  toRange() {
+  toRange () {
     let range = new Range()
     range.setStartBefore(this.start)
     range.setEndBefore(this.end)
@@ -22,7 +22,7 @@ class NbRange {
     Returns nbRange as a JSON object of start and end xpaths + offsets.
     implmentation from NormalizedRange.serialize in h/client.
   */
-  serialize(root = document) {
+  serialize (root = document) {
     let start = DomUtil.serializeTextNode(root, this.start)
     let end = DomUtil.serializeTextNode(root, this.end)
 
@@ -37,13 +37,13 @@ class NbRange {
   }
 }
 
-function createNbRange(range) {
+function createNbRange (range) {
   let nr = normalizeRange(
-            range.startContainer,
-            range.startOffset,
-            range.endContainer,
-            range.endOffset,
-            range.commonAncestorContainer)
+    range.startContainer,
+    range.startOffset,
+    range.endContainer,
+    range.endOffset,
+    range.commonAncestorContainer)
   return new NbRange(nr.start, nr.end, nr.commonAncestor)
 }
 
@@ -52,7 +52,7 @@ function createNbRange(range) {
   Returns normalized start node, end node, and common ancestor.
   Implementation from SerializedRange.normalize.
 */
-function deserializeNbRange(json, root = document) {
+function deserializeNbRange (json, root = document) {
   let r = {}
 
   for (let p of ['start', 'end']) {
@@ -93,7 +93,7 @@ function deserializeNbRange(json, root = document) {
     // 'startOffset'/'endOffset', the element has shorter content than when
     // we annotated, so throw an error:
     if (!r[`${p}Container`]) {
-      console.error(`Couldn't find offset ${json[p+'Offset']} in element ${json[p]}`)
+      console.error(`Couldn't find offset ${json[p + 'Offset']} in element ${json[p]}`)
     }
   }
 
@@ -152,7 +152,7 @@ function deserializeNbRange(json, root = document) {
   Normalizes and returns start node, end node, and common ancestor.
   Implementations from BrowserRange.normalize() in h/client.
 */
-function normalizeRange(start, startOffset, end, endOffset, commonAncestor) {
+function normalizeRange (start, startOffset, end, endOffset, commonAncestor) {
   let r = {}
 
   // Look at the start

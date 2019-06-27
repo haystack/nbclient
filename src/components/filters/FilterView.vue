@@ -54,7 +54,7 @@
           <div class="filter-options">
             <div class="title">Hashtags</div>
             <div class="hashtags">
-              <div v-for="hashtag in hashtags">
+              <div v-for="hashtag in hashtags" :key="hashtag.id">
                 <input
                     v-model="filterHashtags"
                     type="checkbox"
@@ -271,155 +271,155 @@
 </template>
 
 <script>
-  import SearchBar from './SearchBar.vue'
+import SearchBar from './SearchBar.vue'
 
-  export default {
-    name: 'filter-view',
-    props: {
-      me: Object,
-      users: Array,
-      hashtags: Array
+export default {
+  name: 'filter-view',
+  props: {
+    me: Object,
+    users: Array,
+    hashtags: Array
+  },
+  data () {
+    return {
+      filterVisible: false,
+      filterBookmarks: false,
+      filterHashtags: [],
+      filterUserTags: [],
+      filterComments: [],
+      filterReplyReqs: [],
+      filterUpvotes: [],
+      minWords: null,
+      maxWords: null,
+      minHashtags: null,
+      maxHashtags: null,
+      minReplies: null,
+      minReplyReqs: null,
+      minUpvotes: null
+    }
+  },
+  computed: {
+    showAdvanced: function () {
+      return this.me.role === 'instructor'
+    }
+  },
+  methods: {
+    onSearchOptionChange: function (option) {
+      this.$emit('search-option', option)
     },
-    data() {
-      return {
-        filterVisible: false,
-        filterBookmarks: false,
-        filterHashtags: [],
-        filterUserTags: [],
-        filterComments: [],
-        filterReplyReqs: [],
-        filterUpvotes: [],
-        minWords: null,
-        maxWords: null,
-        minHashtags: null,
-        maxHashtags: null,
-        minReplies: null,
-        minReplyReqs: null,
-        minUpvotes: null,
+    onTextChange: function (text) {
+      this.$emit('search-text', text)
+    },
+    toggleFilterMyComments: function () {
+      let idx = this.filterComments.indexOf('me')
+      if (idx >= 0) {
+        this.filterComments.splice(idx, 1)
+      } else {
+        this.filterComments.push('me')
+      }
+      this.onFilterChange('comments')
+    },
+    toggleFilterMyTags: function () {
+      let idx = this.filterUserTags.indexOf('me')
+      if (idx >= 0) {
+        this.filterUserTags.splice(idx, 1)
+      } else {
+        this.filterUserTags.push('me')
+      }
+      this.onFilterChange('user-tags')
+    },
+    toggleFilterBookmarks: function () {
+      this.filterBookmarks = !this.filterBookmarks
+      this.onFilterChange('bookmarks')
+    },
+    toggleFilters: function (event) {
+      this.filterVisible = !this.filterVisible
+    },
+    onFilterHide: function () {
+      this.filterVisible = false
+    },
+    onFilterChange: function (type) {
+      switch (type) {
+        case 'hashtags':
+          this.$emit('filter-hashtags', this.filterHashtags)
+          break
+        case 'user-tags':
+          this.$emit('filter-user-tags', this.filterUserTags)
+          break
+        case 'comments':
+          this.$emit('filter-comments', this.filterComments)
+          break
+        case 'reply-reqs':
+          this.$emit('filter-reply-reqs', this.filterReplyReqs)
+          break
+        case 'upvotes':
+          this.$emit('filter-upvotes', this.filterUpvotes)
+          break
+        case 'bookmarks':
+          this.$emit('filter-bookmarks', this.filterBookmarks)
+          break
+        case 'min-words':
+          if (this.minWords) {
+            this.$emit('min-words', parseInt(this.minWords))
+          } else {
+            this.$emit('min-words', 0)
+          }
+          break
+        case 'max-words':
+          if (this.maxWords) {
+            this.$emit('max-words', parseInt(this.maxWords))
+          } else {
+            this.$emit('max-words', null)
+          }
+          break
+        case 'min-hashtags':
+          if (this.minHashtags) {
+            this.$emit('min-hashtags', parseInt(this.minHashtags))
+          } else {
+            this.$emit('min-hashtags', 0)
+          }
+          break
+        case 'max-hashtags':
+          if (this.maxHashtags) {
+            this.$emit('max-hashtags', parseInt(this.maxHashtags))
+          } else {
+            this.$emit('max-hashtags', null)
+          }
+          break
+        case 'min-replies':
+          if (this.minReplies) {
+            this.$emit('min-replies', parseInt(this.minReplies))
+          } else {
+            this.$emit('min-replies', 0)
+          }
+          break
+        case 'min-reply-reqs':
+          if (this.minReplyReqs) {
+            this.$emit('min-reply-reqs', parseInt(this.minReplyReqs))
+          } else {
+            this.$emit('min-reply-reqs', 0)
+          }
+          break
+        case 'min-upvotes':
+          if (this.minUpvotes) {
+            this.$emit('min-upvotes', parseInt(this.minUpvotes))
+          } else {
+            this.$emit('min-upvotes', 0)
+          }
+          break
+        default:
       }
     },
-    computed: {
-      showAdvanced: function() {
-        return this.me.role === 'instructor'
-      },
-    },
-    methods: {
-      onSearchOptionChange: function(option) {
-        this.$emit('search-option', option)
-      },
-      onTextChange: function(text) {
-        this.$emit('search-text', text)
-      },
-      toggleFilterMyComments: function() {
-        let idx = this.filterComments.indexOf('me')
-        if (idx >= 0) {
-          this.filterComments.splice(idx, 1)
-        } else {
-          this.filterComments.push('me')
-        }
-        this.onFilterChange('comments')
-      },
-      toggleFilterMyTags: function() {
-        let idx = this.filterUserTags.indexOf('me')
-        if (idx >= 0) {
-          this.filterUserTags.splice(idx, 1)
-        } else {
-          this.filterUserTags.push('me')
-        }
-        this.onFilterChange('user-tags')
-      },
-      toggleFilterBookmarks: function() {
-        this.filterBookmarks = !this.filterBookmarks
-        this.onFilterChange('bookmarks')
-      },
-      toggleFilters: function(event) {
-        this.filterVisible = !this.filterVisible
-      },
-      onFilterHide: function() {
-        this.filterVisible = false
-      },
-      onFilterChange: function(type) {
-        switch (type) {
-          case 'hashtags':
-            this.$emit('filter-hashtags', this.filterHashtags)
-            break
-          case 'user-tags':
-            this.$emit('filter-user-tags', this.filterUserTags)
-            break
-          case 'comments':
-            this.$emit('filter-comments', this.filterComments)
-            break
-          case 'reply-reqs':
-            this.$emit('filter-reply-reqs', this.filterReplyReqs)
-            break
-          case 'upvotes':
-            this.$emit('filter-upvotes', this.filterUpvotes)
-            break
-          case 'bookmarks':
-            this.$emit('filter-bookmarks', this.filterBookmarks)
-          case 'min-words':
-            if (this.minWords) {
-              this.$emit('min-words', parseInt(this.minWords))
-            } else {
-              this.$emit('min-words', 0)
-            }
-            break
-          case 'max-words':
-            if (this.maxWords) {
-              this.$emit('max-words', parseInt(this.maxWords))
-            } else {
-              this.$emit('max-words', null)
-            }
-            break
-          case 'min-hashtags':
-            if (this.minHashtags) {
-              this.$emit('min-hashtags', parseInt(this.minHashtags))
-            } else {
-              this.$emit('min-hashtags', 0)
-            }
-            break
-          case 'max-hashtags':
-            if (this.maxHashtags) {
-              this.$emit('max-hashtags', parseInt(this.maxHashtags))
-            } else {
-              this.$emit('max-hashtags', null)
-            }
-            break
-          case 'min-replies':
-            if (this.minReplies) {
-              this.$emit('min-replies', parseInt(this.minReplies))
-            } else {
-              this.$emit('min-replies', 0)
-            }
-            break
-          case 'min-reply-reqs':
-            if (this.minReplyReqs) {
-              this.$emit('min-reply-reqs', parseInt(this.minReplyReqs))
-            } else {
-              this.$emit('min-reply-reqs', 0)
-            }
-            break
-          case 'min-upvotes':
-            if (this.minUpvotes) {
-              this.$emit('min-upvotes', parseInt(this.minUpvotes))
-            } else {
-              this.$emit('min-upvotes', 0)
-            }
-            break
-          default:
-            return
-        }
-      },
-      validateNumber(event) {
-        let keyCode = event.which ? event.which : event.keyCode
-        if (keyCode > 31 && (keyCode < 48 || keyCode > 57)) {
-          event.preventDefault()
-        }
-        return true
-      },
-    },
-    components: {
-      SearchBar
+    validateNumber (event) {
+      let keyCode = event.which ? event.which : event.keyCode
+      if (keyCode > 31 && (keyCode < 48 || keyCode > 57)) {
+        event.preventDefault()
+      }
+      return true
     }
+  },
+  components: {
+    SearchBar
   }
+}
 </script>

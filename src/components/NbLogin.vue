@@ -19,35 +19,35 @@
 </template>
 
 <script>
-  import axios from "axios"
+import axios from 'axios'
 
-  export default {
-    name: "nb-login",
-    data() {
-      return {
-        username: "",
-        password: "",
-        message: null
-      }
-    },
-    computed: {
-      submitDisabled: function() {
-        return this.username.length === 0 || this.password.length === 0
-      }
-    },
-    methods: {
-      login: function() {
-        let bodyContent = { username: this.username, password: this.password }
-        axios.post("/api/users/login", bodyContent)
-          .then(res => {
-            this.$emit("login", res.data)
-          })
-          .catch(error => {
-            if (error.response.status === 401) {
-              this.message = "Invalid username and password. Try again!"
-            }
+export default {
+  name: 'nb-login',
+  data () {
+    return {
+      username: '',
+      password: '',
+      message: null
+    }
+  },
+  computed: {
+    submitDisabled: function () {
+      return this.username.length === 0 || this.password.length === 0
+    }
+  },
+  methods: {
+    login: function () {
+      let bodyContent = { username: this.username, password: this.password }
+      axios.post('/api/users/login', bodyContent)
+        .then(res => {
+          this.$emit('login', res.data)
         })
-      }
+        .catch(error => {
+          if (error.response.status === 401) {
+            this.message = 'Invalid username and password. Try again!'
+          }
+        })
     }
   }
+}
 </script>

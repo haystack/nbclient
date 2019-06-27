@@ -27,21 +27,23 @@
 </template>
 
 <script>
-  export default {
-    name: 'nav-bar',
-    props: ['me'],
-    data() {
-      return {
-        showOverflow: false
-      }
+export default {
+  name: 'nav-bar',
+  props: {
+    me: Object
+  },
+  data () {
+    return {
+      showOverflow: false
+    }
+  },
+  methods: {
+    toggleOverflow: function () {
+      this.showOverflow = !this.showOverflow
     },
-    methods: {
-      toggleOverflow: function() {
-        this.showOverflow = !this.showOverflow
-      },
-      onHideOverflow: function() {
-        this.showOverflow = false
-      }
+    onHideOverflow: function () {
+      this.showOverflow = false
     }
   }
+}
 </script>

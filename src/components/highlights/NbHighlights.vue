@@ -2,6 +2,7 @@
   <svg class="nb-highlights" @unselect-thread="$emit('unselect-thread', null)">
     <nb-highlight
         v-for="thread in threads"
+        :key="thread"
         :thread="thread"
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
@@ -18,33 +19,32 @@
 </template>
 
 <script>
-  import NbHighlight from './NbHighlight.vue'
-  import { eventsProxyMouse } from '../../utils/highlight-util.js'
-  import { compare } from '../../utils/compare-util.js'
+import NbHighlight from './NbHighlight.vue'
+import { eventsProxyMouse } from '../../utils/highlight-util.js'
 
-  export default {
-    name: 'nb-highlights',
-    props: {
-      threads: {
-        type: Array,
-        default: []
-      },
-      threadSelected: Object,
-      threadsHovered: {
-        type: Array,
-        default: []
-      },
-      draftRange: Object,
-      showHighlights: {
-        type: Boolean,
-        default: false
-      }
+export default {
+  name: 'nb-highlights',
+  props: {
+    threads: {
+      type: Array,
+      default: () => []
     },
-    mounted: function() {
-      eventsProxyMouse(document.body, this.$el, this.$root.$el)
+    threadSelected: Object,
+    threadsHovered: {
+      type: Array,
+      default: () => []
     },
-    components: {
-      NbHighlight
+    draftRange: Object,
+    showHighlights: {
+      type: Boolean,
+      default: false
     }
+  },
+  mounted: function () {
+    eventsProxyMouse(document.body, this.$el, this.$root.$el)
+  },
+  components: {
+    NbHighlight
   }
+}
 </script>

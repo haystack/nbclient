@@ -105,85 +105,96 @@
 </template>
 
 <script>
-  import moment from 'moment'
-  import { CommentAnonymity } from "../../models/enums.js"
+import moment from 'moment'
+import { CommentAnonymity } from '../../models/enums.js'
 
-  export default {
-    name: 'thread-comment',
-    props: ['comment', 'me', 'replyToComment'],
-    data() {
-      return {
-        showOverflow: false
-      }
+export default {
+  name: 'thread-comment',
+  props: {
+    comment: Object,
+    me: Object,
+    replyToComment: Object
+  },
+  data () {
+    return {
+      showOverflow: false
+    }
+  },
+  methods: {
+    copyLink: function (comment) {
+      this.showOverflow = false
+      let url = new URL(window.location.href)
+      url.hash = `#nb-comment-${comment.id}`
+      let el = document.createElement('textarea')
+      el.value = url.href
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
     },
-    methods: {
-      copyLink: function(comment) {
-        this.showOverflow = false
-        let url = new URL(window.location.href)
-        url.hash = `#nb-comment-${comment.id}`
-        let el = document.createElement('textarea')
-        el.value = url.href
-        document.body.appendChild(el)
-        el.select()
-        document.execCommand('copy')
-        document.body.removeChild(el)
-      },
-      editComment: function(comment) {
-        this.showOverflow = false
-        this.$emit('edit-comment', comment)
-      },
-      deleteComment: function(comment) {
-        this.showOverflow = false
-        this.$emit('delete-comment', comment)
-      },
-      onHideOverflow: function() {
-        this.showOverflow = false
-      },
-      draftReply: function(comment) {
-        this.$emit('draft-reply', comment)
-      },
-      toggleBookmark: function(comment) {
-        comment.toggleBookmark()
-      },
-      toggleUpvote: function(comment) {
-        comment.toggleUpvote()
-      },
-      toggleReplyRequest: function(comment) {
-        comment.toggleReplyRequest()
-      }
+    editComment: function (comment) {
+      this.showOverflow = false
+      this.$emit('edit-comment', comment)
     },
-    computed: {
-      authorName: function() {
-        if (
-          (this.comment.anonymity === CommentAnonymity.ANONYMOUS
-            && this.me.role !== 'instructor')
-          || this.comment.author === null
-        ) {
-          return 'Anonymous'
-        }
-        return this.comment.authorName
-      },
-      timeString: function() {
-        return moment(this.comment.timestamp).fromNow()
-      },
-      firstComment: function() {
-        return !this.comment.parent
-      },
-      commentEditable: function() {
-        return (this.comment.author === this.me.id)
-          && (this.comment.children.length === 0)
-      },
-      styleUpvote: function() {
-        if (this.comment.upvotedByMe) return { color: '#70a0f0' }
-      },
-      styleQuestion: function() {
-        if (this.comment.replyRequestedByMe) return { color: '#70a0f0' }
-      },
-      styleRow: function() {
-        if (this.comment === this.replyToComment) {
-          return { background: '#ffffd0' }
-        }
-      },
+    deleteComment: function (comment) {
+      this.showOverflow = false
+      this.$emit('delete-comment', comment)
+    },
+    onHideOverflow: function () {
+      this.showOverflow = false
+    },
+    draftReply: function (comment) {
+      this.$emit('draft-reply', comment)
+    },
+    toggleBookmark: function (comment) {
+      comment.toggleBookmark()
+    },
+    toggleUpvote: function (comment) {
+      comment.toggleUpvote()
+    },
+    toggleReplyRequest: function (comment) {
+      comment.toggleReplyRequest()
+    }
+  },
+  computed: {
+    authorName: function () {
+      if (
+        (this.comment.anonymity === CommentAnonymity.ANONYMOUS &&
+          this.me.role !== 'instructor') ||
+        this.comment.author === null
+      ) {
+        return 'Anonymous'
+      }
+      return this.comment.authorName
+    },
+    timeString: function () {
+      return moment(this.comment.timestamp).fromNow()
+    },
+    firstComment: function () {
+      return !this.comment.parent
+    },
+    commentEditable: function () {
+      return (this.comment.author === this.me.id) &&
+        (this.comment.children.length === 0)
+    },
+    styleUpvote: function () {
+      if (this.comment.upvotedByMe) {
+        return { color: '#70a0f0' }
+      }
+      return null
+    },
+    styleQuestion: function () {
+      if (this.comment.replyRequestedByMe) {
+        return { color: '#70a0f0' }
+      }
+      return null
+    },
+    styleRow: function () {
+      if (this.comment === this.replyToComment) {
+        return { background: '#ffffd0' }
+      }
+      return null
     }
   }
+}
 </script>

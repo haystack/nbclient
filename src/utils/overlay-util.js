@@ -7,7 +7,7 @@
  * @param {Range} range
  * @param {Node} node
  */
-function isNodeInRange(range, node) {
+function isNodeInRange (range, node) {
   if (node === range.startContainer || node === range.endContainer) {
     return true
   }
@@ -15,9 +15,9 @@ function isNodeInRange(range, node) {
   const nodeRange = node.ownerDocument.createRange()
   nodeRange.selectNode(node)
   const isAtOrBeforeStart =
-    range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0;
+    range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0
   const isAtOrAfterEnd =
-    range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0;
+    range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
   nodeRange.detach()
   return isAtOrBeforeStart && isAtOrAfterEnd
 }
@@ -29,7 +29,7 @@ function isNodeInRange(range, node) {
  * @param {Range} range
  * @param {Function} callback
  */
-function forEachNodeInRange(range, callback) {
+function forEachNodeInRange (range, callback) {
   const root = range.commonAncestorContainer
 
   // The `whatToShow`, `filter` and `expandEntityReferences` arguments are
@@ -51,10 +51,10 @@ function forEachNodeInRange(range, callback) {
  * @param {Range} range
  * @return {Array<Rect>} Array of bounding rects in viewport coordinates.
  */
-function getTextBoundingBoxes(range) {
+function getTextBoundingBoxes (range) {
   const whitespaceOnly = /^\s*$/
   const textNodes = []
-  forEachNodeInRange(range, function (node) {
+  forEachNodeInRange(range, node => {
     if (node.nodeType === Node.TEXT_NODE &&
         !node.textContent.match(whitespaceOnly)) {
       textNodes.push(node)
@@ -62,7 +62,7 @@ function getTextBoundingBoxes(range) {
   })
 
   let rects = []
-  textNodes.forEach(function (node) {
+  textNodes.forEach(node => {
     const nodeRange = node.ownerDocument.createRange()
     nodeRange.selectNodeContents(node)
     if (node === range.startContainer) {

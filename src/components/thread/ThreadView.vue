@@ -19,44 +19,48 @@
 </template>
 
 <script>
-  import ThreadComment from './ThreadComment.vue'
+import ThreadComment from './ThreadComment.vue'
 
-  export default {
-    name: 'thread-view',
-    props: ['thread', 'me', 'replyToComment'],
-    computed: {
-      numComments: function() {
-        let count = this.thread.countAllReplies() + 1
-        if (count === 1) {
-          return "1 comment"
-        } else {
-          return `${count} comments`
-        }
-      },
-      numReplyReqs: function() {
-        let count = this.thread.countAllReplyReqs()
-        if (count === 0) {
-          return "no reply requests"
-        } else if (count === 1) {
-          return "1 reply request"
-        } else {
-          return `${count} reply requests`
-        }
+export default {
+  name: 'thread-view',
+  props: {
+    thread: Object,
+    me: Object,
+    replyToComment: Object
+  },
+  computed: {
+    numComments: function () {
+      let count = this.thread.countAllReplies() + 1
+      if (count === 1) {
+        return '1 comment'
+      } else {
+        return `${count} comments`
       }
     },
-    methods: {
-      editComment: function(comment) {
-        this.$emit('edit-comment', comment)
-      },
-      deleteComment: function(comment) {
-        this.$emit('delete-comment', comment)
-      },
-      draftReply: function(comment) {
-        this.$emit('draft-reply', comment)
+    numReplyReqs: function () {
+      let count = this.thread.countAllReplyReqs()
+      if (count === 0) {
+        return 'no reply requests'
+      } else if (count === 1) {
+        return '1 reply request'
+      } else {
+        return `${count} reply requests`
       }
-    },
-    components: {
-      ThreadComment
     }
+  },
+  methods: {
+    editComment: function (comment) {
+      this.$emit('edit-comment', comment)
+    },
+    deleteComment: function (comment) {
+      this.$emit('delete-comment', comment)
+    },
+    draftReply: function (comment) {
+      this.$emit('draft-reply', comment)
+    }
+  },
+  components: {
+    ThreadComment
   }
+}
 </script>

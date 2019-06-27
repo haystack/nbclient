@@ -28,53 +28,62 @@
 </template>
 
 <script>
-  import { compare, compareDomPosition } from '../../utils/compare-util.js'
-
-  export default {
-    name: 'list-view',
-    props: ['thread', 'threadSelected', 'threadsHovered'],
-    computed: {
-      rowStyle: function() {
-        if (this.threadSelected && this.thread === this.threadSelected) {
-          return 'background-color: #70a0f0; color: #fff'
-        }
-        if (this.threadsHovered.includes(this.thread)) {
-          return 'background-color: #ccddf9'
-        }
-      },
-      counterStyle: function() {
-        if (this.thread.isUnseen()) {
-          return 'background-color: #ffff70; color: #7070ff;'
-        }
-      },
-      iconStyle: function() {
-        if (this.threadSelected && this.thread === this.threadSelected) {
-          return 'color: #eee;'
-        }
-      },
-      textStyle: function() {
-        if (this.thread.isUnseen()) {
-          return 'font-weight: bold;'
-        }
+export default {
+  name: 'list-view',
+  props: {
+    thread: Object,
+    threadSelected: Object,
+    threadsHovered: {
+      type: Array,
+      default: () => []
+    }
+  },
+  computed: {
+    rowStyle: function () {
+      if (this.threadSelected && this.thread === this.threadSelected) {
+        return 'background-color: #70a0f0; color: #fff'
       }
+      if (this.threadsHovered.includes(this.thread)) {
+        return 'background-color: #ccddf9'
+      }
+      return null
     },
-    watch: {
-      threadSelected: function(val) {
-        if (this.thread !== val) { return }
-        let el = this.$el
-        let elTop = el.offsetTop
-        let elHeight = el.clientHeight
-        let view = el.parentNode
-        let viewTop = view.scrollTop
-        let viewHeight = view.clientHeight
-        if (elTop < viewTop || (elTop + elHeight) > (viewTop + viewHeight)) {
-          view.scrollTo({
-            top: elTop + (elHeight / 2) - (viewHeight / 2), // bring to center
-            left: 0,
-            behavior: 'smooth'
-          })
-        }
+    counterStyle: function () {
+      if (this.thread.isUnseen()) {
+        return 'background-color: #ffff70; color: #7070ff;'
+      }
+      return null
+    },
+    iconStyle: function () {
+      if (this.threadSelected && this.thread === this.threadSelected) {
+        return 'color: #eee;'
+      }
+      return null
+    },
+    textStyle: function () {
+      if (this.thread.isUnseen()) {
+        return 'font-weight: bold;'
+      }
+      return null
+    }
+  },
+  watch: {
+    threadSelected: function (val) {
+      if (this.thread !== val) { return }
+      let el = this.$el
+      let elTop = el.offsetTop
+      let elHeight = el.clientHeight
+      let view = el.parentNode
+      let viewTop = view.scrollTop
+      let viewHeight = view.clientHeight
+      if (elTop < viewTop || (elTop + elHeight) > (viewTop + viewHeight)) {
+        view.scrollTo({
+          top: elTop + (elHeight / 2) - (viewHeight / 2), // bring to center
+          left: 0,
+          behavior: 'smooth'
+        })
       }
     }
   }
+}
 </script>
