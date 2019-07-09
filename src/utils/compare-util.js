@@ -1,3 +1,12 @@
+/**
+ * Helper function for sorting array items.
+ *
+ * @param {String} key - key for attribute to be sorted
+ * @param {String} type - type of attribute to be sorted ('key' or 'func')
+ * @param {Boolean} ascending - sort order (ascending if true, descending otherwise)
+ * @return {Function} Sorting function to be passed in to
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort Array.prototype.sort()}
+ */
 function compare (key, type = 'key', ascending = true) {
   return function (a, b) {
     let valueA = (type === 'func') ? a[key]() : a[key]
@@ -12,6 +21,16 @@ function compare (key, type = 'key', ascending = true) {
   }
 }
 
+/**
+ * Compare positions of ranges in document. This function can be passed in to
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort Array.prototype.sort()}
+ *
+ * @param {HTMLElement} a
+ * @param {HTMLElement} b
+ * @return {Number} -1 if a starts before b, 1 if b starts before a;
+ * When a and b have the same start, -1 if a ends before b, 1 if b ends before a;
+ * 0 if the ranges are the same
+ */
 function compareDomPosition (a, b) {
   if (a.range.start.isSameNode(b.range.start)) {
     // a and b have the same start

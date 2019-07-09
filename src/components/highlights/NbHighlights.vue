@@ -22,6 +22,9 @@
 import NbHighlight from './NbHighlight.vue'
 import { eventsProxyMouse } from '../../utils/highlight-util.js'
 
+/**
+ * @vue-prop {Array} threads - TODO
+ */
 export default {
   name: 'nb-highlights',
   props: {
@@ -41,7 +44,7 @@ export default {
     }
   },
   mounted: function () {
-    eventsProxyMouse(document.body, this.$el, this.$root.$el)
+    eventsProxyMouse(document.body, this.$el)
   },
   components: {
     NbHighlight

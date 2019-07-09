@@ -38,6 +38,11 @@ if (
   document.addEventListener('DOMContentLoaded', embedNbApp)
 }
 
+/**
+ * Load a CSS stylesheet tag.
+ * @param {string} url - Link to the stylesheet
+ * @param {HTMLElement} [container = first <head> element] - DOM element to insert the link to
+ */
 function loadCSS (url, container = document.getElementsByTagName('HEAD')[0]) {
   let tag = document.createElement('link')
   tag.rel = 'stylesheet'
@@ -46,12 +51,17 @@ function loadCSS (url, container = document.getElementsByTagName('HEAD')[0]) {
   container.appendChild(tag)
 }
 
+/**
+ * Load a JS embed tag.
+ * @param {string} url - Link to the script
+ */
 function loadScript (url) {
   let tag = document.createElement('script')
   tag.src = url
   document.getElementsByTagName('HEAD')[0].appendChild(tag)
 }
 
+/** Embed NB sidebar. */
 function embedNbApp () {
   loadCSS('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css')
   loadCSS('https://cdn.quilljs.com/1.3.6/quill.snow.css')

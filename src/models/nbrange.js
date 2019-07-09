@@ -1,16 +1,85 @@
 import * as DomUtil from '../utils/dom-util.js'
 
+/**
+ * The browser native representation for range (selection) of text.
+ * @external Range
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Range}
+ */
+
+/**
+ * Serialization of a text range (selection) given a root element,
+ * represented by the start (first) and end (last) characters.
+ *
+ * The start xpath points to the node containing the start character,
+ * where the start offset specifies the character count to the start character
+ * within the start node. Similarly, the end xpath and offset are the end node
+ * and character count to the end character within it.
+ *
+ * The range is inclusive, meaning the start and end character themselves are
+ * both part of the range.
+ *
+ * @typedef {Object} SerializedRange
+ * @property {String} start - xpath to the start node
+ * @property {String} end - xpath to the end node
+ * @property {Number} startOffset - offset within the start node
+ * @property {Number} endOffset - offset within the end node
+ */
+
+/**
+ * Normalization of a text range (selection), represented by the first and last characters.
+ *
+ * The start node points to the text node starting with the first character.
+ * The end node points to the text node ending with the last character.
+ * The range is inclusive, meaning the first and last character themselves are
+ * both part of the range.
+ *
+ * See {@link normalizeRange} for the implmentation details.
+ *
+ * @typedef {Object} NormalizedRange
+ * @property {HTMLElement} start - start node
+ * @property {HTMLElement} end - end node
+ * @property {HTMLElement} commonAncestor - common ancestor of the start and end nodes
+ */
+
+/** Class representing a range (selection) of text in NB. */
 class NbRange {
+  /**
+   * Create a range of text in NB.
+   * See {@link NormalizedRange} for how the start node, end node, and common ancestor define a range.
+   *
+   * @param {HTMLElement} start - start node, sets {@link NbRange#start}
+   * @param {HTMLElement} end - end node, sets {@link NbRange#end}
+   * @param {HTMLElement} commonAncestor - common ancestor of the start and end nodes, sets {@link NbRange#commonAncestor}
+   */
   constructor (start, end, commonAncestor) {
+    /**
+     * Start (first) node of this range.
+     * @name NbRange#start
+     * @type HTMLElement
+     */
     this.start = start
+
+    /**
+     * End (last) node of this range.
+     * @name NbRange#end
+     * @type HTMLElement
+     */
     this.end = end
+
+    /**
+     * Common ancestor of the start and end nodes of this range.
+     * @name NbRange#commonAncestor
+     * @type HTMLElement
+     */
     this.commonAncestor = commonAncestor
   }
 
-  /*
-    Returns this range as browser native range object.
-    Implementation from NormalizedRange.toRange in h/client.
-  */
+  /**
+   * Create a new browser native range from this range. Implementation from
+   * {@link https://github.com/hypothesis/client/blob/734e3a25318364819a8c38ef881e4788a2b06365/src/annotator/anchoring/range.coffee#L369 NormalizedRange.toRange in hypothesis/client}.
+   *
+   * @return {Range} New browser native range converted from this range.
+   */
   toRange () {
     let range = new Range()
     range.setStartBefore(this.start)
@@ -18,10 +87,12 @@ class NbRange {
     return range
   }
 
-  /*
-    Returns nbRange as a JSON object of start and end xpaths + offsets.
-    implmentation from NormalizedRange.serialize in h/client.
-  */
+  /**
+   * Create a serialization of this range. Implementation from
+   * {@link https://github.com/hypothesis/client/blob/734e3a25318364819a8c38ef881e4788a2b06365/src/annotator/anchoring/range.coffee#L307 NormalizedRange.serialize in hypothesis/client}.
+   *
+   * @return {SerializedRange} New SerializedRange created from this range.
+   */
   serialize (root = document) {
     let start = DomUtil.serializeTextNode(root, this.start)
     let end = DomUtil.serializeTextNode(root, this.end)
@@ -37,6 +108,12 @@ class NbRange {
   }
 }
 
+/**
+ * Create a new {@link NbRange} object by normalizing the browser native range.
+ *
+ * @param {Range} range - browser native range
+ * @return {NbRange} New NbRange created from the browser range
+ */
 function createNbRange (range) {
   let nr = normalizeRange(
     range.startContainer,
@@ -47,11 +124,14 @@ function createNbRange (range) {
   return new NbRange(nr.start, nr.end, nr.commonAncestor)
 }
 
-/*
-  Takes in a JSON object of start and end xpaths + offsets.
-  Returns normalized start node, end node, and common ancestor.
-  Implementation from SerializedRange.normalize.
-*/
+/**
+ * Create a new {@link NBRange} by deserializing a {@link SerializedRange},
+ * then normalizing the deserialized range.
+ *
+ * @param {SerializedRange} json - serialized range
+ * @param {HTMLElement} root - root element for the serialized range
+ * @return {NbRange} New NbRange created from the serialized range
+ */
 function deserializeNbRange (json, root = document) {
   let r = {}
 
@@ -147,11 +227,23 @@ function deserializeNbRange (json, root = document) {
   return new NbRange(nr.start, nr.end, nr.commonAncestor)
 }
 
-/*
-  Takes in start node and offset, end node and offset, and common ancestor.
-  Normalizes and returns start node, end node, and common ancestor.
-  Implementations from BrowserRange.normalize() in h/client.
-*/
+/**
+ * Normalize a range of text defined. Implementation from
+ * {@link https://github.com/hypothesis/client/blob/734e3a25318364819a8c38ef881e4788a2b06365/src/annotator/anchoring/range.coffee#L154 BrowserRange.normalize in hypothesis/client}.
+ *
+ * The range is passed in by the start node,
+ * start offset, end node, end offset (as defined in {@link SerializedRange})
+ * as well as the common ancestor of the start and end nodes.
+ *
+ * Helper function for {@link createNbRange} and {@link deserializeNbRange}.
+ *
+ * @params {HTMLElement} start - the start node
+ * @params {Number} startOffset - offset within the start node
+ * @params {HTMLElement} end - the end node
+ * @params {Number} endOffset - offset within the end node
+ * @params {HTMLElement} commonAncestor - common ancestor of the start and end nodes
+ * @return {NormalizedRange} New NormalizedRange created by normalizing the range
+ */
 function normalizeRange (start, startOffset, end, endOffset, commonAncestor) {
   let r = {}
 

@@ -1,15 +1,28 @@
-/*
-  Determine if node is part of container.
-  Inclusive i.e. the node can be the container itself.
-*/
+/**
+ * The built-in interface for HTML (DOM) elements.
+ * @external HTMLElement
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement}
+ */
+
+/**
+ * Determine if the node is part of the container.
+ * Inclusive i.e. the node can be the container itself.
+ *
+ * @param {HTMLElement} node
+ * @param {HTMLElement} container
+ * @return {Boolean} True if the node is part of the container
+ */
 function isNodePartOf (node, container) {
   return (node === container) ? true : container.contains(node)
 }
 
-/*
-  Determine the first text node in or after the given node.
-  Helper function for normalizeRange().
-*/
+/**
+ * Determine the first text node in or after the given node.
+ * Helper function for {@link normalizeRange}.
+ *
+ * @param {HTMLElement} n - given node
+ * @return {?HTMLElement} First text node in or after the given node, if exists
+ */
 function getFirstTextNodeNotBefore (n) {
   switch (n.nodeType) {
     case Node.TEXT_NODE:
@@ -32,10 +45,13 @@ function getFirstTextNodeNotBefore (n) {
   return n ? getFirstTextNodeNotBefore(n) : null
 }
 
-/*
-  Determine the last text node inside or before the given node.
-  Helper function for normalizeRange().
-*/
+/**
+ * Determine the last text node inside or before the given node.
+ * Helper function for {@link normalizeRange}.
+ *
+ * @param {HTMLElement} n - given node
+ * @return {?HTMLElement} Last text node inside or before the given node, if exists
+ */
 function getLastTextNodeUpTo (n) {
   switch (n.nodeType) {
     case Node.TEXT_NODE:
@@ -58,10 +74,13 @@ function getLastTextNodeUpTo (n) {
   return n ? getLastTextNodeUpTo(n) : null
 }
 
-/*
-  Flatten a nested array structure and returns an array.
-  Helper function for getTextNodes().
-*/
+/**
+ * Flatten a nested array structure and returns an array.
+ * Helper function for {@link getTextNodes}.
+ *
+ * @param {Array} array - nested array
+ * @return {Array} Flattened array
+ */
 function flatten (array) {
   let flat = []
   for (let el of array) {
@@ -70,11 +89,13 @@ function flatten (array) {
   return flat
 }
 
-/*
-  Finds all text nodes within the elements in the current collection.
-  Returns a new jQuery collection of text nodes.
-  Helper function for serializeTextNode() and deserializeNbRange().
-*/
+/**
+ * Get all text nodes (recursive) within the given node.
+ * Helper function for {@link serializeTextNode} and {@link deserializeNbRange}.
+ *
+ * @param {HTMLElement} node - given node
+ * @return {Array<HTMLElement>} List of all text nodes
+ */
 function getTextNodes (node) {
   let findTextNodes = (node) => {
     if (node && node.nodeType !== Node.TEXT_NODE) {
@@ -103,7 +124,13 @@ function getTextNodes (node) {
   return flatten(textNodes)
 }
 
-// Implementation from the other nb demo I made.
+/**
+ * Get the xpath from the root element to the given element.
+ *
+ * @param {HTMLElement} element - given element
+ * @param {HTMLElement} root - root element
+ * @return {String} Xpath from the root element to the given element
+ */
 function getXpathFromNode (element, root) {
   if (!element || element === root) {
     return ''
@@ -127,7 +154,13 @@ function getXpathFromNode (element, root) {
   return `${getXpathFromNode(element.parentNode, root)}/${nodeName}[${index}]`
 }
 
-// Implementation from the other nb demo I made.
+/**
+ * Get the node described by the xpath and root element.
+ *
+ * @param {String} xpath - xpath to the node
+ * @param {HTMLElement} root - root element
+ * @return {HTMLElement} Node described by the xpath and root
+ */
 function getNodeFromXpath (xpath, root) {
   let nodes = []
   let result
@@ -157,7 +190,24 @@ function getNodeFromXpath (xpath, root) {
   return nodes[0]
 }
 
-/* Helper function for NbRange.serialize() */
+/**
+ * Serialization of a text node given a root element.
+ * The xpath points to an element containing the text node,
+ * where the offset specifies the start offset of the text node.
+ *
+ * @typedef {Array} SerializedTextNode
+ * @property {String} 0 - xpath
+ * @property {Number} 1 - offset
+ */
+
+/**
+ * Serialize the text node given the root element.
+ * Helper function for {@link NbRange#serialize}.
+ *
+ * @param {HTMLElement} root - root element
+ * @param {HTMLElement} node - text node
+ * @return {SerializedTextNode} Serialization of the text node given the root element
+ */
 function serializeTextNode (root, node) {
   let xpath = getXpathFromNode(node.parentNode, root)
   let textNodes = getTextNodes(node.parentNode)

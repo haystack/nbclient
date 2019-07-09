@@ -22,6 +22,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^5.2.3",
+    "jsdoc": "^3.6.2",
+    "jsdoc-vuejs": "^3.0.0",
     "style-loader": "^0.23.1",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^4.1.2",

@@ -1,5 +1,5 @@
 <template>
-  <div class="login-form">
+  <form class="login-form" @submit.prevent="login">
     <div class='title'>Log in to NB</div>
     <div class='group'>
       <label for='login-username'>Username:</label>
@@ -11,11 +11,11 @@
     </div>
     <div v-if="message" class='message'>{{ message }}</div>
     <div class='buttons'>
-      <button class='submit' @click="login" :disabled="submitDisabled">
+      <button class='submit' type="submit" :disabled="submitDisabled">
         Submit
       </button>
     </div>
-  </div>
+  </form>
 </template>
 
 <script>

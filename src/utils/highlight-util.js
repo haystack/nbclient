@@ -1,6 +1,18 @@
 import { isNodePartOf } from './dom-util.js'
 
-/* Helper function for eventsProxyMouse */
+/**
+ * The built-in interface for mouse events.
+ * @external MouseEvent
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent}
+ */
+
+/**
+ * Clone a mouse event. Helper function for {@link eventsProxyMouse}.
+ *
+ * @param {MouseEvent} e - original mouse event
+ * @param {String} type - mouse event type
+ * @return {MouseEvent} New mouse event cloned from the original event
+ */
 function clone (e, type) {
   let opts = Object.assign({}, e, { bubbles: false })
   try {
@@ -16,7 +28,15 @@ function clone (e, type) {
   }
 }
 
-/* Helper function for eventsProxyMouse */
+/**
+ * Check if the item's bouding rectangles contains the screen coordinate.
+ * Helper function for {@link eventsProxyMouse}.
+ *
+ * @param {HTMLElement} item
+ * @param {Number} x - screen x coordinate
+ * @param {Number} y - screen y coordinate
+ * @return {Boolean} True if the item's bouding rectangles contain the screen coordinate.
+ */
 function contains (item, x, y) {
   function rectContains (r, x, y) {
     let bottom = r.top + r.height
@@ -48,7 +68,21 @@ function contains (item, x, y) {
   return false
 }
 
-/* Helper function for Highlights.constructor */
+/**
+ * Set up proxy for click and/or hover mouse events on highlight overlays.
+ * When click is detected on the source (body of text), event will be passed
+ * on to the target (highlight overlays) if the click was not a selection
+ * and the mouse coordinate is inside some higlight overlays.
+ * Similarly, hover detected on the source will be passed on to the target
+ * if inside some highlight overlays.
+ *
+ * Helper function for {@link module:NbHighlights}.
+ * This is neccessary because mouse events on highlight overlays are ignored
+ * by default to allow click-and-drag selections over the body of text.
+ *
+ * @param {HTMLElement} src - the souce (body of text)
+ * @param {HTMLElement} target - the target (highlight overlays)
+ */
 function eventsProxyMouse (src, target) {
   src.addEventListener('click', e => {
     // ignore mouse click or selection on the side bar
