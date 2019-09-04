@@ -6,7 +6,8 @@
 
 /*
   Temporary workaround with plugin inheritting parent's style ...
-  TODO: Use Shadow DOM instead once it's supported by Quill.
+  Would be nice to use Shadow DOM instead once it's supported by Quill.
+  See the transition notes for details.
 */
 #nb-app select {
   all: unset;

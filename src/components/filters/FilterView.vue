@@ -273,6 +273,89 @@
 <script>
 import SearchBar from './SearchBar.vue'
 
+/**
+ * Component for the search/filter options on the side bar.
+ * Also see {@link NbUser} and {@link NbHashtag}.
+ *
+ * @vue-prop {NbUser} me - current user
+ * @vue-prop {Array<NbUser>} users - all users enrolled in this course
+ * @vue-prop {Array<NbHashtag>} hashtags - suggested hashtags in this course
+ *
+ * @vue-data {Boolean} filterVisible=false - if true, show the popup menu for
+ *   all filter options
+ * @vue-data {Boolean} filterBookmarks=false - if true, filter for comments
+ *   bookmarked by the current user
+ * @vue-data {Array<String>} filterHashtags=([]) - list of hashtag IDs.
+ *   If empty, do not filter by hashtags. Otherwise, filter for comment with
+ *   at least one of the specified hashtags
+ * @vue-data {Array<String>} filterUserTags=([]) - list of user tag options to
+ *   filter for: 'me' for comments tagging the current user. Only one option
+ *   for now, but more options e.g. user IDs can be added. If empty, do not
+ *   filter by user tags
+ * @vue-data {Array<String>} filterComments=([]) - list of author options to
+ *   filter for: 'instructor' for comments by instructors in this course,
+ *   'me' for comments by the current user. If empty, do not filter by authors
+ * @vue-data {Array<String>} filterReplyReqs=([]) - list of reply req. options to
+ *   filter for: 'instructor' for comments reply req'd by instructors,
+ *   'me' for comments reply req'd by the current user. If empty, do not filter
+ *   by reply req
+ * @vue-data {Array<String>} filterUpvotes=([]) - list of upvote options to
+ *   filter for: 'instructor' for comments upvoted by instructors,
+ *   'me' for comments upvoted by the current user. If empty, do not filter by
+ *   upvotes
+ * @vue-data {?Number} minWords=null - show threads if their head comments have
+ *   at least 'minWords' many words. If null, do not filter by minimum word
+ *   counts
+ * @vue-data {?Number} maxWords=null - show threads if their head comments have
+ *   at most 'maxWords' many words. If null, do not filter by maximum word
+ *   counts
+ * @vue-data {?Number} minHashtags=null - show threads if their head comments
+ *   have at least 'minHashtags' many hashtags. If null, do not filter by
+ *   minimum hashtag counts
+ * @vue-data {?Number} maxHashtags=null - show threads if their head comments
+ *   have at most 'maxWords' many hashtags. If null, do not filter by maximum
+ *   hashtag counts
+ * @vue-data {?Number} minReplies=null - show threads if they have at least
+ *   'minReplies' many replies. If null, do not filter by reply counts
+ * @vue-data {?Number} minReplyReqs=null - show threads if they have at least
+ *   'minReplyReqs' many reply reqs in total (including reply req made to
+ *   replies). If null, do not filter by reply req counts
+ * @vue-data {?Number} minUpvotes=null - show threads if they have at least
+ *   'minUpvotes' many upvotes. If null, do not filter by upvote counts
+ *
+ * @vue-computed {Boolean} showAdvanced - if true, show advanced filter options
+ *   (min/max words, min/max hashtags, min replies/reply req/upvotes)
+ *
+ * @vue-event {String} search-option - Emit the new type when search bar type
+ *   changes: 'text' (comment contents) or 'author'
+ * @vue-event {String} search-text - Emit the new text when search query text
+ *   changes
+ * @vue-event {Array<String>} filter-hashtags - Emit the new value of
+ *   filterHashtags on change
+ * @vue-event {Array<String>} filter-user-tags - Emit the new value of
+ *   filterUserTags on change
+ * @vue-event {Array<String>} filter-comments - Emit the new value of
+ *   filterComments on change
+ * @vue-event {Array<String>} filter-reply-reqs - Emit the new value of
+ *   filterReplyReqs on change
+ * @vue-event {Array<String>} filter-upvotes - Emit the new value of
+ *   filterUpvotes on change
+ * @vue-event {Boolean} filter-bookmarks - Emit the new value of
+ *   filterBookmarks on change
+ * @vue-event {Number} min-words - Emit the new value of minWords on change.
+ *   Emit 0 if minWords is null
+ * @vue-event {Number} max-words - Emit the new value of maxWords on change
+ * @vue-event {Number} min-hashtags - Emit the new value of minHashtags on
+ *   change. Emit 0 if minHashtags is null
+ * @vue-event {Number} max-hashtags - Emit the new value of maxHashtags on
+ *   change
+ * @vue-event {Number} min-replies - Emit the new value of minReplies on
+ *   change. Emit 0 if minReplies is null
+ * @vue-event {Number} min-reply-reqs - Emit the new value of minReplyReqs on
+ *   change. Emit 0 if minReplyReqs is null
+ * @vue-event {Number} min-upvotes - Emit the new value of minUpvotes on
+ *   change. Emit 0 if minUpvotes is null
+ */
 export default {
   name: 'filter-view',
   props: {
@@ -410,7 +493,11 @@ export default {
         default:
       }
     },
-    validateNumber (event) {
+    /**
+     * Check if the key press event corresponds to a number (0-9) key.
+     * If not, prevent the key press from registering.
+     */
+    validateNumber: function (event) {
       let keyCode = event.which ? event.which : event.keyCode
       if (keyCode > 31 && (keyCode < 48 || keyCode > 57)) {
         event.preventDefault()

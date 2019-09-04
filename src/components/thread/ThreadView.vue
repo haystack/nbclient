@@ -21,6 +21,28 @@
 <script>
 import ThreadComment from './ThreadComment.vue'
 
+/**
+ * Component for the nested discussion view of thread on the side bar.
+ * Each thread is represented by the head of thread {@link NbComment}.
+ * Also see {@link NbUser}.
+ *
+ * @vue-prop {NbComment} thread - head of this thread
+ * @vue-prop {NbUser} me - current user
+ * @vue-prop {NbComment} replyToComment - comment user is currently drafting
+ *   a reply for, if any.
+ *
+ * @vue-computed {String} numComments - label for showing the total number of
+ *   comments in this thread
+ * @vue-computed {String} numReplyReqs - label for showing the total number of
+ *   reply requests in this thread
+ *
+ * @vue-event {NbComment} edit-comment - Emit the comment to be editted
+ *   when user chooses edit option for some comment in this thread
+ * @vue-event {NbComment} delete-comment - Emit the comment to be deleted
+ *   when user chooses delete option for some comment in this thread
+ * @vue-event {NbComment} draft-reply - Emit the comment to reply to
+ *   when user clicks on reply button for some comment in this thread
+ */
 export default {
   name: 'thread-view',
   props: {

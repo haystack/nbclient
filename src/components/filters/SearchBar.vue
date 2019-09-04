@@ -22,6 +22,21 @@
 import TextEditor from '../editor/TextEditor.vue'
 import htmlToText from 'html-to-text'
 
+/**
+ * Component for the search bar on the side bar.
+ * Also see {@link NbUser} and {@link NbHashtag}.
+ *
+ * @vue-prop {Array<NbUser>} users - all users enrolled in this course
+ * @vue-prop {Array<NbHashtag>} hashtags - suggested hashtags in this course
+ *
+ * @vue-data {String} searchBy - search bar type: 'text' (comment contents) or
+ *   'author'
+ * @vue-data {String} placeholder - search bar placeholder text
+ *
+ * @vue-event {String} dropdown-change - Emit the new 'searchBy' value on change
+ * @vue-event {String} text-change - Emit the new search query text on change.
+ *   Search query text is treated as plaintext
+ */
 export default {
   name: 'search-bar',
   props: {

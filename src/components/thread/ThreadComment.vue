@@ -108,6 +108,25 @@
 import moment from 'moment'
 import { CommentAnonymity } from '../../models/enums.js'
 
+/**
+ * Component for each row in the nested discussion view of thread.
+ * Also see {@link NbComment} and {@link NbUser}.
+ *
+ * @vue-prop {NbComment} comment - comment or for this row
+ * @vue-prop {NbUser} me - current user
+ * @vue-prop {NbComment} replyToComment - comment user is currently drafting
+ *   a reply for, if any.
+ *
+ * @vue-data {Boolean} showOverflow - if true, show overflow menu popup
+ *   (edit, delete, get link) for this comment
+ *
+ * @vue-event {NbComment} edit-comment - Emit this comment when user clicks on
+ *   edit option in overflow menu
+ * @vue-event {NbComment} delete-comment - Emit this comment when user clicks on
+ *   delete option in overflow menu
+ * @vue-event {NbComment} draft-reply - Emit this comment when user clicks on
+ *   reply button in this row
+ */
 export default {
   name: 'thread-comment',
   props: {

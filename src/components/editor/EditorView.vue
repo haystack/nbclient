@@ -46,6 +46,48 @@ import htmlToText from 'html-to-text'
 import { CommentVisibility, CommentAnonymity } from '../../models/enums.js'
 import TextEditor from './TextEditor.vue'
 
+/**
+ * Component for the comment composer/editor on the side bar.
+ * Also see {@link NbUser} and {@link NbHashtag}.
+ *
+ * @vue-prop {NbUser} author - the current user
+ * @vue-prop {String} key - unique key for forcing editor to redraw on change
+ * @vue-prop {String} header - label to show above the text editor
+ * @vue-prop {String} initialContent='<p></p>' - initial comment content
+ * @vue-prop {String} initialVisibility='CommentVisibility.EVERYONE'
+ *   - initially selected comment visibility option
+ * @vue-prop {String} initialAnonymity='CommentAnonymity.IDENTIFIED'
+ *   - initially selected comment anonymity option
+ * @vue-prop {Boolean} initialReplyRequest=false - true if comment is initially
+ *   reply requested by the current user
+ * @vue-prop {Array<NbUser>} users - all users enrolled in this course
+ * @vue-prop {Array<NbHashtag>} hashtags - suggested hashtags in this course
+ * @vue-prop {Boolean} visible - true if the comment editor is visible
+ *
+ * @vue-data {Array} toolbar - editor toolbar options to show,
+ *   see Quill doc for more info.
+ * @vue-data {String} placeholder - editor placeholder text
+ * @vue-data {String} content - current comment content as HTML string
+ * @vue-data {String} visibility - currently selected comment visibility option
+ * @vue-data {Array} visibilityOptions - all visibility options, each option
+ *   is an object with two string props, text (for labels) and value
+ * @vue-data {String} anonymity - currently selected comment anonymity option
+ * @vue-data {Array} anonymityOptions - all anonymity options, each option
+ *   is an object with two string props, text (for labels) and value
+ * @vue-data {Number} anonymousIdx - index for 'anonymous' in anonymityOptions
+ * @vue-data {Boolean} replyRequested - true if reply request is selected
+ *
+ * @vue-computed {Boolean} isEditorEmpty - true if current editor content as
+ *   plaintext is empty
+ *
+ * @vue-event {Boolean} editor-empty - Emit true (editor is empty) or false
+ *   (editor is not empty) when the empty state changes
+ * @vue-event {} cancel-comment - Emit when user cancels current comment
+ * @vue-event {Object} submit-comment - Emit when user submits current comment.
+ *   Object has following fields: timestamp (String), content (HTML string),
+ *   mentions (Object), visibility (Enum), anonymity (Enum),
+ *   replyRequested (Boolean)
+ */
 export default {
   name: 'editor-view',
   props: {

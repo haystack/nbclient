@@ -23,7 +23,24 @@ import NbHighlight from './NbHighlight.vue'
 import { eventsProxyMouse } from '../../utils/highlight-util.js'
 
 /**
- * @vue-prop {Array} threads - TODO
+ * Component for highlight overlays corresponding to threads.
+ * Each thread is represented by the head of thread {@link NbComment}.
+ *
+ * @vue-prop {Array<NbComment>} threads=([]) - all visible threads
+ * @vue-prop {NbComment} threadSelected - currently selected thread
+ * @vue-prop {Array<NbComment>} threadsHovered=([]) - currently hovered threads
+ * @vue-prop {NbRange} draftRange - text range for the new thread currently being drafted
+ * @vue-prop {Boolean} showHighlights=true - true if highlights are overlayed
+ *   on text, false if collapsed to the side
+ *
+ * @vue-event {NbComment} select-thread - Emit currently selected thread
+ *   when user selects a thread by clicking on the highlight
+ * @vue-event {NbComment} hover-thread - Emit the hovered thread
+ *   when user starts hovering over the thread's highlight
+ * @vue-event {NbComment} unhover-thread - Emit the unhovered thread
+ *   when user stops hovering over the thread's highlight
+ * @vue-event {null} unselect-thread - Emit when user unselect thread
+ *   by clicking outside of highlights
  */
 export default {
   name: 'nb-highlights',
@@ -40,7 +57,7 @@ export default {
     draftRange: Object,
     showHighlights: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   mounted: function () {

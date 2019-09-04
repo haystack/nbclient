@@ -88,6 +88,26 @@ function embedNbApp () {
 
   document.body.appendChild(element)
 
+  /**
+   * User in NB.
+   * @typedef {Object} NbUser
+   * @property {String} id - user ID
+   * @property {String} username - username
+   * @property {String} role - role in the current course: null (not enrolled),
+   *   'student', or 'instructor'
+   * @property {Object} me.name - display names
+   * @property {String} me.name.first - first name
+   * @property {String} me.name.last - last name
+   */
+
+  /**
+   * Hashtag in NB.
+   * @typedef {Object} NbHashtag
+   * @property {String} id - hashtag ID
+   * @property {String} value - string labels
+   * @property {String} emoji - unicode for emoji label
+   */
+
   let app = new Vue({
     // el: element.shadowRoot.querySelector('#nb-app'),
     el: '#nb-app',

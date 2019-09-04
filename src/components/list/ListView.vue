@@ -42,6 +42,34 @@
 import ListRow from './ListRow.vue'
 import { compare, compareDomPosition } from '../../utils/compare-util.js'
 
+/**
+ * Component for the list of threads on the side bar.
+ * Each thread is represented by the head of thread {@link NbComment}.
+ *
+ * @vue-prop {Array<NbComment>} threads=([]) - all visible threads
+ * @vue-prop {Number} totalCount=0 - number of all threads (visible and hidden)
+ * @vue-prop {NbComment} threadSelected - currently selected thread
+ * @vue-prop {Array<NbComment>} threadsHovered=([]) - currently hovered threads
+ * @vue-prop {Boolean} showHighlights=true - true if highlights are overlayed
+ *   on text, false if collapsed to the side
+ *
+ * @vue-data {String} sortBy='position' - current sorting option value
+ * @vue-data {Array<Object>} sortByOptions - all sorting options, each option
+ *   is an object with two string props, text (for labels) and value
+ *
+ * @vue-computed {String} totalLabel - display label for number of all threads
+ * @vue-computed {Array<NbComment>} sorted - all visible threads ordered by
+ *   the current sorting option
+ *
+ * @vue-event {NbComment} select-thread - Emit currently selected thread
+ *   when user selects a thread by clicking on the list row
+ * @vue-event {NbComment} hover-thread - Emit the hovered thread
+ *   when user starts hovering over the list row
+ * @vue-event {NbComment} unhover-thread - Emit the unhovered thread
+ *   when user stops hovering over the list row
+ * @vue-event {Boolean} toggle-highlights - Emit the new highlight visibility
+ *   upon change, true to show, false to collapse
+ */
 export default {
   name: 'list-view',
   props: {

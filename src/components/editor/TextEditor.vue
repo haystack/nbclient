@@ -13,6 +13,30 @@ import 'quill-mention'
 
 let MAX_SUGGEST_USERS = 10
 
+/**
+ * Component for the base text editor used in comment editor and search bar.
+ * Also see {@link NbUser} and {@link NbHashtag}.
+ *
+ * @vue-prop {Array|Boolean} toolbar=false - editor toolbar options to show.
+ *   If false, do not show toolbar. See Quill doc for more details.
+ * @vue-prop {String} placeholder='' - editor placeholder text
+ * @vue-prop {String} bounds='#nb-sidebar' - query selector for DOM element
+ *   that bounds text editor, mainly used to make sure tooltip stays inside
+ *   the element. See Quill doc for more info.
+ * @vue-prop {String} initialContent='<p></p>' - initial editor content
+ * @vue-prop {Array<NbUser>} users=([]) - all users enrolled in this course
+ * @vue-prop {Array<NbHashtag>} hashtags=([]) - suggested hashtags in this course
+ *
+ * @vue-data {String} content - current editor content as HTML string
+ * @vue-data {Object} config - configuration for Quill editor. See Vue Quill
+ *   and Quill doc for more info.
+ * @vue-data {Object} editor - editor object that belongs to the underlying
+ *   Quill editor component. We use it to call some methods directly on Quill
+ *   that are not supported by Vue Quill.
+ *
+ * @vue-event {String} text-change - Emit the new editor content on change
+ *   as HTML string
+ */
 export default {
   name: 'text-editor',
   props: {
