@@ -30,7 +30,7 @@ You can host the plugin files locally, which is useful for embedding and testing
 cd nbdemo
 npm run start
 ```
-You will then find the files hosted at `localhost:3000` (e.g. `localhost:3000/js/bundle.js`)
+You will then find the files hosted at `localhost:3001` (e.g. `localhost:3001/js/bundle.js`)
 
 ### Code documentation
 To see a nice webpage version of the in-file code documentation as, do:
