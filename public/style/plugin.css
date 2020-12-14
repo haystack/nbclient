@@ -559,3 +559,7 @@
   margin: 0 5px 0 -5px;
   vertical-align: middle;
 }
+
+.nb-no-access-msg {
+    margin: 2.5em 0;
+}

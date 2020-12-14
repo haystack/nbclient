@@ -13,6 +13,7 @@ import { isNodePartOf } from './utils/dom-util.js'
 
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
+import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 
@@ -116,6 +117,9 @@ function embedNbApp () {
         <div v-if="!user" class="nb-sidebar">
           <nb-login @login="setUser"></nb-login>
         </div>
+        <div v-else-if="myClasses.length < 1">
+           <nb-no-access :user="user" @logout="onLogout"></nb-no-acess>
+        </div>
         <div v-else>
           <nb-highlights
             :key="resizeKey"
@@ -169,6 +173,8 @@ function embedNbApp () {
     `,
     data: {
       user: null,
+      myClasses:[],
+      activeClassIndex: -1,
       users: {},
       hashtags: {},
       threads: [],
@@ -306,37 +312,50 @@ function embedNbApp () {
       }
     },
     watch: {
-      user: function (val) {
+      user: async function (val) {
         if (!val) return // logged out
         // TODO (backend): make sure information below gets returned only if user is enrolled in the course
         let source = window.location.origin + window.location.pathname
-        axios.get('/api/annotations/allUsers', { params: { url: source } })
-          .then(res => {
-            this.users = res.data
-            this.$set(val, 'role', this.users[val.id].role)
-          })
-        axios.get('/api/annotations/allTagTypes', { params: { url: source } })
-          .then(res => {
-            this.hashtags = res.data
-          })
-        axios.get('/api/annotations/annotation', { params: { url: source } })
-          .then(res => {
-            let items = res.data.filter(item => {
-              try {
-                item.range = deserializeNbRange(item.range)
-                return true
-              } catch (e) {
-                console.warn(`Could not deserialize range for ${item.id}`)
-                return false
+
+        const myClasses = await axios.get('/api/annotations/myClasses', { params: { url: source } })
+        console.log(myClasses.data)
+
+        if (myClasses.data.length > 0) {
+            this.myClasses = myClasses.data
+            this.activeClassIndex = 0
+
+            axios.get('/api/annotations/allUsers', { params: { url: source } })
+            .then(res => {
+              this.users = res.data
+              this.$set(val, 'role', this.users[val.id].role)
+            })
+          axios.get('/api/annotations/allTagTypes', { params: { url: source } })
+            .then(res => {
+              this.hashtags = res.data
+            })
+          axios.get('/api/annotations/annotation', { params: { url: source } })
+            .then(res => {
+              let items = res.data.filter(item => {
+                try {
+                  item.range = deserializeNbRange(item.range)
+                  return true
+                } catch (e) {
+                  console.warn(`Could not deserialize range for ${item.id}`)
+                  return false
+                }
+              })
+              this.threads = items.map(item => new NbComment(item))
+              let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+              if (link) {
+                let id = link[1]
+                this.threadSelected = this.threads.find(x => x.id === id)
               }
             })
-            this.threads = items.map(item => new NbComment(item))
-            let link = window.location.hash.match(/^#nb-comment-(.+$)/)
-            if (link) {
-              let id = link[1]
-              this.threadSelected = this.threads.find(x => x.id === id)
-            }
-          })
+        } else {
+            console.log("Sorry you don't have access");
+        }
+        
+
       }
     },
     created: function () {
@@ -566,6 +585,8 @@ function embedNbApp () {
       onLogout: function () {
         axios.post('/api/users/logout').then(_ => {
           this.user = null
+          this.myClasses = []
+          this.activeClassIndex = -1
           this.users = {}
           this.hashtags = {}
           this.threads = []
@@ -597,7 +618,8 @@ function embedNbApp () {
     components: {
       NbHighlights,
       NbSidebar,
-      NbLogin
+      NbLogin,
+      NbNoAccess
     }
   })
 
