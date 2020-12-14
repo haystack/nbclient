@@ -136,6 +136,7 @@ function embedNbApp () {
           <nb-sidebar
             :user="user"
             :users="users"
+            :activeClass="activeClass"
             :hashtags="hashtags"
             :total-threads="totalThreads"
             :threads="filteredThreads"
@@ -174,7 +175,7 @@ function embedNbApp () {
     data: {
       user: null,
       myClasses:[],
-      activeClassIndex: -1,
+      activeClass: {},
       users: {},
       hashtags: {},
       threads: [],
@@ -314,7 +315,6 @@ function embedNbApp () {
     watch: {
       user: async function (val) {
         if (!val) return // logged out
-        // TODO (backend): make sure information below gets returned only if user is enrolled in the course
         let source = window.location.origin + window.location.pathname
 
         const myClasses = await axios.get('/api/annotations/myClasses', { params: { url: source } })
@@ -322,18 +322,18 @@ function embedNbApp () {
 
         if (myClasses.data.length > 0) {
             this.myClasses = myClasses.data
-            this.activeClassIndex = 0
+            this.activeClass = this.myClasses[0] //TODO: remove this after implementing the class switching functionality
 
-            axios.get('/api/annotations/allUsers', { params: { url: source } })
+            axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
             .then(res => {
               this.users = res.data
               this.$set(val, 'role', this.users[val.id].role)
             })
-          axios.get('/api/annotations/allTagTypes', { params: { url: source } })
+          axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
             .then(res => {
               this.hashtags = res.data
             })
-          axios.get('/api/annotations/annotation', { params: { url: source } })
+          axios.get('/api/annotations/annotation', { params: { url: source, class: this.activeClass.id } })
             .then(res => {
               let items = res.data.filter(item => {
                 try {

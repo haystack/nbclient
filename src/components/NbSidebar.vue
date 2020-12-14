@@ -82,6 +82,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     hashtags: {
       type: Object,
       default: () => {}
@@ -279,7 +283,7 @@ export default {
         upvoteCount: 0,
         seenByMe: true
       })
-      comment.submitAnnotation()
+      comment.submitAnnotation(this.activeClass.id)
 
       if (this.draftRange) {
         this.$emit('new-thread', comment)
