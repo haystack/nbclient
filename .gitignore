@@ -3,3 +3,4 @@ public/js/bundle.js.map
 package-lock.json
 out/
 .DS_Store
+public/js/bundle.js
