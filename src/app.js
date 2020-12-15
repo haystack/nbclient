@@ -136,6 +136,7 @@ function embedNbApp () {
           <nb-sidebar
             :user="user"
             :users="users"
+            :myClasses="myClasses"
             :activeClass="activeClass"
             :hashtags="hashtags"
             :total-threads="totalThreads"
@@ -144,6 +145,7 @@ function embedNbApp () {
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             :show-highlights="showHighlights"
+            @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
             @search-text="onSearchText"
@@ -322,11 +324,62 @@ function embedNbApp () {
 
         if (myClasses.data.length > 0) {
             this.myClasses = myClasses.data
-            this.activeClass = this.myClasses[0] //TODO: remove this after implementing the class switching functionality
 
+            console.log(this.myClasses.length);
+            console.log(this.activeClass);
+            
+            
+            if (this.myClasses.length == 1) {
+
+                this.activeClass = this.myClasses[0]
+            }
+
+            if (this.activeClass != {}) {
+                axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
+                .then(res => {
+                  this.users = res.data
+                  this.$set(val, 'role', this.users[val.id].role)
+                })
+              axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
+                .then(res => {
+                  this.hashtags = res.data
+                })
+              axios.get('/api/annotations/annotation', { params: { url: source, class: this.activeClass.id } })
+                .then(res => {
+                  let items = res.data.filter(item => {
+                    try {
+                      item.range = deserializeNbRange(item.range)
+                      return true
+                    } catch (e) {
+                      console.warn(`Could not deserialize range for ${item.id}`)
+                      return false
+                    }
+                  })
+                  this.threads = items.map(item => new NbComment(item))
+                  let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+                  if (link) {
+                    let id = link[1]
+                    this.threadSelected = this.threads.find(x => x.id === id)
+                  }
+                })
+            }
+
+        } else {
+            console.log("Sorry you don't have access");
+        }
+        
+
+      },
+      activeClass: async function (val) {
+        let source = window.location.origin + window.location.pathname
+        if (this.activeClass != {}) {
             axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
             .then(res => {
               this.users = res.data
+              console.log(val.id);
+              console.log(this.users);
+              console.log(this.users[val.id]);
+              
               this.$set(val, 'role', this.users[val.id].role)
             })
           axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
@@ -351,11 +404,7 @@ function embedNbApp () {
                 this.threadSelected = this.threads.find(x => x.id === id)
               }
             })
-        } else {
-            console.log("Sorry you don't have access");
         }
-        
-
       }
     },
     created: function () {
@@ -582,11 +631,18 @@ function embedNbApp () {
       handleResize: function () {
         this.resizeKey = Date.now()
       },
+      onSwitchClass: function(newClass) {
+          console.log('in app switch class');
+          console.log(newClass);
+          
+          
+        this.activeClass = newClass
+      },
       onLogout: function () {
         axios.post('/api/users/logout').then(_ => {
           this.user = null
           this.myClasses = []
-          this.activeClassIndex = -1
+          this.activeClass = {}
           this.users = {}
           this.hashtags = {}
           this.threads = []

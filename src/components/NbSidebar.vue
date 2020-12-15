@@ -1,6 +1,13 @@
 <template>
   <div id="nb-sidebar" class="nb-sidebar">
     <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
+    <div v-if="myClasses.length > 1">
+        <nb-menu 
+            :myClasses="myClasses" 
+            :activeClass="activeClass"
+            @switch-class="onSwitchClass">
+        </nb-menu>
+    </div>
     <filter-view
         :me="user"
         :users="sortedUsers"
@@ -70,6 +77,7 @@ import FilterView from './filters/FilterView.vue'
 import ListView from './list/ListView.vue'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
+import NbMenu from './NbMenu.vue'
 
 export default {
   name: 'nb-sidebar',
@@ -81,6 +89,10 @@ export default {
     users: {
       type: Object,
       default: () => {}
+    },
+    myClasses: {
+      type: Array,
+      default: () => []
     },
     activeClass: {
       type: Object,
@@ -166,6 +178,11 @@ export default {
     }
   },
   methods: {
+    onSwitchClass: function (newClass) {
+        console.log('in nb side bar swithc class');
+        console.log(newClass);
+      this.$emit('switch-class', newClass)
+    },
     onToggleHighlights: function (show) {
       this.$emit('toggle-highlights', show)
     },
@@ -325,7 +342,8 @@ export default {
     FilterView,
     ListView,
     ThreadView,
-    EditorView
+    EditorView,
+    NbMenu
   }
 }
 </script>
