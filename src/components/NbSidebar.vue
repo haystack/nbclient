@@ -1,7 +1,7 @@
 <template>
   <div id="nb-sidebar" class="nb-sidebar">
     <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
-    <div v-if="myClasses.length > 1">
+    <div class="nb-menu" v-if="myClasses.length > 1">
         <nb-menu 
             :myClasses="myClasses" 
             :activeClass="activeClass"
@@ -179,8 +179,6 @@ export default {
   },
   methods: {
     onSwitchClass: function (newClass) {
-        console.log('in nb side bar swithc class');
-        console.log(newClass);
       this.$emit('switch-class', newClass)
     },
     onToggleHighlights: function (show) {

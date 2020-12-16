@@ -315,96 +315,60 @@ function embedNbApp () {
       }
     },
     watch: {
-      user: async function (val) {
-        if (!val) return // logged out
-        let source = window.location.origin + window.location.pathname
+      user: async function (newUser, oldUser) {
+        if (!newUser) return // logged out
+        if (newUser === oldUser ) return // same user, do nothing
 
+        const source = window.location.origin + window.location.pathname
         const myClasses = await axios.get('/api/annotations/myClasses', { params: { url: source } })
-        console.log(myClasses.data)
 
         if (myClasses.data.length > 0) {
             this.myClasses = myClasses.data
-
-            console.log(this.myClasses.length);
-            console.log(this.activeClass);
             
-            
-            if (this.myClasses.length == 1) {
-
+            if (this.myClasses.length === 1) {
                 this.activeClass = this.myClasses[0]
-            }
-
-            if (this.activeClass != {}) {
-                axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
-                .then(res => {
-                  this.users = res.data
-                  this.$set(val, 'role', this.users[val.id].role)
-                })
-              axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
-                .then(res => {
-                  this.hashtags = res.data
-                })
-              axios.get('/api/annotations/annotation', { params: { url: source, class: this.activeClass.id } })
-                .then(res => {
-                  let items = res.data.filter(item => {
-                    try {
-                      item.range = deserializeNbRange(item.range)
-                      return true
-                    } catch (e) {
-                      console.warn(`Could not deserialize range for ${item.id}`)
-                      return false
-                    }
-                  })
-                  this.threads = items.map(item => new NbComment(item))
-                  let link = window.location.hash.match(/^#nb-comment-(.+$)/)
-                  if (link) {
-                    let id = link[1]
-                    this.threadSelected = this.threads.find(x => x.id === id)
-                  }
-                })
             }
 
         } else {
             console.log("Sorry you don't have access");
         }
-        
 
       },
-      activeClass: async function (val) {
-        let source = window.location.origin + window.location.pathname
-        if (this.activeClass != {}) {
-            axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
+      activeClass: async function (newActiveClass) {
+        const source = window.location.origin + window.location.pathname
+        
+        if (newActiveClass != {} && this.user) {
+            axios.get('/api/annotations/allUsers', { params: { url: source, class: newActiveClass.id} })
             .then(res => {
               this.users = res.data
-              console.log(val.id);
-              console.log(this.users);
-              console.log(this.users[val.id]);
-              
-              this.$set(val, 'role', this.users[val.id].role)
+              this.$set(this.user, 'role', this.users[this.user.id].role)
             })
-          axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
+            
+            axios.get('/api/annotations/allTagTypes', { params: { url: source, class: newActiveClass.id} })
             .then(res => {
-              this.hashtags = res.data
+                this.hashtags = res.data
             })
-          axios.get('/api/annotations/annotation', { params: { url: source, class: this.activeClass.id } })
+            
+            axios.get('/api/annotations/annotation', { params: { url: source, class: newActiveClass.id } })
             .then(res => {
-              let items = res.data.filter(item => {
-                try {
-                  item.range = deserializeNbRange(item.range)
-                  return true
-                } catch (e) {
-                  console.warn(`Could not deserialize range for ${item.id}`)
-                  return false
+                let items = res.data.filter(item => {
+                    try {
+                    item.range = deserializeNbRange(item.range)
+                    return true
+                    } catch (e) {
+                    console.warn(`Could not deserialize range for ${item.id}`)
+                    return false
+                    }
+                })
+                this.threads = items.map(item => new NbComment(item))
+                let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+                if (link) {
+                    let id = link[1]
+                    this.threadSelected = this.threads.find(x => x.id === id)
                 }
-              })
-              this.threads = items.map(item => new NbComment(item))
-              let link = window.location.hash.match(/^#nb-comment-(.+$)/)
-              if (link) {
-                let id = link[1]
-                this.threadSelected = this.threads.find(x => x.id === id)
-              }
             })
         }
+
       }
     },
     created: function () {

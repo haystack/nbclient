@@ -1,6 +1,6 @@
 <template>
   <div class="nb-nav-bar">
-    <a href="http://nb-next.csail.mit.edu/">nb</a>
+    <a class="logo" href="http://nb-next.csail.mit.edu/">nb</a>
     <span>Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
     <v-popover
         class="overflow-menu"

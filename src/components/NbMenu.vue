@@ -1,10 +1,9 @@
 <template>
-    <div class="nb-menu"> 
-        <label>Select a class:</label>
+    <div id="nb-menu"> 
+        <label>Active Class:</label>
         <select v-model="activeClass">
             <option v-for="(item, index) in myClasses" :id="item.id" :value="item">{{item.class_name}}</option>
         </select>
-
     </div>
 </template>
 
@@ -23,10 +22,11 @@ export default {
     },
     watch: {
         activeClass: function (newClass) {
-            console.log('clicked on class');
-            console.log(newClass);
             this.$emit('switch-class', newClass)
         }
+    },
+    created: function () {
+        this.activeClass = this.myClasses[0]
     }
 }
 </script>
