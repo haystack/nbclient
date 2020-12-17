@@ -136,6 +136,7 @@ function embedNbApp () {
           <nb-sidebar
             :user="user"
             :users="users"
+            :myClasses="myClasses"
             :activeClass="activeClass"
             :hashtags="hashtags"
             :total-threads="totalThreads"
@@ -144,6 +145,7 @@ function embedNbApp () {
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             :show-highlights="showHighlights"
+            @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
             @search-text="onSearchText"
@@ -313,48 +315,59 @@ function embedNbApp () {
       }
     },
     watch: {
-      user: async function (val) {
-        if (!val) return // logged out
-        let source = window.location.origin + window.location.pathname
+      user: async function (newUser, oldUser) {
+        if (!newUser) return // logged out
+        if (newUser === oldUser ) return // same user, do nothing
 
+        const source = window.location.origin + window.location.pathname
         const myClasses = await axios.get('/api/annotations/myClasses', { params: { url: source } })
-        console.log(myClasses.data)
 
         if (myClasses.data.length > 0) {
             this.myClasses = myClasses.data
-            this.activeClass = this.myClasses[0] //TODO: remove this after implementing the class switching functionality
+            
+            if (this.myClasses.length === 1) {
+                this.activeClass = this.myClasses[0]
+            }
 
-            axios.get('/api/annotations/allUsers', { params: { url: source, class: this.activeClass.id} })
-            .then(res => {
-              this.users = res.data
-              this.$set(val, 'role', this.users[val.id].role)
-            })
-          axios.get('/api/annotations/allTagTypes', { params: { url: source, class: this.activeClass.id} })
-            .then(res => {
-              this.hashtags = res.data
-            })
-          axios.get('/api/annotations/annotation', { params: { url: source, class: this.activeClass.id } })
-            .then(res => {
-              let items = res.data.filter(item => {
-                try {
-                  item.range = deserializeNbRange(item.range)
-                  return true
-                } catch (e) {
-                  console.warn(`Could not deserialize range for ${item.id}`)
-                  return false
-                }
-              })
-              this.threads = items.map(item => new NbComment(item))
-              let link = window.location.hash.match(/^#nb-comment-(.+$)/)
-              if (link) {
-                let id = link[1]
-                this.threadSelected = this.threads.find(x => x.id === id)
-              }
-            })
         } else {
             console.log("Sorry you don't have access");
         }
+
+      },
+      activeClass: async function (newActiveClass) {
+        const source = window.location.origin + window.location.pathname
         
+        if (newActiveClass != {} && this.user) {
+            axios.get('/api/annotations/allUsers', { params: { url: source, class: newActiveClass.id} })
+            .then(res => {
+              this.users = res.data
+              this.$set(this.user, 'role', this.users[this.user.id].role)
+            })
+            
+            axios.get('/api/annotations/allTagTypes', { params: { url: source, class: newActiveClass.id} })
+            .then(res => {
+                this.hashtags = res.data
+            })
+            
+            axios.get('/api/annotations/annotation', { params: { url: source, class: newActiveClass.id } })
+            .then(res => {
+                let items = res.data.filter(item => {
+                    try {
+                    item.range = deserializeNbRange(item.range)
+                    return true
+                    } catch (e) {
+                    console.warn(`Could not deserialize range for ${item.id}`)
+                    return false
+                    }
+                })
+                this.threads = items.map(item => new NbComment(item))
+                let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+                if (link) {
+                    let id = link[1]
+                    this.threadSelected = this.threads.find(x => x.id === id)
+                }
+            })
+        }
 
       }
     },
@@ -582,11 +595,18 @@ function embedNbApp () {
       handleResize: function () {
         this.resizeKey = Date.now()
       },
+      onSwitchClass: function(newClass) {
+          console.log('in app switch class');
+          console.log(newClass);
+          
+          
+        this.activeClass = newClass
+      },
       onLogout: function () {
         axios.post('/api/users/logout').then(_ => {
           this.user = null
           this.myClasses = []
-          this.activeClassIndex = -1
+          this.activeClass = {}
           this.users = {}
           this.hashtags = {}
           this.threads = []

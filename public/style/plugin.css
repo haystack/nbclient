@@ -4,6 +4,13 @@
   right: 0;
 }
 
+#nb-app .logo {
+  color: #4a2270;
+  text-decoration: none;
+  font-weight: bold;
+  font-style: italic;
+}
+
 /*
   Temporary workaround with plugin inheritting parent's style ...
   Would be nice to use Shadow DOM instead once it's supported by Quill.
@@ -112,7 +119,7 @@
   font-size: 16px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background: #fff;
-  z-index: 9999;
+  z-index: 30000;
 }
 
 #nb-app .nb-sidebar .nb-nav-bar {
@@ -152,6 +159,11 @@
 #nb-app .nb-sidebar .filter-view {
   margin: 32px 0 5px 0;
 }
+
+#nb-app .nb-sidebar .nb-menu+.filter-view {
+    margin: 15px 0 5px 0;
+}
+
 #nb-app .nb-sidebar .filter-view .filter-header {
   display: flex;
 }
@@ -171,7 +183,6 @@
   padding: 0 15px 0 5px;
   background: #eee;
   border: solid 1px #aaa;
-  -webkit-appearance: none;
   border-radius: 5px 0 0 5px;
   cursor: pointer;
 }
@@ -190,8 +201,7 @@
   flex-grow: 1;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-container {
-  border-color: #aaa !important;
-  border-radius: 0 5px 5px 0;
+    border: 1px solid #ccc;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-blank,
 #nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-editor {
@@ -562,4 +572,27 @@
 
 .nb-no-access-msg {
     margin: 2.5em 0;
+}
+
+#nb-menu {
+    margin: 2.5em 0 0 0;
+    display: flex;
+    align-items: baseline;
+}
+
+#nb-menu label {
+    font-size: 13px;
+    color: #444;
+}
+
+#nb-menu select {
+    flex-grow: 1;
+    align-items: center;
+    margin-inline-start: .3em;
+    padding: 0 15px 0 5px;
+    background: #eee;
+    border: solid 1px #aaa;
+    cursor: pointer;
+    height: 28px;
+    font-size: 13px;
 }

@@ -5,7 +5,6 @@
         <option value="text">Text</option>
         <option value="author">Author</option>
       </select>
-      <font-awesome-icon icon="caret-down"></font-awesome-icon>
     </div>
     <div class="text">
       <text-editor
