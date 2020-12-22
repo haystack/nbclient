@@ -183,7 +183,6 @@
   padding: 0 15px 0 5px;
   background: #eee;
   border: solid 1px #aaa;
-  border-radius: 5px 0 0 5px;
   cursor: pointer;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .search .dropdown select:hover {
@@ -244,7 +243,7 @@
   padding: 10px;
   background: #fff;
   border: solid 1px #aaa;
-  border-radius: 4px;
+  border-radius: 0px;
   color: #000;
   font-size: 13px;
 }
@@ -267,12 +266,13 @@
 }
 #nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div {
   display: flex;
+  margin: 6px 0;
 }
 #nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div label {
   flex-grow: 1;
 }
 #nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div input {
-  width: 30px;
+    width: 60px;
 }
 
 #nb-app .nb-sidebar .list-view {
@@ -499,7 +499,7 @@
 #nb-app .editor-view .footer .checkbox-buttons button {
   width: 80px;
   padding: 6px;
-  border-radius: 5px;
+  border-radius: 0px;
   font-size: 14px;
   color: #fff;
   cursor: pointer;
@@ -563,12 +563,23 @@
 #nb-app .ql-mention-list-container {
   max-height: 154px;
   overflow-y: scroll;
+  background: white;
+  border: solid #ccc 1px;
+  height: 6em;
+  
 }
 #nb-app .ql-mention-list-item > span {
-  font-size: 24px;
-  margin: 0 5px 0 -5px;
+  font-size: 16px;
+  /* margin: 0 5px 0 -5px; */
   vertical-align: middle;
 }
+
+#nb-app ul.ql-mention-list {
+   list-style: none;
+   font-size: 12px;
+   padding:0 8px;
+   margin-top: 0px;
+  }
 
 .nb-no-access-msg {
     margin: 2.5em 0;
@@ -595,4 +606,16 @@
     cursor: pointer;
     height: 28px;
     font-size: 13px;
+}
+
+.filter-options label {
+    display: inline-block;
+}
+
+.filter-options label:after {
+    content: initial;
+}
+
+.filter-options .hashtags span {
+    font-size: 25px;
 }

@@ -61,9 +61,13 @@
                     :id="'filter-hashtag-' + hashtag.id"
                     :value="hashtag.id"
                     @change="onFilterChange('hashtags')">
+                
                 <label :for="'filter-hashtag-' + hashtag.id">
-                  {{ hashtag.value }}
+                  <span v-tooltip="hashtag.value">
+                    <span v-html="'&#x'+hashtag.emoji"></span>
+                  </span>
                 </label>
+
               </div>
             </div>
             <div class="title">Users tagged</div>
