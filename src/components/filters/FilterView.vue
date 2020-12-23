@@ -52,7 +52,7 @@
         </span>
         <template slot="popover">
           <div class="filter-options">
-            <div class="title">Hashtags</div>
+            <div class="title">Hashtags/emojis</div>
             <div class="hashtags">
               <div v-for="hashtag in hashtags" :key="hashtag.id">
                 <input
@@ -63,9 +63,9 @@
                     @change="onFilterChange('hashtags')">
                 
                 <label :for="'filter-hashtag-' + hashtag.id">
-                  <span v-tooltip="hashtag.value">
-                    <span v-html="'&#x'+hashtag.emoji"></span>
-                  </span>
+                    <span v-html="'&#x' + hashtag.emoji "></span>
+                     <span v-html="'' + hashtag.value "></span>
+                
                 </label>
 
               </div>
