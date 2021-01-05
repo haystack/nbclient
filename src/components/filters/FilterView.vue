@@ -63,9 +63,8 @@
                     @change="onFilterChange('hashtags')">
                 
                 <label :for="'filter-hashtag-' + hashtag.id">
-                    <span v-html="'&#x' + hashtag.emoji "></span>
-                     <span v-html="'' + hashtag.value "></span>
-                
+                     <img :src="`https://127.0.0.1:8080/emoji/${hashtag.emoji}.png`">
+                     <span v-html="'' + hashtag.value"></span>
                 </label>
 
               </div>

@@ -109,7 +109,7 @@ export default {
     },
     renderMention: function (item, searchTerm) {
       if (item.hasOwnProperty('emoji')) {
-        return `<span>&#x${item.emoji};</span> ${item.value}`
+        return `<span><img src="https://127.0.0.1:8080/emoji/${item.emoji}.png">${item.value}</span>`
       }
       return `${item.value}`
     },

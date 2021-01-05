@@ -262,7 +262,8 @@
 #nb-app-wrapper .filter-options-wrapper .filter-options .upvotes > div,
 #nb-app-wrapper .filter-options-wrapper .filter-options .others > div {
   width: 49%;
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
 }
 #nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div {
   display: flex;
@@ -572,6 +573,13 @@
   font-size: 16px;
   /* margin: 0 5px 0 -5px; */
   vertical-align: middle;
+  display: flex;
+  align-items: center;
+}
+
+#nb-app .ql-mention-list-item > span > img{
+    width: 25px;
+    margin-right: 5px;
 }
 
 #nb-app ul.ql-mention-list {
@@ -609,7 +617,11 @@
 }
 
 .filter-options label {
-    display: inline-block;
+    display: inline-grid;
+}
+
+.filter-options label > img {
+    width: 25px;
 }
 
 .filter-options label:after {
