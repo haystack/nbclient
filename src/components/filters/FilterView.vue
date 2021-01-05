@@ -63,7 +63,7 @@
                     @change="onFilterChange('hashtags')">
                 
                 <label :for="'filter-hashtag-' + hashtag.id">
-                     <img :src="`https://127.0.0.1:8080/emoji/${hashtag.emoji}.png`">
+                     <img :src="`${pluginHostURL}/emoji/${hashtag.emoji}.png`">
                      <span v-html="'' + hashtag.value"></span>
                 </label>
 
@@ -275,6 +275,7 @@
 
 <script>
 import SearchBar from './SearchBar.vue'
+import {PLUGIN_HOST_URL} from '../../app' 
 
 /**
  * Component for the search/filter options on the side bar.
@@ -381,7 +382,8 @@ export default {
       maxHashtags: null,
       minReplies: null,
       minReplyReqs: null,
-      minUpvotes: null
+      minUpvotes: null,
+      pluginHostURL: PLUGIN_HOST_URL
     }
   },
   computed: {

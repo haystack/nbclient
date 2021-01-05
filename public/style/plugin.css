@@ -570,7 +570,7 @@
   
 }
 #nb-app .ql-mention-list-item > span {
-  font-size: 16px;
+  font-size: 12px;
   /* margin: 0 5px 0 -5px; */
   vertical-align: middle;
   display: flex;
@@ -629,5 +629,5 @@
 }
 
 .filter-options .hashtags span {
-    font-size: 14px;
+    font-size: 11px;
 }

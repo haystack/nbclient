@@ -28,7 +28,7 @@ axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
 // const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||

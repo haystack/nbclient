@@ -10,6 +10,7 @@
 
 <script>
 import 'quill-mention'
+import {PLUGIN_HOST_URL} from '../../app' 
 
 let MAX_SUGGEST_USERS = 10
 
@@ -109,7 +110,8 @@ export default {
     },
     renderMention: function (item, searchTerm) {
       if (item.hasOwnProperty('emoji')) {
-        return `<span><img src="https://127.0.0.1:8080/emoji/${item.emoji}.png">${item.value}</span>`
+          
+        return `<span><img src="${PLUGIN_HOST_URL}/emoji/${item.emoji}.png">${item.value} </span>`
       }
       return `${item.value}`
     },
