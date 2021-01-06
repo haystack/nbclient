@@ -528,23 +528,23 @@
   background: #eee;
 }
 #nb-app .ql-toolbar button {
-  height: 20px;
+  height: 22px;
   width: 22px;
+  margin: 2px;
 }
 #nb-app .ql-toolbar .ql-picker {
   height: 22px;
 }
 #nb-app .ql-picker-label::before {
-  line-height: 20px;
+  line-height: 22px;
   font-size: 13px;
 }
 #nb-app .ql-toolbar .ql-icon-picker {
-  width: 26px;
+  width: 22px;
 }
 #nb-app .ql-hashtag:after {
-  content: "#";
+  content: "\01F60A";
   font-size: 13px;
-  color: #444;
 }
 #nb-app .ql-people:after {
   content: "@";
@@ -555,7 +555,7 @@
   color: #06c;
 }
 #nb-app .editor-view .ql-editor {
-  min-height: 80px;
+  min-height: 130px;
 }
 
 #nb-app .ql-tooltip {
