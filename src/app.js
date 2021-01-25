@@ -16,6 +16,8 @@ import NbSidebar from './components/NbSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
+import VueJwtDecode from "vue-jwt-decode";
+
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -23,14 +25,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-//axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
@@ -322,7 +324,9 @@ function embedNbApp () {
         if (newUser === oldUser ) return // same user, do nothing
 
         const source = window.location.origin + window.location.pathname
-        const myClasses = await axios.get('/api/annotations/myClasses', { params: { url: source } })
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source }}
+        const myClasses = await axios.get('/api/annotations/myClasses', config)
 
         if (myClasses.data.length > 0) {
             this.myClasses = myClasses.data
@@ -337,21 +341,23 @@ function embedNbApp () {
 
       },
       activeClass: async function (newActiveClass) {
-        const source = window.location.origin + window.location.pathname
-        
         if (newActiveClass != {} && this.user) {
-            axios.get('/api/annotations/allUsers', { params: { url: source, class: newActiveClass.id} })
+            const source = window.location.origin + window.location.pathname
+            const token = localStorage.getItem("nb.user");
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
+
+            axios.get('/api/annotations/allUsers', config)
             .then(res => {
               this.users = res.data
               this.$set(this.user, 'role', this.users[this.user.id].role)
             })
             
-            axios.get('/api/annotations/allTagTypes', { params: { url: source, class: newActiveClass.id} })
+            axios.get('/api/annotations/allTagTypes', config)
             .then(res => {
                 this.hashtags = res.data
             })
             
-            axios.get('/api/annotations/annotation', { params: { url: source, class: newActiveClass.id } })
+            axios.get('/api/annotations/annotation',  config)
             .then(res => {
                 let items = res.data.filter(item => {
                     try {
@@ -374,9 +380,11 @@ function embedNbApp () {
       }
     },
     created: function () {
-      axios.get('/api/users/current').then(res => {
-        this.user = res.data
-      })
+        const token = localStorage.getItem("nb.user")
+        if (token) {
+            const decoded = VueJwtDecode.decode(token)
+            this.user = decoded.user
+        }
     },
     methods: {
       setUser: function (user) {
@@ -392,7 +400,9 @@ function embedNbApp () {
         let idx = this.threads.indexOf(thread)
         if (idx >= 0) { this.threads.splice(idx, 1) }
         if (thread.id) {
-          axios.delete(`/api/annotations/annotation/${thread.id}`)
+          const token = localStorage.getItem("nb.user");
+          const headers = { headers: { Authorization: 'Bearer ' + token }}
+          axios.delete(`/api/annotations/annotation/${thread.id}`, headers)
         }
       },
       onNewThread: function (thread) {
@@ -605,7 +615,7 @@ function embedNbApp () {
         this.activeClass = newClass
       },
       onLogout: function () {
-        axios.post('/api/users/logout').then(_ => {
+          localStorage.removeItem("nb.user")
           this.user = null
           this.myClasses = []
           this.activeClass = {}
@@ -634,7 +644,6 @@ function embedNbApp () {
             minUpvotes: 0
           }
           this.showHighlights = true
-        })
       }
     },
     components: {

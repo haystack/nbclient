@@ -20,6 +20,8 @@
 
 <script>
 import axios from 'axios'
+import VueJwtDecode from "vue-jwt-decode";
+
 
 export default {
   name: 'nb-login',
@@ -40,7 +42,9 @@ export default {
       let bodyContent = { username: this.username, password: this.password }
       axios.post('/api/users/login', bodyContent)
         .then(res => {
-          this.$emit('login', res.data)
+          localStorage.setItem("nb.user", res.data.token)
+          const decoded = VueJwtDecode.decode(res.data.token)
+          this.$emit('login', decoded.user)
         })
         .catch(error => {
           if (error.response.status === 401) {
