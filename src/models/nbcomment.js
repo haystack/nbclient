@@ -216,6 +216,8 @@ class NbComment {
    * {@link NbComment#loadReplies} will be called to also load replies.
    */
   submitAnnotation (classId) {
+    const token = localStorage.getItem("nb.user");
+    const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
       return axios.post('/api/annotations/annotation', {
         url: window.location.href.split('?')[0],
@@ -230,7 +232,7 @@ class NbComment {
         replyRequest: this.replyRequestedByMe,
         star: this.upvotedByMe,
         bookmark: this.bookmarked
-      }).then(res => {
+      }, headers).then(res => {
         this.id = res.data.id
         this.loadReplies()
       })
@@ -245,7 +247,7 @@ class NbComment {
         replyRequest: this.replyRequestedByMe,
         star: this.upvotedByMe,
         bookmark: this.bookmarked
-      }).then(res => {
+      }, headers).then(res => {
         this.id = res.data.id
       })
     }
@@ -256,7 +258,9 @@ class NbComment {
    * Replies are sorted in the ascending order of {@link NbComment#timestamp}.
    */
   loadReplies () {
-    axios.get(`/api/annotations/reply/${this.id}`).then(res => {
+    const token = localStorage.getItem("nb.user");
+    const headers = { headers: { Authorization: 'Bearer ' + token }}
+    axios.get(`/api/annotations/reply/${this.id}`, headers).then(res => {
       this.children = res.data.map(item => {
         item.parent = this
         return new NbComment(item)
@@ -510,7 +514,9 @@ class NbComment {
   markSeenAll () { // mark this comment and all replies 'seen'
     if (!this.seenByMe) {
       this.seenByMe = true
-      axios.post(`/api/annotations/seen/${this.id}`)
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.post(`/api/annotations/seen/${this.id}`,{} ,headers)
     }
     for (let child of this.children) {
       child.markSeenAll()
@@ -529,7 +535,9 @@ class NbComment {
       this.upvotedByMe = true
     }
     if (this.id) {
-      axios.post(`/api/annotations/star/${this.id}`, { star: this.upvotedByMe })
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.post(`/api/annotations/star/${this.id}`, { star: this.upvotedByMe }, headers)
     }
   }
 
@@ -545,7 +553,9 @@ class NbComment {
       this.replyRequestedByMe = true
     }
     if (this.id) {
-      axios.post(`/api/annotations/replyRequest/${this.id}`, { replyRequest: this.replyRequestedByMe })
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.post(`/api/annotations/replyRequest/${this.id}`, { replyRequest: this.replyRequestedByMe }, headers)
     }
   }
 
@@ -555,7 +565,9 @@ class NbComment {
   toggleBookmark () {
     this.bookmarked = !this.bookmarked
     if (this.id) {
-      axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked })
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked }, headers)
     }
   }
 
@@ -584,6 +596,8 @@ class NbComment {
       this.replyRequestCount += data.replyRequested ? 1 : -1
     }
     this.setText()
+    const token = localStorage.getItem("nb.user");
+    const headers = { headers: { Authorization: 'Bearer ' + token }}
     return axios.put(`/api/annotations/annotation/${this.id}`, {
       content: this.html,
       tags: this.hashtags,
@@ -591,7 +605,7 @@ class NbComment {
       visibility: CommentVisibility[this.visibility],
       anonymity: CommentAnonymity[this.anonymity],
       replyRequest: this.replyRequestedByMe
-    })
+    }, headers)
   }
 
   /**
@@ -603,7 +617,9 @@ class NbComment {
     if (idx >= 0) {
       this.children.splice(idx, 1)
       if (child.id) {
-        axios.delete(`/api/annotations/annotation/${child.id}`)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.delete(`/api/annotations/annotation/${child.id}`, headers)
       }
     }
   }

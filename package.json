@@ -43,6 +43,7 @@
     "quill-mention": "^2.1.1",
     "v-tooltip": "^2.0.1",
     "vue": "^2.6.10",
+    "vue-jwt-decode": "^0.1.0",
     "vue-quill": "^1.5.1"
   }
 }
