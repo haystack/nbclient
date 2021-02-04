@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
 import VTooltip from 'v-tooltip'
+import Notifications from 'vue-notification'
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -19,13 +23,21 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 
 
+import io from "socket.io-client";
+const socket = io("https://127.0.0.1:3000", {reconnect: true});
+
+socket.emit('joined', "Helen")
+
 Vue.use(VueQuill)
 Vue.use(VTooltip)
+Vue.use(Notifications)
+Vue.use(VueSweetalert2);
+
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+// axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
 axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
@@ -125,17 +137,21 @@ function embedNbApp () {
            <nb-no-access :user="user" @logout="onLogout"></nb-no-acess>
         </div>
         <div v-else>
+          <notifications position="top left" group="recentlyAddedThreads" />
           <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
+            :all-class-drafts="allClassDrafts"
+            :user-locations="userLocations"
             :show-highlights="showHighlights"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
+            @unhover-thread="onUnhoverThread"
+            @new-recent-thread="onNewRecentThread">
           </nb-highlights>
           <nb-sidebar
             :user="user"
@@ -173,6 +189,8 @@ function embedNbApp () {
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft"
             @editor-empty="onEditorEmpty"
+            @thread-typing="onThreadTyping"
+            @thread-stop-typing="onThreadStopTyping"
             @logout="onLogout">
           </nb-sidebar>
         </div>
@@ -207,7 +225,11 @@ function embedNbApp () {
         minUpvotes: 0
       },
       showHighlights: true,
-      resizeKey: Date.now() // work around to force redraw highlights
+      resizeKey: Date.now(), // work around to force redraw highlights
+      allUserDraftLocations: {},
+      userLocations: {},
+      allClassDrafts: [],
+      recentlyAddedThreads: []
     },
     computed: {
       style: function () {
@@ -368,10 +390,111 @@ function embedNbApp () {
           const decoded = VueJwtDecode.decode(token)
           this.user = decoded.user
       }
+      socket.on("new_thread", (data) => {
+        const source = window.location.origin + window.location.pathname
+        let classId = data.classId
+        console.log(this.activeClass)
+        if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
+          if (this.activeClass.id == classId && source === data.source_url) {
+            this.getAllAnnotations(source, this.activeClass) // get anontation from specific annotation id
+            console.log("new thread: gathered new annotations")
+          }
+        }
+      })
+      socket.on('thread-typing', (id) => {
+        console.log(id)
+        this.threads.find(x => x.id === id).typing = true
+      });
+
+      socket.on('thread-stop-typing', (id) => {
+        this.threads.find(x => x.id === id).typing = false
+      });
+
+      // socket.on('new-draft', (data) => {
+      //   if (data.classId === this.activeClass.id) { //TODO: check to make sure another user
+      //     if (data.range === null) {
+      //       delete this.allUserDraftLocations[data.username]
+      //     } else {
+      //       this.allUserDraftLocations[data.username] = deserializeNbRange(data.range)
+      //       // console.log(Object.values(this.allUserDraftLocations))
+      //       // console.log(this.allUserDraftLocations)
+      //       // for (const [key, value] of Object.entries(this.allUserDraftLocations)) {
+      //       //   console.log(`${key}: ${value}`);
+      //       // }
+      //       // console.log(Object.entries(this.allUserDraftLocations))
+      //       // console.log(this.allClassDrafts)
+      //       this.allClassDrafts = Object.values(this.allUserDraftLocations)
+      //     }
+      //   }
+      // })
+
+      // socket.on('user-location', (userLocations) => {
+      //   console.log(userLocations)
+      //   let userLocationsParsed  = JSON.parse(userLocations)
+      //   console.log(userLocationsParsed)
+      //   const usernames = Object.keys(userLocationsParsed)
+      //   let newUserLocations = []
+      //   for (const username of usernames) {
+      //     let userLocation = userLocationsParsed[username]["location"]
+      //     let userTextSize = userLocationsParsed[username]["dimensions"]
+      //     let currentWidth = document.querySelector('.nb-highlights').clientWidth
+      //     let currentHeight = document.querySelector('.nb-highlights').clientHeight
+      //     let newX = userLocation[0] * (currentWidth / userTextSize[0])
+      //     let newY = userLocation[1] * (currentHeight / userTextSize[1])
+
+      //     // this.userLocations[username] = [newX, newY]
+      //     newUserLocations.push([newX, newY])
+      //   }
+      //   this.userLocations = newUserLocations
+      //   console.log(this.userLocations)
+      // })
+
+      // socket.on('new-thread', (data) => {
+      //   if (data.class.id === this.activeClass.id) {
+      //     console.log("found new thread for this class!")
+      //     console.log(data.thread)
+      //     this.threads.push(data.thread)
+      //   }
+      // });
     },
     methods: {
       setUser: function (user) {
         this.user = user
+      },
+      logUserLocation: function(x, y, docWidth, docHeight) {
+        // socket.emit('user-location', {x: x, y: y, docWidth: docWidth, docHeight: docHeight, username: this.user.username})
+      },
+      recalculateUserLocations: function() {
+        // recalculate upon resize
+      },
+      addSomeAnnotationsBy300(headAnnotations, annotationsData, idx, timer) {
+        let newIdx = idx
+        console.log("hello")
+        console.log(newIdx)
+        while (newIdx < headAnnotations.length && newIdx - idx < 300) { // while still elements in list and we haven't gotten through 10 yet
+          let item = headAnnotations[newIdx]
+          try {
+            item.range = deserializeNbRange(item.range)
+          } catch (e) {
+            console.warn(`Could not deserialize range for ${item.id}`)
+            continue 
+          }
+          // Nb Comment
+          let comment = new NbComment(item, annotationsData)
+
+          this.threads.push(comment)
+           newIdx+=1
+        }
+        // clearTimeout(timer) // clear any timers that may exist right now
+        if (newIdx < headAnnotations.length) {
+          console.log("Going to get more soon")
+          timer = setTimeout(() => {
+            console.log("GETTING MORE!")
+            this.addSomeAnnotationsBy300(headAnnotations, annotationsData, newIdx, timer)
+          }, 5000) 
+        }
+        
+       
       },
       getAllAnnotations: function (source, newActiveClass) {
         const token = localStorage.getItem("nb.user");
@@ -402,7 +525,10 @@ function embedNbApp () {
       },
       draftThread: function (range) {
         if (this.user) { // only if selection was after user log in
+          // let prevDraftRange = this.draftRange.serialize()
           this.draftRange = createNbRange(range)
+          // console.log(range)
+          // socket.emit('new-draft', {range: this.draftRange.serialize(), classId: this.activeClass.id, username: this.user.username})
         }
       },
       onDeleteThread: function (thread) {
@@ -418,9 +544,11 @@ function embedNbApp () {
       onNewThread: function (thread) {
         this.threads.push(thread)
         this.draftRange = null
+        // socket.emit('new-thread', {thread: thread, class: this.activeClass})
       },
       onCancelDraft: function () {
         this.draftRange = null
+        // socket.emit('new-draft', {range: null, classId: this.activeClass.id, username: this.user.username})
       },
       onEditorEmpty: function (isEmpty) {
         this.isEditorEmpty = isEmpty
@@ -611,6 +739,46 @@ function embedNbApp () {
         let idx = this.threadsHovered.indexOf(thread)
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
       },
+      onNewRecentThread: function (thread) {
+        console.log(thread)
+        if (thread.id) { // only if this has an id (we queried it from the server, should we show the notification)
+          console.log(window.location.href + `#nb-comment-${thread.id}`)
+          
+          this.$swal({
+
+            title: '',
+
+            text: "A recent comment was added nearby. Do you want to open it?",
+
+            type: 'success',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#3085d6',
+
+            cancelButtonColor: '#d33',
+
+            confirmButtonText: 'Yes, bring me there!',
+            toast: true,
+            position: 'top-start'
+
+          }).then((result) => {
+            if (result.value) {
+              this.onSelectThread(thread)
+            }
+          })
+          // Vue.notify({
+          //   group: 'recentlyAddedThreads',
+          //   title: 'A recent comment was added nearby',
+          //   // text: `<button onclick="${this.onSelectThread(thread)}">BUTTON</button>` + window.location.href + `#nb-comment-${thread.id}`,
+          //   type: 'success',
+          //   text: `<a href="${window.location.href}#nb-comment-${thread.id}" target="_blank">Click here to view</a>`,
+
+          //   duration: 8000,
+          // })
+        }
+        // recentlyAddedThreads.push(thread)
+      },
       onToggleHighlights: function (show) {
         this.showHighlights = show
       },
@@ -623,6 +791,17 @@ function embedNbApp () {
           
           
         this.activeClass = newClass
+      },
+      onThreadTyping: function(threadId) {
+        // console.log(threadId)
+        if (threadId) {
+          socket.emit('thread-typing', {threadId: threadId, username: this.user.username})
+        }
+      },
+      onThreadStopTyping: function(threadId) {
+        if (threadId) {
+          socket.emit('thread-stop-typing', {threadId: threadId, username: this.user.username})
+        }
       },
       onLogout: function () {
           localStorage.removeItem("nb.user")
@@ -680,13 +859,37 @@ function embedNbApp () {
     }
   })
 
+  // document.body.addEventListener('mousedown', e => {
+  //   // console.log(e.pageX)
+  //   // console.log(e.pageY)
+  //   console.log(e)
+  //   let width = document.querySelector('.nb-highlights').clientWidth
+  //   let height = document.querySelector('.nb-highlights').clientHeight
+
+  //   // let offsetX = window.pageXOffset ||
+  //   //   document.documentElement.scrollLeft ||
+  //   //   document.body.scrollLeft || 0
+  //   // let offsetY = window.pageYOffset ||
+  //   //   document.documentElement.scrollTop ||
+  //   //   document.body.scrollTop || 0
+  //   // var relX = e.pageX - offsetX
+  //   // var relY = e.pageY - offsetY
+  //   // console.log(relY)
+  //   // console.log(relY)
+  //   app.logUserLocation(e.pageX, e.pageY, width, height)
+  //   // let zoomLevel = windowgetComputedStyle(documnet.body)
+
+  // })
+
   document.addEventListener('keyup', e => {
     if (e.key === 'Escape') {
       app.onUnselectThread()
     }
   })
-
-  window.addEventListener('resize', _ => {
+  
+  window.addEventListener('resize', e => {
+    // console.log("RESIZINGG")
     app.handleResize()
+    // app.recalculateUserLocations()
   })
 }

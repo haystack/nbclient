@@ -61,8 +61,13 @@
         :hashtags="sortedHashtags"
         @editor-empty="onEditorEmpty"
         @submit-comment="onSubmitComment"
-        @cancel-comment="onCancelComment">
+        @cancel-comment="onCancelComment"
+        @thread-typing="onThreadTyping"
+        @thread-stop-typing="onThreadStopTyping"
+        >
     </editor-view>
+    <!-- <nb-chat :user="user"></nb-chat> -->
+
   </div>
 </template>
 
@@ -78,6 +83,7 @@ import ListView from './list/ListView.vue'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
+import NbChat from './NbChat.vue'
 
 export default {
   name: 'nb-sidebar',
@@ -299,7 +305,6 @@ export default {
         seenByMe: true
       })
       comment.submitAnnotation(this.activeClass.id)
-
       if (this.draftRange) {
         this.$emit('new-thread', comment)
       } else if (this.replyToComment) {
@@ -333,6 +338,16 @@ export default {
       }
       this.editor.initialSettings = Object.assign(defaultSettings, settings)
       this.editor.visible = visible
+    },
+    onThreadTyping: function(val) {
+      if (this.threadSelected) {
+        this.$emit('thread-typing', this.threadSelected.id)
+      }
+    },
+    onThreadStopTyping: function(val) {
+      if (this.threadSelected) {
+        this.$emit('thread-stop-typing', this.threadSelected.id)
+      }
     }
   },
   components: {
@@ -341,7 +356,8 @@ export default {
     ListView,
     ThreadView,
     EditorView,
-    NbMenu
+    NbMenu,
+    NbChat,
   }
 }
 </script>

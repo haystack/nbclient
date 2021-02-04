@@ -9,17 +9,31 @@
         :show-highlights="showHighlights"
         @select-thread="$emit('select-thread',thread)"
         @hover-thread="$emit('hover-thread',thread)"
-        @unhover-thread="$emit('unhover-thread',thread)">
+        @unhover-thread="$emit('unhover-thread',thread)"
+        @new-recent-thread="$emit('new-recent-thread', thread)">
     </nb-highlight>
     <nb-highlight
         v-if="draftRange"
         :range="draftRange">
     </nb-highlight>
+    <!-- <nb-highlight
+        v-for="classDraft in allClassDrafts"
+        :key="classDraft"
+        :range="classDraft"
+        :classDraftBool="true">
+    </nb-highlight> -->
+    <nb-circle
+      v-for="userLocation in userLocations"
+      :key="userLocation"
+      :location="userLocation">
+    </nb-circle>
   </svg>
 </template>
 
 <script>
 import NbHighlight from './NbHighlight.vue'
+import NbCircle from './NbCircle.vue'
+
 import { eventsProxyMouse } from '../../utils/highlight-util.js'
 
 /**
@@ -58,13 +72,22 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
-    }
+    },
+    allClassDrafts: {
+      type: Array,
+      default: () => []
+    },
+    userLocations: {
+      type: Array,
+      default: () => []
+    },
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)
   },
   components: {
-    NbHighlight
+    NbHighlight,
+    NbCircle
   }
 }
 </script>

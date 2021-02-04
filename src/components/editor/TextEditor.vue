@@ -1,11 +1,17 @@
 <template>
-  <quill
-      v-model="content"
-      output="html"
-      :config="config"
-      @input="onTextChange"
-      @selection-change="onSelectionChange">
-  </quill>
+  <div 
+    @keyup="handleKeyUp" 
+    @keypress="handleKeyPress"
+    tabindex="0"
+  >
+    <quill
+        v-model="content"
+        output="html"
+        :config="config"
+        @input="onTextChange"
+        @selection-change="onSelectionChange">
+    </quill>
+  </div>
 </template>
 
 <script>
@@ -13,7 +19,7 @@ import 'quill-mention'
 import {PLUGIN_HOST_URL} from '../../app' 
 
 let MAX_SUGGEST_USERS = 10
-
+let timer, timeoutVal = 1000;
 /**
  * Component for the base text editor used in comment editor and search bar.
  * Also see {@link NbUser} and {@link NbHashtag}.
@@ -83,7 +89,8 @@ export default {
         bounds: this.bounds,
         theme: 'snow'
       },
-      editor: null
+      editor: null,
+      typing: false
     }
   },
   mounted: function () {
@@ -95,6 +102,21 @@ export default {
     }
   },
   methods: {
+    handleKeyUp: function(e) {
+      console.log("stop typing")
+      window.clearTimeout(timer); // prevent errant multiple timeouts from being generated
+      timer = window.setTimeout(() => {
+        this.typing = false
+        this.$emit("thread-stop-typing", true)
+      }, timeoutVal)
+    },
+    handleKeyPress: function(e) {
+      if (!this.typing) {
+        console.log("typing")
+        this.typing = true
+        this.$emit("thread-typing", true) // only emit if not currently typing
+      }
+    },
     handleMention: function (searchTerm, renderList, mentionChar) {
       let matches = (mentionChar === '@') ? this.users : this.hashtags // mentionChar === "#"
       if (searchTerm.length > 0) {

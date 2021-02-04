@@ -208,6 +208,8 @@ class NbComment {
       this.text = htmlToText.fromString(this.html, { wordwrap: false })
     }
     this.wordCount = this.text.split(' ').length
+
+    this.typing = false
   }
 
   /**
@@ -265,6 +267,22 @@ class NbComment {
       })
       this.children.sort(compare('timestamp'))
     }
+
+
+
+    // axios.get(`/api/annotations/reply/${this.id}`).then(res => {
+    //   this.children = res.data.map(item => {
+    //     item.parent = this
+    //     return new NbComment(item)
+    //   })
+    //   this.children.sort(compare('timestamp'))
+    // })
+
+
+
+    // axios.get(`/api/annotations/all_reply/${this.id}`).then(res => {
+    //   console.log(res.data)
+    // })
   }
 
   /**

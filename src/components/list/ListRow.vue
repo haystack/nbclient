@@ -24,10 +24,16 @@
     <span :style="textStyle">
       {{ thread.text }}
     </span>
+    <div v-if="thread.typing" class="typing">
+      <span style="margin:auto;">
+        <i>...</i>
+      </span>
+    </div>
   </div>
 </template>
 
 <script>
+
 /**
  * Component for each row per thread on the side bar list.
  * Each thread is represented by the head of thread {@link NbComment}.
@@ -60,7 +66,7 @@ export default {
     threadsHovered: {
       type: Array,
       default: () => []
-    }
+    },
   },
   computed: {
     rowStyle: function () {
@@ -111,7 +117,21 @@ export default {
           behavior: 'smooth'
         })
       }
-    }
+    },
   }
 }
 </script>
+
+
+<style scoped>
+.typing {
+    /* background-color: #bbcbda; */
+    background-color: rgb(255, 0, 255, 0.9);
+    color: #aaa;
+    border-radius: 5px;
+    text-align: center;
+    margin-left: auto;
+    padding-left: 5px;
+    padding-right: 3px;
+}
+</style>
