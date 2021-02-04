@@ -357,38 +357,48 @@ function embedNbApp () {
                 this.hashtags = res.data
             })
             
-            axios.get('/api/annotations/annotation',  config)
-            .then(res => {
-                let items = res.data.filter(item => {
-                    try {
-                    item.range = deserializeNbRange(item.range)
-                    return true
-                    } catch (e) {
-                    console.warn(`Could not deserialize range for ${item.id}`)
-                    return false
-                    }
-                })
-                this.threads = items.map(item => new NbComment(item))
-                let link = window.location.hash.match(/^#nb-comment-(.+$)/)
-                if (link) {
-                    let id = link[1]
-                    this.threadSelected = this.threads.find(x => x.id === id)
-                }
-            })
+            this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
         }
 
       }
     },
     created: function () {
-        const token = localStorage.getItem("nb.user")
-        if (token) {
-            const decoded = VueJwtDecode.decode(token)
-            this.user = decoded.user
-        }
+      const token = localStorage.getItem("nb.user")
+      if (token) {
+          const decoded = VueJwtDecode.decode(token)
+          this.user = decoded.user
+      }
     },
     methods: {
       setUser: function (user) {
         this.user = user
+      },
+      getAllAnnotations: function (source, newActiveClass) {
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
+
+        axios.get('/api/annotations/new_annotation',  config)
+        .then(res => {
+            this.threads = []
+            for (const item of res.data.headAnnotations) {
+              try {
+                item.range = deserializeNbRange(item.range)
+              } catch (e) {
+                console.warn(`Could not deserialize range for ${item.id}`)
+                continue 
+              }
+              // Nb Comment
+              let comment = new NbComment(item, res.data.annotationsData)
+
+              this.threads.push(comment)
+            }
+            
+            let link = window.location.hash.match(/^#nb-comment-(.+$)/)
+            if (link) {
+                let id = link[1]
+                this.threadSelected = this.threads.find(x => x.id === id)
+            }
+        })
       },
       draftThread: function (range) {
         if (this.user) { // only if selection was after user log in

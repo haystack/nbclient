@@ -27,7 +27,7 @@ class NbComment {
    * @param {Boolean} data.seenByMe - true if the current user's seen this comment, sets {@link NbComment#seenByMe}
    * @param {Boolean} data.bookmarked - true if the current user bookmarked this comment, sets {@link NbComment#bookmarked}
    */
-  constructor (data) {
+  constructor (data, annotationsData) {
     /**
      * ID of this comment. If this is a new comment,
      * null and set later in {@link NbComment#submitAnnotation}.
@@ -59,7 +59,7 @@ class NbComment {
      */
     this.children = []
     if (this.id) {
-      this.loadReplies()
+      this.loadReplies(annotationsData)
     }
 
     /**
@@ -234,7 +234,7 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
-        this.loadReplies()
+        // this.loadReplies()
       })
     } else {
       return axios.post(`/api/annotations/reply/${this.parent.id}`, {
@@ -257,16 +257,14 @@ class NbComment {
    * Async load replies to this comment and add to {@link NbComment#children}.
    * Replies are sorted in the ascending order of {@link NbComment#timestamp}.
    */
-  loadReplies () {
-    const token = localStorage.getItem("nb.user");
-    const headers = { headers: { Authorization: 'Bearer ' + token }}
-    axios.get(`/api/annotations/reply/${this.id}`, headers).then(res => {
-      this.children = res.data.map(item => {
-        item.parent = this
-        return new NbComment(item)
+  loadReplies (annotationsData) {
+    if (this.id in annotationsData) { // {thread_id: [children]}
+      this.children = annotationsData[this.id].map(item => {
+        item.parent = this 
+        return new NbComment(item, annotationsData)
       })
       this.children.sort(compare('timestamp'))
-    })
+    }
   }
 
   /**
