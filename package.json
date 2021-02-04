@@ -25,7 +25,7 @@
     "jsdoc": "^3.6.2",
     "jsdoc-vuejs": "^3.0.0",
     "style-loader": "^0.23.1",
-    "vue-loader": "^15.7.0",
+    "vue-loader": "^15.9.6",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.43.0",
@@ -43,7 +43,9 @@
     "quill-mention": "^2.1.1",
     "v-tooltip": "^2.0.1",
     "vue": "^2.6.10",
+    "vue-cli": "^2.9.6",
     "vue-jwt-decode": "^0.1.0",
-    "vue-quill": "^1.5.1"
+    "vue-quill": "^1.5.1",
+    "webpack-dev-server": "^3.11.2"
   }
 }
