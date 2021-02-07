@@ -24,6 +24,11 @@
       </span>
     </div>
     <div class="list-table">
+      <div v-if="totalCount==0">
+        <p>Gathering any class annotations</p>
+        <tile loading="true"></tile>
+      </div>
+
       <list-row
           v-for="thread in sorted"
           :key="thread"
@@ -39,8 +44,12 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import VueSpinners from 'vue-spinners'
 import ListRow from './ListRow.vue'
 import { compare, compareDomPosition } from '../../utils/compare-util.js'
+
+Vue.use(VueSpinners)
 
 /**
  * Component for the list of threads on the side bar.
