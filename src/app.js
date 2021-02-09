@@ -16,6 +16,7 @@ import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 import NbHighlights from './components/highlights/NbHighlights.vue'
+import NbOnline from './components//NbOnline.vue'
 import NbSidebar from './components/NbSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
@@ -26,7 +27,6 @@ import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 const socket = io("https://127.0.0.1:3000", {reconnect: true});
 
-socket.emit('joined', "Helen")
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -138,6 +138,10 @@ function embedNbApp () {
         </div>
         <div v-else>
           <notifications position="top left" group="recentlyAddedThreads" />
+          <nb-online
+            :online-users="onlineUsers"
+            :show-sync-features="showSyncFeatures"> 
+          </nb-online>
           <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
@@ -147,6 +151,7 @@ function embedNbApp () {
             :all-class-drafts="allClassDrafts"
             :user-locations="userLocations"
             :show-highlights="showHighlights"
+            :show-sync-features="showSyncFeatures"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -166,6 +171,7 @@ function embedNbApp () {
             :draft-range="draftRange"
             :show-highlights="showHighlights"
             @switch-class="onSwitchClass"
+            @show-sync-features="onShowSyncFeatures"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
             @search-text="onSearchText"
@@ -229,7 +235,10 @@ function embedNbApp () {
       allUserDraftLocations: {},
       userLocations: {},
       allClassDrafts: [],
-      recentlyAddedThreads: []
+      recentlyAddedThreads: [],
+      showSyncFeatures: true,
+      onlineUsers: [],
+      currentSectionId: ""
     },
     computed: {
       style: function () {
@@ -362,7 +371,7 @@ function embedNbApp () {
         }
 
       },
-      activeClass: async function (newActiveClass) {
+      activeClass: async function (newActiveClass, oldActiveClass) {
         if (newActiveClass != {} && this.user) {
             const source = window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
@@ -378,8 +387,21 @@ function embedNbApp () {
             .then(res => {
                 this.hashtags = res.data
             })
-            
+
+            axios.get('/api/annotations/myCurrentSection', config)
+            .then (res => {
+              socket.emit('left', {username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId})
+              this.currentSectionId = res.data
+              console.log("emit join")
+              socket.emit('joined', {username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId})
+            })
             this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
+      
+           
+            console.log(oldActiveClass.id)
+            console.log(oldActiveClass)
+
+            
         }
 
       }
@@ -390,6 +412,12 @@ function embedNbApp () {
           const decoded = VueJwtDecode.decode(token)
           this.user = decoded.user
       }
+      socket.on('connections', (data) => {
+        if (data.classId === this.activeClass.id && data.sectionId === this.currentSectionId) {
+          console.log(data.connections)
+          this.onlineUsers = data.connections
+        }
+      })
       socket.on("new_thread", (data) => {
         const source = window.location.origin + window.location.pathname
         let classId = data.classId
@@ -409,6 +437,39 @@ function embedNbApp () {
       socket.on('thread-stop-typing', (id) => {
         this.threads.find(x => x.id === id).typing = false
       });
+
+      socket.on('new_reply', (data) => {
+        console.log(data.id)
+        let thread = this.threads.find(x => x.id === data.id)
+        if (thread.hasMyReplyRequests() && this.showSyncFeatures) {
+          this.$swal({
+
+            title: '',
+
+            text: "A recent comment was added to a thread you requested a reply from. Do you want to open it?",
+
+            type: 'success',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#3085d6',
+
+            cancelButtonColor: '#d33',
+
+            confirmButtonText: 'Yes, bring me there!',
+            toast: true,
+            position: 'top-start'
+
+          }).then((result) => {
+            if (result.value) {
+              this.onSelectThread(thread)
+            }
+          })   
+        }
+        // console.log(thread)
+
+
+      })
 
       // socket.on('new-draft', (data) => {
       //   if (data.classId === this.activeClass.id) { //TODO: check to make sure another user
@@ -466,6 +527,9 @@ function embedNbApp () {
       },
       recalculateUserLocations: function() {
         // recalculate upon resize
+      },
+      onUserLeft: function() {
+        socket.emit('left', {username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId})
       },
       addSomeAnnotationsBy300(headAnnotations, annotationsData, idx, timer) {
         let newIdx = idx
@@ -744,29 +808,29 @@ function embedNbApp () {
         if (thread.id) { // only if this has an id (we queried it from the server, should we show the notification)
           console.log(window.location.href + `#nb-comment-${thread.id}`)
           
-          this.$swal({
+          // this.$swal({
 
-            title: '',
+          //   title: '',
 
-            text: "A recent comment was added nearby. Do you want to open it?",
+          //   text: "A recent comment was added nearby. Do you want to open it?",
 
-            type: 'success',
+          //   type: 'success',
 
-            showCancelButton: true,
+          //   showCancelButton: true,
 
-            confirmButtonColor: '#3085d6',
+          //   confirmButtonColor: '#3085d6',
 
-            cancelButtonColor: '#d33',
+          //   cancelButtonColor: '#d33',
 
-            confirmButtonText: 'Yes, bring me there!',
-            toast: true,
-            position: 'top-start'
+          //   confirmButtonText: 'Yes, bring me there!',
+          //   toast: true,
+          //   position: 'top-start'
 
-          }).then((result) => {
-            if (result.value) {
-              this.onSelectThread(thread)
-            }
-          })
+          // }).then((result) => {
+          //   if (result.value) {
+          //     this.onSelectThread(thread)
+          //   }
+          // })
           // Vue.notify({
           //   group: 'recentlyAddedThreads',
           //   title: 'A recent comment was added nearby',
@@ -786,14 +850,12 @@ function embedNbApp () {
         this.resizeKey = Date.now()
       },
       onSwitchClass: function(newClass) {
-          console.log('in app switch class');
-          console.log(newClass);
-          
-          
         this.activeClass = newClass
       },
+      onShowSyncFeatures: function(showSyncFeatures) {
+        this.showSyncFeatures = showSyncFeatures
+      },
       onThreadTyping: function(threadId) {
-        // console.log(threadId)
         if (threadId) {
           socket.emit('thread-typing', {threadId: threadId, username: this.user.username})
         }
@@ -837,6 +899,7 @@ function embedNbApp () {
     },
     components: {
       NbHighlights,
+      NbOnline,
       NbSidebar,
       NbLogin,
       NbNoAccess
@@ -888,8 +951,11 @@ function embedNbApp () {
   })
   
   window.addEventListener('resize', e => {
-    // console.log("RESIZINGG")
     app.handleResize()
-    // app.recalculateUserLocations()
   })
+
+  window.onbeforeunload = () => {
+    console.log("unloading and exiting page")
+    app.onUserLeft()
+  }
 }

@@ -7,6 +7,7 @@
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
+        :show-sync-features="showSyncFeatures"
         @select-thread="$emit('select-thread',thread)"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)"
@@ -81,6 +82,10 @@ export default {
       type: Array,
       default: () => []
     },
+    showSyncFeatures: {
+      type: Boolean,
+      default: true
+    }
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)

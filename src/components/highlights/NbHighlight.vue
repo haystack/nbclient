@@ -13,7 +13,15 @@
         :y="box.top + bounds.offsetY"
         :height="box.height"
         :width="box.width">
+        <animate
+          v-if="replyRequested && showSyncFeatures"
+          attributeType="XML"
+          attributeName="fill"
+          values="#ffffff;#4a2270ad;#ffffff;#ffffff"
+          dur="0.8s"
+          repeatCount="indefinite"/>
     </rect>
+
   </g>
   <g
       class="nb-highlight"
@@ -82,6 +90,10 @@ export default {
     classDraftBool: {
       type: Boolean,
       default: false
+    },
+    showSyncFeatures: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -145,10 +157,13 @@ export default {
       if (!this.thread) {
         return 'fill: rgb(231, 76, 60); opacity: 0.3;'
       }
-      if (this.thread.typing) { // if typing, show a pink outline color
+      if (this.thread.typing && this.showSyncFeatures) { // if typing, show a pink outline color
         return 'stroke: rgb(255, 0, 255); stroke-width: 25'
       }
-      if (this.recent) { // if recently shown, show a cyan outline color
+      if (this.thread.replyRequested && this.showSyncFeatures) {
+        return
+      }
+      if (this.recent && this.showSyncFeatures) { // if recently shown, show a cyan outline color
         return 'stroke: rgb(0, 255, 255); stroke-width: 15'
       }
       if (this.thread === this.threadSelected) {
@@ -176,7 +191,13 @@ export default {
     },
     visible: function () {
       return this.showHighlights || (this.thread === this.threadSelected)
-    }
+    },
+    replyRequested: function() {
+      if (this.thread) {
+        return this.thread.hasReplyRequests()
+      }
+      return false
+    },
   },
   methods: {
     onHover: function (state) {

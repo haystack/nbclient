@@ -188,6 +188,8 @@ class NbComment {
      * @type Number
      */
     this.setText()
+    
+    this.typing = false
   }
 
   /**
@@ -209,7 +211,7 @@ class NbComment {
     }
     this.wordCount = this.text.split(' ').length
 
-    this.typing = false
+
   }
 
   /**
