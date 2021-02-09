@@ -157,7 +157,7 @@ export default {
       if (!this.thread) {
         return 'fill: rgb(231, 76, 60); opacity: 0.3;'
       }
-      if (this.thread.typing && this.showSyncFeatures) { // if typing, show a pink outline color
+      if (this.thread.usersTyping && this.thread.usersTyping.length > 0 && this.showSyncFeatures) { // if typing, show a pink outline color
         return 'stroke: rgb(255, 0, 255); stroke-width: 25'
       }
       if (this.thread.replyRequested && this.showSyncFeatures) {

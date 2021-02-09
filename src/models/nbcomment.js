@@ -189,7 +189,7 @@ class NbComment {
      */
     this.setText()
     
-    this.typing = false
+    this.usersTyping = []
   }
 
   /**

@@ -24,9 +24,14 @@
     <span :style="textStyle">
       {{ thread.text }}
     </span>
-    <div v-if="thread.typing" class="typing">
-      <span style="margin:auto;">
-        <i>...</i>
+    <div class="typing">
+      <span>
+        <avatar
+        v-for="user in thread.usersTyping" 
+        :key="user"
+        :fullname="user"
+        :size="18"
+        />
       </span>
     </div>
   </div>
@@ -58,6 +63,9 @@
  * @vue-event {NbComment} unhover-thread - Emit this thread when user stops
  *   hovering over this row
  */
+
+import Avatar from 'vue-avatar-component'
+
 export default {
   name: 'list-view',
   props: {
@@ -118,20 +126,11 @@ export default {
         })
       }
     },
+  },
+  components: {
+    Avatar
   }
 }
 </script>
 
 
-<style scoped>
-.typing {
-    /* background-color: #bbcbda; */
-    background-color: rgb(255, 0, 255, 0.9);
-    color: #aaa;
-    border-radius: 5px;
-    text-align: center;
-    margin-left: auto;
-    padding-left: 5px;
-    padding-right: 3px;
-}
-</style>
