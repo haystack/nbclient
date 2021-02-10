@@ -143,6 +143,7 @@ function embedNbApp () {
             :myClasses="myClasses"
             :activeClass="activeClass"
             :hashtags="hashtags"
+            :still-gathering-threads="stillGatheringThreads"
             :total-threads="totalThreads"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
@@ -187,6 +188,7 @@ function embedNbApp () {
       threads: [],
       threadSelected: null,
       threadsHovered: [], // in case of hover on overlapping highlights
+      stillGatheringThreads: true,
       draftRange: null,
       isEditorEmpty: true,
       filter: {
@@ -374,6 +376,7 @@ function embedNbApp () {
         this.user = user
       },
       getAllAnnotations: function (source, newActiveClass) {
+        this.stillGatheringThreads = true
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
 
@@ -392,7 +395,7 @@ function embedNbApp () {
 
               this.threads.push(comment)
             }
-            
+            this.stillGatheringThreads = false
             let link = window.location.hash.match(/^#nb-comment-(.+$)/)
             if (link) {
                 let id = link[1]

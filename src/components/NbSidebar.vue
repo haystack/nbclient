@@ -34,6 +34,7 @@
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
+        :still-gathering-threads="stillGatheringThreads"
         @toggle-highlights="onToggleHighlights"
         @select-thread="onSelectThread"
         @hover-thread="onHoverThread"
@@ -105,6 +106,10 @@ export default {
     totalThreads: { // count of total threads before filter
       type: Number,
       default: 0
+    },
+    stillGatheringThreads: {
+      type: Boolean,
+      default: true
     },
     threads: { // threads after filter
       type: Object,
