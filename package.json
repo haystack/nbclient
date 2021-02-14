@@ -47,6 +47,7 @@
     "vue-cli": "^2.9.6",
     "vue-jwt-decode": "^0.1.0",
     "vue-quill": "^1.5.1",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "vue-spinners": "^1.0.2"
   }
 }

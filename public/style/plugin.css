@@ -530,7 +530,7 @@
 #nb-app .ql-toolbar button {
   height: 22px;
   width: 22px;
-  margin: 2px;
+  margin: 2.8px;
 }
 #nb-app .ql-toolbar .ql-picker {
   height: 22px;
@@ -551,6 +551,96 @@
   font-size: 13px;
   color: #444;
 }
+#nb-app .ql-interesting-topic:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/1_interesting-topic.png);
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-surprised:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/2_surprised.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-just-curious:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/3_just-curious.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-lost:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/4_lost.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-lets-discuss:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/5_lets-discuss.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-i-think:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/6_i-think.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-question:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/7_question.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-important:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/8_important.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-learning-goal:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/9_learning-goal.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-real-world-application:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/10_real-world-application.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+#nb-app .ql-lightbulb-moment:after {
+    background-image: url(https://nb2.csail.mit.edu/client/emoji/11_lightbulb-moment.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    content: "";
+}
+
 #nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
   color: #06c;
 }
