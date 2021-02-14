@@ -24,8 +24,8 @@
       </span>
     </div>
     <div class="list-table">
-      <div v-if="totalCount==0">
-        <p>Gathering any class annotations</p>
+      <div v-if="stillGatheringThreads">
+        <p>Fetching Annotations</p>
         <tile loading="true"></tile>
       </div>
 
@@ -96,6 +96,10 @@ export default {
       default: () => []
     },
     showHighlights: {
+      type: Boolean,
+      default: true
+    },
+    stillGatheringThreads: {
       type: Boolean,
       default: true
     }
