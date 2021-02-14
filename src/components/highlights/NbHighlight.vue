@@ -80,39 +80,39 @@ export default {
       default: true
     }
   },
-//   created: function() {
-//     const commentsBlock = document.createElement("div")
-//     const newDiv = document.createElement("div")
-//     newDiv.innerText=(`${this.thread.text} - ${this.thread.authorName}`)
-//     const commonAncestor = this.thread.range.commonAncestor
-//     const parent = commonAncestor.parentNode
-//     const wrapperDiv = document.createElement("div")
-//     parent.replaceChild(wrapperDiv, commonAncestor)
-//     wrapperDiv.appendChild(commentsBlock)
-//     wrapperDiv.appendChild(commonAncestor)
-//     wrapperDiv.style.display="flex"
-//     // wrapperDiv.className = "wrapperDiv"
-//     // wrapperDiv.style.position="relative";
-//     commentsBlock.style.display="block";
-//     commonAncestor.style.display="inline"
-//     commonAncestor.style.position="relative"
+  created: function() {
+    const commentsBlock = document.createElement("div")
+    const newDiv = document.createElement("div")
+    newDiv.innerText=(`${this.thread.text} - ${this.thread.authorName}`)
+    const commonAncestor = this.thread.range.commonAncestor
+    const parent = commonAncestor.parentNode
+    const wrapperDiv = document.createElement("div")
+    parent.replaceChild(wrapperDiv, commonAncestor)
+    wrapperDiv.appendChild(commentsBlock)
+    wrapperDiv.appendChild(commonAncestor)
+    wrapperDiv.style.display="flex"
+    // wrapperDiv.className = "wrapperDiv"
+    // wrapperDiv.style.position="relative";
+    commentsBlock.style.display="block";
+    commonAncestor.style.display="inline"
+    commonAncestor.style.position="relative"
     
-//     console.log(this.thread.range.commonAncestor.parentNode);
+    console.log(this.thread.range.commonAncestor.parentNode);
 
-//     // wrapperDiv.append(commonAncestor)
+    // wrapperDiv.append(commonAncestor)
 
-//     // this.thread.range.commonAncestor.insertAdjacentElement('afterend', newDiv)
-//     // beforebegin
-//     // console.log("created FUNCTION"); 
-//     // console.log(this.thread);
-//     // console.log(this.thread.text);
-//     // console.log(this.thread.authorName);
-//     //console.log(this.thread.range.commonAncestor);
-//     // console.log(this.thread.range.commonAncestor.nextElementSibling);
-//     // document.body.insertBefore(newDiv, this.thread.range.commonAncestor)
-//     // console.log(this.thread);
+    // this.thread.range.commonAncestor.insertAdjacentElement('afterend', newDiv)
+    // beforebegin
+    // console.log("created FUNCTION"); 
+    // console.log(this.thread);
+    // console.log(this.thread.text);
+    // console.log(this.thread.authorName);
+    //console.log(this.thread.range.commonAncestor);
+    // console.log(this.thread.range.commonAncestor.nextElementSibling);
+    // document.body.insertBefore(newDiv, this.thread.range.commonAncestor)
+    // console.log(this.thread);
    
-//      },
+     },
   watch: {
     /**
      * When the currently selected thread changes, check if the highlight is
