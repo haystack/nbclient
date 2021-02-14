@@ -88,10 +88,36 @@ export default {
   },
   mounted: function () {
     if (this.toolbar) {
-      let hashtagButton = this.$el.querySelector('.ql-hashtag')
-      hashtagButton.addEventListener('click', this.onHashtagClicked)
-      let peopleButton = this.$el.querySelector('.ql-people')
-      peopleButton.addEventListener('click', this.onPeopleClicked)
+    //   let hashtagButton = this.$el.querySelector('.ql-hashtag')
+    //   hashtagButton.addEventListener('click', this.onHashtagClicked)
+    //   let peopleButton = this.$el.querySelector('.ql-people')
+    //   peopleButton.addEventListener('click', this.onPeopleClicked)
+
+      // this is a feature requested by UC Davis for the emojis experiment   
+      let interestingTopicButton = this.$el.querySelector('.ql-interesting-topic')
+      let surprisedButton = this.$el.querySelector('.ql-surprised')
+      let curiousButton = this.$el.querySelector('.ql-just-curious')
+      let lostButton = this.$el.querySelector('.ql-lost')
+      let discussButton = this.$el.querySelector('.ql-lets-discuss')
+      let thinkButton = this.$el.querySelector('.ql-i-think')
+      let questionButton = this.$el.querySelector('.ql-question')
+      let importantButton = this.$el.querySelector('.ql-important')
+      let learningButton = this.$el.querySelector('.ql-learning-goal')
+      let realButton = this.$el.querySelector('.ql-real-world-application')
+      let lightbulbButton = this.$el.querySelector('.ql-lightbulb-moment')       
+
+
+      interestingTopicButton.addEventListener('click', () => {this.insertHashtag('interesting-topic')})
+      surprisedButton.addEventListener('click', () => {this.insertHashtag('surprised')})
+      curiousButton.addEventListener('click', () => {this.insertHashtag('just-curious')})
+      lostButton.addEventListener('click', () => {this.insertHashtag('lost')})
+      discussButton.addEventListener('click', () => {this.insertHashtag('lets-discuss')})
+      thinkButton.addEventListener('click', () => {this.insertHashtag('i-think')})
+      questionButton.addEventListener('click', () => {this.insertHashtag('question')})
+      importantButton.addEventListener('click', () => {this.insertHashtag('important')})
+      learningButton.addEventListener('click', () => {this.insertHashtag('learning-goal')})
+      realButton.addEventListener('click', () => {this.insertHashtag('real-world-application')})
+      lightbulbButton.addEventListener('click', () => {this.insertHashtag('lightbulb-moment')})                
     }
   },
   methods: {
@@ -129,6 +155,18 @@ export default {
           this.editor.setSelection(range.index + 1)
         }
       }
+    },
+    insertHashtag(hashtag) {
+        if (this.editor) {
+            let range = this.editor.getSelection()
+            if (range) {
+                const tags = this.hashtags.filter(h => h.value === hashtag) 
+                const tag = tags[0]
+                const tagSpan = `<span class="mention" data-index="0" data-denotation-char="#" data-id="${tag.id}" data-value="${tag.value}">&#65279;<span contenteditable="false"><span class="ql-mention-denotation-char">#</span>${tag.value}</span>&#65279;</span>`
+                this.editor.clipboard.dangerouslyPasteHTML(range.index, tagSpan, 'user')
+                this.editor.setSelection(range.index + hashtag.length + 1)
+            } 
+        }
     },
     onPeopleClicked () {
       if (this.editor) {
