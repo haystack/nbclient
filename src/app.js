@@ -11,6 +11,7 @@ import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
+import NbInnotations from './components/innotations/NbInnotations.vue'
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
@@ -125,6 +126,9 @@ function embedNbApp () {
            <nb-no-access :user="user" @logout="onLogout"></nb-no-acess>
         </div>
         <div v-else>
+          <nb-innotations
+            :threads="filteredThreads">
+          </nb-innotations>
           <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
@@ -660,6 +664,7 @@ function embedNbApp () {
       }
     },
     components: {
+      NbInnotations,
       NbHighlights,
       NbSidebar,
       NbLogin,

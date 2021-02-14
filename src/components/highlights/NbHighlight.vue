@@ -80,39 +80,55 @@ export default {
       default: true
     }
   },
-  created: function() {
-    const commentsBlock = document.createElement("div")
-    const newDiv = document.createElement("div")
-    newDiv.innerText=(`${this.thread.text} - ${this.thread.authorName}`)
-    const commonAncestor = this.thread.range.commonAncestor
-    const parent = commonAncestor.parentNode
-    const wrapperDiv = document.createElement("div")
-    parent.replaceChild(wrapperDiv, commonAncestor)
-    wrapperDiv.appendChild(commentsBlock)
-    wrapperDiv.appendChild(commonAncestor)
-    wrapperDiv.style.display="flex"
-    // wrapperDiv.className = "wrapperDiv"
-    // wrapperDiv.style.position="relative";
-    commentsBlock.style.display="block";
-    commonAncestor.style.display="inline"
-    commonAncestor.style.position="relative"
+//   created: function() {
+//     console.log("=======NEW THREAD===========");
+//     console.log(this.thread);
+//     console.log(this.thread.text);
+//     console.log(this.thread.authorName);
+//     console.log("COMMON ANCESTOR");
+//     console.log(this.thread.range.commonAncestor);
+//     console.log("PARENT OF COMMON ANCERSTOR");
+//     console.log(this.thread.range.commonAncestor.parentNode); 
+
+//     //innotation bellow
+//     const newDiv = document.createElement("div")
+//     newDiv.className = "nb-innotation"
+//     newDiv.innerText=(`${this.thread.text} - ${this.thread.authorName}`)
+//     this.thread.range.commonAncestor.insertAdjacentElement('afterend', newDiv)
+
+
+//     // //innotation before
+//     // const newDiv = document.createElement("div")
+//     // newDiv.className = "nb-innotation"
+//     // newDiv.innerText=(`${this.thread.text} - ${this.thread.authorName}`)
+//     // this.thread.range.commonAncestor.insertAdjacentElement('beforebegin', newDiv)
+
     
-    console.log(this.thread.range.commonAncestor.parentNode);
+//     // this is for the insert right and left 
+//     // const commentsBlock = document.createElement("div")
+//     // const parent = commonAncestor.parentNode
+//     // const wrapperDiv = document.createElement("div")
+//     // parent.replaceChild(wrapperDiv, commonAncestor)
+//     // wrapperDiv.appendChild(commonAncestor)
+//     // wrapperDiv.appendChild(commentsBlock)
+//     // wrapperDiv.style.display="flex"
+//     // // wrapperDiv.className = "wrapperDiv"
+//     // // wrapperDiv.style.position="relative";
+//     // commentsBlock.style.display="block";
+//     // commonAncestor.style.display="inline"
+//     // commonAncestor.style.position="relative"
+    
+//     // wrapperDiv.append(commonAncestor)
 
-    // wrapperDiv.append(commonAncestor)
+//     // this.thread.range.commonAncestor.insertAdjacentElement('afterend', newDiv)
+//     // beforebegin
+//     // console.log("created FUNCTION"); 
 
-    // this.thread.range.commonAncestor.insertAdjacentElement('afterend', newDiv)
-    // beforebegin
-    // console.log("created FUNCTION"); 
-    // console.log(this.thread);
-    // console.log(this.thread.text);
-    // console.log(this.thread.authorName);
-    //console.log(this.thread.range.commonAncestor);
-    // console.log(this.thread.range.commonAncestor.nextElementSibling);
-    // document.body.insertBefore(newDiv, this.thread.range.commonAncestor)
-    // console.log(this.thread);
+//     // console.log(this.thread.range.commonAncestor.nextElementSibling);
+//     // document.body.insertBefore(newDiv, this.thread.range.commonAncestor)
+//     // console.log(this.thread);
    
-     },
+//      },
   watch: {
     /**
      * When the currently selected thread changes, check if the highlight is

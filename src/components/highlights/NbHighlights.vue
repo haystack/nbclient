@@ -62,22 +62,22 @@ export default {
   },
   
   watch: {
-      threads: function(val, oldVal) {
-          console.log('watching...');
-          console.log(this.threads);
-            const commonAncestors = new Set()
-            for (const t of this.threads) {
-                console.log(t);
-                commonAncestors.add(t.range.commonAncestor)
-            }
+    //   threads: function(val, oldVal) {
+    //       console.log('watching...');
+    //       console.log(this.threads);
+    //         const commonAncestors = new Set()
+    //         for (const t of this.threads) {
+    //             console.log(t);
+    //             commonAncestors.add(t.range.commonAncestor)
+    //         }
 
-            console.log(commonAncestors);
+    //         console.log(commonAncestors);
 
-            commonAncestors.forEach(ancestor => {
-                console.log(ancestor);
-            })
+    //         commonAncestors.forEach(ancestor => {
+    //             console.log(ancestor);
+    //         })
 
-      }
+    //   }
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)
