@@ -721,7 +721,25 @@
 .filter-options .hashtags span {
     font-size: 11px;
 }
-.nb-innotation {
+nb-innotation {
     border: 2px limegreen solid;
-    margin: 5px;
+    margin: 10px;
+    padding: 10px;
+    flex: 1;
+}
+.nb-innotation-wrapper {
+  /* plan to make up and down part of this wrapper   */
+}
+
+.nb-innotation-wrapper.aside {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+}
+
+.nb-innotation-wrapper.aside.right{
+    flex-direction: row-reverse;
+}
+.nb-innotation-wrapper .nb-common-ancestor {
+    flex: 2;
 }
