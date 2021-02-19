@@ -104,9 +104,22 @@ export default {
       let importantButton = this.$el.querySelector('.ql-important')
       let learningButton = this.$el.querySelector('.ql-learning-goal')
       let realButton = this.$el.querySelector('.ql-real-world-application')
-      let lightbulbButton = this.$el.querySelector('.ql-lightbulb-moment')       
+      let lightbulbButton = this.$el.querySelector('.ql-lightbulb-moment') 
+      let cc = this.$el.querySelector('.ql-cc')        
 
-
+      //quilljs doesnt have a simple way to add tooltip. emojis are temp and this will be removed soon.
+      interestingTopicButton.title = "interesting topic"      
+      surprisedButton.title = "surprised"
+      curiousButton.title  = "just curious"
+      lostButton.title  = "lost"
+      discussButton.title  = "lets discuss"
+      thinkButton.title  = "i think"
+      questionButton.title  = "question"
+      importantButton.title  = "important"
+      learningButton.title  = "learning-goal"
+      realButton.title  = "real world application"
+      lightbulbButton.title  = "lightbulb moment" 
+      
       interestingTopicButton.addEventListener('click', () => {this.insertHashtag('interesting-topic')})
       surprisedButton.addEventListener('click', () => {this.insertHashtag('surprised')})
       curiousButton.addEventListener('click', () => {this.insertHashtag('just-curious')})
