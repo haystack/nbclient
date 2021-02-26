@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Handlee&display=swap');
+
 #nb-app {
   position: absolute;
   top: 0;
@@ -722,11 +724,93 @@
     font-size: 11px;
 }
 nb-innotation {
-    border: 2px limegreen solid;
+    border: 2px #20a720 solid;
+    border-radius: 15px;
+    color: white;
     margin: 10px;
-    padding: 10px;
     flex: 1;
+    padding: 20px;
+    background: limegreen;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    text-align: center;
 }
+
+nb-innotation-inline {
+    background: white;
+    margin: 0 5px;
+    font-family: 'Handlee', cursive;
+    color: blue;
+    cursor: pointer;
+    border: 3px white solid;
+}
+
+nb-innotation-collection {
+    display: flex;
+}
+
+nb-innotation-collection.nb-top, 
+nb-innotation-collection.nb-bottom {
+    flex-direction: row;
+    width: 100%;
+}
+
+nb-innotation-collection.nb-right, 
+nb-innotation-collection.nb-left {
+    flex-direction: column;
+    /* height: 100%; */
+}
+
+nb-innotation-collection.nb-top {
+    height: 180px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+nb-innotation-collection.nb-bottom {
+    height: 180px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+nb-innotation-collection.nb-right {
+    width: 180px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+nb-innotation-collection.nb-left {
+    width: 180px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.nb-innotation-ancestor {
+    position: relative;
+}
+
+.nb-innotation-ancestor.nb-top {
+    padding-top: 190px;
+}
+
+.nb-innotation-ancestor.nb-bottom {
+    padding-bottom: 190px;
+}
+
+.nb-innotation-ancestor.nb-right {
+    padding-right: 190px;
+}
+
+.nb-innotation-ancestor.nb-left {
+    padding-left: 190px;
+}
+
+
 .nb-innotation-wrapper {
   /* plan to make up and down part of this wrapper   */
 }

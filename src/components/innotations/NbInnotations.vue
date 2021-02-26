@@ -1,33 +1,21 @@
 <template>
     <div>
-    <!-- <nb-innotation-bellow
-        v-for="thread in threads"
-        :key="thread"
-        :thread="thread">
-    </nb-innotation-bellow>
-    <nb-innotation-above
-        v-for="thread in threads"
-        :key="thread"
-        :thread="thread">
-    </nb-innotation-above> -->
-  <!-- <nb-innotation-aside
-        v-for="thread in threads"
-        :key="thread"
-        :thread="thread">
-    </nb-innotation-aside> -->
-    <nb-innotation
-        v-for="thread in threads"
-        :key="thread"
-        :thread="thread">
-    </nb-innotation>
+        <!-- <nb-innotation-block
+            v-for="thread in threads"
+            :key="thread"
+            :thread="thread">
+        </nb-innotation-block> -->
+        <nb-innotation-inline
+            v-for="thread in threads"
+            :key="thread"
+            :thread="thread">
+        </nb-innotation-inline>
     </div> 
 </template>
 
 <script>
-import NbInnotationBellow from './NbInnotationBellow.vue'
-import NbInnotationAbove from './NbInnotationAbove.vue'
-import NbInnotationAside from './NbInnotationAside.vue'
-import NbInnotation from './NbInnotation.vue'
+import NbInnotationBlock from './NbInnotationBlock.vue'
+import NbInnotationInline from './NbInnotationInline.vue'
 
 export default {
   name: 'nb-innotations',
@@ -38,10 +26,8 @@ export default {
       }
   },
   components: {
-      NbInnotationBellow,
-      NbInnotationAbove,
-      NbInnotationAside,
-      NbInnotation
+      NbInnotationBlock,
+      NbInnotationInline
   }  
 }
 </script>
