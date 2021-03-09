@@ -189,7 +189,15 @@ function isNodePartOf (node, container) {
     
     return nodes[0]
    }
-    
+   
+   /**
+    * Decrease the accuracy by removing the highest available index of 
+    * the xpath to find the node in case there are changes in the DOM
+    * e.g.: /html[1]/body[1]/main[1]/p[1] --> /html/body[1]/main[1]/p[1] 
+    * 
+    * @param {String} xpath - xpath to the node
+    * @return {String} xpath with reduced accuracy 
+    */
    function decreaseXpathAccuracy(xpath) {
       let start
       let end
@@ -204,6 +212,14 @@ function isNodePartOf (node, container) {
       return null
    }
     
+   /**
+    * Recursively evaluate the less accurate xpath from decreaseXpathAccuracy(xpath).
+    * If the node is found, return that HTMLElement, if not recurse again with a less accurate path 
+    * 
+    * @param {String} xpath - xpath to the node
+    * @param {HTMLElement} root - root element
+    * @return {HTMLElement} Node described by the xpath and root
+    */
    function getNodeFromRelativeXpath(xpath, root) {
       console.log(xpath);
     
