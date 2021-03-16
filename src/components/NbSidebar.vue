@@ -124,6 +124,10 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
+    },
+    sourceUrl: {
+      type: String,
+      default: ""
     }
   },
   data () {
@@ -303,7 +307,8 @@ export default {
         upvoteCount: 0,
         seenByMe: true
       })
-      comment.submitAnnotation(this.activeClass.id)
+      let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
+      comment.submitAnnotation(this.activeClass.id, source)
 
       if (this.draftRange) {
         this.$emit('new-thread', comment)
