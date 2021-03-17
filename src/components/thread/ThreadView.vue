@@ -6,6 +6,10 @@
       <font-awesome-icon icon="question">
       </font-awesome-icon>
       {{ thread.countAllReplyReqs() }}
+      &nbsp;·&nbsp;
+      <nb-innotation-control
+        :thread="thread">
+      </nb-innotation-control>
     </div>
     <thread-comment
         :comment="thread"
@@ -20,6 +24,7 @@
 
 <script>
 import ThreadComment from './ThreadComment.vue'
+import NbInnotationControl from '../innotations/NbInnotationControl.vue'
 
 /**
  * Component for the nested discussion view of thread on the side bar.
@@ -82,7 +87,8 @@ export default {
     }
   },
   components: {
-    ThreadComment
+    ThreadComment,
+    NbInnotationControl
   }
 }
 </script>

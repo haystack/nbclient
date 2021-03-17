@@ -14,6 +14,10 @@
         i
       </div>
       <div v-else class="placeholder instr"></div>
+      <div v-if="thread.isInnotated()" class="icon-wrapper inno">
+        {{thread.innotation.position.slice(0,2)}}
+      </div>
+      <div v-else class="placeholder inno"></div>
       <div v-if="thread.hasReplyRequests()" class="icon-wrapper question"
           :style="iconStyle">
         <font-awesome-icon icon="question">

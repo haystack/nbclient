@@ -127,7 +127,8 @@ function embedNbApp () {
         </div>
         <div v-else>
           <nb-innotations
-            :threads="filteredThreads">
+            :innotationsBlock="innotationsBlock"
+            :innotationsInline="innotationsInline">
           </nb-innotations>
           <nb-highlights
             :key="resizeKey"
@@ -213,7 +214,7 @@ function embedNbApp () {
         minUpvotes: 0
       },
       showHighlights: true,
-      resizeKey: Date.now() // work around to force redraw highlights
+      resizeKey: Date.now(), // work around to force redraw highlights
     },
     computed: {
       style: function () {
@@ -221,6 +222,12 @@ function embedNbApp () {
       },
       totalThreads: function () {
         return this.threads.length
+      },
+      innotationsBlock: function () {
+        return this.threads.filter(t => t.innotation && t.innotation.position !== 'IN')
+      },
+      innotationsInline: function () {
+        return this.threads.filter(t => t.innotation && t.innotation.position === 'IN')
       },
       filteredThreads: function () {
         let items = this.threads
@@ -374,6 +381,12 @@ function embedNbApp () {
           const decoded = VueJwtDecode.decode(token)
           this.user = decoded.user
       }
+
+      // remove hypothesis
+      const hypothesisSidebar = document.getElementsByTagName('hypothesis-sidebar')
+      const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
+      hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
+      hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
     },
     methods: {
       setUser: function (user) {
