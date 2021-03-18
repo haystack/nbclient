@@ -15,22 +15,23 @@ export default {
         }
     },
     created: function() {
+        this.innoPos = this.thread.innotation.position.toLowerCase()
+
         console.log('nb-highlight-block Created')
         // remove elm if exists
-        const elm = document.getElementById(`nb-innotation-block-${this.thread.id}`)
+        const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
         if (elm) elm.remove()
 
         const commonAncestor = this.thread.range.commonAncestor
 
         console.log(this.thread)
-        // get pos of inno. (from db)
-        this.innoPos = this.thread.innotation.position.toLowerCase()
+        
 
         console.log(this.innoPos)
 
         // build innotation item
         const innotation = document.createElement('nb-innotation')
-        innotation.id = `nb-innotation-block-${this.thread.id}`
+        innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 200 ? `${this.thread.text.substring(0, 200)}...` : this.thread.text;
         innotation.innerText = (`${text}\n\n${this.thread.authorName}`)
 
@@ -60,15 +61,23 @@ export default {
         window.dispatchEvent(new Event('resize'))
     },
     beforeUpdate: function (val) {
-        console.log("beforeDestroy nb-highlight-block")
+        console.log("beforeUpdate nb-highlight-block")
+        console.log(this.thread)
+        console.log(val)
+    },
+    updated: function (val) {
+        console.log("updated nb-highlight-block")
         console.log(this.thread)
         console.log(val)
     },
     beforeDestroy: function() {
         console.log("beforeDestroy nb-highlight-block")
         console.log(this.thread)
+        console.log(this.innoPos)
         // remove elm if exists
-        const elm = document.getElementById(`nb-innotation-block-${this.thread.id}`)
+        const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
+        console.log('old inno:')
+        console.log(elm)
         if (elm) elm.remove()
         window.dispatchEvent(new Event('resize'))
 
@@ -79,8 +88,17 @@ export default {
         })
         console.log(this.innoPos)
         console.log(innotationCollection)
-        if(innotationCollection) innotationCollection.remove()
-        commonAncestor.classList.remove(`nb-${this.innoPos}`)
+        if(innotationCollection) {
+            const hasOtherInnotations = Array.from(innotationCollection.childNodes.values()).find( elm => { 
+                return elm.nodeName.toLowerCase() === 'nb-innotation'
+            })
+
+            if (!hasOtherInnotations) {
+                innotationCollection.remove()
+                commonAncestor.classList.remove(`nb-${this.innoPos}`)
+            }
+            
+        }
     } 
 
      // TODO: add functions for manipulations

@@ -1,13 +1,13 @@
 <template>
-    <div>
+    <div v-if="showHighlights">
         <nb-innotation-inline
             v-for="thread in innotationsInline"
-            :key="thread.innotation"
+            :key="key(thread)"
             :thread="thread">
         </nb-innotation-inline>
         <nb-innotation-block 
             v-for="thread in innotationsBlock"
-            :key="thread.innotation"
+            :key="key(thread)"
             :thread="thread">
         </nb-innotation-block>
     </div>
@@ -28,6 +28,15 @@ export default {
             type: Array,
             default: () => []
         },
+        showHighlights: {
+            type: Boolean,
+            default: true
+        }
+    },
+    methods: {
+        key: function (t) {
+            return t.id + '' + t.updatedDate
+        }
     },
     components: {
         NbInnotationBlock,

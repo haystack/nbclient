@@ -45,7 +45,6 @@ export default {
         },
     },
     beforeDestroy: function() {
-        console.log("beforeDestroy")
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
         if (elm) elm.remove()

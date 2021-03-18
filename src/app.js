@@ -128,7 +128,8 @@ function embedNbApp () {
         <div v-else>
           <nb-innotations
             :innotationsBlock="innotationsBlock"
-            :innotationsInline="innotationsInline">
+            :innotationsInline="innotationsInline"
+            :show-highlights="showHighlights">
           </nb-innotations>
           <nb-highlights
             :key="resizeKey"
@@ -224,10 +225,10 @@ function embedNbApp () {
         return this.threads.length
       },
       innotationsBlock: function () {
-        return this.threads.filter(t => t.innotation && t.innotation.position !== 'IN')
+        return this.filteredThreads.filter(t => t.innotation && t.innotation.position !== 'IN')
       },
       innotationsInline: function () {
-        return this.threads.filter(t => t.innotation && t.innotation.position === 'IN')
+        return this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
       },
       filteredThreads: function () {
         let items = this.threads
@@ -710,4 +711,13 @@ function embedNbApp () {
   window.addEventListener('resize', _ => {
     app.handleResize()
   })
+
+  window.addEventListener('scroll', _ => {
+    app.handleResize()
+  })
+
+  window.addEventListener('click', _ => {
+    app.handleResize()
+  })
+
 }

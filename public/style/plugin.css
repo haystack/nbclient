@@ -362,8 +362,8 @@
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.inno {
   background-color: #4a2270;
   color: #fff;
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.inno {
   width: 16px;
@@ -379,8 +379,8 @@
 #nb-app  .nb-inno-control span {
   background-color: #a67cce;
   color: #fff;
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
