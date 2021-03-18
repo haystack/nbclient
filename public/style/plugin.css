@@ -761,17 +761,33 @@
     font-size: 11px;
 }
 nb-innotation {
-    border: 2px #20a720 solid;
-    border-radius: 15px;
-    color: white;
+    border-radius: 1px;
     margin: 10px;
     flex: 1;
     padding: 20px;
-    background: green;
     align-items: center;
     display: flex;
-    justify-content: center;
-    text-align: center;
+    text-align: left;
+    justify-content: left;
+    background-color: #fff5a4;
+    box-shadow: 0px 2px 5px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+    box-sizing: border-box;
+    font-size: 1.0rem;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    transition: 0.5s;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+nb-innotation:hover {
+    box-shadow: 5px 7px 9px 0px rgb(0 0 0 / 20%), 2px 1px 2px 1px rgb(0 0 0 / 14%), 1px 1px 10px 0px rgb(0 0 0 / 12%);
+    cursor: pointer;
+    transition: 0.5s;
+    background-color: #fff7b3;
 }
 
 nb-innotation-inline {
