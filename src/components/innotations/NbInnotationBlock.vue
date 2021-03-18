@@ -32,7 +32,7 @@ export default {
         // build innotation item
         // TODO: Seperate the author name from content. create new element
         const innotation = document.createElement('nb-innotation')
-        innotation.id = `nb-innotation-block-${this.thread.id}`
+        innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
         innotation.innerText = (`${text}\n\n${this.thread.authorName}`)
 
@@ -80,7 +80,7 @@ export default {
         console.log('old inno:')
         console.log(elm)
         if (elm) elm.remove()
-        window.dispatchEvent(new Event('resize'))
+        
 
         // remove collection if no elm left in item
         const commonAncestor = this.thread.range.commonAncestor
@@ -100,6 +100,8 @@ export default {
             }
             
         }
+
+        window.dispatchEvent(new Event('resize'))
     } 
 
      // TODO: add functions for manipulations
