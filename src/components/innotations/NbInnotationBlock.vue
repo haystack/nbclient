@@ -29,9 +29,10 @@ export default {
         console.log(this.innoPos)
 
         // build innotation item
+        // TODO: Seperate the author name from content. create new element
         const innotation = document.createElement('nb-innotation')
         innotation.id = `nb-innotation-block-${this.thread.id}`
-        const text = this.thread.text.length > 200 ? `${this.thread.text.substring(0, 200)}...` : this.thread.text;
+        const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
         innotation.innerText = (`${text}\n\n${this.thread.authorName}`)
 
         // check if there is a collection for the position?

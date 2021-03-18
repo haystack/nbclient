@@ -3,7 +3,7 @@
         <span v-on:click="onClick('X')"     v-bind:class="{ active: !thread.innotation }">X</span>
         <span v-on:click="onClick('IN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'IN'}">IN</span>
         <span v-on:click="onClick('UP')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'UP'}">UP</span>
-        <span v-on:click="onClick('DOWN')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'DOWN'}">DO</span>
+        <span v-on:click="onClick('DOWN')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'DOWN'}">BO</span>
         <span v-on:click="onClick('LEFT')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">LE</span>
         <span v-on:click="onClick('RIGHT')" v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">RI</span>
     </div>
