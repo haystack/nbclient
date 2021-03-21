@@ -762,6 +762,7 @@
 }
 nb-innotation {
     border-radius: 1px;
+    border:none;
     margin: 10px;
     flex: 1;
     padding: 20px;
