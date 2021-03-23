@@ -8,7 +8,11 @@
       @click="$emit('select-thread', thread)">
     <div class="flags">
       <div v-if="thread.isInnotated()" class="icon-wrapper inno">
-        {{thread.innotation.position.slice(0,1)}}
+        {{(thread.innotation.position === "IN" && "~") ||
+        (thread.innotation.position === "ABOVE" && "↑") ||
+        (thread.innotation.position === "BELLOW" && "↓") ||
+        (thread.innotation.position === "LEFT" && "←") ||
+        (thread.innotation.position === "RIGHT" && "→")}}
       </div>
       <div v-else class="placeholder inno"></div>
       <div class="icon-wrapper counter" :style="counterStyle">
