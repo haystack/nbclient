@@ -1,11 +1,11 @@
 <template>
     <div class='nb-inno-control'>
         <span v-on:click="onClick('X')"     v-bind:class="{ active: !thread.innotation }">X</span>
-        <span v-on:click="onClick('IN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'IN'}">I</span>
-        <span v-on:click="onClick('UP')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'UP'}">U</span>
-        <span v-on:click="onClick('DOWN')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'DOWN'}">D</span>
-        <span v-on:click="onClick('LEFT')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">L</span>
-        <span v-on:click="onClick('RIGHT')" v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">R</span>
+        <span v-on:click="onClick('IN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'IN'}">~</span>
+        <span v-on:click="onClick('ABOVE')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'ABOVE'}">↑</span>
+        <span v-on:click="onClick('BELLOW')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'BELLOW'}">↓</span>
+        <span v-on:click="onClick('LEFT')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">←</span>
+        <span v-on:click="onClick('RIGHT')" v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">→</span>
     </div>
 </template>
 
