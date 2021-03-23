@@ -19,6 +19,8 @@ import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 
+import { Annotorious } from '@recogito/annotorious';
+import '@recogito/annotorious/dist/annotorious.min.css';
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -40,8 +42,10 @@ if (
   (!document.attachEvent && document.readyState !== 'loading')
 ) {
   embedNbApp()
+  annotateImage()
 } else {
   document.addEventListener('DOMContentLoaded', embedNbApp)
+  document.addEventListener('DOMContentLoaded', annotateImage)
 }
 
 /**
@@ -73,6 +77,8 @@ function embedNbApp () {
   loadCSS('https://cdn.quilljs.com/1.3.6/quill.snow.css')
   loadCSS(`${PLUGIN_HOST_URL}/style/plugin.css`)
   loadCSS(`${PLUGIN_HOST_URL}/style/tooltip.css`)
+//   loadCSS(`${PLUGIN_HOST_URL}/style/annotorious.min.css`)
+//   loadScript(`${PLUGIN_HOST_URL}/js/annotorious.min.js`)
   loadScript('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js')
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
@@ -721,3 +727,49 @@ function embedNbApp () {
   })
 
 }
+
+function annotateImage (){
+    Array.from(document.getElementsByTagName("img")).forEach(elm => {
+        let anno = new Annotorious({
+            image: elm,
+            // locale: 'auto',
+            // widgets: [
+            // { widget: 'COMMENT' },
+            // { widget: 'TAG', vocabulary: [ 'Animal', 'Building', 'Waterbody'] }
+            // ]
+        });
+    
+        anno.setAuthInfo({
+            id: 'http://www.example.com/rainer',
+            displayName: 'jumana'
+        });
+    
+        // Whenever a new annotation is created by the user, we want to append this body
+        // var templateBody = {
+        //     type: 'TextualBody',
+        //     value: 'My Tag',
+        //     purpose: 'tagging'
+        // };
+    
+        anno.on('createSelection', function(s) {
+            console.log('createSelection');
+        });
+    
+        anno.on('createAnnotation', function(a) {
+            console.log('created', a);
+        });
+    
+        anno.on('updateAnnotation', function(annotation, previous) {
+            console.log('updated', previous, 'with', annotation);
+        });
+    
+        anno.on('deleteAnnotation', function(annotation) {
+            console.log('deleted', annotation);
+        });
+        
+        //Sanno.loadAnnotations('annotations.w3c.json');
+    
+        anno.setDrawingTool('rect');
+        
+    })
+  }
