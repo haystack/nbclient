@@ -389,6 +389,19 @@ function embedNbApp () {
           this.user = decoded.user
       }
 
+      //TEMP remove NB2 on test 
+      Array.from(document.getElementsByTagName("link")).forEach(elm => {
+          if (elm.href.includes("https://nb2.csail.mit.edu")){
+              elm.remove()
+          }
+        })
+
+      Array.from(document.getElementsByTagName("script")).forEach(elm => {
+          if (elm.src.includes("https://nb2.csail.mit.edu")){
+              elm.remove()
+          }
+      })
+
       // remove hypothesis
       const hypothesisSidebar = document.getElementsByTagName('hypothesis-sidebar')
       const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
