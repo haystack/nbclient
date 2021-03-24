@@ -79,6 +79,8 @@ import ListView from './list/ListView.vue'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
+import { Annotorious } from '@recogito/annotorious';
+import '@recogito/annotorious/dist/annotorious.min.css';
 
 export default {
   name: 'nb-sidebar',
@@ -156,6 +158,54 @@ export default {
       return Object.values(this.hashtags).sort(compare('value'))
     }
   },
+  created: function(){
+    Array.from(document.getElementsByTagName("img")).forEach(elm => {
+        let anno = new Annotorious({
+            image: elm,
+            // locale: 'auto',
+            // widgets: [
+            // { widget: 'COMMENT' },
+            // { widget: 'TAG', vocabulary: [ 'Animal', 'Building', 'Waterbody'] }
+            // ]
+        });
+    
+        anno.setAuthInfo({
+            id: 'http://www.example.com/rainer',
+            displayName: 'jumana'
+        });
+    
+        // Whenever a new annotation is created by the user, we want to append this body
+        // var templateBody = {
+        //     type: 'TextualBody',
+        //     value: 'My Tag',
+        //     purpose: 'tagging'
+        // };
+    
+        // anno.on('createSelection', function(s) {
+        //     console.log('createSelection');
+        //     this.initEditor('New Comment', null, {}, true)            
+
+        // });
+        anno.on('createSelection', this.onImageAnnotated)
+    
+        anno.on('createAnnotation', function(a) {
+            console.log('created', a);
+        });
+    
+        anno.on('updateAnnotation', function(annotation, previous) {
+            console.log('updated', previous, 'with', annotation);
+        });
+    
+        anno.on('deleteAnnotation', function(annotation) {
+            console.log('deleted', annotation);
+        });
+        
+        //Sanno.loadAnnotations('annotations.w3c.json');
+    
+        anno.setDrawingTool('rect');
+        
+    })
+  },
   watch: {
     draftRange: function (val, oldVal) {
       if (val) {
@@ -179,12 +229,16 @@ export default {
         // When thread is unselected, cancel reply if editor is empty.
         this.editor.visible = false
         this.replyToComment = null
+        }
       }
-    }
-  },
+    },
   methods: {
     onSwitchClass: function (newClass) {
       this.$emit('switch-class', newClass)
+    },
+    onImageAnnotated: function (){
+        console.log('createSelection');
+        this.initEditor('New Comment', null, {}, true)   
     },
     onToggleHighlights: function (show) {
       this.$emit('toggle-highlights', show)

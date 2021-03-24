@@ -42,10 +42,10 @@ if (
   (!document.attachEvent && document.readyState !== 'loading')
 ) {
   embedNbApp()
-  annotateImage()
+//   annotateImage()
 } else {
   document.addEventListener('DOMContentLoaded', embedNbApp)
-  document.addEventListener('DOMContentLoaded', annotateImage)
+//   document.addEventListener('DOMContentLoaded', annotateImage)
 }
 
 /**
@@ -430,6 +430,8 @@ function embedNbApp () {
       draftThread: function (range) {
         if (this.user) { // only if selection was after user log in
           this.draftRange = createNbRange(range)
+          console.log("this is range:");
+          console.log(range);
         }
       },
       onDeleteThread: function (thread) {
@@ -728,48 +730,60 @@ function embedNbApp () {
 
 }
 
-function annotateImage (){
-    Array.from(document.getElementsByTagName("img")).forEach(elm => {
-        let anno = new Annotorious({
-            image: elm,
-            // locale: 'auto',
-            // widgets: [
-            // { widget: 'COMMENT' },
-            // { widget: 'TAG', vocabulary: [ 'Animal', 'Building', 'Waterbody'] }
-            // ]
-        });
+// function annotateImage (){
+//     Array.from(document.getElementsByTagName("img")).forEach(elm => {
+//         let anno = new Annotorious({
+//             image: elm,
+//             // locale: 'auto',
+//             // widgets: [
+//             // { widget: 'COMMENT' },
+//             // { widget: 'TAG', vocabulary: [ 'Animal', 'Building', 'Waterbody'] }
+//             // ]
+//         });
     
-        anno.setAuthInfo({
-            id: 'http://www.example.com/rainer',
-            displayName: 'jumana'
-        });
+//         anno.setAuthInfo({
+//             id: 'http://www.example.com/rainer',
+//             displayName: 'jumana'
+//         });
     
-        // Whenever a new annotation is created by the user, we want to append this body
-        // var templateBody = {
-        //     type: 'TextualBody',
-        //     value: 'My Tag',
-        //     purpose: 'tagging'
-        // };
+//         // Whenever a new annotation is created by the user, we want to append this body
+//         // var templateBody = {
+//         //     type: 'TextualBody',
+//         //     value: 'My Tag',
+//         //     purpose: 'tagging'
+//         // };
     
-        anno.on('createSelection', function(s) {
-            console.log('createSelection');
-        });
+//         anno.on('createSelection', function(s) {
+//             console.log('createSelection');
+            
+//             //TODO: remove this code. this is for demo only
+//             let temprange = new Object
+//             temprange.startContainer= "text"
+//             temprange.startOffset= 1
+//             temprange.endContainer= "text"
+//             temprange.endOffset= 12
+//             temprange.commonAncestorContainer= "text"
+//             console.log(temprange);
+//             createNbRange(temprange)
+//             //end code to be removed 
+
+//         });
     
-        anno.on('createAnnotation', function(a) {
-            console.log('created', a);
-        });
+//         anno.on('createAnnotation', function(a) {
+//             console.log('created', a);
+//         });
     
-        anno.on('updateAnnotation', function(annotation, previous) {
-            console.log('updated', previous, 'with', annotation);
-        });
+//         anno.on('updateAnnotation', function(annotation, previous) {
+//             console.log('updated', previous, 'with', annotation);
+//         });
     
-        anno.on('deleteAnnotation', function(annotation) {
-            console.log('deleted', annotation);
-        });
+//         anno.on('deleteAnnotation', function(annotation) {
+//             console.log('deleted', annotation);
+//         });
         
-        //Sanno.loadAnnotations('annotations.w3c.json');
+//         //Sanno.loadAnnotations('annotations.w3c.json');
     
-        anno.setDrawingTool('rect');
+//         anno.setDrawingTool('rect');
         
-    })
-  }
+//     })
+//   }

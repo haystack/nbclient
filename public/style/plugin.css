@@ -905,3 +905,6 @@ nb-innotation-controller {
 .nb-innotation-wrapper .nb-common-ancestor {
     flex: 2;
 }
+.r6o-editor {
+    display: none;
+}
