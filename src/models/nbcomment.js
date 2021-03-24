@@ -215,12 +215,12 @@ class NbComment {
    * On success, set {@link NbComment#id}. If this is a thread head,
    * {@link NbComment#loadReplies} will be called to also load replies.
    */
-  submitAnnotation (classId) {
+  submitAnnotation (classId, sourceUrl) {
     const token = localStorage.getItem("nb.user");
     const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
       return axios.post('/api/annotations/annotation', {
-        url: window.location.href.split('?')[0],
+        url: sourceUrl,
         class: classId,
         content: this.html,
         range: this.range.serialize(),
