@@ -820,8 +820,8 @@ nb-innotation-collection {
     display: flex;
 }
 
-nb-innotation-collection.nb-up, 
-nb-innotation-collection.nb-down {
+nb-innotation-collection.nb-above, 
+nb-innotation-collection.nb-bellow {
     flex-direction: row;
     width: 100%;
 }
@@ -832,14 +832,14 @@ nb-innotation-collection.nb-left {
     /* height: 100%; */
 }
 
-nb-innotation-collection.nb-up {
+nb-innotation-collection.nb-above {
     height: 180px;
     position: absolute;
     top: 0;
     left: 0;
 }
 
-nb-innotation-collection.nb-down {
+nb-innotation-collection.nb-bellow {
     height: 180px;
     position: absolute;
     bottom: 0;
@@ -864,11 +864,11 @@ nb-innotation-collection.nb-left {
     position: relative;
 }
 
-.nb-innotation-ancestor.nb-up {
+.nb-innotation-ancestor.nb-above {
     padding-top: 190px;
 }
 
-.nb-innotation-ancestor.nb-down {
+.nb-innotation-ancestor.nb-bellow {
     padding-bottom: 190px;
 }
 

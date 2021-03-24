@@ -115,18 +115,15 @@ export default {
             // Calculate the width and height
             Array.from(commonAncestor.childNodes.values()).forEach( elm => { 
                 if (elm.nodeName.toLowerCase() === 'nb-innotation-collection') {
-                    elm.className.includes(`nb-up`) || elm.className.includes(`nb-down`) ? innotationCollectionHeight -= INNO_HEIGHT : innotationCollectionWidth -= INNO_WIDTH
-                    elm.className.includes(`nb-up`) ? hasTop = true : ''
+                    elm.className.includes(`nb-above`) || elm.className.includes(`nb-bellow`) ? innotationCollectionHeight -= INNO_HEIGHT : innotationCollectionWidth -= INNO_WIDTH
+                    elm.className.includes(`nb-above`) ? hasTop = true : ''
                     elm.className.includes(`nb-left`) ? hasLeft = true : ''
                 }
             })
 
-            console.log(`innotationCollectionHeight: ${innotationCollectionHeight}`)
-            console.log(`innotationCollectionWidth: ${innotationCollectionWidth}`)
-
             Array.from(commonAncestor.childNodes.values()).forEach( elm => { 
                 if (elm.nodeName.toLowerCase() === 'nb-innotation-collection') {
-                    if ( elm.className.includes(`nb-up`) || elm.className.includes(`nb-down`)) {
+                    if ( elm.className.includes(`nb-above`) || elm.className.includes(`nb-bellow`)) {
                         elm.style.width = `${innotationCollectionWidth}px`
                         hasLeft ? elm.style.marginInlineStart = `${INNO_WIDTH}px` :elm.style.marginInlineStart = `0px`
                     } else {
