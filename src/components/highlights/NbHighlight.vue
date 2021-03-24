@@ -86,6 +86,7 @@ export default {
      * in the view. If not, scroll down/up the window to center the highlight.
      */
     threadSelected: function (val) {
+      console.log('threadSelected nbH')
       if (this.thread !== val) { return }
       let rect = this.$el.getBoundingClientRect()
       let elTop = rect.top

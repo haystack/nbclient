@@ -8,7 +8,11 @@
         <nb-innotation-block 
             v-for="thread in innotationsBlock"
             :key="key(thread)"
-            :thread="thread">
+            :thread="thread"
+            :thread-selected="threadSelected"
+            @select-thread="$emit('select-thread',thread)"
+            @hover-innotation="$emit('hover-innotation',thread)"
+            @unhover-innotation="$emit('unhover-innotation',thread)">
         </nb-innotation-block>
     </div>
 </template>
@@ -31,7 +35,8 @@ export default {
         showHighlights: {
             type: Boolean,
             default: true
-        }
+        },
+        threadSelected: Object,
     },
     methods: {
         key: function (t) {

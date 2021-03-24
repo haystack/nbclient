@@ -129,7 +129,12 @@ function embedNbApp () {
           <nb-innotations
             :innotationsBlock="innotationsBlock"
             :innotationsInline="innotationsInline"
-            :show-highlights="showHighlights">
+            :show-highlights="showHighlights"
+            :thread-selected="threadSelected"
+            @select-thread="onSelectThread"
+            @unselect-thread="onUnselectThread"
+            @hover-innotation="onHoverInnotation"
+            @unhover-innotation="onUnhoverInnotation">
           </nb-innotations>
           <nb-highlights
             :key="resizeKey"
@@ -197,6 +202,7 @@ function embedNbApp () {
       stillGatheringThreads: true,
       draftRange: null,
       isEditorEmpty: true,
+      isInnotationHover: false,
       filter: {
         searchOption: 'text',
         searchText: '',
@@ -614,21 +620,41 @@ function embedNbApp () {
         this.filter.minUpvotes = min
       },
       onSelectThread: function (thread) {
+        console.log('APP onSelectThread: ' + thread)
         this.threadSelected = thread
         thread.markSeenAll()
       },
       onUnselectThread: function (thread) {
+       console.log('we are here onUnselectThread')
+       if (!this.isInnotationHover) {
         this.threadSelected = null
-        if (this.draftRange && this.isEditorEmpty) {
-          this.onCancelDraft()
-        }
+        
+       }
+       if (this.draftRange && this.isEditorEmpty) {
+        this.onCancelDraft()
+      }
       },
       onHoverThread: function (thread) {
+        // console.log('onHoverThread in app')
+        // console.log(thread)
+        if (!this.threadsHovered.includes(thread)) {
+          this.threadsHovered.push(thread)
+        }
+      },
+      onHoverInnotation: function(thread) {
+        this.isInnotationHover = true
         if (!this.threadsHovered.includes(thread)) {
           this.threadsHovered.push(thread)
         }
       },
       onUnhoverThread: function (thread) {
+        // console.log('onUnhoverThread in app')
+        // console.log(thread)
+        let idx = this.threadsHovered.indexOf(thread)
+        if (idx >= 0) this.threadsHovered.splice(idx, 1)
+      },
+      onUnhoverInnotation: function(thread) {
+        this.isInnotationHover = false
         let idx = this.threadsHovered.indexOf(thread)
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
       },
@@ -639,10 +665,6 @@ function embedNbApp () {
         this.resizeKey = Date.now()
       },
       onSwitchClass: function(newClass) {
-          console.log('in app switch class');
-          console.log(newClass);
-          
-          
         this.activeClass = newClass
       },
       onLogout: function () {

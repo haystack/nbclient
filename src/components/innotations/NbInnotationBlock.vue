@@ -4,10 +4,14 @@
 <script>
 import NbInnotationPosition from './NbInnotationPosition'
 
+const INNO_WIDTH = 180
+const INNO_HEIGHT = 180
+
 export default {
     name: 'nb-highlight-block',
     props: {
         thread: Object,
+        threadSelected: Object,
     },
     data () {
         return {
@@ -17,78 +21,57 @@ export default {
     created: function() {
         this.innoPos = this.thread.innotation.position.toLowerCase()
 
-        console.log('nb-highlight-block Created')
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
         if (elm) elm.remove()
 
         const commonAncestor = this.thread.range.commonAncestor
-
-        console.log(this.thread)
-        
-
-        console.log(this.innoPos)
 
         // build innotation item
         // TODO: Seperate the author name from content. create new element
         const innotation = document.createElement('nb-innotation')
         innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
-        innotation.innerText = (`${text}\n\n${this.thread.authorName}`)
+        innotation.innerText = (`${text}`)
+        innotation.addEventListener('mouseenter', this.onMouseEnter)
+        innotation.addEventListener('mouseleave', this.onMouseLeave)
+        innotation.addEventListener('click', this.onClick)
+
 
         // check if there is a collection for the position?
-        console.log('check if there is a collection for the position?');
         const innotationCollection = Array.from(commonAncestor.childNodes.values()).find( elm => { 
             return elm.nodeName.toLowerCase() === 'nb-innotation-collection' && elm.className.includes(`nb-${this.innoPos}`)
         })
         
-        console.log(innotationCollection);
         if (innotationCollection) {
-            console.log('there is a collection');
             // if yes add the innotation
             innotationCollection.appendChild(innotation)
         } else {
-            console.log('NO collection');
-
             // if not create a collection, edit commonancestor css based on collection then add the innotation
             commonAncestor.classList.add('nb-innotation-ancestor', `nb-${this.innoPos}`)
             const innotationCollection =  document.createElement('nb-innotation-collection')
-
             innotationCollection.className = `nb-${this.innoPos}`
             commonAncestor.appendChild(innotationCollection)
             innotationCollection.appendChild(innotation)
+            //this.realignInnotationCollections()
         }
         
         window.dispatchEvent(new Event('resize'))
-    },
-    beforeUpdate: function (val) {
-        console.log("beforeUpdate nb-highlight-block")
-        console.log(this.thread)
-        console.log(val)
-    },
-    updated: function (val) {
-        console.log("updated nb-highlight-block")
-        console.log(this.thread)
-        console.log(val)
+        window.addEventListener('resize', _ => {
+            this.realignInnotationCollections()
+        })
     },
     beforeDestroy: function() {
-        console.log("beforeDestroy nb-highlight-block")
-        console.log(this.thread)
-        console.log(this.innoPos)
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
-        console.log('old inno:')
-        console.log(elm)
         if (elm) elm.remove()
         
-
         // remove collection if no elm left in item
         const commonAncestor = this.thread.range.commonAncestor
         const innotationCollection = Array.from(commonAncestor.childNodes.values()).find( elm => { 
             return elm.nodeName.toLowerCase() === 'nb-innotation-collection' && elm.className.includes(`nb-${this.innoPos}`)
         })
-        console.log(this.innoPos)
-        console.log(innotationCollection)
+
         if(innotationCollection) {
             const hasOtherInnotations = Array.from(innotationCollection.childNodes.values()).find( elm => { 
                 return elm.nodeName.toLowerCase() === 'nb-innotation'
@@ -98,11 +81,62 @@ export default {
                 innotationCollection.remove()
                 commonAncestor.classList.remove(`nb-${this.innoPos}`)
             }
-            
         }
 
+       // this.realignInnotationCollections()
         window.dispatchEvent(new Event('resize'))
-    } 
+    },
+    watch: {
+        threadSelected: function (val) {
+            const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
+            this.thread !== val ? elm.classList.remove('active') : elm.classList.add('active')
+        }
+    },
+    methods: {
+        onMouseEnter: function () {
+            console.log('onMouseEnter');
+            this.$emit('hover-innotation', this.thread)
+        },
+        onMouseLeave: function () {
+            console.log('onMouseLeave');
+            this.$emit('unhover-innotation', this.thread)
+        },
+        onClick: function () {
+            console.log('onClick');
+            this.$emit('select-thread', this.thread)
+        },
+        realignInnotationCollections: function () {
+            const commonAncestor = this.thread.range.commonAncestor
+            let innotationCollectionHeight = commonAncestor.offsetHeight
+            let innotationCollectionWidth = commonAncestor.offsetWidth
+            let hasTop = false
+            let hasLeft = false
+
+            // Calculate the width and height
+            Array.from(commonAncestor.childNodes.values()).forEach( elm => { 
+                if (elm.nodeName.toLowerCase() === 'nb-innotation-collection') {
+                    elm.className.includes(`nb-up`) || elm.className.includes(`nb-down`) ? innotationCollectionHeight -= INNO_HEIGHT : innotationCollectionWidth -= INNO_WIDTH
+                    elm.className.includes(`nb-up`) ? hasTop = true : ''
+                    elm.className.includes(`nb-left`) ? hasLeft = true : ''
+                }
+            })
+
+            console.log(`innotationCollectionHeight: ${innotationCollectionHeight}`)
+            console.log(`innotationCollectionWidth: ${innotationCollectionWidth}`)
+
+            Array.from(commonAncestor.childNodes.values()).forEach( elm => { 
+                if (elm.nodeName.toLowerCase() === 'nb-innotation-collection') {
+                    if ( elm.className.includes(`nb-up`) || elm.className.includes(`nb-down`)) {
+                        elm.style.width = `${innotationCollectionWidth}px`
+                        hasLeft ? elm.style.marginInlineStart = `${INNO_WIDTH}px` :elm.style.marginInlineStart = `0px`
+                    } else {
+                        elm.style.height = `${innotationCollectionHeight}px`
+                        hasTop ? elm.style.marginBlockStart = `${INNO_HEIGHT}px` : elm.style.marginBlockStart = `0px`
+                    }
+                }
+            })
+        }
+    }
 
      // TODO: add functions for manipulations
 }
