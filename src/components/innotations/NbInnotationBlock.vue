@@ -5,7 +5,7 @@
 import NbInnotationPosition from './NbInnotationPosition'
 
 const INNO_WIDTH = 180
-const INNO_HEIGHT = 180
+const INNO_HEIGHT = 120
 
 export default {
     name: 'nb-highlight-block',
