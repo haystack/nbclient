@@ -26,14 +26,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+//axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
@@ -161,6 +161,7 @@ function embedNbApp () {
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             :show-highlights="showHighlights"
+            :source-url="sourceURL"
             @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
@@ -221,7 +222,8 @@ function embedNbApp () {
         minUpvotes: 0
       },
       showHighlights: true,
-      resizeKey: Date.now(), // work around to force redraw highlights
+      resizeKey: Date.now(), // work around to force redraw highlights,
+      sourceURL: '',
     },
     computed: {
       style: function () {
@@ -354,15 +356,31 @@ function embedNbApp () {
             if (this.myClasses.length === 1) {
                 this.activeClass = this.myClasses[0]
             }
+            this.sourceURL = source 
 
         } else {
-            console.log("Sorry you don't have access");
-        }
+          const sourceWithQuery = window.location.href // try the source with query params as well
+          const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery }}
+          const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
+          if (myClassesWithQuery.data.length > 0) {
+            this.myClasses = myClassesWithQuery.data
 
+            if (this.myClasses.length === 1) {
+                this.activeClass = this.myClasses[0]
+            }
+            this.sourceURL = sourceWithQuery
+
+          } else { 
+            console.log("Sorry you don't have access");
+          } 
+        }
       },
       activeClass: async function (newActiveClass) {
         if (newActiveClass != {} && this.user) {
-            const source = window.location.origin + window.location.pathname
+            let source = window.location.origin + window.location.pathname
+            if (this.sourceURL.length > 0) {
+              source = this.sourceURL
+            }
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
 

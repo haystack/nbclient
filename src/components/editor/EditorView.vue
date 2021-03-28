@@ -119,12 +119,13 @@ export default {
       toolbar: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         [ 'bold', 'italic', 'underline', 'strike' ],
-        [{ 'script': 'super' }, { 'script': 'sub' }],
+        [{ 'script': 'super' }, { 'script': 'sub' } ],
         // [ 'blockquote', 'code-block', 'link'/*, 'formula'*/ ],
         // [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
         // [{ 'align': [] }],
         // [ 'people' ],
-        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment']
+        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment'],
+        ['cc']
       ],
       placeholder: 'Type # or @ to include tags',
       content: this.initialContent,
