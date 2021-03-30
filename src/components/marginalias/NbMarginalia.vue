@@ -5,7 +5,7 @@
         @click="$emit('select-thread',thread)"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
-            {{thread.text}}
+            {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 200)}...` : this.thread.text}}
     </div>
 </template>
 
@@ -31,15 +31,15 @@ export default {
             console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
             console.log(getTextBoundingBoxes(this.thread.range.toRange()))
             console.log(this.getOffset(this.thread.range.commonAncestor).top)
-            let style = `top: ${this.getOffset(this.thread.range.commonAncestor).top}px; transition: 0.3s;`
+            let style = `top: ${getTextBoundingBoxes(this.thread.range.toRange())[0].top - document.body.getBoundingClientRect().top}px; transition: 0.3s;`
 
              if (this.threadsHovered.includes(this.thread)) {
                 // style = `${style} outline: 2px dashed #ccc;`
-               style = `${style} background-color: #fef5d7;`
+               style = `${style} background-color: #fef5d7; z-index: 1;`
             }
 
             if (this.thread === this.threadSelected) {
-                style = `${style} mask-image: unset; background-color: #fef5d7;`
+                style = `${style} mask-image: unset; background-color: #fef5d7; z-index: 2;`
             }
 
             return style
