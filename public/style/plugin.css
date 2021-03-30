@@ -13,6 +13,12 @@
   font-style: italic;
 }
 
+#ql-toolbar.ql-snow {
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    padding: 2px;
+}
 /*
   Temporary workaround with plugin inheritting parent's style ...
   Would be nice to use Shadow DOM instead once it's supported by Quill.
@@ -426,7 +432,7 @@
   margin-bottom: 5px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author {
-  font-size: 15px;
+  font-size: 12px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
@@ -518,7 +524,7 @@
   margin-top: auto;
 }
 #nb-app .editor-view .header {
-  font-size: 14px;
+  font-size: 10px;
   color: #444;
   padding-bottom: 5px;
 }
@@ -541,7 +547,7 @@
   width: 80px;
   padding: 6px;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 12px;
   color: #fff;
   cursor: pointer;
 }

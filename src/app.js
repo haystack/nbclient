@@ -26,14 +26,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-//axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
