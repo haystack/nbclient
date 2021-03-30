@@ -86,7 +86,7 @@ export default {
      * in the view. If not, scroll down/up the window to center the highlight.
      */
     threadSelected: function (val) {
-      console.log('threadSelected nbH')
+      //console.log('threadSelected nbH')
       if (this.thread !== val) { return }
       let rect = this.$el.getBoundingClientRect()
       let elTop = rect.top
@@ -140,7 +140,7 @@ export default {
   methods: {
     onHover: function (state) {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
-    }
+    },
   }
 }
 </script>

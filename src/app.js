@@ -12,6 +12,7 @@ import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 import NbInnotations from './components/innotations/NbInnotations.vue'
+import NbMarginalias from './components/marginalias/NbMarginalias.vue'
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
@@ -136,6 +137,16 @@ function embedNbApp () {
             @hover-innotation="onHoverInnotation"
             @unhover-innotation="onUnhoverInnotation">
           </nb-innotations>
+          <nb-marginalias
+            :marginalias="marginalias"
+            :show-highlights="showHighlights"
+            :thread-selected="threadSelected"
+            :threads-hovered="threadsHovered"
+            @select-thread="onSelectThread"
+            @unselect-thread="onUnselectThread"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread">
+          </nb-marginalias>
           <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
@@ -233,10 +244,13 @@ function embedNbApp () {
         return this.threads.length
       },
       innotationsBlock: function () {
-        return this.filteredThreads.filter(t => t.innotation && t.innotation.position !== 'IN')
+        return [] // this.filteredThreads.filter(t => t.innotation && t.innotation.position !== 'IN')
       },
       innotationsInline: function () {
-        return this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
+        return [] // this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
+      },
+      marginalias: function () {
+        return this.filteredThreads // this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
       },
       filteredThreads: function () {
         let items = this.threads
@@ -651,12 +665,12 @@ function embedNbApp () {
         this.filter.minUpvotes = min
       },
       onSelectThread: function (thread) {
-        console.log('APP onSelectThread: ' + thread)
+        //console.log('APP onSelectThread: ' + thread)
         this.threadSelected = thread
         thread.markSeenAll()
       },
       onUnselectThread: function (thread) {
-       console.log('we are here onUnselectThread')
+       //console.log('we are here onUnselectThread')
        if (!this.isInnotationHover) {
         this.threadSelected = null
         
@@ -732,6 +746,7 @@ function embedNbApp () {
     },
     components: {
       NbInnotations,
+      NbMarginalias,
       NbHighlights,
       NbSidebar,
       NbLogin,
