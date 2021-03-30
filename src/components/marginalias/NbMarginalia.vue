@@ -24,21 +24,22 @@ export default {
     },
     computed: {
         style: function () {
-            // console.log('=====================================');
-            // console.log(this.thread.range)
-            // console.log(document.body.getBoundingClientRect().top);
-            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top);
-            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
-            // console.log(getTextBoundingBoxes(this.thread.range.toRange()))
-            // console.log(this.getOffset(this.thread.range.commonAncestor).top)
+            console.log('=====================================');
+            console.log(this.thread.range)
+            console.log(document.body.getBoundingClientRect().top);
+            console.log(this.thread.range.commonAncestor.getBoundingClientRect().top);
+            console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
+            console.log(getTextBoundingBoxes(this.thread.range.toRange()))
+            console.log(this.getOffset(this.thread.range.commonAncestor).top)
             let style = `top: ${this.getOffset(this.thread.range.commonAncestor).top}px; transition: 0.3s;`
 
              if (this.threadsHovered.includes(this.thread)) {
-                style = `${style} outline: 2px dashed #ccc;`
+                // style = `${style} outline: 2px dashed #ccc;`
+               style = `${style} background-color: #fef5d7;`
             }
 
             if (this.thread === this.threadSelected) {
-                style = `${style} background: #dcdddf;`
+                style = `${style} mask-image: unset; background-color: #fef5d7;`
             }
 
             return style

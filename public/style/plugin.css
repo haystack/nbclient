@@ -972,7 +972,7 @@ nb-innotation-controller {
   position: absolute;
   font-family: 'Playfair Display', serif;
   font-size: 12px;
-  padding: 2px 4px;
+  padding: 10px;
   display: flex;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -982,6 +982,9 @@ nb-innotation-controller {
   user-select: none;
   transition: 0.3s;
   cursor: pointer;
-  width: 200px;
+  width: 180px;
+  -webkit-mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 60%, rgba(255,255,255,1) 100%); 
+  mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 60%, rgba(255,255,255,1) 100%);
+
 }
 
