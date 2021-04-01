@@ -45,6 +45,8 @@
         :thread="threadSelected"
         :me="user"
         :replyToComment="replyToComment"
+        :is-marginalia="isMarginalia"
+        :is-innotation="isInnotation"
         @edit-comment="onEditComment"
         @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
@@ -111,6 +113,8 @@ export default {
       type: Boolean,
       default: true
     },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
     threads: { // threads after filter
       type: Object,
       default: () => {}

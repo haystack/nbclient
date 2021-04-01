@@ -8,7 +8,10 @@
       {{ thread.countAllReplyReqs() }}
       &nbsp;·&nbsp;
       <nb-innotation-control
-        :thread="thread">
+        v-if="isEnabled"
+        :thread="thread"
+        :is-marginalia="isMarginalia"
+        :is-innotation="isInnotation">
       </nb-innotation-control>
     </div>
     <thread-comment
@@ -53,7 +56,9 @@ export default {
   props: {
     thread: Object,
     me: Object,
-    replyToComment: Object
+    replyToComment: Object,
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
   },
   computed: {
     numComments: function () {
@@ -73,6 +78,9 @@ export default {
       } else {
         return `${count} reply requests`
       }
+    },
+    isEnabled: function () {
+      return this.isInnotation || this.isMarginalia
     }
   },
   methods: {
