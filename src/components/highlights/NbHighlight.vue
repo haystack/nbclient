@@ -116,7 +116,7 @@ export default {
       if (this.threadsHovered.includes(this.thread)) {
         return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
       }
-      else {
+      if (this.thread.innotation && this.thread.innotation.position === 'EM') {
         return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null

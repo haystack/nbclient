@@ -80,7 +80,7 @@ export default {
       }
     },
     isEnabled: function () {
-      return this.isInnotation || this.isMarginalia
+      return this.me.role === 'instructor' && (this.isInnotation || this.isMarginalia)
     }
   },
   methods: {

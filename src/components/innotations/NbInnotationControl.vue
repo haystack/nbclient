@@ -6,7 +6,8 @@
         <span v-if="isInnotation" v-on:click="onClick('BELLOW')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'BELLOW'}">↓</span>
         <span v-if="isInnotation" v-on:click="onClick('LEFT')"      v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">←</span>
         <span v-if="isInnotation" v-on:click="onClick('RIGHT')"     v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">→</span>
-        <span v-if="isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'MARGIN'}">&#x2133;</span>
+        <span v-if="isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'MARGIN'}">Ɱ</span>
+        <span v-if="isMarginalia||isInnotation" v-on:click="onClick('EM')"        v-bind:class="{ active: thread.innotation && thread.innotation.position === 'EM'}">❖</span>
     </div>
 </template>
 
