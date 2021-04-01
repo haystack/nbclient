@@ -24,13 +24,13 @@ export default {
     },
     computed: {
         style: function () {
-            console.log('=====================================');
-            console.log(this.thread.range)
-            console.log(document.body.getBoundingClientRect().top);
-            console.log(this.thread.range.commonAncestor.getBoundingClientRect().top);
-            console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
-            console.log(getTextBoundingBoxes(this.thread.range.toRange()))
-            console.log(this.getOffset(this.thread.range.commonAncestor).top)
+            // console.log('=====================================');
+            // console.log(this.thread.range)
+            // console.log(document.body.getBoundingClientRect().top);
+            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top);
+            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
+            // console.log(getTextBoundingBoxes(this.thread.range.toRange()))
+            // console.log(this.getOffset(this.thread.range.commonAncestor).top)
             let style = `top: ${getTextBoundingBoxes(this.thread.range.toRange())[0].top - document.body.getBoundingClientRect().top}px; transition: 0.3s;`
 
              if (this.threadsHovered.includes(this.thread)) {

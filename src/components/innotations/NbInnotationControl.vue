@@ -1,11 +1,12 @@
 <template>
     <div class='nb-inno-control'>
-        <span v-on:click="onClick('X')"     v-bind:class="{ active: !thread.innotation }">X</span>
-        <span v-on:click="onClick('IN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'IN'}">~</span>
-        <span v-on:click="onClick('ABOVE')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'ABOVE'}">↑</span>
-        <span v-on:click="onClick('BELLOW')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'BELLOW'}">↓</span>
-        <span v-on:click="onClick('LEFT')"  v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">←</span>
-        <span v-on:click="onClick('RIGHT')" v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">→</span>
+        <span v-on:click="onClick('X')"  v-bind:class="{ active: !thread.innotation }">X</span>
+        <span v-if="isInnotation" v-on:click="onClick('IN')"        v-bind:class="{ active: thread.innotation && thread.innotation.position === 'IN'}">~</span>
+        <span v-if="isInnotation" v-on:click="onClick('ABOVE')"     v-bind:class="{ active: thread.innotation && thread.innotation.position === 'ABOVE'}">↑</span>
+        <span v-if="isInnotation" v-on:click="onClick('BELLOW')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'BELLOW'}">↓</span>
+        <span v-if="isInnotation" v-on:click="onClick('LEFT')"      v-bind:class="{ active: thread.innotation && thread.innotation.position === 'LEFT'}">←</span>
+        <span v-if="isInnotation" v-on:click="onClick('RIGHT')"     v-bind:class="{ active: thread.innotation && thread.innotation.position === 'RIGHT'}">→</span>
+        <span v-if="isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.innotation && thread.innotation.position === 'MARGIN'}">&#x2133;</span>
     </div>
 </template>
 
@@ -16,6 +17,8 @@ export default {
     name: 'nb-innotation-control',
     props: {
         thread: Object,
+        isMarginalia: Boolean,
+        isInnotation: Boolean,
     },
     methods: {
         onClick: async function (position) {

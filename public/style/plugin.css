@@ -329,7 +329,7 @@
   background-color: #f0f0f0;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags {
-  min-width: 50px;
+  width: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -128,6 +128,7 @@ function embedNbApp () {
         </div>
         <div v-else>
           <nb-innotations
+            v-if="isInnotation"
             :innotationsBlock="innotationsBlock"
             :innotationsInline="innotationsInline"
             :show-highlights="showHighlights"
@@ -138,6 +139,7 @@ function embedNbApp () {
             @unhover-innotation="onUnhoverInnotation">
           </nb-innotations>
           <nb-marginalias
+            v-if="isMarginalia"
             :marginalias="marginalias"
             :show-highlights="showHighlights"
             :thread-selected="threadSelected"
@@ -173,6 +175,8 @@ function embedNbApp () {
             :draft-range="draftRange"
             :show-highlights="showHighlights"
             :source-url="sourceURL"
+            :is-marginalia="isMarginalia"
+            :is-innotation="isInnotation"
             @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
@@ -215,6 +219,8 @@ function embedNbApp () {
       draftRange: null,
       isEditorEmpty: true,
       isInnotationHover: false,
+      isMarginalia: false,
+      isInnotation: false,
       filter: {
         searchOption: 'text',
         searchText: '',
@@ -250,7 +256,7 @@ function embedNbApp () {
         return [] // this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
       },
       marginalias: function () {
-        return this.filteredThreads // this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
+        return this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'MARGIN')
       },
       filteredThreads: function () {
         let items = this.threads
@@ -419,6 +425,14 @@ function embedNbApp () {
       if (token) {
           const decoded = VueJwtDecode.decode(token)
           this.user = decoded.user
+      }
+
+      if (document.location.href.includes('/nb_viewer.html')) {
+        this.isMarginalia = true
+        this.isInnotation = false
+      } else {
+        this.isMarginalia = false
+        this.isInnotation = true
       }
 
       //TEMP remove NB2 on test 
