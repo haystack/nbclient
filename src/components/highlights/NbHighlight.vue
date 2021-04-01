@@ -108,13 +108,16 @@ export default {
   computed: {
     style: function () {
       if (!this.thread) {
-        return 'fill: rgb(231, 76, 60); opacity: 0.3;'
+        return 'fill: rgb(231, 76, 60); fill-opacity: 0.3;'
       }
       if (this.thread === this.threadSelected) {
-        return 'fill: rgb(1, 99, 255); opacity: 0.3;'
+        return 'fill: rgb(1, 99, 255); fill-opacity: 0.3;'
       }
       if (this.threadsHovered.includes(this.thread)) {
-        return 'fill: rgb(1, 99, 255); opacity: 0.12;'
+        return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
+      }
+      else {
+        return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null
     },
