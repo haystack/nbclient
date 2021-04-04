@@ -5,7 +5,7 @@
         @click="$emit('select-thread',thread)"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
-            {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 200)}...` : this.thread.text}}
+            {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text}}
     </div>
 </template>
 
