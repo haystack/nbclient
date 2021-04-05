@@ -7,14 +7,14 @@
       @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
     <div class="flags">
-      <div v-if="thread.isInnotated()" class="icon-wrapper inno">
-        {{(thread.innotation.position === "IN" && "~")   ||
-        (thread.innotation.position === "ABOVE" && "↑")  ||
-        (thread.innotation.position === "BELLOW" && "↓") ||
-        (thread.innotation.position === "LEFT" && "←")  ||
-        (thread.innotation.position === "RIGHT" && "→") ||
-        (thread.innotation.position === "MARGIN" && "Ɱ") ||
-        (thread.innotation.position === "EM" && "❖")}}
+      <div v-if="thread.isSpotlighted()" class="icon-wrapper inno">
+        {{(thread.spotlight.position === "IN" && "~")   ||
+        (thread.spotlight.position === "ABOVE" && "↑")  ||
+        (thread.spotlight.position === "BELLOW" && "↓") ||
+        (thread.spotlight.position === "LEFT" && "←")  ||
+        (thread.spotlight.position === "RIGHT" && "→") ||
+        (thread.spotlight.position === "MARGIN" && "Ɱ") ||
+        (thread.spotlight.position === "EM" && "❖")}}
       </div>
       <div v-else class="placeholder inno"></div>
       <div class="icon-wrapper counter" :style="counterStyle">

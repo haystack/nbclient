@@ -3,7 +3,7 @@
       class="nb-highlight"
       v-if="visible"
       :style="style"
-      @click="$emit('select-thread',thread)"
+      @click="onClick()"
       @mouseenter="onHover(true)"
       @mouseleave="onHover(false)">
     <rect
@@ -35,6 +35,7 @@
 
 <script>
 import { getTextBoundingBoxes } from '../../utils/overlay-util.js'
+import axios from 'axios'
 
 /**
  * Component for individual highlight overlay corresponding to each thread.
@@ -69,6 +70,7 @@ export default {
   name: 'nb-highlight',
   props: {
     thread: Object,
+    user: Object,
     threadSelected: Object,
     threadsHovered: {
       type: Array,
@@ -116,7 +118,7 @@ export default {
       if (this.threadsHovered.includes(this.thread)) {
         return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
       }
-      if (this.thread.innotation && this.thread.innotation.position === 'EM') {
+      if (this.thread.spotlight && this.thread.spotlight.position === 'EM') {
         return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null
@@ -144,6 +146,14 @@ export default {
     onHover: function (state) {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
     },
+    onClick: function () {
+      if (this.thread.spotlight && this.thread.spotlight.position === 'EM') {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'EM', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+      }
+      this.$emit('select-thread', this.thread)
+    }
   }
 }
 </script>

@@ -7,6 +7,7 @@
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
+        :user="user"
         @select-thread="$emit('select-thread',thread)"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)">
@@ -58,7 +59,8 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
-    }
+    },
+    user: Object,
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)

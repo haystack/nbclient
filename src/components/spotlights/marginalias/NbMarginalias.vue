@@ -5,6 +5,7 @@
             :key="key(thread)"
             :thread="thread"
             :thread-selected="threadSelected"
+            :user="user"
             :threads-hovered="threadsHovered"
             @select-thread="$emit('select-thread',thread)"
             @hover-thread="$emit('hover-thread',thread)"
@@ -32,6 +33,7 @@ export default {
             default: () => []
         },
         threadSelected: Object,
+        user: Object,
     },
     methods: {
         key: function (t) {

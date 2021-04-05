@@ -11,8 +11,8 @@ import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
-import NbInnotations from './components/innotations/NbInnotations.vue'
-import NbMarginalias from './components/marginalias/NbMarginalias.vue'
+import NbInnotations from './components/spotlights/innotations/NbInnotations.vue'
+import NbMarginalias from './components/spotlights/marginalias/NbMarginalias.vue'
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
@@ -133,6 +133,7 @@ function embedNbApp () {
             :innotationsInline="innotationsInline"
             :show-highlights="showHighlights"
             :thread-selected="threadSelected"
+            :user="user"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-innotation="onHoverInnotation"
@@ -144,6 +145,7 @@ function embedNbApp () {
             :show-highlights="showHighlights"
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
+            :user="user"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -156,6 +158,7 @@ function embedNbApp () {
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             :show-highlights="showHighlights"
+            :user="user"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -250,13 +253,13 @@ function embedNbApp () {
         return this.threads.length
       },
       innotationsBlock: function () {
-        return [] // this.filteredThreads.filter(t => t.innotation && t.innotation.position !== 'IN')
+        return this.filteredThreads.filter(t => t.spotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.spotlight.position))
       },
       innotationsInline: function () {
-        return [] // this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'IN')
+        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.position === 'IN')
       },
       marginalias: function () {
-        return this.filteredThreads.filter(t => t.innotation && t.innotation.position === 'MARGIN')
+        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.position === 'MARGIN')
       },
       filteredThreads: function () {
         let items = this.threads

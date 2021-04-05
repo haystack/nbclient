@@ -2,11 +2,13 @@
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
     name: 'nb-highlight-inline',
     props: {
         thread: Object,
+        user: Object,
     },
     created: function() {
         // remove elm if exists
@@ -22,10 +24,16 @@ export default {
         innotation.addEventListener('mouseover', this.onHover)
         innotation.addEventListener('mouseenter', this.onMouseEnter)
         innotation.addEventListener('mouseleave', this.onMouseLeave)
+        innotation.addEventListener('click', this.onClick)
         endNode.before(innotation)
         window.dispatchEvent(new Event('resize'))
     },
     methods: {
+        onClick: function () {
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'IN', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+        },
         onHover: function (state) {
             console.log('onHover');
         },

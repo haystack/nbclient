@@ -7,12 +7,12 @@
       </font-awesome-icon>
       {{ thread.countAllReplyReqs() }}
       &nbsp;·&nbsp;
-      <nb-innotation-control
+      <nb-spotlight-control
         v-if="isEnabled"
         :thread="thread"
         :is-marginalia="isMarginalia"
         :is-innotation="isInnotation">
-      </nb-innotation-control>
+      </nb-spotlight-control>
     </div>
     <thread-comment
         :comment="thread"
@@ -27,7 +27,7 @@
 
 <script>
 import ThreadComment from './ThreadComment.vue'
-import NbInnotationControl from '../innotations/NbInnotationControl.vue'
+import NbSpotlightControl from '../spotlights/NbSpotlightControl.vue'
 
 /**
  * Component for the nested discussion view of thread on the side bar.
@@ -96,7 +96,7 @@ export default {
   },
   components: {
     ThreadComment,
-    NbInnotationControl
+    NbSpotlightControl
   }
 }
 </script>

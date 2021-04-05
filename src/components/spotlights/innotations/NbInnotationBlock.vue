@@ -3,6 +3,7 @@
 
 <script>
 import NbInnotationPosition from './NbInnotationPosition'
+import axios from 'axios'
 
 const INNO_WIDTH = 180
 const INNO_HEIGHT = 120
@@ -11,6 +12,7 @@ export default {
     name: 'nb-highlight-block',
     props: {
         thread: Object,
+        user: Object,
         threadSelected: Object,
     },
     data () {
@@ -19,7 +21,7 @@ export default {
         }
     },
     created: function() {
-        this.innoPos = this.thread.innotation.position.toLowerCase()
+        this.innoPos = this.thread.spotlight.position.toLowerCase()
 
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
@@ -102,7 +104,9 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
-            console.log('onClick');
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: this.thread.spotlight.position, annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
             this.$emit('select-thread', this.thread)
         },
         realignInnotationCollections: function () {

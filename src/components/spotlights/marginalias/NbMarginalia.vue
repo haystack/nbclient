@@ -2,7 +2,7 @@
     <div 
         class="nb-marginalia"
         :style="style"
-        @click="$emit('select-thread',thread)"
+        @click="onClick()"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
             {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text}}
@@ -10,12 +10,14 @@
 </template>
 
 <script>
-import { getTextBoundingBoxes } from '../../utils/overlay-util.js'
+import { getTextBoundingBoxes } from '../../../utils/overlay-util.js'
+import axios from 'axios'
 
 export default {
     name: 'nb-marginalia',
     props: {
         thread: Object,
+        user: Object,
         threadSelected: Object,
         threadsHovered: {
             type: Array,
@@ -60,7 +62,9 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
-            console.log('onClick');
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'MARGIN', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
             this.$emit('select-thread', this.thread)
         },
         onHover: function (state) {

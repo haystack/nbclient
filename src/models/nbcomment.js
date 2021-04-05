@@ -26,7 +26,7 @@ class NbComment {
    * @param {Number} data.starCount - total upvotes for this comment, sets {@link NbComment#upvoteCount}
    * @param {Boolean} data.seenByMe - true if the current user's seen this comment, sets {@link NbComment#seenByMe}
    * @param {Boolean} data.bookmarked - true if the current user bookmarked this comment, sets {@link NbComment#bookmarked}
-   * @param {Object} data.innotation
+   * @param {Object} data.spotlight
    */
   constructor (data, annotationsData) {
     /**
@@ -190,7 +190,7 @@ class NbComment {
      */
     this.setText()
 
-    this.innotation = data.innotation
+    this.spotlight = data.spotlight
   }
 
   /**
@@ -422,8 +422,8 @@ class NbComment {
     return false
   }
 
-  isInnotated() {
-    if (this.innotation) {
+  isSpotlighted() {
+    if (this.spotlight) {
       return true
     }
     return false

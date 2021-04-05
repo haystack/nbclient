@@ -3,13 +3,15 @@
         <nb-innotation-inline
             v-for="thread in innotationsInline"
             :key="key(thread)"
-            :thread="thread">
+            :thread="thread"
+            :user="user">
         </nb-innotation-inline>
         <nb-innotation-block 
             v-for="thread in innotationsBlock"
             :key="key(thread)"
             :thread="thread"
             :thread-selected="threadSelected"
+            :user="user"
             @select-thread="$emit('select-thread',thread)"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
@@ -37,6 +39,8 @@ export default {
             default: true
         },
         threadSelected: Object,
+        user: Object,
+
     },
     methods: {
         key: function (t) {

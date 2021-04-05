@@ -378,13 +378,13 @@
   height: 16px;
 }
 
-#nb-app  .nb-inno-control {
+#nb-app  .nb-spotlight-control {
   display: inline-flex;
   vertical-align: middle;
 }
 
 
-#nb-app  .nb-inno-control span {
+#nb-app  .nb-spotlight-control span {
   background-color: #a67cce;
   color: #fff;
   font-size: 14px;
@@ -399,7 +399,7 @@
   cursor: pointer;
 }
 
-#nb-app  .nb-inno-control span.active {
+#nb-app  .nb-spotlight-control span.active {
   background-color: #4a2270;
   cursor: not-allowed;
 }
