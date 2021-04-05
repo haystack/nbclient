@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "webpack --watch --progress"
   },
   "author": "",
   "license": "ISC",
@@ -36,6 +37,8 @@
     "@fortawesome/free-regular-svg-icons": "^5.8.1",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/vue-fontawesome": "^0.1.6",
+    "@sentry/tracing": "^6.2.5",
+    "@sentry/vue": "^6.2.5",
     "axios": "^0.18.0",
     "express": "^4.17.0",
     "html-to-text": "^5.1.1",

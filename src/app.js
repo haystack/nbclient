@@ -17,7 +17,19 @@ import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
+import * as Sentry from "@sentry/vue";
+import { Integrations } from "@sentry/tracing";
 
+Sentry.init({
+    Vue,
+    dsn: "https://a133b162595647dea73e4635fa36ea66@o564291.ingest.sentry.io/5704961",
+    integrations: [new Integrations.BrowserTracing()],
+    logErrors: true,
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+  });
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -25,14 +37,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+// axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-//axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
