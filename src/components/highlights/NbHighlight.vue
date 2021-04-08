@@ -164,7 +164,12 @@ export default {
           role: this.user.role.toUpperCase() 
         }, config)
       }
-      this.$emit('select-thread', this.thread)
+
+      if (this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
+        this.$emit('select-thread', this.thread, true)
+      } else {
+        this.$emit('select-thread', this.thread)
+      }
     }
   }
 }

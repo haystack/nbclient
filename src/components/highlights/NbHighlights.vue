@@ -9,7 +9,7 @@
         :show-highlights="showHighlights"
         :user="user"
         :activeClass="activeClass"
-        @select-thread="$emit('select-thread',thread)"
+        @select-thread="onSelectThread"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)">
     </nb-highlight>
@@ -65,6 +65,11 @@ export default {
     activeClass: {
       type: Object,
       default: () => {}
+    },
+  },
+  methods: {
+    onSelectThread: function (thread, isSpotlightInitiated=false) {
+        this.$emit('select-thread', thread, isSpotlightInitiated)
     },
   },
   mounted: function () {

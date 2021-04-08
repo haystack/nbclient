@@ -183,6 +183,8 @@ function embedNbApp () {
             :source-url="sourceURL"
             :is-marginalia="isMarginalia"
             :is-innotation="isInnotation"
+            :activeClass="activeClass"
+            :is-spotlight-initiated="isSpotlightInitiated"
             @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
@@ -247,6 +249,7 @@ function embedNbApp () {
       showHighlights: true,
       resizeKey: Date.now(), // work around to force redraw highlights,
       sourceURL: '',
+      isSpotlightInitiated: false,
     },
     computed: {
       style: function () {
@@ -413,12 +416,9 @@ function embedNbApp () {
           
           axios.get('/api/annotations/allUsers', config)
           .then(res => {
-            console.log(res.data)
             this.users = res.data
             this.$set(this.user, 'role', this.users[this.user.id].role)
 
-            console.log('Session start')
-            console.log(this.users[decoded.user.id])
             const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
             axios.post(`/api/spotlights/log/session/start`, {
                 action: 'SESSION_START', 
@@ -696,16 +696,17 @@ function embedNbApp () {
         }
         this.filter.minUpvotes = min
       },
-      onSelectThread: function (thread) {
-        //console.log('APP onSelectThread: ' + thread)
+      onSelectThread: function (thread, isSpotlightInitiated=false) {
+        this.isSpotlightInitiated = isSpotlightInitiated
+        //console.log('isSpotlightInitiated: ' + this.isSpotlightInitiated)
         this.threadSelected = thread
         thread.markSeenAll()
       },
       onUnselectThread: function (thread) {
-       //console.log('we are here onUnselectThread')
+        this.isSpotlightInitiated = false;
+       //console.log('isSpotlightInitiated: ' + this.isSpotlightInitiated)
        if (!this.isInnotationHover) {
         this.threadSelected = null
-        
        }
        if (this.draftRange && this.isEditorEmpty) {
         this.onCancelDraft()

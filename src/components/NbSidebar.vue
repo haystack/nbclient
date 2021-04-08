@@ -47,6 +47,8 @@
         :replyToComment="replyToComment"
         :is-marginalia="isMarginalia"
         :is-innotation="isInnotation"
+        :activeClass="activeClass"
+        :is-spotlight-initiated="isSpotlightInitiated"
         @edit-comment="onEditComment"
         @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
@@ -132,7 +134,9 @@ export default {
     sourceUrl: {
       type: String,
       default: ""
-    }
+    },
+    activeClass: Object,
+    isSpotlightInitiated: Boolean,
   },
   data () {
     return {
@@ -311,8 +315,9 @@ export default {
         upvoteCount: 0,
         seenByMe: true
       })
+
       let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-      comment.submitAnnotation(this.activeClass.id, source)
+      comment.submitAnnotation(this.activeClass.id, source, this.isSpotlightInitiated, this.replyToComment, this.activeClass, this.user)
 
       if (this.draftRange) {
         this.$emit('new-thread', comment)

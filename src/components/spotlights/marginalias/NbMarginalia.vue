@@ -58,15 +58,12 @@ export default {
     },
     methods: {
         onMouseEnter: function () {
-            console.log('onMouseEnter');
             this.$emit('hover-innotation', this.thread)
         },
         onMouseLeave: function () {
-            console.log('onMouseLeave');
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
-            console.log(this.thread);
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
@@ -79,7 +76,7 @@ export default {
                 role: this.user.role.toUpperCase() 
             }, config)
             
-            this.$emit('select-thread', this.thread)
+            this.$emit('select-thread', this.thread, true)
         },
         onHover: function (state) {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)

@@ -94,6 +94,8 @@
           :me="me"
           :replyToComment="replyToComment"
           :key="child.id"
+          :activeClass="activeClass"
+          :is-spotlight-initiated="isSpotlightInitiated"
           @edit-comment="editComment"
           @delete-comment="deleteComment"
           @draft-reply="draftReply"
@@ -132,7 +134,9 @@ export default {
   props: {
     comment: Object,
     me: Object,
-    replyToComment: Object
+    replyToComment: Object,
+    activeClass: Object,
+    isSpotlightInitiated: Boolean,
   },
   data () {
     return {
@@ -166,13 +170,13 @@ export default {
       this.$emit('draft-reply', comment)
     },
     toggleBookmark: function (comment) {
-      comment.toggleBookmark()
+      comment.toggleBookmark(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
     },
     toggleUpvote: function (comment) {
-      comment.toggleUpvote()
+      comment.toggleUpvote(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
     },
     toggleReplyRequest: function (comment) {
-      comment.toggleReplyRequest()
+      comment.toggleReplyRequest(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
     }
   },
   computed: {

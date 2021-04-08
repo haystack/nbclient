@@ -14,7 +14,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :activeClass="activeClass"
-            @select-thread="$emit('select-thread',thread)"
+            @select-thread="onSelectThread"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
         </nb-innotation-block>
@@ -50,7 +50,10 @@ export default {
     methods: {
         key: function (t) {
             return t.id + '' + t.updatedDate
-        }
+        },
+        onSelectThread: function (thread, isSpotlightInitiated=false) {
+            this.$emit('select-thread', thread, isSpotlightInitiated)
+        },
     },
     components: {
         NbInnotationBlock,

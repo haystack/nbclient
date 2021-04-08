@@ -8,7 +8,7 @@
             :user="user"
             :threads-hovered="threadsHovered"
             :activeClass="activeClass"
-            @select-thread="$emit('select-thread',thread)"
+            @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
             @unhover-thread="$emit('unhover-thread',thread)">
         </nb-marginalia>
@@ -43,7 +43,10 @@ export default {
     methods: {
         key: function (t) {
             return t.id + '' + t.updatedDate
-        }
+        },
+        onSelectThread: function (thread, isSpotlightInitiated=false) {
+            this.$emit('select-thread', thread, isSpotlightInitiated)
+        },
     },
     components: {
         NbMarginalia,

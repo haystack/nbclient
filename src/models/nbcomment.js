@@ -218,7 +218,7 @@ class NbComment {
    * On success, set {@link NbComment#id}. If this is a thread head,
    * {@link NbComment#loadReplies} will be called to also load replies.
    */
-  submitAnnotation (classId, sourceUrl) {
+  submitAnnotation (classId, sourceUrl, isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
     const token = localStorage.getItem("nb.user");
     const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
@@ -252,6 +252,9 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
+        if (isSpotlightInitiated) {
+          this.logSpotlightAction('REPLY', thread, activeClass, user)
+        }
       })
     }
   }
@@ -534,13 +537,17 @@ class NbComment {
   /**
    * Toggle the upvote for this comment by the current user.
    */
-  toggleUpvote () {
+  toggleUpvote (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
     if (this.upvotedByMe) {
       this.upvoteCount -= 1
       this.upvotedByMe = false
     } else {
       this.upvoteCount += 1
       this.upvotedByMe = true
+
+      if (isSpotlightInitiated) {
+        this.logSpotlightAction('STAR', thread, activeClass, user)
+      }
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -552,13 +559,17 @@ class NbComment {
   /**
    * Toggle the reply request for this comment by the current user.
    */
-  toggleReplyRequest () {
+  toggleReplyRequest (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
     if (this.replyRequestedByMe) {
       this.replyRequestCount -= 1
       this.replyRequestedByMe = false
     } else {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
+
+      if (isSpotlightInitiated) {
+        this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user)
+      }
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -570,13 +581,37 @@ class NbComment {
   /**
    * Toggle the bookmark for this comment by the current user.
    */
-  toggleBookmark () {
+  toggleBookmark (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
     this.bookmarked = !this.bookmarked
     if (this.id) {
       const token = localStorage.getItem("nb.user");
       const headers = { headers: { Authorization: 'Bearer ' + token }}
       axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked }, headers)
+
+      if (isSpotlightInitiated) {
+        this.logSpotlightAction('BOOKMARK', thread, activeClass, user)
+      }
     }
+  }
+
+  logSpotlightAction(action, comment, activeClass, user) {
+    const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+    const token = localStorage.getItem("nb.user");
+    const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+    const headComment = this.getHeadComment(comment)
+    axios.post(`/api/spotlights/log`, {
+        spotlight_id: headComment.spotlight.id,
+        action: action.toUpperCase(), 
+        type: headComment.spotlight.type.toUpperCase(), 
+        annotation_id: headComment.id, 
+        class_id: activeClass.id,
+        role: user.role.toUpperCase() 
+    }, config)
+  }
+
+  getHeadComment(comment) {
+    if (!comment.parent) return comment
+    return this.getHeadComment(comment.parent)
   }
 
   /**

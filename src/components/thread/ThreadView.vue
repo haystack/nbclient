@@ -18,6 +18,8 @@
         :comment="thread"
         :me="me"
         :replyToComment="replyToComment"
+        :activeClass="activeClass"
+        :is-spotlight-initiated="isSpotlightInitiated"
         @edit-comment="editComment"
         @delete-comment="deleteComment"
         @draft-reply="draftReply">
@@ -59,6 +61,8 @@ export default {
     replyToComment: Object,
     isMarginalia: Boolean,
     isInnotation: Boolean,
+    activeClass: Object,
+    isSpotlightInitiated: Boolean,
   },
   computed: {
     numComments: function () {

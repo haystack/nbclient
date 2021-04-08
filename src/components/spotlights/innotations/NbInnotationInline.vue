@@ -47,17 +47,14 @@ export default {
             }, config)
         },
         onHover: function (state) {
-            console.log('onHover');
         },
         onMouseEnter: function (state) {
-            console.log('onMouseEnter');
             const innotation = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
             const text = this.thread.text.length > 300 ? `${this.thread.text.substring(0, 300)}...` : this.thread.text;
             innotation.innerText = (`${text}`)
             window.dispatchEvent(new Event('resize'))
         },
         onMouseLeave: function (state) {
-            console.log('onMouseLeave');
             const innotation = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
             const text = this.thread.text.length > 100 ? `${this.thread.text.substring(0, 100)}...` : this.thread.text;
             innotation.innerText = (`${text}`)

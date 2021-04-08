@@ -100,11 +100,9 @@ export default {
     },
     methods: {
         onMouseEnter: function () {
-            console.log('onMouseEnter');
             this.$emit('hover-innotation', this.thread)
         },
         onMouseLeave: function () {
-            console.log('onMouseLeave');
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
@@ -120,7 +118,7 @@ export default {
             role: this.user.role.toUpperCase() 
             }, config)
             
-            this.$emit('select-thread', this.thread)
+            this.$emit('select-thread', this.thread, true)
         },
         realignInnotationCollections: function () {
             const commonAncestor = this.thread.range.commonAncestor
