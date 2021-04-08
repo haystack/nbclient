@@ -8,13 +8,13 @@
       @click="$emit('select-thread', thread)">
     <div class="flags">
       <div v-if="thread.isSpotlighted()" class="icon-wrapper inno">
-        {{(thread.spotlight.position === "IN" && "~")   ||
-        (thread.spotlight.position === "ABOVE" && "↑")  ||
-        (thread.spotlight.position === "BELLOW" && "↓") ||
-        (thread.spotlight.position === "LEFT" && "←")  ||
-        (thread.spotlight.position === "RIGHT" && "→") ||
-        (thread.spotlight.position === "MARGIN" && "Ɱ") ||
-        (thread.spotlight.position === "EM" && "❖")}}
+        {{(thread.spotlight.type === "IN" && "~")   ||
+        (thread.spotlight.type === "ABOVE" && "↑")  ||
+        (thread.spotlight.type === "BELLOW" && "↓") ||
+        (thread.spotlight.type === "LEFT" && "←")  ||
+        (thread.spotlight.type === "RIGHT" && "→") ||
+        (thread.spotlight.type === "MARGIN" && "Ɱ") ||
+        (thread.spotlight.type === "EM" && "❖")}}
       </div>
       <div v-else class="placeholder inno"></div>
       <div class="icon-wrapper counter" :style="counterStyle">

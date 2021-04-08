@@ -9,6 +9,10 @@ export default {
     props: {
         thread: Object,
         user: Object,
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
     },
     created: function() {
         // remove elm if exists
@@ -30,9 +34,17 @@ export default {
     },
     methods: {
         onClick: function () {
+            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
-            const headers = { headers: { Authorization: 'Bearer ' + token }}
-            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'IN', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+            axios.post(`/api/spotlights/log`, {
+            spotlight_id: this.thread.spotlight.id,
+            action: 'CLICK', 
+            type: this.thread.spotlight.type.toUpperCase(), 
+            annotation_id: this.thread.id, 
+            class_id: this.activeClass.id,
+            role: this.user.role.toUpperCase() 
+            }, config)
         },
         onHover: function (state) {
             console.log('onHover');

@@ -23,6 +23,10 @@ export default {
             type: Array,
             default: () => []
         },
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
     },
     computed: {
         style: function () {
@@ -62,9 +66,19 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
+            console.log(this.thread);
+            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
-            const headers = { headers: { Authorization: 'Bearer ' + token }}
-            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'MARGIN', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+            axios.post(`/api/spotlights/log`, {
+                spotlight_id: this.thread.spotlight.id,
+                action: 'CLICK', 
+                type: this.thread.spotlight.type.toUpperCase(), 
+                annotation_id: this.thread.id, 
+                class_id: this.activeClass.id,
+                role: this.user.role.toUpperCase() 
+            }, config)
+            
             this.$emit('select-thread', this.thread)
         },
         onHover: function (state) {

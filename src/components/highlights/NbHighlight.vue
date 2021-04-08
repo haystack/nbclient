@@ -80,7 +80,11 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
-    }
+    },
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
   },
   watch: {
     /**
@@ -118,7 +122,7 @@ export default {
       if (this.threadsHovered.includes(this.thread)) {
         return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
       }
-      if (this.thread.spotlight && this.thread.spotlight.position === 'EM') {
+      if (this.thread.spotlight && this.thread.spotlight.type === 'EM') {
         return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null
@@ -147,10 +151,18 @@ export default {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
     },
     onClick: function () {
-      if (this.thread.spotlight && this.thread.spotlight.position === 'EM') {
+      if (this.thread.spotlight && this.thread.spotlight.type === 'EM') {
+        const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
-        const headers = { headers: { Authorization: 'Bearer ' + token }}
-        axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: 'EM', annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+        axios.post(`/api/spotlights/log`, {
+          spotlight_id: this.thread.spotlight.id,
+          action: 'CLICK', 
+          type: this.thread.spotlight.type.toUpperCase(), 
+          annotation_id: this.thread.id, 
+          class_id: this.activeClass.id,
+          role: this.user.role.toUpperCase() 
+        }, config)
       }
       this.$emit('select-thread', this.thread)
     }

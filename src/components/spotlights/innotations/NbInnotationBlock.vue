@@ -14,6 +14,10 @@ export default {
         thread: Object,
         user: Object,
         threadSelected: Object,
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
     },
     data () {
         return {
@@ -21,7 +25,7 @@ export default {
         }
     },
     created: function() {
-        this.innoPos = this.thread.spotlight.position.toLowerCase()
+        this.innoPos = this.thread.spotlight.type.toLowerCase()
 
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
@@ -104,9 +108,18 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
+            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
-            const headers = { headers: { Authorization: 'Bearer ' + token }}
-            axios.post(`/api/spotlights/log`, {  action: 'CLICK', position: this.thread.spotlight.position, annotation_id: this.thread.id, role: this.user.role.toUpperCase() }, headers)
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+            axios.post(`/api/spotlights/log`, {
+            spotlight_id: this.thread.spotlight.id,
+            action: 'CLICK', 
+            type: this.thread.spotlight.type.toUpperCase(), 
+            annotation_id: this.thread.id, 
+            class_id: this.activeClass.id,
+            role: this.user.role.toUpperCase() 
+            }, config)
+            
             this.$emit('select-thread', this.thread)
         },
         realignInnotationCollections: function () {

@@ -7,6 +7,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :threads-hovered="threadsHovered"
+            :activeClass="activeClass"
             @select-thread="$emit('select-thread',thread)"
             @hover-thread="$emit('hover-thread',thread)"
             @unhover-thread="$emit('unhover-thread',thread)">
@@ -34,6 +35,10 @@ export default {
         },
         threadSelected: Object,
         user: Object,
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
     },
     methods: {
         key: function (t) {

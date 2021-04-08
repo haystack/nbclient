@@ -134,6 +134,7 @@ function embedNbApp () {
             :show-highlights="showHighlights"
             :thread-selected="threadSelected"
             :user="user"
+            :activeClass="activeClass"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-innotation="onHoverInnotation"
@@ -146,6 +147,7 @@ function embedNbApp () {
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :user="user"
+            :activeClass="activeClass"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -159,6 +161,7 @@ function embedNbApp () {
             :draft-range="draftRange"
             :show-highlights="showHighlights"
             :user="user"
+            :activeClass="activeClass"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -253,13 +256,13 @@ function embedNbApp () {
         return this.threads.length
       },
       innotationsBlock: function () {
-        return this.filteredThreads.filter(t => t.spotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.spotlight.position))
+        return this.filteredThreads.filter(t => t.spotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.spotlight.type))
       },
       innotationsInline: function () {
-        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.position === 'IN')
+        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.type === 'IN')
       },
       marginalias: function () {
-        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.position === 'MARGIN')
+        return this.filteredThreads.filter(t => t.spotlight && t.spotlight.type === 'MARGIN')
       },
       filteredThreads: function () {
         let items = this.threads
@@ -400,25 +403,37 @@ function embedNbApp () {
       },
       activeClass: async function (newActiveClass) {
         if (newActiveClass != {} && this.user) {
-            let source = window.location.origin + window.location.pathname
-            if (this.sourceURL.length > 0) {
-              source = this.sourceURL
-            }
-            const token = localStorage.getItem("nb.user");
-            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
+          let source = window.location.origin + window.location.pathname
+          if (this.sourceURL.length > 0) {
+            source = this.sourceURL
+          }
+          const token = localStorage.getItem("nb.user");
+          const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
+          const decoded = VueJwtDecode.decode(token)
+          
+          axios.get('/api/annotations/allUsers', config)
+          .then(res => {
+            console.log(res.data)
+            this.users = res.data
+            this.$set(this.user, 'role', this.users[this.user.id].role)
 
-            axios.get('/api/annotations/allUsers', config)
-            .then(res => {
-              this.users = res.data
-              this.$set(this.user, 'role', this.users[this.user.id].role)
-            })
-            
-            axios.get('/api/annotations/allTagTypes', config)
-            .then(res => {
-                this.hashtags = res.data
-            })
-            
-            this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
+            console.log('Session start')
+            console.log(this.users[decoded.user.id])
+            const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
+            axios.post(`/api/spotlights/log/session/start`, {
+                action: 'SESSION_START', 
+                type: 'NONE', 
+                class_id: this.activeClass.id,
+                role: this.users[this.user.id].role.toUpperCase() 
+            }, configSessionStart)
+          })
+          
+          axios.get('/api/annotations/allTagTypes', config)
+          .then(res => {
+              this.hashtags = res.data
+          })
+          
+          this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
         }
 
       }
@@ -729,7 +744,18 @@ function embedNbApp () {
       onSwitchClass: function(newClass) {
         this.activeClass = newClass
       },
-      onLogout: function () {
+      onSessionEnd: async function () {
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
+        await axios.post(`/api/spotlights/log/session/end`, {
+            action: 'SESSION_END', 
+            type: 'NONE', 
+            class_id: this.activeClass.id,
+            role: this.user.role.toUpperCase() 
+        }, config)
+      },
+      onLogout: async function () {
+          await this.onSessionEnd()
           localStorage.removeItem("nb.user")
           this.user = null
           this.myClasses = []
@@ -804,5 +830,12 @@ function embedNbApp () {
   window.addEventListener('click', _ => {
     app.handleResize()
   })
+
+  window.addEventListener('beforeunload', async function (e) {
+    e.preventDefault()
+    await app.onSessionEnd()
+    return
+  })
+
 
 }
