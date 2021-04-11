@@ -19,7 +19,19 @@ import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
+import * as Sentry from "@sentry/vue";
+import { Integrations } from "@sentry/tracing";
 
+Sentry.init({
+  Vue,
+  dsn: "https://0166e76b64ce48cf97d7df2b6d93ea90@o564291.ingest.sentry.io/5714967",
+  integrations: [new Integrations.BrowserTracing()],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
