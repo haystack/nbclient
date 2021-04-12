@@ -252,9 +252,7 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
-        if (isSpotlightInitiated) {
-          this.logSpotlightAction('REPLY', thread, activeClass, user)
-        }
+        this.logSpotlightAction('REPLY', thread, activeClass, user, isSpotlightInitiated)
       })
     }
   }
@@ -545,9 +543,7 @@ class NbComment {
       this.upvoteCount += 1
       this.upvotedByMe = true
 
-      if (isSpotlightInitiated) {
-        this.logSpotlightAction('STAR', thread, activeClass, user)
-      }
+      this.logSpotlightAction('STAR', thread, activeClass, user, isSpotlightInitiated)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -567,9 +563,7 @@ class NbComment {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
 
-      if (isSpotlightInitiated) {
-        this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user)
-      }
+      this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, isSpotlightInitiated)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -588,13 +582,11 @@ class NbComment {
       const headers = { headers: { Authorization: 'Bearer ' + token }}
       axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked }, headers)
 
-      if (isSpotlightInitiated) {
-        this.logSpotlightAction('BOOKMARK', thread, activeClass, user)
-      }
+      this.logSpotlightAction('BOOKMARK', thread, activeClass, user, isSpotlightInitiated)
     }
   }
 
-  logSpotlightAction(action, comment, activeClass, user) {
+  logSpotlightAction(action, comment, activeClass, user, isSpotlightInitiated) {
     const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
     const token = localStorage.getItem("nb.user");
     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
@@ -602,7 +594,7 @@ class NbComment {
     axios.post(`/api/spotlights/log`, {
         spotlight_id: headComment.spotlight.id,
         action: action.toUpperCase(), 
-        type: headComment.spotlight.type.toUpperCase(), 
+        type: isSpotlightInitiated ? headComment.spotlight.type.toUpperCase() : 'NONE',
         annotation_id: headComment.id, 
         class_id: activeClass.id,
         role: user.role.toUpperCase() 

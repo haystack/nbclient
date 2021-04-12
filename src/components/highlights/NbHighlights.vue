@@ -9,6 +9,7 @@
         :show-highlights="showHighlights"
         :user="user"
         :activeClass="activeClass"
+        :is-emphasize="isEmphasize"
         @select-thread="onSelectThread"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)">
@@ -66,6 +67,7 @@ export default {
       type: Object,
       default: () => {}
     },
+    isEmphasize: Boolean,
   },
   methods: {
     onSelectThread: function (thread, isSpotlightInitiated=false) {

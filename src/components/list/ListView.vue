@@ -35,6 +35,9 @@
           :thread="thread"
           :thread-selected="threadSelected"
           :threads-hovered="threadsHovered"
+          :is-marginalia="isMarginalia"
+          :is-emphasize="isEmphasize"
+          :is-innotation="isInnotation"
           @select-thread="$emit('select-thread', thread)"
           @hover-thread="$emit('hover-thread', thread)"
           @unhover-thread="$emit('unhover-thread', thread)">
@@ -102,7 +105,10 @@ export default {
     stillGatheringThreads: {
       type: Boolean,
       default: true
-    }
+    },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
   },
   data () {
     return {

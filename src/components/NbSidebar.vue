@@ -35,6 +35,9 @@
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
         :still-gathering-threads="stillGatheringThreads"
+        :is-marginalia="isMarginalia"
+        :is-emphasize="isEmphasize"
+        :is-innotation="isInnotation"
         @toggle-highlights="onToggleHighlights"
         @select-thread="onSelectThread"
         @hover-thread="onHoverThread"
@@ -46,6 +49,7 @@
         :me="user"
         :replyToComment="replyToComment"
         :is-marginalia="isMarginalia"
+        :is-emphasize="isEmphasize"
         :is-innotation="isInnotation"
         :activeClass="activeClass"
         :is-spotlight-initiated="isSpotlightInitiated"
@@ -117,6 +121,7 @@ export default {
     },
     isMarginalia: Boolean,
     isInnotation: Boolean,
+    isEmphasize: Boolean,
     threads: { // threads after filter
       type: Object,
       default: () => {}

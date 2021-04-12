@@ -7,7 +7,7 @@
         <span v-if="isInnotation" v-on:click="onClick('LEFT')"      v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'LEFT'}">←</span>
         <span v-if="isInnotation" v-on:click="onClick('RIGHT')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'RIGHT'}">→</span>
         <span v-if="isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'MARGIN'}">Ɱ</span>
-        <span v-if="isMarginalia||isInnotation" v-on:click="onClick('EM')"        v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'EM'}">❖</span>
+        <span v-if="isEmphasize" v-on:click="onClick('EM')"         v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'EM'}">❖</span>
     </div>
 </template>
 
@@ -20,6 +20,7 @@ export default {
         thread: Object,
         isMarginalia: Boolean,
         isInnotation: Boolean,
+        isEmphasize: Boolean,
     },
     methods: {
         onClick: async function (type) {
@@ -39,7 +40,10 @@ export default {
             } else if (type === 'X') {
                 const res = await axios.delete(`/api/spotlights/spotlight/${this.thread.spotlight.id}`, headers)
 
-                if (res.status === 200) this.thread.spotlight = null
+                if (res.status === 200) {
+                    this.thread.spotlight.type = 'NONE'
+                    this.thread.updatedDate = Date.now()
+                }
             } else {
                 const res = await axios.put(`/api/spotlights/spotlight/${this.thread.spotlight.id}`, {
                     type: type

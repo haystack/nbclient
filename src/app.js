@@ -19,19 +19,19 @@ import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
-import * as Sentry from "@sentry/vue";
-import { Integrations } from "@sentry/tracing";
+// import * as Sentry from "@sentry/vue";
+// import { Integrations } from "@sentry/tracing";
 
-Sentry.init({
-  Vue,
-  dsn: "https://0166e76b64ce48cf97d7df2b6d93ea90@o564291.ingest.sentry.io/5714967",
-  integrations: [new Integrations.BrowserTracing()],
+// Sentry.init({
+//   Vue,
+//   dsn: "https://0166e76b64ce48cf97d7df2b6d93ea90@o564291.ingest.sentry.io/5714967",
+//   integrations: [new Integrations.BrowserTracing()],
 
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-});
+//   // Set tracesSampleRate to 1.0 to capture 100%
+//   // of transactions for performance monitoring.
+//   // We recommend adjusting this value in production
+//   tracesSampleRate: 1.0,
+// });
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -174,6 +174,7 @@ function embedNbApp () {
             :show-highlights="showHighlights"
             :user="user"
             :activeClass="activeClass"
+            :is-emphasize="isEmphasize"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -195,6 +196,7 @@ function embedNbApp () {
             :source-url="sourceURL"
             :is-marginalia="isMarginalia"
             :is-innotation="isInnotation"
+            :is-emphasize="isEmphasize"
             :activeClass="activeClass"
             :is-spotlight-initiated="isSpotlightInitiated"
             @switch-class="onSwitchClass"
@@ -241,6 +243,7 @@ function embedNbApp () {
       isInnotationHover: false,
       isMarginalia: false,
       isInnotation: false,
+      isEmphasize: false,
       filter: {
         searchOption: 'text',
         searchText: '',
@@ -262,6 +265,7 @@ function embedNbApp () {
       resizeKey: Date.now(), // work around to force redraw highlights,
       sourceURL: '',
       isSpotlightInitiated: false,
+      nbConfigs: {},
     },
     computed: {
       style: function () {
@@ -450,7 +454,13 @@ function embedNbApp () {
 
       }
     },
-    created: function () {
+    created: async function () {
+      const req = await axios.get('/api/nb/config')
+      const configs = req.data
+      this.nbConfigs = configs
+
+      this.isEmphasize  = configs['SPOTLIGHT_EM'] === 'true' ? true : false
+
       const token = localStorage.getItem("nb.user")
       if (token) {
           const decoded = VueJwtDecode.decode(token)
@@ -458,11 +468,11 @@ function embedNbApp () {
       }
 
       if (document.location.href.includes('/nb_viewer.html')) {
-        this.isMarginalia = true
+        this.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
         this.isInnotation = false
       } else {
         this.isMarginalia = false
-        this.isInnotation = true
+        this.isInnotation = configs['SPOTLIGHT_INNOTATION']   === 'true' ? true : false
       }
 
       //TEMP remove NB2 on test 

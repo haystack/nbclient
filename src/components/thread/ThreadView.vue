@@ -11,7 +11,8 @@
         v-if="isEnabled"
         :thread="thread"
         :is-marginalia="isMarginalia"
-        :is-innotation="isInnotation">
+        :is-innotation="isInnotation"
+        :is-emphasize="isEmphasize">
       </nb-spotlight-control>
     </div>
     <thread-comment
@@ -61,6 +62,7 @@ export default {
     replyToComment: Object,
     isMarginalia: Boolean,
     isInnotation: Boolean,
+    isEmphasize: Boolean,
     activeClass: Object,
     isSpotlightInitiated: Boolean,
   },
@@ -84,7 +86,7 @@ export default {
       }
     },
     isEnabled: function () {
-      return this.me.role === 'instructor' && (this.isInnotation || this.isMarginalia)
+      return this.me.role === 'instructor' && (this.isInnotation || this.isMarginalia || this.isEmphasize)
     }
   },
   methods: {

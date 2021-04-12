@@ -85,6 +85,7 @@ export default {
       type: Object,
       default: () => {}
     },
+    isEmphasize: Boolean,
   },
   watch: {
     /**
@@ -122,7 +123,7 @@ export default {
       if (this.threadsHovered.includes(this.thread)) {
         return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
       }
-      if (this.thread.spotlight && this.thread.spotlight.type === 'EM') {
+      if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.isEmphasize) {
         return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null

@@ -7,7 +7,7 @@
       @mouseleave="$emit('unhover-thread', thread)"
       @click="$emit('select-thread', thread)">
     <div class="flags">
-      <div v-if="thread.isSpotlighted()" class="icon-wrapper inno">
+      <div v-if="isSpotlighted" class="icon-wrapper inno">
         {{(thread.spotlight.type === "IN" && "~")   ||
         (thread.spotlight.type === "ABOVE" && "↑")  ||
         (thread.spotlight.type === "BELLOW" && "↓") ||
@@ -70,9 +70,21 @@ export default {
     threadsHovered: {
       type: Array,
       default: () => []
-    }
+    },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
   },
   computed: {
+    isSpotlighted: function () {
+      if (this.thread.isSpotlighted()) {
+        if (['ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'IN'].includes(this.thread.spotlight.type) && this.isInnotation) return true
+        if (this.thread.spotlight.type === 'EM' && this.isEmphasize) return true
+        if (this.thread.spotlight.type === 'MARGIN' && this.isMarginalia) return true
+      }
+
+      return false
+    },
     rowStyle: function () {
       if (this.threadSelected && this.thread === this.threadSelected) {
         return 'background-color: #70a0f0; color: #fff'
