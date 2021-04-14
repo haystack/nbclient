@@ -153,6 +153,11 @@ export default {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
     },
     onClick: function () {
+
+      if (!this.thread) {
+        return this.$emit('select-thread', this.thread, 'NONE')
+      }
+
       let type = 'HIGHLIGHT'
       
       if ((this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
