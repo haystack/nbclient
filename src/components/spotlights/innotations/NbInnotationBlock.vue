@@ -118,7 +118,7 @@ export default {
             role: this.user.role.toUpperCase() 
             }, config)
             
-            this.$emit('select-thread', this.thread, true)
+            this.$emit('select-thread', this.thread, 'SPOTLIGHT')
         },
         realignInnotationCollections: function () {
             const commonAncestor = this.thread.range.commonAncestor

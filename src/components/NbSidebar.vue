@@ -38,6 +38,8 @@
         :is-marginalia="isMarginalia"
         :is-emphasize="isEmphasize"
         :is-innotation="isInnotation"
+        :activeClass="activeClass"
+        :user="user"
         @toggle-highlights="onToggleHighlights"
         @select-thread="onSelectThread"
         @hover-thread="onHoverThread"
@@ -52,7 +54,7 @@
         :is-emphasize="isEmphasize"
         :is-innotation="isInnotation"
         :activeClass="activeClass"
-        :is-spotlight-initiated="isSpotlightInitiated"
+        :thread-view-initiator="threadViewInitiator"
         @edit-comment="onEditComment"
         @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
@@ -141,7 +143,7 @@ export default {
       default: ""
     },
     activeClass: Object,
-    isSpotlightInitiated: Boolean,
+    threadViewInitiator: String,
   },
   data () {
     return {
@@ -251,8 +253,8 @@ export default {
     onMinUpvotes: function (min) {
       this.$emit('min-upvotes', min)
     },
-    onSelectThread: function (thread) {
-      this.$emit('select-thread', thread)
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+      this.$emit('select-thread', thread, threadViewInitiator)
     },
     onHoverThread: function (thread) {
       this.$emit('hover-thread', thread)
@@ -322,7 +324,7 @@ export default {
       })
 
       let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-      comment.submitAnnotation(this.activeClass.id, source, this.isSpotlightInitiated, this.replyToComment, this.activeClass, this.user)
+      comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user)
 
       if (this.draftRange) {
         this.$emit('new-thread', comment)

@@ -95,7 +95,7 @@
           :replyToComment="replyToComment"
           :key="child.id"
           :activeClass="activeClass"
-          :is-spotlight-initiated="isSpotlightInitiated"
+          :thread-view-initiator="threadViewInitiator"
           @edit-comment="editComment"
           @delete-comment="deleteComment"
           @draft-reply="draftReply"
@@ -136,7 +136,7 @@ export default {
     me: Object,
     replyToComment: Object,
     activeClass: Object,
-    isSpotlightInitiated: Boolean,
+    threadViewInitiator: String,
   },
   data () {
     return {
@@ -170,13 +170,13 @@ export default {
       this.$emit('draft-reply', comment)
     },
     toggleBookmark: function (comment) {
-      comment.toggleBookmark(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
+      comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me)
     },
     toggleUpvote: function (comment) {
-      comment.toggleUpvote(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
+      comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me)
     },
     toggleReplyRequest: function (comment) {
-      comment.toggleReplyRequest(this.isSpotlightInitiated, this.comment, this.activeClass, this.me)
+      comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me)
     }
   },
   computed: {

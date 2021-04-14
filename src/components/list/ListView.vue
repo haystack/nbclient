@@ -38,7 +38,9 @@
           :is-marginalia="isMarginalia"
           :is-emphasize="isEmphasize"
           :is-innotation="isInnotation"
-          @select-thread="$emit('select-thread', thread)"
+          :activeClass="activeClass"
+          :user="user"
+          @select-thread="onSelectThread"
           @hover-thread="$emit('hover-thread', thread)"
           @unhover-thread="$emit('unhover-thread', thread)">
       </list-row>
@@ -106,6 +108,11 @@ export default {
       type: Boolean,
       default: true
     },
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     isMarginalia: Boolean,
     isInnotation: Boolean,
     isEmphasize: Boolean,
@@ -150,7 +157,10 @@ export default {
   methods: {
     toggleHighlights: function () {
       this.$emit('toggle-highlights', !this.showHighlights)
-    }
+    },
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+        this.$emit('select-thread', thread, threadViewInitiator)
+    },
   },
   components: {
     ListRow

@@ -218,7 +218,7 @@ class NbComment {
    * On success, set {@link NbComment#id}. If this is a thread head,
    * {@link NbComment#loadReplies} will be called to also load replies.
    */
-  submitAnnotation (classId, sourceUrl, isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
+  submitAnnotation (classId, sourceUrl, threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
     const token = localStorage.getItem("nb.user");
     const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
@@ -252,7 +252,7 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
-        this.logSpotlightAction('REPLY', thread, activeClass, user, isSpotlightInitiated)
+        this.logSpotlightAction('REPLY', thread, activeClass, user, threadViewInitiator)
       })
     }
   }
@@ -535,7 +535,7 @@ class NbComment {
   /**
    * Toggle the upvote for this comment by the current user.
    */
-  toggleUpvote (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
+  toggleUpvote (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
     if (this.upvotedByMe) {
       this.upvoteCount -= 1
       this.upvotedByMe = false
@@ -543,7 +543,7 @@ class NbComment {
       this.upvoteCount += 1
       this.upvotedByMe = true
 
-      this.logSpotlightAction('STAR', thread, activeClass, user, isSpotlightInitiated)
+      this.logSpotlightAction('STAR', thread, activeClass, user, threadViewInitiator)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -555,7 +555,7 @@ class NbComment {
   /**
    * Toggle the reply request for this comment by the current user.
    */
-  toggleReplyRequest (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
+  toggleReplyRequest (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
     if (this.replyRequestedByMe) {
       this.replyRequestCount -= 1
       this.replyRequestedByMe = false
@@ -563,7 +563,7 @@ class NbComment {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
 
-      this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, isSpotlightInitiated)
+      this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, threadViewInitiator)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
@@ -575,26 +575,28 @@ class NbComment {
   /**
    * Toggle the bookmark for this comment by the current user.
    */
-  toggleBookmark (isSpotlightInitiated=false, thread={}, activeClass={}, user={}) {
+  toggleBookmark (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
+    if (!this.bookmarked) {
+      this.logSpotlightAction('BOOKMARK', thread, activeClass, user, threadViewInitiator)
+    }
+
     this.bookmarked = !this.bookmarked
     if (this.id) {
       const token = localStorage.getItem("nb.user");
       const headers = { headers: { Authorization: 'Bearer ' + token }}
       axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked }, headers)
-
-      this.logSpotlightAction('BOOKMARK', thread, activeClass, user, isSpotlightInitiated)
     }
   }
 
-  logSpotlightAction(action, comment, activeClass, user, isSpotlightInitiated) {
+  logSpotlightAction(action, comment, activeClass, user, threadViewInitiator) {
     const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
     const token = localStorage.getItem("nb.user");
     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
     const headComment = this.getHeadComment(comment)
     axios.post(`/api/spotlights/log`, {
-        spotlight_id: headComment.spotlight.id,
+        spotlight_id: threadViewInitiator !== 'SPOTLIGHT' ? null : headComment.spotlight.id,
         action: action.toUpperCase(), 
-        type: isSpotlightInitiated ? headComment.spotlight.type.toUpperCase() : 'NONE',
+        type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : headComment.spotlight.type.toUpperCase(),
         annotation_id: headComment.id, 
         class_id: activeClass.id,
         role: user.role.toUpperCase() 

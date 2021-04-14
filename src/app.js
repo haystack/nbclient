@@ -175,6 +175,7 @@ function embedNbApp () {
             :user="user"
             :activeClass="activeClass"
             :is-emphasize="isEmphasize"
+            :is-innotation="isInnotation"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -198,7 +199,7 @@ function embedNbApp () {
             :is-innotation="isInnotation"
             :is-emphasize="isEmphasize"
             :activeClass="activeClass"
-            :is-spotlight-initiated="isSpotlightInitiated"
+            :thread-view-initiator="threadViewInitiator"
             @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
@@ -264,7 +265,7 @@ function embedNbApp () {
       showHighlights: true,
       resizeKey: Date.now(), // work around to force redraw highlights,
       sourceURL: '',
-      isSpotlightInitiated: false,
+      threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
       nbConfigs: {},
     },
     computed: {
@@ -472,7 +473,8 @@ function embedNbApp () {
         this.isInnotation = false
       } else {
         this.isMarginalia = false
-        this.isInnotation = configs['SPOTLIGHT_INNOTATION']   === 'true' ? true : false
+        this.isInnotation = false //configs['SPOTLIGHT_INNOTATION']   === 'true' ? true : false
+        this.isEmphasize = false
       }
 
       //TEMP remove NB2 on test 
@@ -718,15 +720,15 @@ function embedNbApp () {
         }
         this.filter.minUpvotes = min
       },
-      onSelectThread: function (thread, isSpotlightInitiated=false) {
-        this.isSpotlightInitiated = isSpotlightInitiated
-        //console.log('isSpotlightInitiated: ' + this.isSpotlightInitiated)
+      onSelectThread: function (thread, threadViewInitiator='NONE') {
+        this.threadViewInitiator = threadViewInitiator
+        console.log('threadViewInitiator: ' + this.threadViewInitiator)
         this.threadSelected = thread
         thread.markSeenAll()
       },
       onUnselectThread: function (thread) {
-        this.isSpotlightInitiated = false;
-       //console.log('isSpotlightInitiated: ' + this.isSpotlightInitiated)
+        this.threadViewInitiator = 'NONE'
+        console.log('threadViewInitiator: ' + this.threadViewInitiator)
        if (!this.isInnotationHover) {
         this.threadSelected = null
        }

@@ -20,7 +20,7 @@
         :me="me"
         :replyToComment="replyToComment"
         :activeClass="activeClass"
-        :is-spotlight-initiated="isSpotlightInitiated"
+        :thread-view-initiator="threadViewInitiator"
         @edit-comment="editComment"
         @delete-comment="deleteComment"
         @draft-reply="draftReply">
@@ -64,7 +64,7 @@ export default {
     isInnotation: Boolean,
     isEmphasize: Boolean,
     activeClass: Object,
-    isSpotlightInitiated: Boolean,
+    threadViewInitiator: String,
   },
   computed: {
     numComments: function () {

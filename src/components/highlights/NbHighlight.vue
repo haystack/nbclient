@@ -86,6 +86,7 @@ export default {
       default: () => {}
     },
     isEmphasize: Boolean,
+    isInnotation: Boolean,
   },
   watch: {
     /**
@@ -152,24 +153,30 @@ export default {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
     },
     onClick: function () {
-      if (this.thread.spotlight && this.thread.spotlight.type === 'EM') {
-        const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
-        const token = localStorage.getItem("nb.user");
-        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-        axios.post(`/api/spotlights/log`, {
-          spotlight_id: this.thread.spotlight.id,
-          action: 'CLICK', 
-          type: this.thread.spotlight.type.toUpperCase(), 
-          annotation_id: this.thread.id, 
-          class_id: this.activeClass.id,
-          role: this.user.role.toUpperCase() 
-        }, config)
+      let type = 'HIGHLIGHT'
+      
+      if ((this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
+        type = this.thread.spotlight.type.toUpperCase()
       }
 
-      if (this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
-        this.$emit('select-thread', this.thread, true)
+      const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+      const token = localStorage.getItem("nb.user");
+      const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+      axios.post(`/api/spotlights/log`, {
+        spotlight_id: type === 'HIGHLIGHT' ? null : this.thread.spotlight.id,
+        action: 'CLICK', 
+        type: type, 
+        annotation_id: this.thread.id, 
+        class_id: this.activeClass.id,
+        role: this.user.role.toUpperCase() 
+      }, config)
+
+      if (this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') {
+        this.$emit('select-thread', this.thread, 'SPOTLIGHT')
+      } else if (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN') {
+        this.$emit('select-thread', this.thread, 'SPOTLIGHT')
       } else {
-        this.$emit('select-thread', this.thread)
+        this.$emit('select-thread', this.thread, 'HIGHLIGHT')
       }
     }
   }

@@ -51,8 +51,8 @@ export default {
         key: function (t) {
             return t.id + '' + t.updatedDate
         },
-        onSelectThread: function (thread, isSpotlightInitiated=false) {
-            this.$emit('select-thread', thread, isSpotlightInitiated)
+        onSelectThread: function (thread, threadViewInitiator='NONE') {
+            this.$emit('select-thread', thread, threadViewInitiator)
         },
     },
     components: {

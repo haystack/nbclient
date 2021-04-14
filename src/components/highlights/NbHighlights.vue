@@ -10,6 +10,7 @@
         :user="user"
         :activeClass="activeClass"
         :is-emphasize="isEmphasize"
+        :is-innotation="isInnotation"
         @select-thread="onSelectThread"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)">
@@ -68,10 +69,11 @@ export default {
       default: () => {}
     },
     isEmphasize: Boolean,
+    isInnotation: Boolean,
   },
   methods: {
-    onSelectThread: function (thread, isSpotlightInitiated=false) {
-        this.$emit('select-thread', thread, isSpotlightInitiated)
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+        this.$emit('select-thread', thread, threadViewInitiator)
     },
   },
   mounted: function () {

@@ -76,7 +76,7 @@ export default {
                 role: this.user.role.toUpperCase() 
             }, config)
             
-            this.$emit('select-thread', this.thread, true)
+            this.$emit('select-thread', this.thread, 'SPOTLIGHT')
         },
         onHover: function (state) {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)

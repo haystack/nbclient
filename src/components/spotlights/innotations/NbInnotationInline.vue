@@ -28,23 +28,23 @@ export default {
         innotation.addEventListener('mouseover', this.onHover)
         innotation.addEventListener('mouseenter', this.onMouseEnter)
         innotation.addEventListener('mouseleave', this.onMouseLeave)
-        innotation.addEventListener('click', this.onClick)
+        //innotation.addEventListener('click', this.onClick)
         endNode.before(innotation)
         window.dispatchEvent(new Event('resize'))
     },
     methods: {
         onClick: function () {
-            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
-            const token = localStorage.getItem("nb.user");
-            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-            axios.post(`/api/spotlights/log`, {
-            spotlight_id: this.thread.spotlight.id,
-            action: 'CLICK', 
-            type: this.thread.spotlight.type.toUpperCase(), 
-            annotation_id: this.thread.id, 
-            class_id: this.activeClass.id,
-            role: this.user.role.toUpperCase() 
-            }, config)
+            // const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+            // const token = localStorage.getItem("nb.user");
+            // const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+            // axios.post(`/api/spotlights/log`, {
+            // spotlight_id: this.thread.spotlight.id,
+            // action: 'CLICK', 
+            // type: this.thread.spotlight.type.toUpperCase(), 
+            // annotation_id: this.thread.id, 
+            // class_id: this.activeClass.id,
+            // role: this.user.role.toUpperCase() 
+            // }, config)
         },
         onHover: function (state) {
         },
