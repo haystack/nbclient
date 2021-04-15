@@ -100,7 +100,16 @@
   background-color: #0069d9;
 }
 
-#nb-app .nb-highlights {
+#nb-app .nb-sync{
+  display: flex;
+  justify-content: space-between;
+}
+
+#nb-app .nb-online-left-parent{
+  display: flex;
+} 
+
+#nb-app .nb-highlights{
   position: absolute;
   top: 0;
   right: 395px; /* assuming sidebar is 350px wide + 2 * 10px padding + 5px margin */
@@ -130,6 +139,22 @@
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background: #fff;
   z-index: 30000;
+}
+
+#nb-app .nb-notification-sidebar {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  line-height: normal;
+  font-size: 16px;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+#nb-app .nb-notification-sidebar #draggable-notification-card-header {
+  position: sticky; 
+  top: 0;
+  height: 40px;
+  font-weight: bold;
 }
 
 #nb-app .nb-sidebar .nb-nav-bar {
@@ -167,7 +192,7 @@
 }
 
 #nb-app .nb-sidebar .filter-view {
-  margin: 32px 0 5px 0;
+  margin: 10px 0 5px 0;
 }
 
 #nb-app .nb-sidebar .nb-menu+.filter-view {
@@ -288,6 +313,7 @@
 
 #nb-app .nb-sidebar .list-view {
   margin-bottom: 10px;
+  margin-top: 10px;
 }
 #nb-app .nb-sidebar .list-view .list-header {
   display: flex;
@@ -369,6 +395,10 @@
 
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.inno {
   background-color: #4a2270;
+}
+
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.notification {
+  background-color: #b096ee;
   color: #fff;
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
@@ -404,16 +434,91 @@
   cursor: not-allowed;
 }
 
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.notification {
+  width: 16px;
+  height: 16px;
+}
+#nb-app .nb-notification-sidebar .list-view .list-row.timestamp {
+  font-size: 13px;
+  color: #444;
+}
+#nb-app .nb-notification-sidebar .list-view .list-row .flags {
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-right: 5px;
+}
+#nb-app .nb-notification-sidebar .notification-table .list-row .flags{
+  display: flex;
+}
+.icon-wrapper.reply-request {
+  background-color: #4d4d4d;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.instructor {
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.tag {
+  background-color: #cc0088;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.recent {
+  background-color: #009999;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.notification {
+  background-color: #b096ee;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
+#nb-app .nb-sidebar .list-view .notification-table {
+  position: relative;
+  height: 120px;
+  border: solid 1px #ddd;
+  overflow-y: scroll;
+  margin-left: 5px;
+}
 #nb-app .nb-sidebar .thread-view {
   min-height: 100px;
   margin-bottom: 10px;
   overflow-y: scroll;
 }
 #nb-app .nb-sidebar .thread-view .thread-header {
+  display: flex;
   padding: 0 0 10px 0;
   color: #444;
   border-bottom: 1px solid #666;
 }
+
+#nb-app .nb-sidebar .thread-view .thread-header-arrows {
+  margin-left: auto;
+  display: flex;
+  cursor: pointer;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-header .icon {
   color: #444;
 }
@@ -436,6 +541,17 @@
   font-size: 12px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
+  display: inline-block;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 11px;
+  vertical-align: bottom;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .smallCommentHeader .author .instr-icon {
   display: inline-block;
   height: 16px;
   padding: 0 3px;
@@ -986,5 +1102,84 @@ nb-innotation-controller {
   -webkit-mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 30%, rgba(255,255,255,1) 100%); 
   mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 30%, rgba(255,255,255,1) 100%);
   background-color: #ffffff;
+}
+
+.typing {
+  margin-left: auto;
+}
+
+#nb-app .smallCommentInput {
+  position: relative;
+}
+
+#nb-app .smallCommentText {
+  margin: 0px; 
+  padding: 0px; 
+  width: 100%; 
+  outline: none; 
+  border-radius: 5px; 
+}
+
+#nb-app .smallCommentButton {
+  position: absolute; 
+  top: 0; 
+  border-radius: 5px; 
+  right: 0px; 
+  z-index: 2; 
+  border: none; 
+  top: 2px; 
+  cursor: pointer; 
+  /* background-color: #ced2d5;  */
+  transform: translateX(2px);
+}
+
+#nb-app .smallCommentButton:hover {
+  background-color: #ced2d5; 
+
+}
+#nb-app .smallCommentHeader {
+  margin-bottom: 5px;
+}
+
+#nb-app .card-header {
+  display: flex;
+  align-items: center;
+  padding: 0 15px 0 5px;
+  background: #efefef;
+  border: solid 1px #aaa;
+  cursor: pointer;
+  height: 30px;
+}
+
+#nb-app .card-header-title {
+  margin: 0px;
+}
+
+#nb-app .collapse-button {
+  margin-left: auto
+}
+
+.icons-left-parent {
+  margin-left: auto;
+  margin-right: 10%;
+}
+
+.icons-left {
+  margin-top: 3px;
+}
+
+.vdr {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(228, 228, 228);
+  position: fixed;
+}
+
+.notification-close-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10%;
+  background-color: #d57d80;
 }
 
