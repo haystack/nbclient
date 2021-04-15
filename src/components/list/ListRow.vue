@@ -1,33 +1,47 @@
 <template>
-  <div
-      class="list-row"
-      :style="rowStyle"
-      :key="thread.id"
-      @mouseenter="$emit('hover-thread', thread)"
-      @mouseleave="$emit('unhover-thread', thread)"
-      @click="$emit('select-thread', thread)">
-    <div class="flags">
-      <div class="icon-wrapper counter" :style="counterStyle">
-        {{ thread.countAllReplies() + 1 }}
-      </div>
-      <div v-if="thread.hasInstructorPost()" class="icon-wrapper instr">
-        i
-      </div>
-      <div v-else class="placeholder instr"></div>
-      <div v-if="thread.hasReplyRequests()" class="icon-wrapper question"
-          :style="iconStyle">
-        <font-awesome-icon icon="question">
-        </font-awesome-icon>
-      </div>
-      <div v-else class="placeholder question"></div>
+    <div
+        class="list-row"
+        :style="rowStyle"
+        :key="thread.id"
+        @mouseenter="$emit('hover-thread', thread)"
+        @mouseleave="$emit('unhover-thread', thread)"
+        @click="onClick()">
+        <div class="flags">
+            <div v-if="isSpotlightEnabled">
+                <div v-if="isSpotlighted" class="icon-wrapper inno">
+                    {{(thread.spotlight.type === "IN" && "~")   ||
+                    (thread.spotlight.type === "ABOVE" && "↑")  ||
+                    (thread.spotlight.type === "BELLOW" && "↓") ||
+                    (thread.spotlight.type === "LEFT" && "←")  ||
+                    (thread.spotlight.type === "RIGHT" && "→") ||
+                    (thread.spotlight.type === "MARGIN" && "Ɱ") ||
+                    (thread.spotlight.type === "EM" && "❖")}}
+                </div>
+                <div v-else class="placeholder inno"></div>
+            </div>
+            <div class="icon-wrapper counter" :style="counterStyle">
+                {{ thread.countAllReplies() + 1 }}
+            </div>
+            <div v-if="thread.hasInstructorPost()" class="icon-wrapper instr">
+                i
+            </div>
+            <div v-else class="placeholder instr"></div>
+            <div v-if="thread.hasReplyRequests()" class="icon-wrapper question"
+                :style="iconStyle">
+                <font-awesome-icon icon="question">
+                </font-awesome-icon>
+            </div>
+            <div v-else class="placeholder question"></div>
+        </div>
+        <span :style="textStyle">
+            {{ thread.text }}
+        </span>
     </div>
-    <span :style="textStyle">
-      {{ thread.text }}
-    </span>
-  </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 /**
  * Component for each row per thread on the side bar list.
  * Each thread is represented by the head of thread {@link NbComment}.
@@ -60,9 +74,46 @@ export default {
     threadsHovered: {
       type: Array,
       default: () => []
-    }
+    },
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
+  },
+  methods: {
+    onClick: function () {
+      const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+      const token = localStorage.getItem("nb.user");
+      const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+      axios.post(`/api/spotlights/log`, {
+        spotlight_id: null,
+        action: 'CLICK', 
+        type: 'LIST', 
+        annotation_id: this.thread.id, 
+        class_id: this.activeClass.id,
+        role: this.user.role.toUpperCase() 
+      }, config)
+
+      this.$emit('select-thread', this.thread, 'LIST')
+    },
   },
   computed: {
+    isSpotlighted: function () {
+      if (this.thread.isSpotlighted()) {
+        if (['ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'IN'].includes(this.thread.spotlight.type) && this.isInnotation) return true
+        if (this.thread.spotlight.type === 'EM' && this.isEmphasize) return true
+        if (this.thread.spotlight.type === 'MARGIN' && this.isMarginalia) return true
+      }
+
+      return false
+    },
+    isSpotlightEnabled: function () {
+      return this.isMarginalia || this.isInnotation || this.isEmphasize
+    },
     rowStyle: function () {
       if (this.threadSelected && this.thread === this.threadSelected) {
         return 'background-color: #70a0f0; color: #fff'

@@ -6,11 +6,21 @@
       <font-awesome-icon icon="question">
       </font-awesome-icon>
       {{ thread.countAllReplyReqs() }}
+      &nbsp;·&nbsp;
+      <nb-spotlight-control
+        v-if="isEnabled"
+        :thread="thread"
+        :is-marginalia="isMarginalia"
+        :is-innotation="isInnotation"
+        :is-emphasize="isEmphasize">
+      </nb-spotlight-control>
     </div>
     <thread-comment
         :comment="thread"
         :me="me"
         :replyToComment="replyToComment"
+        :activeClass="activeClass"
+        :thread-view-initiator="threadViewInitiator"
         @edit-comment="editComment"
         @delete-comment="deleteComment"
         @draft-reply="draftReply">
@@ -20,6 +30,7 @@
 
 <script>
 import ThreadComment from './ThreadComment.vue'
+import NbSpotlightControl from '../spotlights/NbSpotlightControl.vue'
 
 /**
  * Component for the nested discussion view of thread on the side bar.
@@ -48,7 +59,12 @@ export default {
   props: {
     thread: Object,
     me: Object,
-    replyToComment: Object
+    replyToComment: Object,
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
+    activeClass: Object,
+    threadViewInitiator: String,
   },
   computed: {
     numComments: function () {
@@ -68,6 +84,9 @@ export default {
       } else {
         return `${count} reply requests`
       }
+    },
+    isEnabled: function () {
+      return this.me.role === 'instructor' && (this.isInnotation || this.isMarginalia || this.isEmphasize)
     }
   },
   methods: {
@@ -82,7 +101,8 @@ export default {
     }
   },
   components: {
-    ThreadComment
+    ThreadComment,
+    NbSpotlightControl
   }
 }
 </script>

@@ -35,7 +35,12 @@
           :thread="thread"
           :thread-selected="threadSelected"
           :threads-hovered="threadsHovered"
-          @select-thread="$emit('select-thread', thread)"
+          :is-marginalia="isMarginalia"
+          :is-emphasize="isEmphasize"
+          :is-innotation="isInnotation"
+          :activeClass="activeClass"
+          :user="user"
+          @select-thread="onSelectThread"
           @hover-thread="$emit('hover-thread', thread)"
           @unhover-thread="$emit('unhover-thread', thread)">
       </list-row>
@@ -102,7 +107,15 @@ export default {
     stillGatheringThreads: {
       type: Boolean,
       default: true
-    }
+    },
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
   },
   data () {
     return {
@@ -144,7 +157,10 @@ export default {
   methods: {
     toggleHighlights: function () {
       this.$emit('toggle-highlights', !this.showHighlights)
-    }
+    },
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+        this.$emit('select-thread', thread, threadViewInitiator)
+    },
   },
   components: {
     ListRow

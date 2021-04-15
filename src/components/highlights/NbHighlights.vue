@@ -7,7 +7,11 @@
         :thread-selected="threadSelected"
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
-        @select-thread="$emit('select-thread',thread)"
+        :user="user"
+        :activeClass="activeClass"
+        :is-emphasize="isEmphasize"
+        :is-innotation="isInnotation"
+        @select-thread="onSelectThread"
         @hover-thread="$emit('hover-thread',thread)"
         @unhover-thread="$emit('unhover-thread',thread)">
     </nb-highlight>
@@ -58,7 +62,19 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
-    }
+    },
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
+    isEmphasize: Boolean,
+    isInnotation: Boolean,
+  },
+  methods: {
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+        this.$emit('select-thread', thread, threadViewInitiator)
+    },
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)

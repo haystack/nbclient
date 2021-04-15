@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Handlee&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
 #nb-app {
   position: absolute;
   top: 0;
@@ -11,6 +14,12 @@
   font-style: italic;
 }
 
+#ql-toolbar.ql-snow {
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    padding: 2px;
+}
 /*
   Temporary workaround with plugin inheritting parent's style ...
   Would be nice to use Shadow DOM instead once it's supported by Quill.
@@ -102,7 +111,7 @@
 }
 #nb-app .nb-highlights .nb-highlight {
   fill: rgb(255, 204, 1);
-  opacity: 0.2;
+  fill-opacity: 0.2;
 }
 
 #nb-app .nb-sidebar {
@@ -320,7 +329,7 @@
   background-color: #f0f0f0;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags {
-  min-width: 50px;
+  /* width: 60px; */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -358,6 +367,43 @@
   height: 16px;
 }
 
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.inno {
+  background-color: #4a2270;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.inno {
+  width: 16px;
+  height: 16px;
+}
+
+#nb-app  .nb-spotlight-control {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+
+#nb-app  .nb-spotlight-control span {
+  background-color: #a67cce;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+#nb-app  .nb-spotlight-control span.active {
+  background-color: #4a2270;
+  cursor: not-allowed;
+}
+
 #nb-app .nb-sidebar .thread-view {
   min-height: 100px;
   margin-bottom: 10px;
@@ -387,7 +433,7 @@
   margin-bottom: 5px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author {
-  font-size: 15px;
+  font-size: 12px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
@@ -479,7 +525,7 @@
   margin-top: auto;
 }
 #nb-app .editor-view .header {
-  font-size: 14px;
+  font-size: 10px;
   color: #444;
   padding-bottom: 5px;
 }
@@ -502,7 +548,7 @@
   width: 80px;
   padding: 6px;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 12px;
   color: #fff;
   cursor: pointer;
 }
@@ -736,11 +782,144 @@
     font-size: 11px;
 }
 nb-innotation {
-    border: 2px limegreen solid;
-    margin: 10px;
-    padding: 10px;
+    border-radius: 1px;
+    border:none;
+    margin: 2px;
     flex: 1;
+    padding: 20px 10px 10px 20px;
+    /* align-items: center; */
+    display: flex;
+    text-align: left;
+    justify-content: left;
+    background-color: #fff5a4;
+    box-shadow: 0px 2px 5px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+    box-sizing: border-box;
+    font-size: 0.8rem;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    transition: 0.5s;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow: auto;
+
 }
+nb-innotation:hover {
+    box-shadow: 5px 7px 9px 0px rgb(0 0 0 / 20%), 2px 1px 2px 1px rgb(0 0 0 / 14%), 1px 1px 10px 0px rgb(0 0 0 / 12%);
+    cursor: pointer;
+    transition: 0.5s;
+    background-color: #fff7b3;
+}
+
+nb-innotation.active {
+  box-shadow: 0px -1px 16px 5px rgb(0 0 0 / 20%), 2px 1px 2px 1px rgb(0 0 0 / 14%), 1px 1px 10px 0px rgb(0 0 0 / 12%);
+  cursor: pointer;
+  transition: 0.5s;
+  background-color: #fff06e;
+}
+
+nb-innotation-inline {
+    background: white;
+    margin: 0 5px;
+    font-family: 'Handlee', cursive;
+    color: blue;
+    cursor: pointer;
+    border: 3px white solid;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: relative;
+    z-index: 200;
+}
+
+nb-innotation-collection {
+    display: flex;
+}
+
+nb-innotation-collection.nb-above, 
+nb-innotation-collection.nb-bellow {
+    flex-direction: row;
+    width: 100%;
+}
+
+nb-innotation-collection.nb-right, 
+nb-innotation-collection.nb-left {
+    flex-direction: column;
+    /* height: 100%; */
+}
+
+nb-innotation-collection.nb-above {
+    height: 120px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+nb-innotation-collection.nb-bellow {
+    height: 120px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+nb-innotation-collection.nb-right {
+    width: 180px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+nb-innotation-collection.nb-left {
+    width: 180px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.nb-innotation-ancestor {
+    position: relative;
+}
+
+.nb-innotation-ancestor.nb-above {
+    padding-top: 130px;
+}
+
+.nb-innotation-ancestor.nb-bellow {
+    padding-bottom: 130px;
+}
+
+.nb-innotation-ancestor.nb-right {
+    padding-right: 190px;
+}
+
+.nb-innotation-ancestor.nb-left {
+    padding-left: 190px;
+}
+
+nb-innotation-controller {
+    position: fixed;
+    display: flex;
+    height: 30px;
+    width: 171px;
+    background: #4a2270;
+    z-index: 99999999;
+    bottom: 0;
+    left: 41px;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px;
+    box-shadow: 0px -4px 11px 0px rgb(143 141 143 / 72%);
+    font-size: 30px;
+    justify-content: center;
+    vertical-align: middle;
+}
+
 .nb-innotation-wrapper {
   /* plan to make up and down part of this wrapper   */
 }
@@ -757,3 +936,55 @@ nb-innotation {
 .nb-innotation-wrapper .nb-common-ancestor {
     flex: 2;
 }
+
+#nb-app #nb-marginalias {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  height: 100%;
+  padding: 0 10px;
+  top: 0;
+  right: 395px;
+  line-height: normal;
+  font-size: 12px;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  background: #fff;
+  z-index: 3000;
+  overflow: hidden;
+  position: absolute;
+}
+
+#nb-app .nb-marginalia {
+  /* border-radius: 1px;
+  border:none;
+  margin: 2px;
+  padding: 20px 10px 10px 20px;
+  display: flex;
+  text-align: left;
+  justify-content: left;
+  background-color: #fff5a4;
+  box-shadow: 0px 2px 5px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  overflow: auto; */
+  outline:none;
+  position: absolute;
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  padding: 10px;
+  display: flex;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  transition: 0.3s;
+  cursor: pointer;
+  width: 180px;
+  -webkit-mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 30%, rgba(255,255,255,1) 100%); 
+  mask-image: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5410539215686274) 30%, rgba(255,255,255,1) 100%);
+  background-color: #ffffff;
+}
+

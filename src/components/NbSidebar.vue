@@ -35,6 +35,11 @@
         :threads-hovered="threadsHovered"
         :show-highlights="showHighlights"
         :still-gathering-threads="stillGatheringThreads"
+        :is-marginalia="isMarginalia"
+        :is-emphasize="isEmphasize"
+        :is-innotation="isInnotation"
+        :activeClass="activeClass"
+        :user="user"
         @toggle-highlights="onToggleHighlights"
         @select-thread="onSelectThread"
         @hover-thread="onHoverThread"
@@ -45,6 +50,11 @@
         :thread="threadSelected"
         :me="user"
         :replyToComment="replyToComment"
+        :is-marginalia="isMarginalia"
+        :is-emphasize="isEmphasize"
+        :is-innotation="isInnotation"
+        :activeClass="activeClass"
+        :thread-view-initiator="threadViewInitiator"
         @edit-comment="onEditComment"
         @delete-comment="onDeleteComment"
         @draft-reply="onDraftReply">
@@ -111,6 +121,9 @@ export default {
       type: Boolean,
       default: true
     },
+    isMarginalia: Boolean,
+    isInnotation: Boolean,
+    isEmphasize: Boolean,
     threads: { // threads after filter
       type: Object,
       default: () => {}
@@ -128,7 +141,9 @@ export default {
     sourceUrl: {
       type: String,
       default: ""
-    }
+    },
+    activeClass: Object,
+    threadViewInitiator: String,
   },
   data () {
     return {
@@ -238,8 +253,8 @@ export default {
     onMinUpvotes: function (min) {
       this.$emit('min-upvotes', min)
     },
-    onSelectThread: function (thread) {
-      this.$emit('select-thread', thread)
+    onSelectThread: function (thread, threadViewInitiator='NONE') {
+      this.$emit('select-thread', thread, threadViewInitiator)
     },
     onHoverThread: function (thread) {
       this.$emit('hover-thread', thread)
@@ -307,8 +322,9 @@ export default {
         upvoteCount: 0,
         seenByMe: true
       })
+
       let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-      comment.submitAnnotation(this.activeClass.id, source)
+      comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user)
 
       if (this.draftRange) {
         this.$emit('new-thread', comment)

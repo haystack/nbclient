@@ -3,7 +3,7 @@
       class="nb-highlight"
       v-if="visible"
       :style="style"
-      @click="$emit('select-thread',thread)"
+      @click="onClick()"
       @mouseenter="onHover(true)"
       @mouseleave="onHover(false)">
     <rect
@@ -35,6 +35,7 @@
 
 <script>
 import { getTextBoundingBoxes } from '../../utils/overlay-util.js'
+import axios from 'axios'
 
 /**
  * Component for individual highlight overlay corresponding to each thread.
@@ -69,6 +70,7 @@ export default {
   name: 'nb-highlight',
   props: {
     thread: Object,
+    user: Object,
     threadSelected: Object,
     threadsHovered: {
       type: Array,
@@ -78,7 +80,13 @@ export default {
     showHighlights: {
       type: Boolean,
       default: true
-    }
+    },
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
+    isEmphasize: Boolean,
+    isInnotation: Boolean,
   },
   watch: {
     /**
@@ -86,6 +94,7 @@ export default {
      * in the view. If not, scroll down/up the window to center the highlight.
      */
     threadSelected: function (val) {
+      //console.log('threadSelected nbH')
       if (this.thread !== val) { return }
       let rect = this.$el.getBoundingClientRect()
       let elTop = rect.top
@@ -107,13 +116,16 @@ export default {
   computed: {
     style: function () {
       if (!this.thread) {
-        return 'fill: rgb(231, 76, 60); opacity: 0.3;'
+        return 'fill: rgb(231, 76, 60); fill-opacity: 0.3;'
       }
       if (this.thread === this.threadSelected) {
-        return 'fill: rgb(1, 99, 255); opacity: 0.3;'
+        return 'fill: rgb(1, 99, 255); fill-opacity: 0.3;'
       }
       if (this.threadsHovered.includes(this.thread)) {
-        return 'fill: rgb(1, 99, 255); opacity: 0.12;'
+        return 'fill: rgb(1, 99, 255); fill-opacity: 0.12;'
+      }
+      if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.isEmphasize) {
+        return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px;'
       }
       return null
     },
@@ -139,6 +151,38 @@ export default {
   methods: {
     onHover: function (state) {
       this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
+    },
+    onClick: function () {
+
+      if (!this.thread) {
+        return this.$emit('select-thread', this.thread, 'NONE')
+      }
+
+      let type = 'HIGHLIGHT'
+      
+      if ((this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
+        type = this.thread.spotlight.type.toUpperCase()
+      }
+
+      const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+      const token = localStorage.getItem("nb.user");
+      const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+      axios.post(`/api/spotlights/log`, {
+        spotlight_id: type === 'HIGHLIGHT' ? null : this.thread.spotlight.id,
+        action: 'CLICK', 
+        type: type, 
+        annotation_id: this.thread.id, 
+        class_id: this.activeClass.id,
+        role: this.user.role.toUpperCase() 
+      }, config)
+
+      if (this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') {
+        this.$emit('select-thread', this.thread, 'SPOTLIGHT')
+      } else if (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN') {
+        this.$emit('select-thread', this.thread, 'SPOTLIGHT')
+      } else {
+        this.$emit('select-thread', this.thread, 'HIGHLIGHT')
+      }
     }
   }
 }
