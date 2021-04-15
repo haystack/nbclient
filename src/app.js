@@ -770,14 +770,16 @@ function embedNbApp () {
         this.activeClass = newClass
       },
       onSessionEnd: async function () {
-        const token = localStorage.getItem("nb.user");
-        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
-        await axios.post(`/api/spotlights/log/session/end`, {
-            action: 'SESSION_END', 
-            type: 'NONE', 
-            class_id: this.activeClass.id,
-            role: this.user.role.toUpperCase() 
-        }, config)
+        if (this.activeClass.id){
+            const token = localStorage.getItem("nb.user");
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
+            await axios.post(`/api/spotlights/log/session/end`, {
+                action: 'SESSION_END', 
+                type: 'NONE', 
+                class_id: this.activeClass.id,
+                role: this.user.role.toUpperCase() 
+            }, config)
+        }
       },
       onLogout: async function () {
           await this.onSessionEnd()
