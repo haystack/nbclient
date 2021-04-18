@@ -192,7 +192,8 @@
 }
 
 #nb-app .nb-sidebar .filter-view {
-  margin: 10px 0 5px 0;
+  margin: 32px 0 5px 0;
+  /* margin: 10px 0 5px 0; */
 }
 
 #nb-app .nb-sidebar .nb-menu+.filter-view {
@@ -313,7 +314,7 @@
 
 #nb-app .nb-sidebar .list-view {
   margin-bottom: 10px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 }
 #nb-app .nb-sidebar .list-view .list-header {
   display: flex;

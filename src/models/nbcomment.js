@@ -222,7 +222,7 @@ class NbComment {
     const token = localStorage.getItem("nb.user");
     const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
-      return axios.post('/api/annotations/annotation', {
+      return axios.post('/api/annotations/new_annotation', {
         url: sourceUrl,
         class: classId,
         content: this.html,
@@ -240,7 +240,9 @@ class NbComment {
         // this.loadReplies()
       })
     } else {
-      return axios.post(`/api/annotations/reply/${this.parent.id}`, {
+      return axios.post(`/api/annotations/new_reply/${this.parent.id}`, {
+        url: sourceUrl,
+        class: classId,
         content: this.html,
         author: this.author,
         tags: this.hashtags,
@@ -515,6 +517,16 @@ class NbComment {
       }
     }
     return false
+  }
+
+  getAllAuthors () {
+    let authors = new Set([this.author])
+    for (let child of this.children) {
+      for (let author of child.getAllAuthors()) {
+        authors.add(author)
+      }
+    }
+    return authors
   }
 
   /**

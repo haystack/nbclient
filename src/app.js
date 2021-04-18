@@ -9,6 +9,7 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
+import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
 
 import NbInnotations from './components/spotlights/innotations/NbInnotations.vue'
@@ -33,20 +34,28 @@ import VueJwtDecode from "vue-jwt-decode";
 //   tracesSampleRate: 1.0,
 // });
 
+import io from "socket.io-client";
+// const socket = io("https://127.0.0.1:3000", {reconnect: true}); // for local dev only
+// const socket = io("https://helen-nb.csail.mit.edu", {reconnect: true});
+// const socket = io("https://jumana-nb.csail.mit.edu", {reconnect: true});
+const socket = io("https://nb2.csail.mit.edu", {reconnect: true});
+
 Vue.use(VueQuill)
 Vue.use(VTooltip)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+// axios.defaults.baseURL = 'https://helen-nb.csail.mit.edu/'
+// axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+// export const PLUGIN_HOST_URL = 'https://helen-nb.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
@@ -267,6 +276,8 @@ function embedNbApp () {
       sourceURL: '',
       threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
       nbConfigs: {},
+      showSyncFeatures: false,
+      notificationThreads: [],
     },
     computed: {
       style: function () {
@@ -495,10 +506,72 @@ function embedNbApp () {
       const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
       hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
       hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
+
+      socket.on("new_thread", (data) => {
+        let userIdsSet = new Set(data.userIds)
+        if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
+          let classId = data.classId
+          if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
+            if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
+              this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
+              console.log("new thread: gathered new annotations")
+            }
+          }
+        }
+      })
+      socket.on('new_reply', (data) => {
+        if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
+          let classId = data.classId
+          if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
+            if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
+              this.threads = this.threads.filter(x => x.id !== data.headAnnotationId) // filter out the thread
+              this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, false) // data contains info about the thread and if the new thread as posted by an instructor
+            }
+          }
+        }
+      })
     },
     methods: {
       setUser: function (user) {
         this.user = user
+      },
+      getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread) { // get single thread and add it to the list
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { source_url: sourceUrl, class_id: classId, thread_id:  threadId} }
+        axios.get('/api/annotations/specific_thread',  config)
+        .then(res => {
+          let item = res.data.headAnnotation
+          try {
+            item.range = deserializeNbRange(item.range)
+          } catch (e) {
+            console.warn(`Could not deserialize range for ${item.id}`)
+          }
+          // Nb Comment
+          let comment = new NbComment(item, res.data.annotationsData)
+          
+          var notification = null
+          let authorName = this.users[authorId].first_name + " " + this.users[authorId].last_name
+          if (taggedUsers.includes(this.user.id)) {
+            notification = new NbNotification(authorName + " tagged you in a comment", comment, "tag", true)
+          } else if (this.users[authorId].role === "instructor") {
+            if (isNewThread) {
+              notification = new NbNotification(authorName + " posted a new thread", comment, "instructor", false)
+            } else {
+              if (comment.getAllAuthors().has(this.user.id)) {
+                notification = new NbNotification(authorName + " commented in a thread you're in", comment, "instructor", false)
+              }
+            }
+          } else if (isNewThread && comment.hasReplyRequests()) {
+            notification = new NbNotification(authorName + " needs a reply request", comment, "question", false)
+          } else if (comment.hasMyReplyRequests()) {
+            notification = new NbNotification(authorName + " responded to your reply request", comment, "question", true)
+          }
+          if (notification !== null) {
+            this.notificationThreads.push(notification)
+            comment.associatedNotification = notification 
+          }
+          this.threads.push(comment)
+        })
       },
       getAllAnnotations: function (source, newActiveClass) {
         this.stillGatheringThreads = true
