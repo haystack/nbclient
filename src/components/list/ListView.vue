@@ -1,49 +1,61 @@
 <template>
   <div class="list-view">
-    <div class="list-header">
-      <span class="count">
-        {{ threads.length }} of {{ totalLabel }}
-      </span>
-      <span
-          class="toggle-highlights"
-          v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'"
-          @click="toggleHighlights">
-        <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
-        </font-awesome-icon>
-        <font-awesome-icon v-else icon="eye-slash" class="icon">
-        </font-awesome-icon>
-      </span>
-      <span class="sort">
-        Sort by:
-        <select v-model="sortBy">
-          <option v-for="option in sortByOptions" :key="option.value"
-              :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
-      </span>
-    </div>
-    <div class="list-table">
-      <div v-if="stillGatheringThreads">
-        <p>Fetching Annotations</p>
-        <tile loading="true"></tile>
+    <header class="card-header" 
+      v-tooltip="tooltipType"
+      @click="isCollapsed = !isCollapsed">
+      <p class="card-header-title">{{title}}</p>
+      <a class="button card-header-icon collapse-button">
+        <font-awesome-icon icon="chevron-up" v-if="!isCollapsed"/>
+        <font-awesome-icon icon="chevron-down" v-if="isCollapsed"/>
+      </a>
+    </header>
+    <div v-if="!isCollapsed">
+      <div class="list-header">
+        <span class="count">
+          {{ threads.length }} of {{ totalLabel }}
+        </span>
+        <span
+            class="toggle-highlights"
+            v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'"
+            @click="toggleHighlights">
+          <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
+          </font-awesome-icon>
+          <font-awesome-icon v-else icon="eye-slash" class="icon">
+          </font-awesome-icon>
+        </span>
+        <span class="sort">
+          Sort by:
+          <select v-model="sortBy">
+            <option v-for="option in sortByOptions" :key="option.value"
+                :value="option.value">
+              {{ option.text }}
+            </option>
+          </select>
+        </span>
       </div>
+      <div class="list-table">
+        <div v-if="totalCount==0">
+          <p>Gathering any class annotations</p>
+          <tile loading="true"></tile>
+        </div>
 
-      <list-row
-          v-for="thread in sorted"
-          :key="thread"
-          :thread="thread"
-          :thread-selected="threadSelected"
-          :threads-hovered="threadsHovered"
-          :is-marginalia="isMarginalia"
-          :is-emphasize="isEmphasize"
-          :is-innotation="isInnotation"
-          :activeClass="activeClass"
-          :user="user"
-          @select-thread="onSelectThread"
-          @hover-thread="$emit('hover-thread', thread)"
-          @unhover-thread="$emit('unhover-thread', thread)">
-      </list-row>
+        <list-row
+            v-for="thread in sorted"
+            :key="thread"
+            :thread="thread"
+            :thread-selected="threadSelected"
+            :threads-hovered="threadsHovered"
+            :is-marginalia="isMarginalia"
+            :is-emphasize="isEmphasize"
+            :is-innotation="isInnotation"
+            :activeClass="activeClass"
+            :show-sync-features="showSyncFeatures"
+            :user="user"
+            @select-thread="onSelectThread"
+            @hover-thread="$emit('hover-thread', thread)"
+            @unhover-thread="$emit('unhover-thread', thread)">
+        </list-row>
+      </div>
     </div>
   </div>
 </template>
@@ -116,16 +128,22 @@ export default {
     isMarginalia: Boolean,
     isInnotation: Boolean,
     isEmphasize: Boolean,
+    showSyncFeatures: {
+      type: Boolean,
+      default: false,
+    }
   },
   data () {
     return {
-      sortBy: 'position',
+      isCollapsed: false,
+      sortBy: "position",
       sortByOptions: [
         { text: 'Default', value: 'position' },
         { text: 'Most Recent', value: 'recent' },
         { text: 'Longest Thread', value: 'comment' },
         { text: 'Reply Requests', value: 'reply_request' },
-        { text: 'Upvotes', value: 'upvote' }
+        { text: 'Upvotes', value: 'upvote' },
+        { text: 'Unseen', value: 'unseen'}
       ]
     }
   },
@@ -149,10 +167,18 @@ export default {
           return this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
         case 'upvote':
           return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
+        case 'unseen':
+          return this.threads.concat().sort(compare('isUnseen', 'func', false))
         default:
           return this.threads
       }
-    }
+    },
+    tooltipType: function () {
+      return 'See all your threads after applying some filters.'
+    },
+    title: function () {
+      return 'All Threads'
+    },
   },
   methods: {
     toggleHighlights: function () {

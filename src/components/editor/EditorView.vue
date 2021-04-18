@@ -8,7 +8,10 @@
         :initial-content="initialContent"
         :users="users"
         :hashtags="hashtags"
-        @text-change="onTextChange">
+        @text-change="onTextChange"
+        @thread-typing="onThreadTyping"
+        @thread-stop-typing="onThreadStopTyping"
+        >
     </text-editor>
     <div class="footer">
       <div class="selections">
@@ -141,7 +144,7 @@ export default {
         { text: 'Anonymous to Classmates', value: CommentAnonymity.ANONYMOUS, disabled: false }
       ],
       anonymousIdx: 1, // index for 'anonymous' in anonymityOptions
-      replyRequested: this.initialReplyRequest
+      replyRequested: this.initialReplyRequest,
     }
   },
   computed: {
@@ -155,6 +158,12 @@ export default {
     }
   },
   methods: {
+    onThreadStopTyping: function() {
+      this.$emit("thread-stop-typing", true)
+    },
+    onThreadTyping: function() {
+      this.$emit("thread-typing", true)
+    },
     onTextChange: function (html) {
       this.content = html
     },
