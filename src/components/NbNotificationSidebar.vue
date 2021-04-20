@@ -9,6 +9,8 @@
       :min-width="325"
       :parent="false">
       <notification-sidebar-view
+          :user="user"
+          :activeClass="activeClass"
           :notifications="notificationThreads"
           :total-count="notificationThreads.length"
           :thread-selected="threadSelected"
@@ -49,6 +51,10 @@ export default {
     onlineUsers: {
       type: Array,
       default: () => []
+    },
+    activeClass: {
+      type: Object,
+      default: () => {}
     },
     stillGatheringThreads: {
       type: Boolean,

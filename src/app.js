@@ -207,6 +207,7 @@ function embedNbApp () {
           <nb-notification-sidebar
             :user="user"
             :users="users"
+            :activeClass="activeClass"
             :online-users="onlineUsers"
             :still-gathering-threads="stillGatheringThreads"
             :threads="filteredThreads"

@@ -202,6 +202,12 @@ export default {
 
       return null
     },
+    isRecentThread: function () {
+      return this.thread && this.recent && this.showSyncFeatures
+    },
+    isTypingThread: function () {
+      return this.thread && this.thread.usersTyping && this.thread.usersTyping.length > 0 && this.showSyncFeatures
+    },
     showRecentActivityAnimation: function () {
       if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
         return false
@@ -265,6 +271,8 @@ export default {
         class_id: this.activeClass.id,
         role: this.user.role.toUpperCase() 
       }, config)
+
+      this.logSyncClick()
 
       if (this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') {
         this.$emit('select-thread', this.thread, 'SPOTLIGHT')

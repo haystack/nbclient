@@ -20,6 +20,8 @@
           :thread-selected="threadSelected"
           :notification-selected="notificationSelected"
           :threads-hovered="threadsHovered"
+          :user="user"
+          :active-class="activeClass"
           @select-notification="onSelectNotification"
           @hover-thread="onHoverNotification"
           @unhover-thread="onUnhoverNotification">
@@ -57,6 +59,11 @@ import NotificationSidebarRow from './NotificationSidebarRow.vue'
 export default {
   name: 'notification-sidebar-view',
   props: {
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     notifications: {
       type: Array,
       default: () => []
