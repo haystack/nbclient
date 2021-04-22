@@ -837,9 +837,9 @@ function embedNbApp () {
     app.handleResize()
   })
 
-  window.addEventListener('scroll', _ => {
-    app.handleResize()
-  })
+//   window.addEventListener('scroll', _ => {
+//     app.handleResize()
+//   })
 
   window.addEventListener('click', _ => {
     app.handleResize()
