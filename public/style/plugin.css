@@ -396,6 +396,9 @@
 
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.inno {
   background-color: #4a2270;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
 }
 
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.notification {
@@ -508,7 +511,6 @@
   overflow-y: scroll;
 }
 #nb-app .nb-sidebar .thread-view .thread-header {
-  display: flex;
   padding: 0 0 10px 0;
   color: #444;
   border-bottom: 1px solid #666;
