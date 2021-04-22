@@ -205,6 +205,7 @@ function embedNbApp () {
             @new-recent-thread="onNewRecentThread">
           </nb-highlights>
           <nb-notification-sidebar
+            v-if="syncConfig"
             :user="user"
             :users="users"
             :activeClass="activeClass"
@@ -254,6 +255,7 @@ function embedNbApp () {
             :notifications-muted="notificationsMuted"
             threadSelectedPane="allThreads"
             :show-sync-features="showSyncFeatures"
+            :sync-config="syncConfig"
             @switch-class="onSwitchClass"
             @show-sync-features="onShowSyncFeatures"
             @toggle-highlights="onToggleHighlights"
@@ -332,7 +334,7 @@ function embedNbApp () {
       nbConfigs: {},
       resizeKey: Date.now(), // work around to force redraw highlights
       recentlyAddedThreads: [],
-      showSyncFeatures: false,
+      showSyncFeatures: true,
       onlineUsers: [],
       currentSectionId: "",
       notificationThreads: [],
@@ -340,6 +342,7 @@ function embedNbApp () {
       notificationsMuted: false,
       draggableNotificationsOpened: false,
       sidebarNotificationsOpened: false,
+      syncConfig: true,
     },
     computed: {
       style: function () {
@@ -551,10 +554,14 @@ function embedNbApp () {
       if (document.location.href.includes('/nb_viewer.html')) {
         this.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
         this.isInnotation = false
+        this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
+        this.showSyncFeatures = this.syncConfig
       } else {
         this.isMarginalia = false
         this.isInnotation = false //configs['SPOTLIGHT_INNOTATION']   === 'true' ? true : false
         this.isEmphasize = false
+        this.syncConfig = false
+        this.showSyncFeatures = false
       }
 
       //TEMP remove NB2 on test 
@@ -1143,13 +1150,13 @@ function embedNbApp () {
     app.handleResize()
   })
 
-  window.addEventListener('scroll', _ => {
-    app.handleResize()
-  })
+  // window.addEventListener('scroll', _ => {
+  //   app.handleResize()
+  // })
 
-  window.addEventListener('click', _ => {
-    app.handleResize()
-  })
+  // window.addEventListener('click', _ => {
+  //   app.handleResize()
+  // })
 
   window.addEventListener('beforeunload', async function (e) {
     e.preventDefault()

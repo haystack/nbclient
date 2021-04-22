@@ -9,6 +9,7 @@
         </nb-menu>
     </div>
     <nb-online
+      v-if="syncConfig"
       :online-users="onlineUsers"
       :show-sync-features="showSyncFeatures"
       :nb-menu-showing="myClasses.length > 1"
@@ -24,6 +25,7 @@
         :me="user"
         :users="sortedUsers"
         :hashtags="sortedHashtags"
+        :sync-config="syncConfig"
         @search-option="onSearchOption"
         @search-text="onSearchText"
         @filter-bookmarks="onFilterBookmarks"
@@ -209,6 +211,10 @@ export default {
       default: false
     },
     sidebarNotificationsOpened: {
+      type: Boolean,
+      default: false
+    },
+    syncConfig: {
       type: Boolean,
       default: false
     },
