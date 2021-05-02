@@ -14,7 +14,24 @@
         :is-innotation="isInnotation"
         :is-emphasize="isEmphasize">
       </nb-spotlight-control>
+
+      <div class="thread-header-arrows">
+        <span
+          v-tooltip="'Show previous thread in document'"
+          @click="onPrevComment"
+          >
+          <font-awesome-icon icon="chevron-circle-left"></font-awesome-icon>
+        </span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span
+          v-tooltip="'Show next thread in document'"
+          @click="onNextComment"
+          >
+          <font-awesome-icon icon="chevron-circle-right"></font-awesome-icon>
+        </span>
+      </div>
     </div>
+
     <thread-comment
         :comment="thread"
         :me="me"
@@ -23,6 +40,7 @@
         :thread-view-initiator="threadViewInitiator"
         @edit-comment="editComment"
         @delete-comment="deleteComment"
+        @submit-small-comment="submitSmallComment"
         @draft-reply="draftReply">
     </thread-comment>
   </div>
@@ -98,6 +116,15 @@ export default {
     },
     draftReply: function (comment) {
       this.$emit('draft-reply', comment)
+    },
+    submitSmallComment: function(data) {
+      this.$emit('submit-small-comment', data)
+    },
+    onPrevComment: function () {
+      this.$emit('prev-comment')
+    },
+    onNextComment: function () {
+      this.$emit('next-comment')
     }
   },
   components: {

@@ -12,8 +12,10 @@
         :is-emphasize="isEmphasize"
         :is-innotation="isInnotation"
         @select-thread="onSelectThread"
+        :show-sync-features="showSyncFeatures"
         @hover-thread="$emit('hover-thread',thread)"
-        @unhover-thread="$emit('unhover-thread',thread)">
+        @unhover-thread="$emit('unhover-thread',thread)"
+        @new-recent-thread="$emit('new-recent-thread', thread)">
     </nb-highlight>
     <nb-highlight
         v-if="draftRange"
@@ -70,17 +72,21 @@ export default {
     },
     isEmphasize: Boolean,
     isInnotation: Boolean,
+    showSyncFeatures: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {
     onSelectThread: function (thread, threadViewInitiator='NONE') {
         this.$emit('select-thread', thread, threadViewInitiator)
-    },
+    }
   },
   mounted: function () {
     eventsProxyMouse(document.body, this.$el)
   },
   components: {
-    NbHighlight
+    NbHighlight,
   }
 }
 </script>

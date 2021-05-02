@@ -154,7 +154,6 @@
   position: sticky; 
   top: 0;
   height: 40px;
-  font-weight: bold;
 }
 
 #nb-app .nb-sidebar .nb-nav-bar {
@@ -456,7 +455,7 @@
 #nb-app .nb-notification-sidebar .notification-table .list-row .flags{
   display: flex;
 }
-.icon-wrapper.reply-request {
+.icon-wrapper.tag {
   background-color: #4d4d4d;
   color: #fff;
   font-size: 14px;
@@ -474,7 +473,7 @@
   padding: 0 3px;
   border-radius: 3px;
 }
-.icon-wrapper.tag {
+.icon-wrapper.reply-request {
   background-color: #cc0088;
   color: #fff;
   font-size: 14px;
@@ -564,6 +563,7 @@
   font-size: 11px;
   vertical-align: bottom;
   font-family: 'Verdana', 'Geneva', sans-serif;
+  font-size: 12px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .timestamp {
   font-size: 13px;
@@ -1169,6 +1169,7 @@ nb-innotation-controller {
 
 .icons-left {
   margin-top: 3px;
+  margin-left: auto;
 }
 
 .vdr {
@@ -1176,6 +1177,7 @@ nb-innotation-controller {
   flex-direction: column;
   background-color: rgb(228, 228, 228);
   position: fixed;
+  border: 2px solid;
 }
 
 .notification-close-button {

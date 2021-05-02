@@ -1,7 +1,7 @@
 <template>
   <div class="nb-notification-sidebar list-view">
     <header class="card-header" id="draggable-notification-card-header">
-      <p class="card-header-title">{{title}}: ({{numberUnseen}} / {{totalCount}} unread)</p>
+      <p class="card-header-title">{{title}} ({{numberUnseen}} / {{totalCount}} unread)</p>
       <div class="icons-left-parent">
         <span class="icons-left" v-tooltip="notificationsMuted ? 'Click to unmute notifications' : 'Click to mute notifications'"
             @click="toggleMute">
@@ -20,6 +20,8 @@
           :thread-selected="threadSelected"
           :notification-selected="notificationSelected"
           :threads-hovered="threadsHovered"
+          :user="user"
+          :active-class="activeClass"
           @select-notification="onSelectNotification"
           @hover-thread="onHoverNotification"
           @unhover-thread="onUnhoverNotification">
@@ -57,6 +59,11 @@ import NotificationSidebarRow from './NotificationSidebarRow.vue'
 export default {
   name: 'notification-sidebar-view',
   props: {
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     notifications: {
       type: Array,
       default: () => []

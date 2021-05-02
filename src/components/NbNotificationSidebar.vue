@@ -1,7 +1,7 @@
 <template>
     <vue-draggable-resizable 
-      v-if="draggableNotificationsOpened"
-      :w="300" :h="525" :z="30000000" 
+      v-if="showSyncFeatures && draggableNotificationsOpened"
+      :w="330" :h="525" :z="30000000" 
       :x="-500"
       :y="250"
       :handles="['tl', 'tr', 'br', 'bl']"
@@ -9,9 +9,11 @@
       :min-width="325"
       :parent="false">
       <notification-sidebar-view
+          :user="user"
+          :activeClass="activeClass"
           :notifications="notificationThreads"
           :total-count="notificationThreads.length"
-          :thread-selected="threadsSelectedInPanes['notifications']"
+          :thread-selected="threadSelected"
           :notification-selected="notificationSelected"
           :threads-hovered="threadsHovered"
           :show-highlights="showHighlights"
@@ -50,6 +52,10 @@ export default {
       type: Array,
       default: () => []
     },
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     stillGatheringThreads: {
       type: Boolean,
       default: true
@@ -64,10 +70,6 @@ export default {
     },
     threadSelected: Object,
     notificationSelected: Object,
-    threadsSelectedInPanes: {
-      type: Object,
-      default: () => {}
-    },
     notificationThreads: {
       type: Array,
       default: () => []

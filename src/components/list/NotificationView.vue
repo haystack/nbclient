@@ -14,13 +14,22 @@
         <span class="count">
           {{ totalLabel }}
         </span>
-        <div class="icons-left-parent">
+        <!-- <div class="icons-left-parent">
           <span class="icons-left"
             v-if="!draggableNotificationsOpened"
             v-tooltip="'Open in separate popup'"
             @click="onOpenDraggableNotifications">
             <font-awesome-icon icon="envelope-open" class="icon">
             </font-awesome-icon>          
+          </span>        
+        </div> -->
+        <div class="icons-left">
+          <span v-tooltip="notificationsMuted ? 'Click to unmute notifications' : 'Click to mute notifications'"
+            @click="toggleMute">
+            <font-awesome-icon icon="bell-slash" class="icon" v-if="notificationsMuted">
+            </font-awesome-icon>
+            <font-awesome-icon icon="bell" class="icon" v-else>
+            </font-awesome-icon>
           </span>        
         </div>
       </div>
@@ -32,6 +41,8 @@
             :thread-selected="threadSelected"
             :notification-selected="notificationSelected"
             :threads-hovered="threadsHovered"
+            :activeClass="activeClass"
+            :user="user"
             @select-notification="onSelectNotification"
             @hover-thread="onHoverNotification"
             @unhover-thread="onUnhoverNotification">
@@ -83,6 +94,11 @@ export default {
       type: Array,
       default: () => []
     },
+    user: Object,
+    activeClass: {
+      type: Object,
+      default: () => {}
+    },
     showHighlights: {
       type: Boolean,
       default: true
@@ -98,7 +114,7 @@ export default {
   },
   data () {
     return {
-      isCollapsed: true,
+      isCollapsed: false,
     }
   },
   computed: {

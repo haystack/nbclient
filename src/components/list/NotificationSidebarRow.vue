@@ -7,25 +7,27 @@
       @mouseleave="onUnhoverNotification"
       @click="onClickNotification">
     <div class="flags">
-      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor" :style="flagsStyle">
+      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor">
         {{notification.readableType}}
       </div>
-      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request" :style="flagsStyle">
+      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request">
         {{notification.readableType}}
       </div>
-      <div v-if="notification.type === 'tag'" class="icon-wrapper tag" :style="flagsStyle">
+      <div v-if="notification.type === 'tag'" class="icon-wrapper tag">
         {{notification.readableType}}
       </div>
-      <div v-if="notification.type === 'recent'" class="icon-wrapper recent" :style="flagsStyle">
+      <div v-if="notification.type === 'recent'" class="icon-wrapper recent">
         {{notification.readableType}}
       </div>
       <div :style="timeTextStyle">
         {{timeString}}
       </div>
     </div>
-    <span :style="textStyle">
-      {{authorName}}: {{ commentText }}
-    </span>
+    <div :style="textStyle">
+      {{authorName}}: {{commentText}}
+    </div>
+
+
   </div>
 </template>
 
@@ -41,10 +43,6 @@
  *
  * @vue-computed {String} rowStyle - additional CSS for row background/font
  *   color in case this is selected or hovered
- * @vue-computed {String} counterStyle - additional CSS for background/font
- *   color of thread length flag in case this is unseen
- * @vue-computed {String} iconStyle - additional CSS for icon color in case
- *   this is selected
  * @vue-computed {String} textStyle - additional CSS for excerpt font weight
  *   in case this is unseen
  *
@@ -59,7 +57,7 @@ import moment from 'moment'
 import { CommentAnonymity } from '../../models/enums.js'
 
 export default {
-  name: 'notification-row',
+  name: 'notification-sidebar-row',
   props: {
     threadSelected: Object,
     notificationSelected: Object,
@@ -72,7 +70,7 @@ export default {
     activeClass: {
       type: Object,
       default: () => {}
-    },
+    }
   },
   data () {
     return {
@@ -81,7 +79,7 @@ export default {
   },
   computed: {
     rowStyle: function () {
-      let flex = 'display: list-item;'
+      let flex = 'display: flex; padding: 10px 2px 10px 2px; flex-flow: column wrap; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;';
       if (this.notificationSelected && this.notificationSelected === this.notification) {
         return flex + 'background-color: #b096ee; color: #fff'
       }
@@ -90,21 +88,6 @@ export default {
       }
       return flex
     },
-    flagsStyle: function () {
-      return 'width: auto;'
-    },
-    counterStyle: function () {
-      if (this.thread.isUnseen()) {
-        return 'background-color: #ffff70; color: #7070ff;'
-      }
-      return null
-    },
-    iconStyle: function () {
-      if (this.threadSelected && this.thread === this.threadSelected) {
-        return 'color: #eee;'
-      }
-      return null
-    },
     textStyle: function () {
       if (this.unseen) {
         return 'font-weight: bold;'
@@ -112,14 +95,14 @@ export default {
       return null
     },
     timeTextStyle: function () {
-      return 'font-size: 12px;'
+      return 'margin-left: 5px; font-size: 12px;'
+    },
+    unseen: function() {
+        return this.notification.unseen
     },
     timeString: function () {
       let relevantComment = this.notification.specificAnnotation !== null ? this.notification.specificAnnotation : this.notification.comment 
       return moment(relevantComment.timestamp).fromNow()
-    },
-    unseen: function() {
-        return this.notification.unseen
     },
     authorName: function () {
       let relevantComment = this.notification.specificAnnotation !== null ? this.notification.specificAnnotation : this.notification.comment 
@@ -161,20 +144,20 @@ export default {
   },
   methods: {
     onClickNotification: function () {
-      this.notification.setIsUnseen(false)
-      this.$emit('select-notification', this.notification)
-      const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
-      const token = localStorage.getItem("nb.user");
-      const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-      axios.post(`/api/spotlights/log`, {
-        spotlight_id: null,
-        action: 'CLICK', 
-        type: 'NOTIFICATION_LIST', 
-        annotation_id: this.thread.id, 
-        class_id: this.activeClass.id,
-        role: this.user.role.toUpperCase(),
-        trigger: this.notification.trigger 
-      }, config)
+        this.notification.setIsUnseen(false)
+        this.$emit('select-notification', this.notification)
+        const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+        axios.post(`/api/spotlights/log`, {
+          spotlight_id: null,
+          action: 'CLICK', 
+          type: 'NOTIFICATION_POPUP', 
+          annotation_id: this.thread.id, 
+          class_id: this.activeClass.id,
+          role: this.user.role.toUpperCase(),
+          trigger: this.notification.trigger 
+        }, config)
     },
     onHoverNotification: function () {
         this.$emit('hover-thread', this.thread)   
@@ -182,8 +165,6 @@ export default {
     onUnhoverNotification: function () {
         this.$emit('unhover-thread', this.thread)
     }
-  },
-  components: {
   }
 }
 </script>

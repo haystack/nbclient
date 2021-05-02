@@ -32,11 +32,32 @@
                 </font-awesome-icon>
             </div>
             <div v-else class="placeholder question"></div>
+            <div v-if="this.showSyncFeatures && thread.associatedNotification !== null" 
+              v-tooltip="'This comment has an associated notification'"
+              class="icon-wrapper notification"
+            >
+              <font-awesome-icon icon="bell" class="icon">
+              </font-awesome-icon>
+            </div>
+            <div v-else class="placeholder notification"></div>
         </div>
+
         <span :style="textStyle">
             {{ thread.text }}
         </span>
+        
+        <div v-if="showSyncFeatures" class="typing">
+          <span>
+            <avatar
+            v-for="user in thread.usersTyping" 
+            :key="user"
+            :fullname="user"
+            :size="18"
+            />
+          </span>
+        </div>
     </div>
+  
 </template>
 
 <script>
@@ -66,6 +87,8 @@ import axios from 'axios'
  * @vue-event {NbComment} unhover-thread - Emit this thread when user stops
  *   hovering over this row
  */
+import Avatar from 'vue-avatar-component'
+
 export default {
   name: 'list-view',
   props: {
@@ -83,6 +106,10 @@ export default {
     isMarginalia: Boolean,
     isInnotation: Boolean,
     isEmphasize: Boolean,
+    showSyncFeatures: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     onClick: function () {
@@ -163,6 +190,9 @@ export default {
         })
       }
     }
+  },
+  components: {
+    Avatar
   }
 }
 </script>

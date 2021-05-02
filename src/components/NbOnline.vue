@@ -4,11 +4,12 @@
     :style="style"
   >
     <div> 
-      <label>Online</label>
+      <!-- below: focus mode on means showSyncFeatures false -->
+      <label v-tooltip="'Check if you do not want to receive notifications from your classmates'">Focus Mode</label>
       <input type="checkbox"
           v-model="showSyncFeatures"
-          :true-value="true"
-          :false-value="false"
+          :true-value="false" 
+          :false-value="true"
           @change="onShowSyncFeaturesChange($event)"
       >
     </div>
@@ -23,13 +24,47 @@
     </div>
 
     <div v-if="showSyncFeatures">
-      <span
+      <!-- <span
         v-tooltip="'Click to open notifications'"
         @click="onOpenDraggableNotifications">
         <font-awesome-icon icon="envelope-open" class="icon">
         </font-awesome-icon>    
         {{ numberNotificationsUnseen }}      
-      </span>
+      </span> -->
+      <v-popover
+        class="overflow-menu"
+        popoverClass="thread-overflow-wrapper"
+        container="#nb-app-wrapper"
+        boundariesElement="#nb-app-wrapper"
+        offset="0"
+        placement="bottom-end"
+        v-tooltip="'Click to open notifications'"
+        :open="showOverflow"
+        @hide="showOverflow = false">
+        <span
+            class="tooltip-target overflow-icon"
+            @click="showOverflow = true">
+          <font-awesome-icon icon="envelope-open" class="icon">
+          </font-awesome-icon>   
+          {{ numberNotificationsUnseen }}               
+        </span>
+        <template slot="popover">
+          <div class="overflow-options">
+            <div
+              class="overflow-option"
+              @click="onOpenDraggableNotifications"
+            >
+              Open in popup
+            </div>
+            <div
+              class="overflow-option"
+              @click="onOpenSidebarNotifications"
+            >
+              Open in sidebar
+            </div>
+          </div>
+        </template>
+      </v-popover>
     </div>
 
     <div v-if="showSyncFeatures">
@@ -82,6 +117,9 @@ export default {
       return this.nbMenuShowing ? "margin-top: 5px" : "margin-top: 2.5em"
     }
   },
+  data: {
+    showOverflow: false,
+  },
   methods: {
     onShowSyncFeaturesChange: function(event) {
         this.$emit('show-sync-features', this.showSyncFeatures)
@@ -91,6 +129,9 @@ export default {
     },
     onOpenDraggableNotifications: function () {
       this.$emit('open-draggable-notifications')
+    },
+    onOpenSidebarNotifications: function () {
+      this.$emit('open-sidebar-notifications')
     },
     getTooltipContent: function () {
       return `<div>

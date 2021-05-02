@@ -191,6 +191,8 @@ class NbComment {
     this.setText()
 
     this.spotlight = data.spotlight
+    this.usersTyping = []
+    this.associatedNotification = null
   }
 
   /**
@@ -527,6 +529,30 @@ class NbComment {
       }
     }
     return authors
+  }
+
+  getMostRecentTimeStamp () {
+    let mostRecentTimeStamp = this.timestamp
+    for (let child of this.children) {
+      let childTimeStamp = child.getMostRecentTimeStamp()
+      if (childTimeStamp > mostRecentTimeStamp) {
+        mostRecentTimeStamp = childTimeStamp
+      }
+    }
+    return mostRecentTimeStamp
+  }
+
+  getChildComment (annotationId) {
+    if (this.id === annotationId) {
+      return this
+    }
+    for (let child of this.children) {
+      let res = child.getChildComment(annotationId)
+      if (res !== null) {
+        return res
+      }
+    }
+    return null
   }
 
   /**
