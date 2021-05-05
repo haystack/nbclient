@@ -585,7 +585,6 @@ function embedNbApp () {
       
       socket.on('connections', (data) => {
         if (data.classId === this.activeClass.id && data.sectionId === this.currentSectionId) {
-          console.log(data.connections)
           let onlineUsersSet = new Set(data.connections)
           this.onlineUsers = [...onlineUsersSet]
         }
@@ -711,16 +710,19 @@ function embedNbApp () {
       },
       newNotification: function (comment) {
         if (this.notificationThreads.length < 5) { // limit to 5 initial notifications
-          if (comment.isUnseen()) {
-            if (comment.hasUserTag(this.user.id)) {
-              return new NbNotification(comment, "tag", true)
-            }
-            if (comment.hasMyReplyRequests()) {
-              return new NbNotification(comment, "question", true)
-            }
-            if (comment.hasInstructorPost()) {
-              return new NbNotification(comment, "instructor", false)
-            }
+          let taggedComment = comment.getUserTagPost(this.user.id)
+          if (taggedComment !== null) {
+            return new NbNotification(comment, "tag", true, taggedComment)
+          }
+
+          let replyRequestResponseComment = comment.getReplyRequestResponsePost(this.user.id)
+          if (replyRequestResponseComment !== null) {
+            return new NbNotification(comment, "question", true, replyRequestResponseComment)
+          }
+
+          let instructorResponseComment = comment.getInstructorPost()
+          if (instructorResponseComment !== null) {
+            return new NbNotification(comment, "instructor", false, instructorResponseComment)
           }
         }
         return null
@@ -1013,8 +1015,9 @@ function embedNbApp () {
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
       },
       onNewRecentThread: function (thread) {
-        if (thread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
-          let notification = new NbNotification(thread, "recent", false)
+        let mostRecentThread = thread.getMostRecentPost() // get the most recent thread to see if we should notify about it
+        if (mostRecentThread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
+          let notification = new NbNotification(thread, "recent", false, mostRecentThread) // associated annotation is the most recent one
           this.notificationThreads.push(notification)
           thread.associatedNotification = notification
         }
