@@ -313,20 +313,24 @@ export default {
       }
       let content = ""
       if (this.isRecentThread || this.isTypingThread) {
-        content = "recently commented: "
+        content = "<span>recent comment:</span>"
       } else if (this.notificationThread) {
-        content = this.thread.associatedNotification.readableType + " notification: "
+        content = "<span>" + 
+          this.thread.associatedNotification.readableType + " notification:</span>"
       } else if (this.replyRequestThread) {
-        content = "reply requested: "
+        content = "<span>reply requested comment:</span>"
       } else {
         return "" // no associated notification, return empty string
       }
-      let text = this.thread.text 
-      if (this.notificationThread && this.thread.associatedNotification.specificAnnotation !== null) {
-        text = this.thread.associatedNotification.specificAnnotation.text
-      }
-      content += text.substring(0, 20)
-      if (text.length > 20) {
+      content += "<br>"
+
+      let relevantComment = 
+        (this.notificationThread && this.thread.associatedNotification.specificAnnotation !== null) 
+          ? this.thread.associatedNotification.specificAnnotation : this.thread 
+
+      let text = relevantComment.text
+      content += text.substring(0, 30)
+      if (text.length > 30) {
         content += "..."
       }
       return content

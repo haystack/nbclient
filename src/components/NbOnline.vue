@@ -135,11 +135,11 @@ export default {
     },
     getTooltipContent: function () {
       return `<div>
-        <span><label>blinking thread: </label>thread has recent typing or new post activity</span>
+        <span><label>blinking thread: </label>comment has recent typing or new post activity</span>
         <br><br>
-        <span><label style="background-color: rgb(255, 0, 255);">pink:</label> someone needs a reply request</span>
+        <span><label style="background-color: rgb(255, 0, 255);">pink: </label>comment has a reply request</span>
         <br><br>
-        <span><label style="background-color: rgba(80, 54, 255, 0.9);">purple:</label> thread has notification associated</span>
+        <span><label style="background-color: rgba(80, 54, 255, 0.9);">purple: </label>comment has notification associated</span>
       </div>`
     }
   },

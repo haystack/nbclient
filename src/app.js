@@ -678,6 +678,7 @@ function embedNbApp () {
               this.notificationThreads[i].comment = comment // replace comment for existing notifications referring to old version of comment
             }
           })
+
           this.threads.push(comment)
         })
       },
@@ -702,7 +703,6 @@ function embedNbApp () {
           }).then((result) => {
             if (result.value) {
               this.swalClicked = true 
-              notification.setIsUnseen(false)
               this.onSelectNotification(notification)
             }
           }) 
@@ -957,13 +957,13 @@ function embedNbApp () {
         if (this.threadSelected) {
           socket.emit('thread-stop-typing', {threadId: this.threadSelected.id, username: this.user.username}) // selecting new thread so stop typing on this thread
         }
-        this.threadSelected = thread
         if (thread.associatedNotification !== null) {
           thread.associatedNotification.setIsUnseen(false)
         }
+        this.threadSelected = thread
         thread.markSeenAll()
       },
-      onSelectNotification: function (notification) {        
+      onSelectNotification: function (notification) {  
         this.notificationSelected = notification
         notification.setIsUnseen(false)
         this.onSelectThread(notification.comment)
@@ -975,20 +975,17 @@ function embedNbApp () {
         if (this.swalClicked) {
           this.swalClicked = false // don't unselect if this was a popup notification click
         } else { // otherwise, it was a valid unselect thread click
-          this.threadSelected = null
+          if (!this.isInnotationHover) {
+            this.threadSelected = null
+          }
           if (this.draftRange && this.isEditorEmpty) {
             this.onCancelDraft()
           }
         }
-        
+    
         this.threadViewInitiator = 'NONE'
         console.log('threadViewInitiator: ' + this.threadViewInitiator)
-        if (!this.isInnotationHover) {
-          this.threadSelected = null
-        }
-        if (this.draftRange && this.isEditorEmpty) {
-          this.onCancelDraft()
-        }
+
       },
       onHoverThread: function (thread) {
         // console.log('onHoverThread in app')

@@ -22,11 +22,15 @@
             <div class="icon-wrapper counter" :style="counterStyle">
                 {{ thread.countAllReplies() + 1 }}
             </div>
-            <div v-if="thread.hasInstructorPost()" class="icon-wrapper instr">
+            <div v-if="thread.hasInstructorPost()" 
+              v-tooltip="'This comment has an instructor comment'"
+              class="icon-wrapper instr">
                 i
             </div>
             <div v-else class="placeholder instr"></div>
-            <div v-if="thread.hasReplyRequests()" class="icon-wrapper question"
+            <div v-if="thread.hasReplyRequests()" 
+              v-tooltip="'This comment has a reply request'"
+              class="icon-wrapper question"
                 :style="iconStyle">
                 <font-awesome-icon icon="question">
                 </font-awesome-icon>
