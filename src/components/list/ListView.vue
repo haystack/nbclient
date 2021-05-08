@@ -34,8 +34,8 @@
         </span>
       </div>
       <div class="list-table">
-        <div v-if="totalCount==0">
-          <p>Gathering any class annotations</p>
+        <div v-if="stillGatheringThreads">
+          <p>Fetching Annotations</p>
           <tile loading="true"></tile>
         </div>
 

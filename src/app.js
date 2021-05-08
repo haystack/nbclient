@@ -585,7 +585,6 @@ function embedNbApp () {
       
       socket.on('connections', (data) => {
         if (data.classId === this.activeClass.id && data.sectionId === this.currentSectionId) {
-          console.log(data.connections)
           let onlineUsersSet = new Set(data.connections)
           this.onlineUsers = [...onlineUsersSet]
         }
@@ -679,6 +678,7 @@ function embedNbApp () {
               this.notificationThreads[i].comment = comment // replace comment for existing notifications referring to old version of comment
             }
           })
+
           this.threads.push(comment)
         })
       },
@@ -703,7 +703,6 @@ function embedNbApp () {
           }).then((result) => {
             if (result.value) {
               this.swalClicked = true 
-              notification.setIsUnseen(false)
               this.onSelectNotification(notification)
             }
           }) 
@@ -711,16 +710,19 @@ function embedNbApp () {
       },
       newNotification: function (comment) {
         if (this.notificationThreads.length < 5) { // limit to 5 initial notifications
-          if (comment.isUnseen()) {
-            if (comment.hasUserTag(this.user.id)) {
-              return new NbNotification(comment, "tag", true)
-            }
-            if (comment.hasMyReplyRequests()) {
-              return new NbNotification(comment, "question", true)
-            }
-            if (comment.hasInstructorPost()) {
-              return new NbNotification(comment, "instructor", false)
-            }
+          let taggedComment = comment.getUserTagPost(this.user.id)
+          if (taggedComment !== null) {
+            return new NbNotification(comment, "tag", true, taggedComment)
+          }
+
+          let replyRequestResponseComment = comment.getReplyRequestResponsePost(this.user.id)
+          if (replyRequestResponseComment !== null) {
+            return new NbNotification(comment, "question", true, replyRequestResponseComment)
+          }
+
+          let instructorResponseComment = comment.getInstructorPost()
+          if (instructorResponseComment !== null) {
+            return new NbNotification(comment, "instructor", false, instructorResponseComment)
           }
         }
         return null
@@ -955,13 +957,13 @@ function embedNbApp () {
         if (this.threadSelected) {
           socket.emit('thread-stop-typing', {threadId: this.threadSelected.id, username: this.user.username}) // selecting new thread so stop typing on this thread
         }
-        this.threadSelected = thread
         if (thread.associatedNotification !== null) {
           thread.associatedNotification.setIsUnseen(false)
         }
+        this.threadSelected = thread
         thread.markSeenAll()
       },
-      onSelectNotification: function (notification) {        
+      onSelectNotification: function (notification) {  
         this.notificationSelected = notification
         notification.setIsUnseen(false)
         this.onSelectThread(notification.comment)
@@ -973,20 +975,17 @@ function embedNbApp () {
         if (this.swalClicked) {
           this.swalClicked = false // don't unselect if this was a popup notification click
         } else { // otherwise, it was a valid unselect thread click
-          this.threadSelected = null
+          if (!this.isInnotationHover) {
+            this.threadSelected = null
+          }
           if (this.draftRange && this.isEditorEmpty) {
             this.onCancelDraft()
           }
         }
-        
+    
         this.threadViewInitiator = 'NONE'
         console.log('threadViewInitiator: ' + this.threadViewInitiator)
-        if (!this.isInnotationHover) {
-          this.threadSelected = null
-        }
-        if (this.draftRange && this.isEditorEmpty) {
-          this.onCancelDraft()
-        }
+
       },
       onHoverThread: function (thread) {
         // console.log('onHoverThread in app')
@@ -1013,8 +1012,9 @@ function embedNbApp () {
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
       },
       onNewRecentThread: function (thread) {
-        if (thread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
-          let notification = new NbNotification(thread, "recent", false)
+        let mostRecentThread = thread.getMostRecentPost() // get the most recent thread to see if we should notify about it
+        if (mostRecentThread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
+          let notification = new NbNotification(thread, "recent", false, mostRecentThread) // associated annotation is the most recent one
           this.notificationThreads.push(notification)
           thread.associatedNotification = notification
         }
