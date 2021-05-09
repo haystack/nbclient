@@ -33,7 +33,7 @@ import VueJwtDecode from "vue-jwt-decode";
 
 // Sentry.init({
 //   Vue,
-//   dsn: "https://0166e76b64ce48cf97d7df2b6d93ea90@o564291.ingest.sentry.io/5714967",
+//   dsn: "https://1a47ffe142234c9cb942cf7ddd6d4ec3@o564291.ingest.sentry.io/5722075",
 //   integrations: [new Integrations.BrowserTracing()],
 
 //   // Set tracesSampleRate to 1.0 to capture 100%
