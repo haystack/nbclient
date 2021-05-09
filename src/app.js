@@ -22,9 +22,10 @@ import VueJwtDecode from "vue-jwt-decode";
 // import * as Sentry from "@sentry/vue";
 // import { Integrations } from "@sentry/tracing";
 
+//prodcution log
 // Sentry.init({
 //   Vue,
-//   dsn: "https://0166e76b64ce48cf97d7df2b6d93ea90@o564291.ingest.sentry.io/5714967",
+//   dsn: "https://1a47ffe142234c9cb942cf7ddd6d4ec3@o564291.ingest.sentry.io/5722075",
 //   integrations: [new Integrations.BrowserTracing()],
 
 //   // Set tracesSampleRate to 1.0 to capture 100%
@@ -39,14 +40,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+// axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+ export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
