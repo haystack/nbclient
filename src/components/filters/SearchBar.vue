@@ -45,7 +45,7 @@ export default {
   data () {
     return {
       searchBy: 'text',
-      placeholder: 'Search for comments'
+      placeholder: 'Search...'
     }
   },
   watch: {

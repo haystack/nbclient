@@ -4,8 +4,12 @@
             v-for="thread in innotationsInline"
             :key="key(thread)"
             :thread="thread"
+            :thread-selected="threadSelected"
             :user="user"
-            :activeClass="activeClass">
+            :activeClass="activeClass"
+            @select-thread="onSelectThread"
+            @hover-innotation="$emit('hover-innotation',thread)"
+            @unhover-innotation="$emit('unhover-innotation',thread)">
         </nb-innotation-inline>
         <nb-innotation-block 
             v-for="thread in innotationsBlock"

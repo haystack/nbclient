@@ -1,25 +1,25 @@
 <template>
-  <svg class="nb-highlights" @unselect-thread="$emit('unselect-thread', null)">
-    <nb-highlight
-        v-for="thread in threads"
-        :key="thread"
-        :thread="thread"
-        :thread-selected="threadSelected"
-        :threads-hovered="threadsHovered"
-        :show-highlights="showHighlights"
-        :user="user"
-        :activeClass="activeClass"
-        :is-emphasize="isEmphasize"
-        :is-innotation="isInnotation"
-        @select-thread="onSelectThread"
-        @hover-thread="$emit('hover-thread',thread)"
-        @unhover-thread="$emit('unhover-thread',thread)">
-    </nb-highlight>
-    <nb-highlight
-        v-if="draftRange"
-        :range="draftRange">
-    </nb-highlight>
-  </svg>
+    <svg class="nb-highlights" @unselect-thread="onUnselectThread()">
+        <nb-highlight
+            v-for="thread in threads"
+            :key="thread"
+            :thread="thread"
+            :thread-selected="threadSelected"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :user="user"
+            :activeClass="activeClass"
+            :is-emphasize="isEmphasize"
+            :is-innotation="isInnotation"
+            @select-thread="onSelectThread"
+            @hover-thread="$emit('hover-thread',thread)"
+            @unhover-thread="$emit('unhover-thread',thread)">
+        </nb-highlight>
+        <nb-highlight
+            v-if="draftRange"
+            :range="draftRange">
+        </nb-highlight>
+    </svg>
 </template>
 
 <script>
@@ -47,40 +47,48 @@ import { eventsProxyMouse } from '../../utils/highlight-util.js'
  *   by clicking outside of highlights
  */
 export default {
-  name: 'nb-highlights',
-  props: {
-    threads: {
-      type: Array,
-      default: () => []
+    name: 'nb-highlights',
+    props: {
+        threads: {
+            type: Array,
+            default: () => []
+        },
+        threadSelected: Object,
+        threadsHovered: {
+            type: Array,
+            default: () => []
+        },
+        draftRange: Object,
+        showHighlights: {
+            type: Boolean,
+            default: true
+        },
+        user: Object,
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
+        isEmphasize: Boolean,
+        isInnotation: Boolean,
+        isInnotationHover: Boolean,
     },
-    threadSelected: Object,
-    threadsHovered: {
-      type: Array,
-      default: () => []
+    methods: {
+        onSelectThread: function (thread, threadViewInitiator='NONE') {
+            this.$emit('select-thread', thread, threadViewInitiator)
+        },
+        onUnselectThread: function () {
+            if (this.isInnotationHover) {
+                return // clicked on innotation, do nothing. innotation will handle it.
+            }
+
+            this.$emit('unselect-thread', null)
+        }
     },
-    draftRange: Object,
-    showHighlights: {
-      type: Boolean,
-      default: true
+    mounted: function () {
+        eventsProxyMouse(document.body, this.$el)
     },
-    user: Object,
-    activeClass: {
-      type: Object,
-      default: () => {}
-    },
-    isEmphasize: Boolean,
-    isInnotation: Boolean,
-  },
-  methods: {
-    onSelectThread: function (thread, threadViewInitiator='NONE') {
-        this.$emit('select-thread', thread, threadViewInitiator)
-    },
-  },
-  mounted: function () {
-    eventsProxyMouse(document.body, this.$el)
-  },
-  components: {
-    NbHighlight
-  }
+    components: {
+        NbHighlight
+    }
 }
 </script>

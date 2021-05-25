@@ -40,14 +40,14 @@ Vue.use(VTooltip)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 library.add(fas, far)
 
-axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
-// axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
+axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
- export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+//export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
-// export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
+export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
   (document.attachEvent && document.readyState === 'complete') ||
@@ -63,7 +63,7 @@ if (
  * @param {string} url - Link to the stylesheet
  * @param {HTMLElement} [container = first <head> element] - DOM element to insert the link to
  */
-function loadCSS (url, container = document.getElementsByTagName('HEAD')[0]) {
+function loadCSS(url, container = document.getElementsByTagName('HEAD')[0]) {
   let tag = document.createElement('link')
   tag.rel = 'stylesheet'
   tag.type = 'text/css'
@@ -75,14 +75,14 @@ function loadCSS (url, container = document.getElementsByTagName('HEAD')[0]) {
  * Load a JS embed tag.
  * @param {string} url - Link to the script
  */
-function loadScript (url) {
+function loadScript(url) {
   let tag = document.createElement('script')
   tag.src = url
   document.getElementsByTagName('HEAD')[0].appendChild(tag)
 }
 
 /** Embed NB sidebar. */
-function embedNbApp () {
+function embedNbApp() {
   loadCSS('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css')
   loadCSS('https://cdn.quilljs.com/1.3.6/quill.snow.css')
   loadCSS(`${PLUGIN_HOST_URL}/style/plugin.css`)
@@ -91,7 +91,7 @@ function embedNbApp () {
 
   // assuming sidebar is 350px wide + 2 * 10px padding + 5px margin
   document.documentElement.setAttribute('style', 'overflow: overlay !important;')
-  document.body.setAttribute('style', 'position: initial !important; margin: 0 395px 0 0 !important;')
+  document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
 
   let element = document.createElement('div')
   element.id = 'nb-app-wrapper'
@@ -177,6 +177,7 @@ function embedNbApp () {
             :activeClass="activeClass"
             :is-emphasize="isEmphasize"
             :is-innotation="isInnotation"
+            :is-innotation-hover="isInnotationHover"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
@@ -232,7 +233,7 @@ function embedNbApp () {
     `,
     data: {
       user: null,
-      myClasses:[],
+      myClasses: [],
       activeClass: {},
       users: {},
       hashtags: {},
@@ -390,36 +391,36 @@ function embedNbApp () {
     watch: {
       user: async function (newUser, oldUser) {
         if (!newUser) return // logged out
-        if (newUser === oldUser ) return // same user, do nothing
+        if (newUser === oldUser) return // same user, do nothing
 
         const source = window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
-        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source }}
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
         const myClasses = await axios.get('/api/annotations/myClasses', config)
 
         if (myClasses.data.length > 0) {
-            this.myClasses = myClasses.data
-            
-            if (this.myClasses.length === 1) {
-                this.activeClass = this.myClasses[0]
-            }
-            this.sourceURL = source 
+          this.myClasses = myClasses.data
+
+          if (this.myClasses.length === 1) {
+            this.activeClass = this.myClasses[0]
+          }
+          this.sourceURL = source
 
         } else {
           const sourceWithQuery = window.location.href // try the source with query params as well
-          const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery }}
+          const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery } }
           const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
           if (myClassesWithQuery.data.length > 0) {
             this.myClasses = myClassesWithQuery.data
 
             if (this.myClasses.length === 1) {
-                this.activeClass = this.myClasses[0]
+              this.activeClass = this.myClasses[0]
             }
             this.sourceURL = sourceWithQuery
 
-          } else { 
+          } else {
             console.log("Sorry you don't have access");
-          } 
+          }
         }
       },
       activeClass: async function (newActiveClass) {
@@ -431,26 +432,26 @@ function embedNbApp () {
           const token = localStorage.getItem("nb.user");
           const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
           const decoded = VueJwtDecode.decode(token)
-          
-          axios.get('/api/annotations/allUsers', config)
-          .then(res => {
-            this.users = res.data
-            this.$set(this.user, 'role', this.users[this.user.id].role)
 
-            const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
-            axios.post(`/api/spotlights/log/session/start`, {
-                action: 'SESSION_START', 
-                type: 'NONE', 
+          axios.get('/api/annotations/allUsers', config)
+            .then(res => {
+              this.users = res.data
+              this.$set(this.user, 'role', this.users[this.user.id].role)
+
+              const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
+              axios.post(`/api/spotlights/log/session/start`, {
+                action: 'SESSION_START',
+                type: 'NONE',
                 class_id: this.activeClass.id,
-                role: this.users[this.user.id].role.toUpperCase() 
-            }, configSessionStart)
-          })
-          
+                role: this.users[this.user.id].role.toUpperCase()
+              }, configSessionStart)
+            })
+
           axios.get('/api/annotations/allTagTypes', config)
-          .then(res => {
+            .then(res => {
               this.hashtags = res.data
-          })
-          
+            })
+
           this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
         }
 
@@ -460,13 +461,13 @@ function embedNbApp () {
       const req = await axios.get('/api/nb/config')
       const configs = req.data
       this.nbConfigs = configs
-
-      this.isEmphasize  = configs['SPOTLIGHT_EM'] === 'true' ? true : false
+      console.log(configs)
+      this.isEmphasize = configs['SPOTLIGHT_EM'] === 'true' ? true : false
 
       const token = localStorage.getItem("nb.user")
       if (token) {
-          const decoded = VueJwtDecode.decode(token)
-          this.user = decoded.user
+        const decoded = VueJwtDecode.decode(token)
+        this.user = decoded.user
       }
 
       if (document.location.href.includes('/nb_viewer.html')) {
@@ -474,8 +475,8 @@ function embedNbApp () {
         this.isInnotation = false
       } else {
         this.isMarginalia = false
-        this.isInnotation = false //configs['SPOTLIGHT_INNOTATION']   === 'true' ? true : false
-        this.isEmphasize = false
+        this.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
+        //this.isEmphasize = false
       }
 
       // remove hypothesis
@@ -493,15 +494,15 @@ function embedNbApp () {
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
 
-        axios.get('/api/annotations/new_annotation',  config)
-        .then(res => {
+        axios.get('/api/annotations/new_annotation', config)
+          .then(res => {
             this.threads = []
             for (const item of res.data.headAnnotations) {
               try {
                 item.range = deserializeNbRange(item.range)
               } catch (e) {
                 console.warn(`Could not deserialize range for ${item.id}`)
-                continue 
+                continue
               }
               // Nb Comment
               let comment = new NbComment(item, res.data.annotationsData)
@@ -511,10 +512,10 @@ function embedNbApp () {
             this.stillGatheringThreads = false
             let link = window.location.hash.match(/^#nb-comment-(.+$)/)
             if (link) {
-                let id = link[1]
-                this.threadSelected = this.threads.find(x => x.id === id)
+              let id = link[1]
+              this.threadSelected = this.threads.find(x => x.id === id)
             }
-        })
+          })
       },
       draftThread: function (range) {
         if (this.user) { // only if selection was after user log in
@@ -527,7 +528,7 @@ function embedNbApp () {
         if (idx >= 0) { this.threads.splice(idx, 1) }
         if (thread.id) {
           const token = localStorage.getItem("nb.user");
-          const headers = { headers: { Authorization: 'Bearer ' + token }}
+          const headers = { headers: { Authorization: 'Bearer ' + token } }
           axios.delete(`/api/annotations/annotation/${thread.id}`, headers)
         }
       },
@@ -708,7 +709,7 @@ function embedNbApp () {
         }
         this.filter.minUpvotes = min
       },
-      onSelectThread: function (thread, threadViewInitiator='NONE') {
+      onSelectThread: function (thread, threadViewInitiator = 'NONE') {
         this.threadViewInitiator = threadViewInitiator
         console.log('threadViewInitiator: ' + this.threadViewInitiator)
         this.threadSelected = thread
@@ -717,33 +718,35 @@ function embedNbApp () {
       onUnselectThread: function (thread) {
         this.threadViewInitiator = 'NONE'
         console.log('threadViewInitiator: ' + this.threadViewInitiator)
-       if (!this.isInnotationHover) {
-        this.threadSelected = null
-       }
-       if (this.draftRange && this.isEditorEmpty) {
-        this.onCancelDraft()
-      }
+        if (!this.isInnotationHover) {
+          this.threadSelected = null
+        }
+        if (this.draftRange && this.isEditorEmpty) {
+          this.onCancelDraft()
+        }
       },
       onHoverThread: function (thread) {
         // console.log('onHoverThread in app')
-        // console.log(thread)
         if (!this.threadsHovered.includes(thread)) {
           this.threadsHovered.push(thread)
         }
       },
-      onHoverInnotation: function(thread) {
+      onHoverInnotation: function (thread) {
+        // console.log('onHoverInnotation in app')
         this.isInnotationHover = true
         if (!this.threadsHovered.includes(thread)) {
           this.threadsHovered.push(thread)
         }
       },
       onUnhoverThread: function (thread) {
-        // console.log('onUnhoverThread in app')
-        // console.log(thread)
-        let idx = this.threadsHovered.indexOf(thread)
-        if (idx >= 0) this.threadsHovered.splice(idx, 1)
+        if (!this.isInnotationHover) {
+          // console.log('onUnhoverThread in app')
+          let idx = this.threadsHovered.indexOf(thread)
+          if (idx >= 0) this.threadsHovered.splice(idx, 1)
+        }
       },
-      onUnhoverInnotation: function(thread) {
+      onUnhoverInnotation: function (thread) {
+        // console.log('onUnhoverInnotation in app')
         this.isInnotationHover = false
         let idx = this.threadsHovered.indexOf(thread)
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
@@ -754,52 +757,52 @@ function embedNbApp () {
       handleResize: function () {
         this.resizeKey = Date.now()
       },
-      onSwitchClass: function(newClass) {
+      onSwitchClass: function (newClass) {
         this.activeClass = newClass
       },
       onSessionEnd: async function () {
-        if (this.activeClass.id){
-            const token = localStorage.getItem("nb.user");
-            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
-            await axios.post(`/api/spotlights/log/session/end`, {
-                action: 'SESSION_END', 
-                type: 'NONE', 
-                class_id: this.activeClass.id,
-                role: this.user.role.toUpperCase() 
-            }, config)
+        if (this.activeClass.id) {
+          const token = localStorage.getItem("nb.user");
+          const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
+          await axios.post(`/api/spotlights/log/session/end`, {
+            action: 'SESSION_END',
+            type: 'NONE',
+            class_id: this.activeClass.id,
+            role: this.user.role.toUpperCase()
+          }, config)
         }
       },
       onLogout: async function () {
-          await this.onSessionEnd()
-          localStorage.removeItem("nb.user")
-          this.user = null
-          this.myClasses = []
-          this.activeClass = {}
-          this.users = {}
-          this.hashtags = {}
-          this.threads = []
-          this.threadSelected = null
-          this.threadsHovered = []
-          this.draftRange = null
-          this.isEditorEmpty = true
-          this.filter = {
-            searchOption: 'text',
-            searchText: '',
-            bookmarks: false,
-            hashtags: [],
-            userTags: [],
-            comments: [],
-            replyReqs: [],
-            upvotes: [],
-            minWords: 0,
-            maxWords: null,
-            minHashtags: 0,
-            maxHashtags: null,
-            minReplies: 0,
-            minReplyReqs: 0,
-            minUpvotes: 0
-          }
-          this.showHighlights = true
+        await this.onSessionEnd()
+        localStorage.removeItem("nb.user")
+        this.user = null
+        this.myClasses = []
+        this.activeClass = {}
+        this.users = {}
+        this.hashtags = {}
+        this.threads = []
+        this.threadSelected = null
+        this.threadsHovered = []
+        this.draftRange = null
+        this.isEditorEmpty = true
+        this.filter = {
+          searchOption: 'text',
+          searchText: '',
+          bookmarks: false,
+          hashtags: [],
+          userTags: [],
+          comments: [],
+          replyReqs: [],
+          upvotes: [],
+          minWords: 0,
+          maxWords: null,
+          minHashtags: 0,
+          maxHashtags: null,
+          minReplies: 0,
+          minReplyReqs: 0,
+          minUpvotes: 0
+        }
+        this.showHighlights = true
       }
     },
     components: {
@@ -838,9 +841,9 @@ function embedNbApp () {
     app.handleResize()
   })
 
-//   window.addEventListener('scroll', _ => {
-//     app.handleResize()
-//   })
+  //   window.addEventListener('scroll', _ => {
+  //     app.handleResize()
+  //   })
 
   window.addEventListener('click', _ => {
     app.handleResize()
