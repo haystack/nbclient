@@ -279,7 +279,7 @@ function embedNbApp() {
     computed: {
       style: function () {
         if (this.isDragging) {
-          return `height: ${document.body.clientHeight}px; width: 100vw`
+          return `height: ${document.body.clientHeight}px; width: 100vw; z-index: 999999;`
         }
         return `height: ${document.body.clientHeight}px`
       },
