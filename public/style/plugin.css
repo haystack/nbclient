@@ -132,7 +132,7 @@
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background: #fff;
   z-index: 99999;
-  opacity: 0.9;
+  opacity: 0.97;
 }
 
 #nb-app .nb-sidebar.animatable-width {
@@ -140,19 +140,13 @@
 }
 
 #nb-app .nb-sidebar.draggable:after {
-  content: "•••••";
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  content: " ";
   position: absolute;
-  left: 0;
+  left: 0px;
   width: 4px;
   height: 100%;
   cursor: ew-resize;
-  color: #999;
-  writing-mode: vertical-rl;
-  height: 40px;
-  top: 50%;
+  border-left: 3px dashed #bda2d8;
  }
 
 #nb-app .nb-sidebar .nb-nav-bar {
@@ -995,7 +989,7 @@ nb-innotation-controller {
   height: 100%;
   padding: 0 10px;
   top: 0;
-  right: 395px;
+  right: 310px;
   line-height: normal;
   font-size: 12px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;

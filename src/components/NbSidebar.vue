@@ -1,5 +1,5 @@
 <template>
-    <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: threadSelected || editor.visible, 'animatable-width': isWidthAnimatable }" @mousedown="mouseDown" @mouseup="mouseUp" :style="style">
+    <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: threadSelected || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
         <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
         <div class="nb-menu" v-if="myClasses.length > 1">
             <nb-menu 
@@ -146,6 +146,8 @@ export default {
         },
         activeClass: Object,
         threadViewInitiator: String,
+        isDragging: Boolean,
+        sidebarWidth: Number,
     },
     data () {
         return {
@@ -163,9 +165,6 @@ export default {
                 },
                 isEmpty: true
             },
-            sidebarWidth: 500,
-            mousePosition: null,
-            isWidthAnimatable: true,
         }
     },
     computed: {
@@ -184,8 +183,6 @@ export default {
                 return `width: ${this.sidebarWidth}px`
             }
 
-            document.removeEventListener("mousemove", this.resizeSidebar, false);
-            this.isWidthAnimatable = true
             return `width: ${SIDEBAR_MIN_WIDTH}px`
         }
     },
@@ -217,30 +214,12 @@ export default {
     },
     methods: {
         mouseDown: function (e) {
-            e.preventDefault()
-            if (e.offsetX < SIDEBAR_BORDER_SIZE) {
+            if (e.offsetX < SIDEBAR_BORDER_SIZE && (this.threadSelected || this.editor.visible)) {
+                e.preventDefault()
                 this.mousePosition = e.x
-                document.addEventListener("mousemove", this.resizeSidebar, false)
+                this.$emit('set-mouse-position', e.x)
+                this.$emit('dragging', true)
             }
-
-            document.addEventListener("mouseup", function(){
-                this.isWidthAnimatable = true
-                document.removeEventListener("mousemove", this.resizeSidebar, false);
-            }, false);
-        },
-        mouseUp: function (e) {
-            //e.preventDefault()
-            this.isWidthAnimatable = true
-            document.removeEventListener("mousemove", this.resizeSidebar, false);
-        },
-        resizeSidebar: function (e) {
-            this.isWidthAnimatable = false
-            e.preventDefault()
-            const dx = this.mousePosition - e.x
-            this.mousePosition = e.x
-            let width = parseInt(this.sidebarWidth + dx)
-            width = width < 300 ? 300 : width > 800 ? 800: width
-            this.sidebarWidth = width
         },
         onSwitchClass: function (newClass) {
             this.$emit('switch-class', newClass)

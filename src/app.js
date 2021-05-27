@@ -132,7 +132,7 @@ function embedNbApp() {
     // el: element.shadowRoot.querySelector('#nb-app'),
     el: '#nb-app',
     template: `
-      <div id="nb-app" :style="style">
+      <div id="nb-app" :style="style" @mouseup="mouseUp" @mousemove="mouseMove">
         <div v-if="!user" class="nb-sidebar">
           <nb-login @login="setUser"></nb-login>
         </div>
@@ -200,7 +200,8 @@ function embedNbApp() {
             :is-marginalia="isMarginalia"
             :is-innotation="isInnotation"
             :is-emphasize="isEmphasize"
-            :activeClass="activeClass"
+            :is-dragging="isDragging"
+            :sidebar-width="sidebarWidth"
             :thread-view-initiator="threadViewInitiator"
             @switch-class="onSwitchClass"
             @toggle-highlights="onToggleHighlights"
@@ -226,7 +227,9 @@ function embedNbApp() {
             @new-thread="onNewThread"
             @cancel-draft="onCancelDraft"
             @editor-empty="onEditorEmpty"
-            @logout="onLogout">
+            @logout="onLogout"
+            @dragging="dragging"
+            @set-mouse-position="setMousePosition">
           </nb-sidebar>
         </div>
       </div>
@@ -269,9 +272,15 @@ function embedNbApp() {
       sourceURL: '',
       threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
       nbConfigs: {},
+      isDragging: false, // indicates if there's a dragging happening in the UI
+      sidebarWidth: 500,
+      mousePosition: null,
     },
     computed: {
       style: function () {
+        if (this.isDragging) {
+          return `height: ${document.body.clientHeight}px; width: 100vw`
+        }
         return `height: ${document.body.clientHeight}px`
       },
       totalThreads: function () {
@@ -486,6 +495,27 @@ function embedNbApp() {
       hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
     },
     methods: {
+      dragging: function (isDragging) {
+        this.isDragging = isDragging
+      },
+      setMousePosition: function (position) {
+        this.mousePosition = position
+      },
+      mouseUp: function (e) {
+        if (this.isDragging) {
+          e.preventDefault()
+          this.isDragging = false
+        }
+      },
+      mouseMove: function (e) {
+        if (!this.isDragging) return
+        e.preventDefault()
+        const dx = this.mousePosition - e.x
+        this.mousePosition = e.x
+        let width = parseInt(this.sidebarWidth + dx)
+        width = width < 300 ? 300 : width > 800 ? 800 : width
+        this.sidebarWidth = width
+      },
       setUser: function (user) {
         this.user = user
       },
@@ -711,13 +741,15 @@ function embedNbApp() {
       },
       onSelectThread: function (thread, threadViewInitiator = 'NONE') {
         this.threadViewInitiator = threadViewInitiator
-        console.log('threadViewInitiator: ' + this.threadViewInitiator)
+        //console.log('threadViewInitiator: ' + this.threadViewInitiator)
         this.threadSelected = thread
         thread.markSeenAll()
       },
       onUnselectThread: function (thread) {
+        if (this.isDragging) return
+
         this.threadViewInitiator = 'NONE'
-        console.log('threadViewInitiator: ' + this.threadViewInitiator)
+        //console.log('threadViewInitiator: ' + this.threadViewInitiator)
         if (!this.isInnotationHover) {
           this.threadSelected = null
         }
@@ -727,12 +759,16 @@ function embedNbApp() {
       },
       onHoverThread: function (thread) {
         // console.log('onHoverThread in app')
+        if (this.isDragging) return
+
         if (!this.threadsHovered.includes(thread)) {
           this.threadsHovered.push(thread)
         }
       },
       onHoverInnotation: function (thread) {
         // console.log('onHoverInnotation in app')
+        if (this.isDragging) return
+
         this.isInnotationHover = true
         if (!this.threadsHovered.includes(thread)) {
           this.threadsHovered.push(thread)
