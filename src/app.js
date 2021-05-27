@@ -343,6 +343,7 @@ function embedNbApp () {
       draggableNotificationsOpened: false,
       sidebarNotificationsOpened: false,
       syncConfig: true,
+      playSoundNotification: true
     },
     computed: {
       style: function () {
@@ -672,6 +673,7 @@ function embedNbApp () {
             this.notificationThreads.push(notification)
             comment.associatedNotification = notification 
             this.triggerPopupNotification(notification)
+            this.playNotificationSound()
           }
           this.notificationThreads.forEach((n, i) => {
             if (n.comment.id === comment.id) {
@@ -706,6 +708,15 @@ function embedNbApp () {
               this.onSelectNotification(notification)
             }
           }) 
+        }
+      },
+      playNotificationSound: function (sound=new Audio("http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
+        if (this.showSyncFeatures && this.playSoundNotification && !this.notificationsMuted) {
+          sound.play();
+          this.playSoundNotification = false
+          setTimeout(() => {
+            this.playSoundNotification = true // set back to allowing sound notifications after 30 seconds
+          }, 30000) 
         }
       },
       newNotification: function (comment) {
