@@ -124,8 +124,7 @@ export default {
         // [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
         // [{ 'align': [] }],
         // [ 'people' ],
-        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment'],
-        ['cc']
+        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment']
       ],
       placeholder: 'Type # or @ to include tags',
       content: this.initialContent,

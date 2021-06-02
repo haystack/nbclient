@@ -706,19 +706,6 @@
     height: 20px;
     content: "";
 }
-#nb-app .ql-cc:after {
-    content: "Emojis designed by OpenMoji – CC BY-SA 4.0";
-    font-size: 9px;
-    width: max-content;
-    display: inline-block;  
-}
-#nb-app .ql-cc {
-    color: lightslategray;
-}
-#nb-app .ql-cc:hover {
-    color: lightslategray;
-    cursor: default;
-}
 
 #nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
   color: #06c;
