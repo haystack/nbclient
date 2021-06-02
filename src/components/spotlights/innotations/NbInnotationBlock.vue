@@ -104,12 +104,12 @@ export default {
             let commonAncestor = element
             const isBlockElement = (element.currentStyle || window.getComputedStyle(element, "")).display === 'block'
             
-            // if the element is block, return it
-            if (isBlockElement && commonAncestor.offsetHeight > 200) {
+            // if the element is block with at least height of 50, return it
+            if (isBlockElement && commonAncestor.offsetHeight > 50) {
                 return commonAncestor
             }
 
-            // if the element is not block or with height less than 200, use nearst parent block
+            // if the element is not block or with height less than 50, use nearst parent block
             return this.getOptimalCommonAncestor(commonAncestor.parentElement)
         },
         onMouseEnter: function () {
