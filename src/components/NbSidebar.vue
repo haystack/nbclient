@@ -1,5 +1,5 @@
 <template>
-    <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: threadSelected || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
+    <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: isDraggable || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
         <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
         <div class="nb-menu" v-if="myClasses.length > 1">
             <nb-menu 
@@ -163,7 +163,8 @@ export default {
                     anonymity: CommentAnonymity.IDENTIFIED,
                     replyRequested: false
                 },
-                isEmpty: true
+                isEmpty: true,
+                isDraggable: false,
             },
         }
     },
@@ -210,6 +211,8 @@ export default {
                 this.editor.visible = false
                 this.replyToComment = null
             }
+
+            val ? this.isDraggable = true : this.isDraggable = false
         }
     },
     methods: {

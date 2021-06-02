@@ -1,5 +1,5 @@
 <template>
-    <svg class="nb-highlights" @unselect-thread="onUnselectThread()">
+    <svg class="nb-highlights" @unselect-thread="onUnselectThread">
         <nb-highlight
             v-for="thread in threads"
             :key="thread"

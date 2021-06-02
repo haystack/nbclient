@@ -890,6 +890,7 @@ nb-innotation-collection.nb-above,
 nb-innotation-collection.nb-bellow {
     flex-direction: row;
     width: 100%;
+    justify-content: center;
 }
 
 nb-innotation-collection.nb-right, 

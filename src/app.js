@@ -273,13 +273,13 @@ function embedNbApp() {
       threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
       nbConfigs: {},
       isDragging: false, // indicates if there's a dragging happening in the UI
-      sidebarWidth: 500,
+      sidebarWidth: 300,
       mousePosition: null,
     },
     computed: {
       style: function () {
         if (this.isDragging) {
-          return `height: ${document.body.clientHeight}px; width: 100vw; z-index: 999999;`
+          return `height: ${document.body.clientHeight}px; width: 100vw; z-index: 999999`
         }
         return `height: ${document.body.clientHeight}px`
       },
@@ -758,7 +758,7 @@ function embedNbApp() {
         }
       },
       onHoverThread: function (thread) {
-        // console.log('onHoverThread in app')
+        //console.log('onHoverThread in app')
         if (this.isDragging) return
 
         if (!this.threadsHovered.includes(thread)) {
@@ -766,7 +766,7 @@ function embedNbApp() {
         }
       },
       onHoverInnotation: function (thread) {
-        // console.log('onHoverInnotation in app')
+        //console.log('onHoverInnotation in app')
         if (this.isDragging) return
 
         this.isInnotationHover = true
@@ -776,7 +776,7 @@ function embedNbApp() {
       },
       onUnhoverThread: function (thread) {
         if (!this.isInnotationHover) {
-          // console.log('onUnhoverThread in app')
+          //console.log('onUnhoverThread in app')
           let idx = this.threadsHovered.indexOf(thread)
           if (idx >= 0) this.threadsHovered.splice(idx, 1)
         }
@@ -890,6 +890,5 @@ function embedNbApp() {
     await app.onSessionEnd()
     return
   })
-
 
 }
