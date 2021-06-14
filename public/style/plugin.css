@@ -107,7 +107,7 @@
   width: calc(100vw - 395px);
   height: 100%;
   pointer-events: none;
-  z-index: 9999999;
+  z-index: 99998;
 }
 #nb-app .nb-highlights .nb-highlight {
   fill: rgb(255, 204, 1);
@@ -117,7 +117,9 @@
 #nb-app .nb-sidebar {
   display: flex;
   flex-direction: column;
-  width: 370px;
+  width: 300px;
+  max-width: 800px;
+  min-width: 300px;
   height: 100vh;
   overflow-y: scroll;
   padding: 0 10px;
@@ -129,8 +131,23 @@
   font-size: 16px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background: #fff;
-  z-index: 30000;
+  z-index: 99999;
+  opacity: 0.97;
 }
+
+#nb-app .nb-sidebar.animatable-width {
+  transition: width 0.5s;
+}
+
+#nb-app .nb-sidebar.draggable:after {
+  content: " ";
+  position: absolute;
+  left: 0px;
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize;
+  border-left: 3px dashed #bda2d8;
+ }
 
 #nb-app .nb-sidebar .nb-nav-bar {
   position: absolute;
@@ -528,9 +545,11 @@
   font-size: 10px;
   color: #444;
   padding-bottom: 5px;
+  user-select: none;
 }
 #nb-app .editor-view .footer {
   color: #444;
+  user-select: none;
 }
 #nb-app .editor-view .footer .selections {
   padding-top: 5px;
@@ -687,19 +706,6 @@
     height: 20px;
     content: "";
 }
-#nb-app .ql-cc:after {
-    content: "Emojis designed by OpenMoji – CC BY-SA 4.0";
-    font-size: 9px;
-    width: max-content;
-    display: inline-block;  
-}
-#nb-app .ql-cc {
-    color: lightslategray;
-}
-#nb-app .ql-cc:hover {
-    color: lightslategray;
-    cursor: default;
-}
 
 #nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
   color: #06c;
@@ -785,16 +791,16 @@ nb-innotation {
     border-radius: 1px;
     border:none;
     margin: 2px;
-    flex: 1;
-    padding: 20px 10px 10px 20px;
+    /* flex: 1; */
+    padding: 15px;
     /* align-items: center; */
     display: flex;
     text-align: left;
     justify-content: left;
     background-color: #fff5a4;
-    box-shadow: 0px 2px 5px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+    /* box-shadow: 0px 2px 5px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%); */
     box-sizing: border-box;
-    font-size: 0.8rem;
+    font-size: 12px;
     font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
     transition: 0.5s;
     -webkit-touch-callout: none;
@@ -803,30 +809,56 @@ nb-innotation {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    overflow: auto;
-
+    overflow: hidden;
+    min-height: 80px;
+    opacity: 0.7;
+    max-height: 300px;
+    max-width: 500px;
+    /* -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%); */
 }
+
+nb-innotation:not(:only-child) {
+ flex:1;
+}
+
 nb-innotation:hover {
-    box-shadow: 5px 7px 9px 0px rgb(0 0 0 / 20%), 2px 1px 2px 1px rgb(0 0 0 / 14%), 1px 1px 10px 0px rgb(0 0 0 / 12%);
+    box-shadow: -1px 1px 9px 0px rgb(138 135 135 / 20%), 2px 1px 2px 1px rgb(138 135 135 / 14%), 1px 1px 10px 0px rgb(138 135 135 / 12%);
     cursor: pointer;
     transition: 0.5s;
     background-color: #fff7b3;
+    opacity: 1;
+    /* flex: 2; */
+    /* -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 85%, transparent 100%); */
+}
+
+nb-innotation:not(:only-child):hover {
+  flex: 2;
 }
 
 nb-innotation.active {
-  box-shadow: 0px -1px 16px 5px rgb(0 0 0 / 20%), 2px 1px 2px 1px rgb(0 0 0 / 14%), 1px 1px 10px 0px rgb(0 0 0 / 12%);
+  box-shadow: 0px -1px 16px 5px rgb(138 135 135 / 20%), 2px 1px 2px 1px rgb(138 135 135 / 14%), 1px 1px 10px 0px rgb(138 135 135 / 12%);
   cursor: pointer;
   transition: 0.5s;
   background-color: #fff06e;
+  opacity: 1;
+  /* flex: 2; */
+  /* -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%); */
+}
+
+nb-innotation:not(:only-child).active {
+  flex: 2;
 }
 
 nb-innotation-inline {
-    background: white;
+    /* background: white; */
     margin: 0 5px;
     font-family: 'Handlee', cursive;
     color: blue;
     cursor: pointer;
-    border: 3px white solid;
+    /* border: 3px white solid; */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -845,6 +877,7 @@ nb-innotation-collection.nb-above,
 nb-innotation-collection.nb-bellow {
     flex-direction: row;
     width: 100%;
+    justify-content: center;
 }
 
 nb-innotation-collection.nb-right, 
@@ -898,7 +931,7 @@ nb-innotation-collection.nb-left {
 }
 
 .nb-innotation-ancestor.nb-left {
-    padding-left: 190px;
+    padding-left: 200px;
 }
 
 nb-innotation-controller {
@@ -944,7 +977,7 @@ nb-innotation-controller {
   height: 100%;
   padding: 0 10px;
   top: 0;
-  right: 395px;
+  right: 310px;
   line-height: normal;
   font-size: 12px;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;

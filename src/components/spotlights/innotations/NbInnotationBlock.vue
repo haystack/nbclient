@@ -21,7 +21,7 @@ export default {
     },
     data () {
         return {
-            innoPos: null
+            innoPos: null,
         }
     },
     created: function() {
@@ -31,10 +31,9 @@ export default {
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
         if (elm) elm.remove()
 
-        const commonAncestor = this.thread.range.commonAncestor
+        const commonAncestor = this.getCommonAncestor()
 
         // build innotation item
-        // TODO: Seperate the author name from content. create new element
         const innotation = document.createElement('nb-innotation')
         innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
@@ -43,23 +42,21 @@ export default {
         innotation.addEventListener('mouseleave', this.onMouseLeave)
         innotation.addEventListener('click', this.onClick)
 
-
         // check if there is a collection for the position?
         const innotationCollection = Array.from(commonAncestor.childNodes.values()).find( elm => { 
             return elm.nodeName.toLowerCase() === 'nb-innotation-collection' && elm.className.includes(`nb-${this.innoPos}`)
         })
         
         if (innotationCollection) {
-            // if yes add the innotation
+            // there's a collection add the innotation
             innotationCollection.appendChild(innotation)
         } else {
-            // if not create a collection, edit commonancestor css based on collection then add the innotation
-            commonAncestor.classList.add('nb-innotation-ancestor', `nb-${this.innoPos}`)
+            // no collection, create a collection, edit commonancestor css based on collection then add the innotation
+            commonAncestor.classList.add('nb-innotation-ancestor', `nb-${this.innoPos}`, `nb-innotation-ancestor-for-${this.thread.id}`)
             const innotationCollection =  document.createElement('nb-innotation-collection')
             innotationCollection.className = `nb-${this.innoPos}`
             commonAncestor.appendChild(innotationCollection)
             innotationCollection.appendChild(innotation)
-            //this.realignInnotationCollections()
         }
         
         window.dispatchEvent(new Event('resize'))
@@ -73,12 +70,14 @@ export default {
         if (elm) elm.remove()
         
         // remove collection if no elm left in item
-        const commonAncestor = this.thread.range.commonAncestor
+       const commonAncestor = this.getCommonAncestor()
+       //commonAncestor.classList.remove(`nb-innotation-ancestor-for-${this.thread.id}`)
+
         const innotationCollection = Array.from(commonAncestor.childNodes.values()).find( elm => { 
             return elm.nodeName.toLowerCase() === 'nb-innotation-collection' && elm.className.includes(`nb-${this.innoPos}`)
         })
 
-        if(innotationCollection) {
+        if (innotationCollection) {
             const hasOtherInnotations = Array.from(innotationCollection.childNodes.values()).find( elm => { 
                 return elm.nodeName.toLowerCase() === 'nb-innotation'
             })
@@ -89,7 +88,6 @@ export default {
             }
         }
 
-       // this.realignInnotationCollections()
         window.dispatchEvent(new Event('resize'))
     },
     watch: {
@@ -99,6 +97,21 @@ export default {
         }
     },
     methods: {
+        getCommonAncestor: function () {
+            return document.getElementsByClassName(`nb-innotation-ancestor-for-${this.thread.id}`)[0] || this.getOptimalCommonAncestor(this.thread.range.commonAncestor)
+        },
+        getOptimalCommonAncestor: function (element) {
+            let commonAncestor = element
+            const isBlockElement = (element.currentStyle || window.getComputedStyle(element, "")).display === 'block'
+            
+            // if the element is block with at least height of 50, return it
+            if (isBlockElement && commonAncestor.offsetHeight > 50) {
+                return commonAncestor
+            }
+
+            // if the element is not block or with height less than 50, use nearst parent block
+            return this.getOptimalCommonAncestor(commonAncestor.parentElement)
+        },
         onMouseEnter: function () {
             this.$emit('hover-innotation', this.thread)
         },
@@ -110,18 +123,20 @@ export default {
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
             axios.post(`/api/spotlights/log`, {
-            spotlight_id: this.thread.spotlight.id,
-            action: 'CLICK', 
-            type: this.thread.spotlight.type.toUpperCase(), 
-            annotation_id: this.thread.id, 
-            class_id: this.activeClass.id,
-            role: this.user.role.toUpperCase() 
+                spotlight_id: this.thread.spotlight.id,
+                action: 'CLICK', 
+                type: this.thread.spotlight.type.toUpperCase(), 
+                annotation_id: this.thread.id, 
+                class_id: this.activeClass.id,
+                role: this.user.role.toUpperCase() 
             }, config)
             
             this.$emit('select-thread', this.thread, 'SPOTLIGHT')
         },
         realignInnotationCollections: function () {
-            const commonAncestor = this.thread.range.commonAncestor
+            // TODO: check if commonAncestor need to be changed
+            const commonAncestor = this.getCommonAncestor()
+
             let innotationCollectionHeight = commonAncestor.offsetHeight
             let innotationCollectionWidth = commonAncestor.offsetWidth
             let hasTop = false
@@ -149,7 +164,5 @@ export default {
             })
         }
     }
-
-     // TODO: add functions for manipulations
 }
 </script>

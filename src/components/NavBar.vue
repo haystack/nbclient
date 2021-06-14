@@ -3,7 +3,7 @@
     <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
     <span>Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
     <div>
-      <a href="https://forms.gle/6YERC3jSu1W1zUzS8" target="_blank">Report Bug</a>
+      <a v-tooltip="'Report Bug'" href="https://forms.gle/6YERC3jSu1W1zUzS8" target="_blank">🐛</a>
       <v-popover
           class="overflow-menu"
           popoverClass="nav-overflow-wrapper"
