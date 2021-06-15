@@ -11,9 +11,11 @@
             :activeClass="activeClass"
             :is-emphasize="isEmphasize"
             :is-innotation="isInnotation"
+            :show-sync-features="showSyncFeatures"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
-            @unhover-thread="$emit('unhover-thread',thread)">
+            @unhover-thread="$emit('unhover-thread',thread)"
+            @new-recent-thread="$emit('new-recent-thread', thread)">
         </nb-highlight>
         <nb-highlight
             v-if="draftRange"
@@ -71,6 +73,10 @@ export default {
         isEmphasize: Boolean,
         isInnotation: Boolean,
         isInnotationHover: Boolean,
+        showSyncFeatures: {
+            type: Boolean,
+            default: false
+        },
     },
     methods: {
         onSelectThread: function (thread, threadViewInitiator='NONE') {

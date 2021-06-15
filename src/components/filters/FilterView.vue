@@ -1,5 +1,5 @@
 <template>
-  <div class="filter-view">
+  <div class="filter-view" :style="filterViewStyle">
     <div class="filter-header">
       <search-bar
           :users="users"
@@ -365,7 +365,8 @@ export default {
   props: {
     me: Object,
     users: Array,
-    hashtags: Array
+    hashtags: Array,
+    syncConfig: Boolean,
   },
   data () {
     return {
@@ -389,6 +390,11 @@ export default {
   computed: {
     showAdvanced: function () {
       return this.me.role === 'instructor'
+    },
+    filterViewStyle: function () {
+      if (this.syncConfig) {
+        return 'margin-top: 10px;' // if showing sync config features, then decrease top margin
+      }
     }
   },
   methods: {

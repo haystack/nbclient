@@ -8,10 +8,23 @@
                 @switch-class="onSwitchClass">
             </nb-menu>
         </div>
+        <nb-online
+            v-if="syncConfig"
+            :online-users="onlineUsers"
+            :show-sync-features="showSyncFeatures"
+            :nb-menu-showing="myClasses.length > 1"
+            :number-notifications-unseen="numberNotificationsUnseen"
+            :notifications-muted="notificationsMuted"
+            @show-sync-features="onShowSyncFeatures"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @open-draggable-notifications="onOpenDraggableNotifications"
+            @open-sidebar-notifications="onOpenSidebarNotifications">
+        </nb-online>
         <filter-view
             :me="user"
             :users="sortedUsers"
             :hashtags="sortedHashtags"
+            :sync-config="syncConfig"
             @search-option="onSearchOption"
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
@@ -40,11 +53,32 @@
             :is-innotation="isInnotation"
             :activeClass="activeClass"
             :user="user"
+            :show-sync-features="showSyncFeatures"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread">
         </list-view>
+        <notification-view
+            v-if="showSyncFeatures && sidebarNotificationsOpened"
+            :notifications="notificationThreads"
+            :total-count="notificationThreads.length"
+            :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :still-gathering-threads="stillGatheringThreads"
+            :draggable-notifications-opened="draggableNotificationsOpened"
+            :notifications-muted="notificationsMuted"
+            :activeClass="activeClass"
+            :user="user"
+            @toggle-highlights="onToggleHighlights"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @open-draggable-notifications="onOpenDraggableNotifications">
+        </notification-view>
         <thread-view
             v-if="threadSelected"
             :thread="threadSelected"
@@ -57,7 +91,10 @@
             :thread-view-initiator="threadViewInitiator"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
-            @draft-reply="onDraftReply">
+            @draft-reply="onDraftReply"
+            @submit-small-comment="onSubmitSmallComment"
+            @prev-comment="onPrevComment"
+            @next-comment="onNextComment">
         </thread-view>
         <editor-view
             :author="user"
@@ -72,7 +109,9 @@
             :hashtags="sortedHashtags"
             @editor-empty="onEditorEmpty"
             @submit-comment="onSubmitComment"
-            @cancel-comment="onCancelComment">
+            @cancel-comment="onCancelComment"
+            @thread-typing="onThreadTyping"
+            @thread-stop-typing="onThreadStopTyping">
         </editor-view>
     </div>
 </template>
@@ -85,9 +124,11 @@ import NbComment from '../models/nbcomment.js'
 import NavBar from './NavBar.vue'
 import FilterView from './filters/FilterView.vue'
 import ListView from './list/ListView.vue'
+import NotificationView from './list/NotificationView.vue'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
+import NbOnline from './NbOnline.vue'
 
 const SIDEBAR_BORDER_SIZE = 4;
 const SIDEBAR_MIN_WIDTH = 300
@@ -103,6 +144,10 @@ export default {
             type: Object,
             default: () => {}
         },
+        onlineUsers: {
+          type: Array,
+          default: () => []
+      },
         myClasses: {
             type: Array,
             default: () => []
@@ -131,6 +176,7 @@ export default {
             default: () => {}
         },
         threadSelected: Object,
+        notificationSelected: Object,
         threadsHovered: {
             type: Array,
             default: () => []
@@ -148,6 +194,30 @@ export default {
         threadViewInitiator: String,
         isDragging: Boolean,
         sidebarWidth: Number,
+        notificationThreads: {
+          type: Array,
+          default: () => []
+        },
+        showSyncFeatures: {
+          type: Boolean,
+          default: false
+        },
+        notificationsMuted: {
+          type: Boolean,
+          default: false
+        },
+        draggableNotificationsOpened: {
+          type: Boolean,
+          default: false
+        },
+        sidebarNotificationsOpened: {
+          type: Boolean,
+          default: false
+        },
+        syncConfig: {
+          type: Boolean,
+          default: false
+        },
     },
     data () {
         return {
@@ -179,11 +249,13 @@ export default {
         sortedHashtags: function () {
             return Object.values(this.hashtags).sort(compare('value'))
         },
+        numberNotificationsUnseen: function () {
+          return this.notificationThreads.filter(n => n.unseen).length
+        },
         style: function () {
             if (this.threadSelected || this.editor.visible) {
                 return `width: ${this.sidebarWidth}px`
             }
-
             return `width: ${SIDEBAR_MIN_WIDTH}px`
         }
     },
@@ -226,6 +298,9 @@ export default {
         },
         onSwitchClass: function (newClass) {
             this.$emit('switch-class', newClass)
+        },
+        onShowSyncFeatures: function (showSyncFeatures) {
+          this.$emit('show-sync-features', showSyncFeatures)
         },
         onToggleHighlights: function (show) {
             this.$emit('toggle-highlights', show)
@@ -278,6 +353,9 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
+        onSelectNotification: function (notification) {
+          this.$emit('select-notification', notification)
+        },
         onHoverThread: function (thread) {
             this.$emit('hover-thread', thread)
         },
@@ -315,6 +393,32 @@ export default {
         onEditorEmpty: function (isEmpty) {
             this.editor.isEmpty = isEmpty
             this.$emit('editor-empty', isEmpty)
+        },
+        onSubmitSmallComment: function (data) {
+            let comment = new NbComment({
+                id: null, // will be updated when submitAnnotation() is called
+                range: null, // null if this is reply
+                parent: data.replyToComment, // null if this is the head of thread
+                timestamp: null,
+                author: this.user.id,
+                authorName: `${this.user.name.first} ${this.user.name.last}`,
+                instructor: this.user.role === 'instructor',
+                html: data.html,
+                hashtags: [],
+                people: [],
+                visibility: CommentVisibility.EVERYONE,
+                anonymity: CommentAnonymity.IDENTIFIED,
+                replyRequestedByMe: false,
+                replyRequestCount: 0,
+                upvotedByMe: false,
+                upvoteCount: 0,
+                seenByMe: true,
+            })
+            let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
+            comment.submitAnnotation(this.activeClass.id, source)
+            if (data.replyToComment) {
+                data.replyToComment.children.push(comment)
+            }
         },
         onSubmitComment: function (data) {
             this.editor.visible = false
@@ -371,12 +475,37 @@ export default {
             this.$emit('editor-empty', this.editor.isEmpty)
 
             let defaultSettings = {
-                visibility: CommentVisibility.EVERYONE,
-                anonymity: CommentAnonymity.IDENTIFIED,
-                replyRequested: false
+              visibility: CommentVisibility.EVERYONE,
+              anonymity: CommentAnonymity.IDENTIFIED,
+              replyRequested: false
             }
             this.editor.initialSettings = Object.assign(defaultSettings, settings)
             this.editor.visible = visible
+        },
+        onThreadTyping: function(val) {
+            if (this.threadSelected) {
+                this.$emit('thread-typing', this.threadSelected.id)
+            }
+        },
+        onThreadStopTyping: function(val) {
+            if (this.threadSelected) {
+                this.$emit('thread-stop-typing', this.threadSelected.id)
+            }
+        },
+        onPrevComment: function () {
+            this.$emit('prev-comment')
+        },
+        onNextComment: function () {
+            this.$emit('next-comment')
+        },
+        onToggleMuteNotifications: function () {
+            this.$emit('toggle-mute-notifications')
+        },
+        onOpenDraggableNotifications: function () {
+            this.$emit('open-draggable-notifications')
+        },
+        onOpenSidebarNotifications: function () {
+            this.$emit('open-sidebar-notifications')
         }
     },
     components: {
@@ -385,7 +514,9 @@ export default {
         ListView,
         ThreadView,
         EditorView,
-        NbMenu
+        NbMenu,
+        NotificationView,
+        NbOnline,
     }
 }
 </script>

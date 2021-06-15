@@ -1,20 +1,29 @@
 import Vue from 'vue'
 import VueQuill from 'vue-quill'
 import VTooltip from 'v-tooltip'
+import Notifications from 'vue-notification'
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+
 
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
+import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
+import { compareDomPosition } from './utils/compare-util.js'
 
 import NbInnotations from './components/spotlights/innotations/NbInnotations.vue'
 import NbMarginalias from './components/spotlights/marginalias/NbMarginalias.vue'
 import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
+import NbNotificationSidebar from './components/NbNotificationSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
@@ -34,19 +43,30 @@ import VueJwtDecode from "vue-jwt-decode";
 //   tracesSampleRate: 1.0,
 // });
 
+import io from "socket.io-client";
+const socket = io("https://127.0.0.1:3000", { reconnect: true }); // for local dev only
+// const socket = io("https://helen-nb.csail.mit.edu", {reconnect: true});
+// const socket = io("https://jumana-nb.csail.mit.edu", {reconnect: true});
+// const socket = io("https://nb2.csail.mit.edu", { reconnect: true });
+
 Vue.use(VueQuill)
 Vue.use(VTooltip)
+Vue.use(Notifications)
+Vue.use(VueSweetalert2);
+
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far)
+library.add(fas, far, faChevronDown, faChevronUp)
 
-//axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
+// axios.defaults.baseURL = 'https://nb2.csail.mit.edu/'
 // axios.defaults.baseURL = 'https://jumana-nb.csail.mit.edu/'
+// axios.defaults.baseURL = 'https://helen-nb.csail.mit.edu/'
 axios.defaults.baseURL = 'https://127.0.0.1:3000/' // for local dev only
 axios.defaults.withCredentials = true
 
-//export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://nb2.csail.mit.edu/client'
 // export const PLUGIN_HOST_URL = 'https://jumana-nb.csail.mit.edu/client'
+// export const PLUGIN_HOST_URL = 'https://helen-nb.csail.mit.edu/client'
 export const PLUGIN_HOST_URL = 'https://127.0.0.1:3001' // for local dev only
 
 if (
@@ -166,6 +186,7 @@ function embedNbApp() {
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread">
           </nb-marginalias>
+          <notifications position="top left" group="recentlyAddedThreads" />
           <nb-highlights
             :key="resizeKey"
             :threads="filteredThreads"
@@ -175,17 +196,44 @@ function embedNbApp() {
             :show-highlights="showHighlights"
             :user="user"
             :activeClass="activeClass"
+            :show-sync-features="showSyncFeatures"
             :is-emphasize="isEmphasize"
             :is-innotation="isInnotation"
             :is-innotation-hover="isInnotationHover"
             @select-thread="onSelectThread"
             @unselect-thread="onUnselectThread"
             @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
+            @unhover-thread="onUnhoverThread"
+            @new-recent-thread="onNewRecentThread">
           </nb-highlights>
+          <nb-notification-sidebar
+            v-if="syncConfig"
+            :user="user"
+            :users="users"
+            :activeClass="activeClass"
+            :online-users="onlineUsers"
+            :still-gathering-threads="stillGatheringThreads"
+            :threads="filteredThreads"
+            :notification-selected="notificationSelected"
+            :thread-selected="threadSelected"
+            :notification-threads="notificationThreads"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :show-sync-features="showSyncFeatures"
+            :draggable-notifications-opened="draggableNotificationsOpened"
+            :notifications-muted="notificationsMuted"
+            @toggle-highlights="onToggleHighlights"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @close-draggable-notications="onCloseDraggableNotifications"
+          >
+          </nb-notification-sidebar>
           <nb-sidebar
             :user="user"
             :users="users"
+            :online-users="onlineUsers"
             :myClasses="myClasses"
             :activeClass="activeClass"
             :hashtags="hashtags"
@@ -193,6 +241,8 @@ function embedNbApp() {
             :total-threads="totalThreads"
             :threads="filteredThreads"
             :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :notification-threads="notificationThreads"
             :threads-hovered="threadsHovered"
             :draft-range="draftRange"
             :show-highlights="showHighlights"
@@ -203,7 +253,14 @@ function embedNbApp() {
             :is-dragging="isDragging"
             :sidebar-width="sidebarWidth"
             :thread-view-initiator="threadViewInitiator"
+            :draggable-notifications-opened="draggableNotificationsOpened"
+            :sidebar-notifications-opened="sidebarNotificationsOpened"
+            :notifications-muted="notificationsMuted"
+            threadSelectedPane="allThreads"
+            :show-sync-features="showSyncFeatures"
+            :sync-config="syncConfig"
             @switch-class="onSwitchClass"
+            @show-sync-features="onShowSyncFeatures"
             @toggle-highlights="onToggleHighlights"
             @search-option="onSearchOption"
             @search-text="onSearchText"
@@ -221,6 +278,7 @@ function embedNbApp() {
             @min-reply-reqs="onMinReplyReqs"
             @min-upvotes="onMinUpvotes"
             @select-thread="onSelectThread"
+            @select-notification="onSelectNotification"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
             @delete-thread="onDeleteThread"
@@ -230,6 +288,14 @@ function embedNbApp() {
             @logout="onLogout"
             @dragging="dragging"
             @set-mouse-position="setMousePosition">
+            @thread-typing="onThreadTyping"
+            @thread-stop-typing="onThreadStopTyping"
+            @prev-comment="onPrevComment"
+            @next-comment="onNextComment"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @open-draggable-notifications="onOpenDraggableNotifications"
+            @open-sidebar-notifications="onOpenSidebarNotifications"
+            @logout="onLogout">
           </nb-sidebar>
         </div>
       </div>
@@ -243,6 +309,7 @@ function embedNbApp() {
       threads: [],
       threadSelected: null,
       threadsHovered: [], // in case of hover on overlapping highlights
+      notificationSelected: null,
       stillGatheringThreads: true,
       draftRange: null,
       isEditorEmpty: true,
@@ -268,13 +335,24 @@ function embedNbApp() {
         minUpvotes: 0
       },
       showHighlights: true,
-      resizeKey: Date.now(), // work around to force redraw highlights,
       sourceURL: '',
       threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
       nbConfigs: {},
       isDragging: false, // indicates if there's a dragging happening in the UI
       sidebarWidth: 300,
       mousePosition: null,
+      resizeKey: Date.now(), // work around to force redraw highlights
+      recentlyAddedThreads: [],
+      showSyncFeatures: true,
+      onlineUsers: [],
+      currentSectionId: "",
+      notificationThreads: [],
+      swalClicked: false,
+      notificationsMuted: false,
+      draggableNotificationsOpened: false,
+      sidebarNotificationsOpened: false,
+      syncConfig: true,
+      playSoundNotification: true
     },
     computed: {
       style: function () {
@@ -394,7 +472,7 @@ function embedNbApp() {
         if (minUpvotes > 0) {
           items = items.filter(item => item.countAllUpvotes() >= minUpvotes)
         }
-        return items
+        return items.concat().sort(compareDomPosition) // sort now so we can go prev and next comment
       }
     },
     watch: {
@@ -432,7 +510,7 @@ function embedNbApp() {
           }
         }
       },
-      activeClass: async function (newActiveClass) {
+      activeClass: async function (newActiveClass, oldActiveClass) {
         if (newActiveClass != {} && this.user) {
           let source = window.location.origin + window.location.pathname
           if (this.sourceURL.length > 0) {
@@ -454,6 +532,13 @@ function embedNbApp() {
                 class_id: this.activeClass.id,
                 role: this.users[this.user.id].role.toUpperCase()
               }, configSessionStart)
+            })
+
+          axios.get('/api/annotations/myCurrentSection', config)
+            .then(res => {
+              socket.emit('left', { username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId })
+              this.currentSectionId = res.data
+              socket.emit('joined', { username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId })
             })
 
           axios.get('/api/annotations/allTagTypes', config)
@@ -482,10 +567,14 @@ function embedNbApp() {
       if (document.location.href.includes('/nb_viewer.html')) {
         this.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
         this.isInnotation = false
+        this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
+        this.showSyncFeatures = this.syncConfig
       } else {
         this.isMarginalia = false
         this.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
-        //this.isEmphasize = false
+        this.isEmphasize = false
+        this.syncConfig = true
+        this.showSyncFeatures = false
       }
 
       // remove hypothesis
@@ -493,6 +582,42 @@ function embedNbApp() {
       const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
       hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
       hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
+
+      socket.on('connections', (data) => {
+        if (data.classId === this.activeClass.id && data.sectionId === this.currentSectionId) {
+          let onlineUsersSet = new Set(data.connections)
+          this.onlineUsers = [...onlineUsersSet]
+        }
+      })
+      socket.on("new_thread", (data) => {
+        let userIdsSet = new Set(data.userIds)
+        if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
+          let classId = data.classId
+          if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
+            if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
+              this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
+              console.log("new thread: gathered new annotations")
+            }
+          }
+        }
+      })
+      socket.on('thread-typing', (data) => {
+        let thread = this.threads.find(x => x.id === data.threadId)
+        if (thread !== undefined) {
+          thread.usersTyping = data.usersTyping
+        }
+      });
+      socket.on('new_reply', (data) => {
+        if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
+          let classId = data.classId
+          if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
+            if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
+              this.threads = this.threads.filter(x => x.id !== data.headAnnotationId) // filter out the thread
+              this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId) // data contains info about the thread and if the new thread as posted by an instructor
+            }
+          }
+        }
+      })
     },
     methods: {
       dragging: function (isDragging) {
@@ -519,6 +644,120 @@ function embedNbApp() {
       setUser: function (user) {
         this.user = user
       },
+      onUserLeft: function () {
+        socket.emit('left', { username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId })
+      },
+      getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null) { // get single thread and add it to the list
+        const token = localStorage.getItem("nb.user");
+        const config = { headers: { Authorization: 'Bearer ' + token }, params: { source_url: sourceUrl, class_id: classId, thread_id: threadId } }
+        axios.get('/api/annotations/specific_thread', config)
+          .then(res => {
+            let item = res.data.headAnnotation
+            try {
+              item.range = deserializeNbRange(item.range)
+            } catch (e) {
+              console.warn(`Could not deserialize range for ${item.id}`)
+            }
+            if (oldHeadAnnotationId) { // if there exists an old thread we need to remove, then filter it out before adding a new one
+              this.threads = this.threads.filter(x => x.id !== oldHeadAnnotationId) // filter out the thread
+            }
+            // Nb Comment
+            let comment = new NbComment(item, res.data.annotationsData)
+
+            // get the specific annotation that was recently posted
+            let specificAnnotation = null
+            if (replyAnnotationId !== null) {
+              specificAnnotation = comment.getChildComment(replyAnnotationId)
+            }
+
+            // set any type of notification
+            let notification = null
+            if (taggedUsers.includes(this.user.id)) { // user tagged in post
+              notification = new NbNotification(comment, "tag", true, specificAnnotation)
+            } else if (this.users[authorId].role === "instructor") { // instructor comment
+              if (isNewThread) {
+                notification = new NbNotification(comment, "instructor", false, specificAnnotation)
+              } else {
+                if (comment.getAllAuthors().has(this.user.id)) {
+                  notification = new NbNotification(comment, "instructor", false, specificAnnotation)
+                }
+              }
+            } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
+              notification = new NbNotification(comment, "question", false, specificAnnotation)
+            } else if (specificAnnotation !== null && specificAnnotation.parent.hasMyReplyRequests()) { // reply to an parent comment where user made a reply request
+              notification = new NbNotification(comment, "question", true, specificAnnotation)
+            } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
+              notification = new NbNotification(comment, "recent", false, specificAnnotation)
+            }
+            if (notification !== null) {
+              this.notificationThreads.push(notification)
+              comment.associatedNotification = notification
+              this.triggerPopupNotification(notification)
+              this.playNotificationSound()
+            }
+            this.notificationThreads.forEach((n, i) => {
+              if (n.comment.id === comment.id) {
+                this.notificationThreads[i].comment = comment // replace comment for existing notifications referring to old version of comment
+              }
+            })
+
+            this.threads.push(comment)
+          })
+      },
+      triggerPopupNotification: function (notification) {
+        if (this.showSyncFeatures && notification.triggerPopup && !this.notificationsMuted) {
+          let relevantComment = notification.specificAnnotation ? notification.specificAnnotation : notification.comment
+          let text = relevantComment.text.substring(0, 20)
+          if (relevantComment.text.length > 20) {
+            text += "..."
+          }
+          this.$swal({
+            title: '',
+            text: notification.readableType + ": " + text,
+            type: 'success',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Bring me there!',
+            toast: true,
+            position: 'top-start',
+            timer: 6000,
+          }).then((result) => {
+            if (result.value) {
+              this.swalClicked = true
+              this.onSelectNotification(notification)
+            }
+          })
+        }
+      },
+      playNotificationSound: function (sound = new Audio("http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
+        if (this.showSyncFeatures && this.playSoundNotification && !this.notificationsMuted) {
+          sound.play();
+          this.playSoundNotification = false
+          setTimeout(() => {
+            this.playSoundNotification = true // set back to allowing sound notifications after 30 seconds
+          }, 30000)
+        }
+      },
+      newNotification: function (comment) {
+        if (this.notificationThreads.length < 5) { // limit to 5 initial notifications
+          let taggedComment = comment.getUserTagPost(this.user.id)
+          if (taggedComment !== null) {
+            return new NbNotification(comment, "tag", true, taggedComment)
+          }
+
+          let replyRequestResponseComment = comment.getReplyRequestResponsePost(this.user.id)
+          if (replyRequestResponseComment !== null) {
+            return new NbNotification(comment, "question", true, replyRequestResponseComment)
+          }
+
+          let instructorResponseComment = comment.getInstructorPost()
+          if (instructorResponseComment !== null) {
+            return new NbNotification(comment, "instructor", false, instructorResponseComment)
+          }
+        }
+        return null
+      },
       getAllAnnotations: function (source, newActiveClass) {
         this.stillGatheringThreads = true
         const token = localStorage.getItem("nb.user");
@@ -536,8 +775,12 @@ function embedNbApp() {
               }
               // Nb Comment
               let comment = new NbComment(item, res.data.annotationsData)
-
               this.threads.push(comment)
+              let newNotification = this.newNotification(comment) // Either get back a notification to add or null
+              if (newNotification !== null) {
+                this.notificationThreads.push(newNotification)
+                comment.associatedNotification = newNotification
+              }
             }
             this.stillGatheringThreads = false
             let link = window.location.hash.match(/^#nb-comment-(.+$)/)
@@ -741,9 +984,20 @@ function embedNbApp() {
       },
       onSelectThread: function (thread, threadViewInitiator = 'NONE') {
         this.threadViewInitiator = threadViewInitiator
-        //console.log('threadViewInitiator: ' + this.threadViewInitiator)
+        console.log('threadViewInitiator: ' + this.threadViewInitiator)
+        if (this.threadSelected) {
+          socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // selecting new thread so stop typing on this thread
+        }
+        if (thread.associatedNotification !== null) {
+          thread.associatedNotification.setIsUnseen(false)
+        }
         this.threadSelected = thread
         thread.markSeenAll()
+      },
+      onSelectNotification: function (notification) {
+        this.notificationSelected = notification
+        notification.setIsUnseen(false)
+        this.onSelectThread(notification.comment)
       },
       onUnselectThread: function (thread) {
         if (this.isDragging) return
@@ -756,6 +1010,23 @@ function embedNbApp() {
         if (this.draftRange && this.isEditorEmpty) {
           this.onCancelDraft()
         }
+        if (this.threadSelected) {
+          socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // selecting no thread so stop typing
+        }
+        if (this.swalClicked) {
+          this.swalClicked = false // don't unselect if this was a popup notification click
+        } else { // otherwise, it was a valid unselect thread click
+          if (!this.isInnotationHover) {
+            this.threadSelected = null
+          }
+          if (this.draftRange && this.isEditorEmpty) {
+            this.onCancelDraft()
+          }
+        }
+
+        this.threadViewInitiator = 'NONE'
+        console.log('threadViewInitiator: ' + this.threadViewInitiator)
+
       },
       onHoverThread: function (thread) {
         //console.log('onHoverThread in app')
@@ -787,6 +1058,14 @@ function embedNbApp() {
         let idx = this.threadsHovered.indexOf(thread)
         if (idx >= 0) this.threadsHovered.splice(idx, 1)
       },
+      onNewRecentThread: function (thread) {
+        let mostRecentThread = thread.getMostRecentPost() // get the most recent thread to see if we should notify about it
+        if (mostRecentThread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
+          let notification = new NbNotification(thread, "recent", false, mostRecentThread) // associated annotation is the most recent one
+          this.notificationThreads.push(notification)
+          thread.associatedNotification = notification
+        }
+      },
       onToggleHighlights: function (show) {
         this.showHighlights = show
       },
@@ -795,6 +1074,45 @@ function embedNbApp() {
       },
       onSwitchClass: function (newClass) {
         this.activeClass = newClass
+      },
+      onShowSyncFeatures: function (showSyncFeatures) {
+        this.showSyncFeatures = showSyncFeatures
+      },
+      onThreadTyping: function (threadId) {
+        if (threadId) {
+          socket.emit('thread-typing', { threadId: threadId, username: this.user.username })
+        }
+      },
+      onThreadStopTyping: function (threadId) {
+        if (threadId) {
+          socket.emit('thread-stop-typing', { threadId: threadId, username: this.user.username })
+        }
+      },
+      onPrevComment: function () {
+        let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
+        let prevIdx = idx - 1
+        if (prevIdx >= 0 && prevIdx < this.filteredThreads.length) {
+          this.onSelectThread(this.filteredThreads[prevIdx])
+        }
+      },
+      onNextComment: function () {
+        let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
+        let nextIdx = idx + 1
+        if (nextIdx >= 0 && nextIdx < this.filteredThreads.length) {
+          this.onSelectThread(this.filteredThreads[nextIdx])
+        }
+      },
+      onToggleMuteNotifications: function () {
+        this.notificationsMuted = !this.notificationsMuted
+      },
+      onCloseDraggableNotifications: function () {
+        this.draggableNotificationsOpened = false;
+      },
+      onOpenDraggableNotifications: function () {
+        this.draggableNotificationsOpened = true;
+      },
+      onOpenSidebarNotifications: function () {
+        this.sidebarNotificationsOpened = true;
       },
       onSessionEnd: async function () {
         if (this.activeClass.id) {
@@ -810,6 +1128,7 @@ function embedNbApp() {
       },
       onLogout: async function () {
         await this.onSessionEnd()
+        this.onUserLeft()
         localStorage.removeItem("nb.user")
         this.user = null
         this.myClasses = []
@@ -847,7 +1166,8 @@ function embedNbApp() {
       NbHighlights,
       NbSidebar,
       NbLogin,
-      NbNoAccess
+      NbNoAccess,
+      NbNotificationSidebar
     }
   })
 
@@ -891,4 +1211,8 @@ function embedNbApp() {
     return
   })
 
+
+  window.onbeforeunload = () => {
+    app.onUserLeft()
+  }
 }

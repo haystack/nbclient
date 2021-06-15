@@ -20,6 +20,11 @@ export default {
             default: () => {}
         },
     },
+    data () {
+        return {
+            showSyncFeatures: true
+        }
+    },
     watch: {
         activeClass: function (newClass) {
             this.$emit('switch-class', newClass)
