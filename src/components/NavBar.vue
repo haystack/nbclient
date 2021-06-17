@@ -19,7 +19,7 @@
           <div class="overflow-options">
             <div
                 class="overflow-option"
-                @click="$emit('logout')">
+                @click="$emit('logouts')">
               Logout
             </div>
           </div>
