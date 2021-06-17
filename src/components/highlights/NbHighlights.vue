@@ -9,8 +9,7 @@
             :show-highlights="showHighlights"
             :user="user"
             :activeClass="activeClass"
-            :is-emphasize="isEmphasize"
-            :is-innotation="isInnotation"
+            :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
@@ -70,8 +69,10 @@ export default {
             type: Object,
             default: () => {}
         },
-        isEmphasize: Boolean,
-        isInnotation: Boolean,
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
         isInnotationHover: Boolean,
         showSyncFeatures: {
             type: Boolean,

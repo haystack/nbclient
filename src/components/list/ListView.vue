@@ -1,63 +1,52 @@
 <template>
-  <div class="list-view">
-    <header class="card-header" 
-      v-tooltip="tooltipType"
-      @click="isCollapsed = !isCollapsed">
-      <p class="card-header-title">{{title}}</p>
-      <a class="button card-header-icon collapse-button">
-        <font-awesome-icon icon="chevron-up" v-if="!isCollapsed"/>
-        <font-awesome-icon icon="chevron-down" v-if="isCollapsed"/>
-      </a>
-    </header>
-    <div v-if="!isCollapsed">
-      <div class="list-header">
-        <span class="count">
-          {{ threads.length }} of {{ totalLabel }}
-        </span>
-        <span
-            class="toggle-highlights"
-            v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'"
-            @click="toggleHighlights">
-          <font-awesome-icon v-if="showHighlights" icon="eye" class="icon">
-          </font-awesome-icon>
-          <font-awesome-icon v-else icon="eye-slash" class="icon">
-          </font-awesome-icon>
-        </span>
-        <span class="sort">
-          Sort by:
-          <select v-model="sortBy">
-            <option v-for="option in sortByOptions" :key="option.value"
-                :value="option.value">
-              {{ option.text }}
-            </option>
-          </select>
-        </span>
-      </div>
-      <div class="list-table">
-        <div v-if="stillGatheringThreads">
-          <p>Fetching Annotations</p>
-          <tile loading="true"></tile>
+    <div class="list-view">
+        <header class="card-header" v-tooltip="tooltipType" @click="isCollapsed = !isCollapsed">
+            <p class="card-header-title">{{title}}</p>
+            <a class="button card-header-icon collapse-button">
+                <font-awesome-icon icon="chevron-up" v-if="!isCollapsed"/>
+                <font-awesome-icon icon="chevron-down" v-if="isCollapsed"/>
+            </a>
+        </header>
+        <div v-if="!isCollapsed">
+            <div class="list-header">
+                <span class="count">
+                    {{ threads.length }} of {{ totalLabel }}
+                </span>
+                <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
+                    <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
+                    <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
+                </span>
+                <span class="sort">
+                    Sort by:
+                    <select v-model="sortBy">
+                        <option v-for="option in sortByOptions" :key="option.value" :value="option.value">
+                            {{ option.text }}
+                        </option>
+                    </select>
+                </span>
+            </div>
+            <div class="list-table">
+                <div v-if="stillGatheringThreads">
+                    <p>Fetching Annotations</p>
+                    <tile loading="true"></tile>
+                </div>
+                <list-row
+                    v-for="thread in sorted"
+                    :key="thread"
+                    :thread="thread"
+                    :thread-selected="threadSelected"
+                    :threads-hovered="threadsHovered"
+                    :current-configs="currentConfigs"
+                    :activeClass="activeClass"
+                    :show-sync-features="showSyncFeatures"
+                    :user="user"
+                    @select-thread="onSelectThread"
+                    @hover-thread="$emit('hover-thread', thread)"
+                    @unhover-thread="$emit('unhover-thread', thread)">
+                </list-row>
+            </div>
         </div>
-
-        <list-row
-            v-for="thread in sorted"
-            :key="thread"
-            :thread="thread"
-            :thread-selected="threadSelected"
-            :threads-hovered="threadsHovered"
-            :is-marginalia="isMarginalia"
-            :is-emphasize="isEmphasize"
-            :is-innotation="isInnotation"
-            :activeClass="activeClass"
-            :show-sync-features="showSyncFeatures"
-            :user="user"
-            @select-thread="onSelectThread"
-            @hover-thread="$emit('hover-thread', thread)"
-            @unhover-thread="$emit('unhover-thread', thread)">
-        </list-row>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -97,99 +86,100 @@ Vue.use(VueSpinners)
  *   upon change, true to show, false to collapse
  */
 export default {
-  name: 'list-view',
-  props: {
-    threads: {
-      type: Array,
-      default: () => []
+    name: 'list-view',
+    props: {
+        threads: {
+            type: Array,
+            default: () => []
+        },
+        totalCount: { // number of total threads before filter
+            type: Number,
+            default: 0
+        },
+        threadSelected: Object,
+        threadsHovered: {
+            type: Array,
+            default: () => []
+        },
+        showHighlights: {
+            type: Boolean,
+            default: true
+        },
+        stillGatheringThreads: {
+            type: Boolean,
+            default: true
+        },
+        user: Object,
+        activeClass: {
+            type: Object,
+            default: () => {}
+        },
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
+        showSyncFeatures: {
+            type: Boolean,
+            default: false,
+        }
     },
-    totalCount: { // number of total threads before filter
-      type: Number,
-      default: 0
+    data () {
+        return {
+            isCollapsed: false,
+            sortBy: "position",
+            sortByOptions: [
+                { text: 'Default', value: 'position' },
+                { text: 'Most Recent', value: 'recent' },
+                { text: 'Longest Thread', value: 'comment' },
+                { text: 'Reply Requests', value: 'reply_request' },
+                { text: 'Upvotes', value: 'upvote' },
+                { text: 'Unseen', value: 'unseen'}
+            ]
+        }
     },
-    threadSelected: Object,
-    threadsHovered: {
-      type: Array,
-      default: () => []
+    computed: {
+        totalLabel: function () {
+            if (this.totalCount === 1) {
+                return '1 thread'
+            } else {
+                return `${this.totalCount} threads`
+            }
+        },
+        sorted: function () {
+            switch (this.sortBy) {
+                case 'position':
+                    return this.threads.concat().sort(compareDomPosition)
+                case 'recent':
+                    return this.threads.concat().sort(compare('timestamp', 'key', false))
+                case 'comment':
+                    return this.threads.concat().sort(compare('countAllReplies', 'func', false))
+                case 'reply_request':
+                    return this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
+                case 'upvote':
+                    return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
+                case 'unseen':
+                    return this.threads.concat().sort(compare('isUnseen', 'func', false))
+                default:
+                    return this.threads
+            }
+        },
+        tooltipType: function () {
+            return 'See all your threads after applying some filters.'
+        },
+        title: function () {
+            return 'All Threads'
+        },
     },
-    showHighlights: {
-      type: Boolean,
-      default: true
+    methods: {
+        toggleHighlights: function () {
+            this.$emit('toggle-highlights', !this.showHighlights)
+        },
+        onSelectThread: function (thread, threadViewInitiator='NONE') {
+            this.$emit('select-thread', thread, threadViewInitiator)
+        },
     },
-    stillGatheringThreads: {
-      type: Boolean,
-      default: true
-    },
-    user: Object,
-    activeClass: {
-      type: Object,
-      default: () => {}
-    },
-    isMarginalia: Boolean,
-    isInnotation: Boolean,
-    isEmphasize: Boolean,
-    showSyncFeatures: {
-      type: Boolean,
-      default: false,
+    components: {
+        ListRow
     }
-  },
-  data () {
-    return {
-      isCollapsed: false,
-      sortBy: "position",
-      sortByOptions: [
-        { text: 'Default', value: 'position' },
-        { text: 'Most Recent', value: 'recent' },
-        { text: 'Longest Thread', value: 'comment' },
-        { text: 'Reply Requests', value: 'reply_request' },
-        { text: 'Upvotes', value: 'upvote' },
-        { text: 'Unseen', value: 'unseen'}
-      ]
-    }
-  },
-  computed: {
-    totalLabel: function () {
-      if (this.totalCount === 1) {
-        return '1 thread'
-      } else {
-        return `${this.totalCount} threads`
-      }
-    },
-    sorted: function () {
-      switch (this.sortBy) {
-        case 'position':
-          return this.threads.concat().sort(compareDomPosition)
-        case 'recent':
-          return this.threads.concat().sort(compare('timestamp', 'key', false))
-        case 'comment':
-          return this.threads.concat().sort(compare('countAllReplies', 'func', false))
-        case 'reply_request':
-          return this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
-        case 'upvote':
-          return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
-        case 'unseen':
-          return this.threads.concat().sort(compare('isUnseen', 'func', false))
-        default:
-          return this.threads
-      }
-    },
-    tooltipType: function () {
-      return 'See all your threads after applying some filters.'
-    },
-    title: function () {
-      return 'All Threads'
-    },
-  },
-  methods: {
-    toggleHighlights: function () {
-      this.$emit('toggle-highlights', !this.showHighlights)
-    },
-    onSelectThread: function (thread, threadViewInitiator='NONE') {
-        this.$emit('select-thread', thread, threadViewInitiator)
-    },
-  },
-  components: {
-    ListRow
-  }
 }
 </script>

@@ -18,19 +18,19 @@
             :height="box.height"
             :width="box.width">
             <animate
-            v-if="showRecentActivityAnimation"
-            attributeType="XML"
-            attributeName="fill"
-            values="#ffffff;#4a2270D9;#ffffff;#ffffff"
-            dur="5.0s"
-            repeatCount="indefinite"/>
+                v-if="showRecentActivityAnimation"
+                attributeType="XML"
+                attributeName="fill"
+                values="#ffffff;#4a2270D9;#ffffff;#ffffff"
+                dur="5.0s"
+                repeatCount="indefinite"/>
             <animate
-            v-if="showTypingActivityAnimation"
-            attributeType="XML"
-            attributeName="fill"
-            values="#ffffff;#4a2270D9;#ffffff;#ffffff"
-            dur="2.0s"
-            repeatCount="indefinite"/>
+                v-if="showTypingActivityAnimation"
+                attributeType="XML"
+                attributeName="fill"
+                values="#ffffff;#4a2270D9;#ffffff;#ffffff"
+                dur="2.0s"
+                repeatCount="indefinite"/>
         </rect>
 
     </g>
@@ -108,8 +108,10 @@ export default {
             type: Boolean,
             default: false
         }, 
-        isEmphasize: Boolean,
-        isInnotation: Boolean,
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
     },
     data () {
         return {
@@ -184,12 +186,12 @@ export default {
                 // return 'stroke: rgb(80, 54, 255); stroke-width: 8; stroke-opacity: 0.2;'
             }
             if (this.replyRequestThread) {
-                if (this.thread.isUnseen()) {
-                // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.25;'
-                return 'fill: rgb(255, 0, 255); opacity: 1.0;'
+                if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
+                    // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.25;'
+                    return 'fill: rgb(255, 0, 255); opacity: 1.0;'
                 } else {
-                // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.10;'
-                return 'fill: rgb(255, 0, 255); opacity: 0.5;'
+                    // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.10;'
+                    return 'fill: rgb(255, 0, 255); opacity: 0.5;'
                 }
             }
             return null
@@ -244,7 +246,7 @@ export default {
 
             let type = 'HIGHLIGHT'
             
-            if ((this.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
+            if ((this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.currentConfigs.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
                 type = this.thread.spotlight.type.toUpperCase()
             }
 
@@ -262,7 +264,7 @@ export default {
 
             this.logSyncClick()
 
-            if (this.isEmphasize && this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
+            if (this.currentConfigs.isEmphasize && this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
                 this.$emit('select-thread', this.thread, 'SPOTLIGHT')
             } else {
                 this.$emit('select-thread', this.thread, 'HIGHLIGHT')

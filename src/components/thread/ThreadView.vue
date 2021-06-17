@@ -1,49 +1,40 @@
 <template>
-  <div class="thread-view">
-    <div class="thread-header">
-      {{ numComments }}
-      &nbsp;·&nbsp;
-      <font-awesome-icon icon="question">
-      </font-awesome-icon>
-      {{ thread.countAllReplyReqs() }}
-      &nbsp;·&nbsp;
-      <nb-spotlight-control
-        v-if="isEnabled"
-        :thread="thread"
-        :is-marginalia="isMarginalia"
-        :is-innotation="isInnotation"
-        :is-emphasize="isEmphasize">
-      </nb-spotlight-control>
+    <div class="thread-view">
+        <div class="thread-header">
+            {{ numComments }}
+            &nbsp;·&nbsp;
+            <font-awesome-icon icon="question"></font-awesome-icon>
+            {{ thread.countAllReplyReqs() }}
+            &nbsp;·&nbsp;
+            <nb-spotlight-control
+                v-if="isEnabled"
+                :thread="thread"
+                :current-configs="currentConfigs">
+            </nb-spotlight-control>
 
-      <div class="thread-header-arrows">
-        <span
-          v-tooltip="'Show previous thread in document'"
-          @click="onPrevComment"
-          >
-          <font-awesome-icon icon="chevron-circle-left"></font-awesome-icon>
-        </span>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <span
-          v-tooltip="'Show next thread in document'"
-          @click="onNextComment"
-          >
-          <font-awesome-icon icon="chevron-circle-right"></font-awesome-icon>
-        </span>
-      </div>
+            <div v-if="false" class="thread-header-arrows">
+                <span v-tooltip="'Show previous thread in document'" @click="onPrevComment" >
+                    <font-awesome-icon icon="chevron-circle-left"></font-awesome-icon>
+                </span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span v-tooltip="'Show next thread in document'" @click="onNextComment" >
+                    <font-awesome-icon icon="chevron-circle-right"></font-awesome-icon>
+                </span>
+            </div>
+        </div>
+
+        <thread-comment
+            :comment="thread"
+            :me="me"
+            :replyToComment="replyToComment"
+            :activeClass="activeClass"
+            :thread-view-initiator="threadViewInitiator"
+            @edit-comment="editComment"
+            @delete-comment="deleteComment"
+            @submit-small-comment="submitSmallComment"
+            @draft-reply="draftReply">
+        </thread-comment>
     </div>
-
-    <thread-comment
-        :comment="thread"
-        :me="me"
-        :replyToComment="replyToComment"
-        :activeClass="activeClass"
-        :thread-view-initiator="threadViewInitiator"
-        @edit-comment="editComment"
-        @delete-comment="deleteComment"
-        @submit-small-comment="submitSmallComment"
-        @draft-reply="draftReply">
-    </thread-comment>
-  </div>
 </template>
 
 <script>
@@ -73,63 +64,64 @@ import NbSpotlightControl from '../spotlights/NbSpotlightControl.vue'
  *   when user clicks on reply button for some comment in this thread
  */
 export default {
-  name: 'thread-view',
-  props: {
-    thread: Object,
-    me: Object,
-    replyToComment: Object,
-    isMarginalia: Boolean,
-    isInnotation: Boolean,
-    isEmphasize: Boolean,
-    activeClass: Object,
-    threadViewInitiator: String,
-  },
-  computed: {
-    numComments: function () {
-      let count = this.thread.countAllReplies() + 1
-      if (count === 1) {
-        return '1 comment'
-      } else {
-        return `${count} comments`
-      }
+    name: 'thread-view',
+    props: {
+        thread: Object,
+        me: Object,
+        replyToComment: Object,
+        currentConfigs: {
+                type: Object,
+                default: () => {}
+            },
+        activeClass: Object,
+        threadViewInitiator: String,
     },
-    numReplyReqs: function () {
-      let count = this.thread.countAllReplyReqs()
-      if (count === 0) {
-        return 'no reply requests'
-      } else if (count === 1) {
-        return '1 reply request'
-      } else {
-        return `${count} reply requests`
-      }
+    computed: {
+        numComments: function () {
+            let count = this.thread.countAllReplies() + 1
+            if (count === 1) {
+                return '1 comment'
+            } else {
+                return `${count} comments`
+            }
+        },
+        numReplyReqs: function () {
+            let count = this.thread.countAllReplyReqs()
+            if (count === 0) {
+                return 'no reply requests'
+            } else if (count === 1) {
+                return '1 reply request'
+            } else {
+                return `${count} reply requests`
+            }
+        },
+        isEnabled: function () {
+            return this.me.role === 'instructor' && (this.currentConfigs.isInnotation || this.currentConfigs.isMarginalia || this.currentConfigs.isEmphasize)
+        }
     },
-    isEnabled: function () {
-      return this.me.role === 'instructor' && (this.isInnotation || this.isMarginalia || this.isEmphasize)
+    methods: {
+        editComment: function (comment) {
+            this.$emit('edit-comment', comment)
+        },
+        deleteComment: function (comment) {
+            this.$emit('delete-comment', comment)
+        },
+        draftReply: function (comment) {
+            this.$emit('draft-reply', comment)
+        },
+        submitSmallComment: function(data) {
+            this.$emit('submit-small-comment', data)
+        },
+        onPrevComment: function () {
+            this.$emit('prev-comment')
+        },
+        onNextComment: function () {
+            this.$emit('next-comment')
+        }
+    },
+    components: {
+        ThreadComment,
+        NbSpotlightControl
     }
-  },
-  methods: {
-    editComment: function (comment) {
-      this.$emit('edit-comment', comment)
-    },
-    deleteComment: function (comment) {
-      this.$emit('delete-comment', comment)
-    },
-    draftReply: function (comment) {
-      this.$emit('draft-reply', comment)
-    },
-    submitSmallComment: function(data) {
-      this.$emit('submit-small-comment', data)
-    },
-    onPrevComment: function () {
-      this.$emit('prev-comment')
-    },
-    onNextComment: function () {
-      this.$emit('next-comment')
-    }
-  },
-  components: {
-    ThreadComment,
-    NbSpotlightControl
-  }
 }
 </script>

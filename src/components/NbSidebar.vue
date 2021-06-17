@@ -48,9 +48,7 @@
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
             :still-gathering-threads="stillGatheringThreads"
-            :is-marginalia="isMarginalia"
-            :is-emphasize="isEmphasize"
-            :is-innotation="isInnotation"
+            :current-configs="currentConfigs"
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
@@ -84,9 +82,7 @@
             :thread="threadSelected"
             :me="user"
             :replyToComment="replyToComment"
-            :is-marginalia="isMarginalia"
-            :is-emphasize="isEmphasize"
-            :is-innotation="isInnotation"
+            :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
             @edit-comment="onEditComment"
@@ -130,7 +126,7 @@ import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
 
-const SIDEBAR_BORDER_SIZE = 4;
+const SIDEBAR_BORDER_SIZE = 8;
 const SIDEBAR_MIN_WIDTH = 300
 
 export default {
@@ -168,9 +164,10 @@ export default {
             type: Boolean,
             default: true
         },
-        isMarginalia: Boolean,
-        isInnotation: Boolean,
-        isEmphasize: Boolean,
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
         threads: { // threads after filter
             type: Object,
             default: () => {}
