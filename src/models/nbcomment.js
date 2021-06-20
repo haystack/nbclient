@@ -191,6 +191,8 @@ class NbComment {
     this.setText()
 
     this.spotlight = data.spotlight
+    this.usersTyping = []
+    this.associatedNotification = null
   }
 
   /**
@@ -222,7 +224,7 @@ class NbComment {
     const token = localStorage.getItem("nb.user");
     const headers = { headers: { Authorization: 'Bearer ' + token }}
     if (!this.parent) {
-      return axios.post('/api/annotations/annotation', {
+      return axios.post('/api/annotations/new_annotation', {
         url: sourceUrl,
         class: classId,
         content: this.html,
@@ -240,7 +242,9 @@ class NbComment {
         // this.loadReplies()
       })
     } else {
-      return axios.post(`/api/annotations/reply/${this.parent.id}`, {
+      return axios.post(`/api/annotations/new_reply/${this.parent.id}`, {
+        url: sourceUrl,
+        class: classId,
         content: this.html,
         author: this.author,
         tags: this.hashtags,
@@ -515,6 +519,90 @@ class NbComment {
       }
     }
     return false
+  }
+
+  getAllAuthors () {
+    let authors = new Set([this.author])
+    for (let child of this.children) {
+      for (let author of child.getAllAuthors()) {
+        authors.add(author)
+      }
+    }
+    return authors
+  }
+
+  getMostRecentTimeStamp () {
+    let mostRecentTimeStamp = this.timestamp
+    for (let child of this.children) {
+      let childTimeStamp = child.getMostRecentTimeStamp()
+      if (childTimeStamp > mostRecentTimeStamp) {
+        mostRecentTimeStamp = childTimeStamp
+      }
+    }
+    return mostRecentTimeStamp
+  }
+
+  getChildComment (annotationId) {
+    if (this.id === annotationId) {
+      return this
+    }
+    for (let child of this.children) {
+      let res = child.getChildComment(annotationId)
+      if (res !== null) {
+        return res
+      }
+    }
+    return null
+  }
+
+  getMostRecentPost () {
+    let mostRecentThread = this
+    for (let child of this.children) {
+      let childMostRecentThread = child.getMostRecentPost()
+      if (childMostRecentThread.timestamp > mostRecentThread.timestamp) {
+        mostRecentThread = childMostRecentThread
+      }
+    }
+    return mostRecentThread
+  }
+
+  getInstructorPost () {
+    if (this.instructor && !this.seenByMe) { return this } // if unseen and is instructor post, return
+    for (let child of this.children) {
+      let res = child.getInstructorPost()
+      if (res !== null) {
+        return res
+      }
+    }
+    return null
+  }
+
+  getUserTagPost (userID) {
+    if (this.people.includes(userID) && !this.seenByMe) { // if unseen and comment has user tag with userID
+      return this
+    }
+    for (let child of this.children) {
+      let res = child.getUserTagPost(userID)
+      if (res !== null) {
+        return res
+      }
+    }
+    return null
+  }
+
+  getReplyRequestResponsePost (userID) { // if unseen comment and is responding to a reply request by a userID
+    if (!this.seenByMe && this.parent !== null) {
+      if (this.parent.author === userID && this.parent.replyRequestedByMe) {
+        return this
+      }
+    }
+    for (let child of this.children) {
+      let res = child.getReplyRequestResponsePost(userID)
+      if (res !== null) {
+        return res
+      }
+    }
+    return null
   }
 
   /**

@@ -1,13 +1,13 @@
 <template>
     <div class='nb-spotlight-control'>
         <span v-on:click="onClick('X')"  v-bind:class="{ active: !thread.spotlight }">X</span>
-        <span v-if="isInnotation" v-on:click="onClick('IN')"        v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'IN'}">~</span>
-        <span v-if="isInnotation" v-on:click="onClick('ABOVE')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'ABOVE'}">↑</span>
-        <span v-if="isInnotation" v-on:click="onClick('BELLOW')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'BELLOW'}">↓</span>
-        <span v-if="isInnotation" v-on:click="onClick('LEFT')"      v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'LEFT'}">←</span>
-        <span v-if="isInnotation" v-on:click="onClick('RIGHT')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'RIGHT'}">→</span>
-        <span v-if="isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'MARGIN'}">Ɱ</span>
-        <span v-if="isEmphasize" v-on:click="onClick('EM')"         v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'EM'}">❖</span>
+        <span v-if="currentConfigs.isInnotation" v-on:click="onClick('IN')"        v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'IN'}">~</span>
+        <span v-if="currentConfigs.isInnotation" v-on:click="onClick('ABOVE')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'ABOVE'}">↑</span>
+        <span v-if="currentConfigs.isInnotation" v-on:click="onClick('BELLOW')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'BELLOW'}">↓</span>
+        <span v-if="currentConfigs.isInnotation" v-on:click="onClick('LEFT')"      v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'LEFT'}">←</span>
+        <span v-if="currentConfigs.isInnotation" v-on:click="onClick('RIGHT')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'RIGHT'}">→</span>
+        <span v-if="currentConfigs.isMarginalia" v-on:click="onClick('MARGIN')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'MARGIN'}">Ɱ</span>
+        <span v-if="currentConfigs.isEmphasize"  v-on:click="onClick('EM')"        v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'EM'}">❖</span>
     </div>
 </template>
 
@@ -18,9 +18,10 @@ export default {
     name: 'nb-spotlight-control',
     props: {
         thread: Object,
-        isMarginalia: Boolean,
-        isInnotation: Boolean,
-        isEmphasize: Boolean,
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
     },
     methods: {
         onClick: async function (type) {

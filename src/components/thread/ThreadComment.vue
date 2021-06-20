@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="thread-row" :style="styleRow">
+      
       <div class="header">
+        
+
         <span class="author">
           <div v-if="comment.instructor" class="instr-icon">
             instr
@@ -62,6 +65,7 @@
         </div>
       </div>
       <div class="body" v-html="comment.html"></div>
+      <!-- <input type="text"> -->
       <div class="footer">
         <span
             v-tooltip="'reply'"
@@ -89,27 +93,54 @@
     </div>
     <div class="thread-block" v-if="comment.children.length">
       <thread-comment
-          v-for="child in comment.children"
+          v-for="(child, index) in comment.children"
           :comment="child"
           :me="me"
           :replyToComment="replyToComment"
           :key="child.id"
           :activeClass="activeClass"
           :thread-view-initiator="threadViewInitiator"
+          :last="index === comment.children.length-1"
           @edit-comment="editComment"
           @delete-comment="deleteComment"
           @draft-reply="draftReply"
           @toggle-upvote="toggleUpvote"
-          @toggle-reply-request="toggleReplyRequest">
+          @toggle-reply-request="toggleReplyRequest"
+          @submit-small-comment="submitSmallComment">
       </thread-comment>
+    </div>
+    
+    <div class="thread-row smallComment" v-if="last && comment.parent">
+      <div class="smallCommentHeader">
+        <span class="author">
+          <div v-if="me.role === 'instructor'" class="instr-icon">
+            instr
+          </div>
+          <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
+        </span>
+      </div>
+      <div class="smallCommentInput">
+        <input v-model="smallComment" v-on:keyup="checkSubmittedSmallComment" class="smallCommentText" type="text" placeholder="Write a comment...">
+          <button class="smallCommentButton" 
+            v-tooltip="'Open rich text editor'"
+            @click="draftReply(comment.parent)">
+            <b-icon-arrows-angle-expand></b-icon-arrows-angle-expand>
+          </button>
+      </div>
+      <br><br>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
+
 import moment from 'moment'
 import { CommentAnonymity } from '../../models/enums.js'
+import { BootstrapVueIcons } from 'bootstrap-vue'
+import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 
+Vue.use(BootstrapVueIcons)
 /**
  * Component for each row in the nested discussion view of thread.
  * Also see {@link NbComment} and {@link NbUser}.
@@ -137,10 +168,15 @@ export default {
     replyToComment: Object,
     activeClass: Object,
     threadViewInitiator: String,
+    last: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
-      showOverflow: false
+      showOverflow: false,
+      smallComment: ""
     }
   },
   methods: {
@@ -177,6 +213,18 @@ export default {
     },
     toggleReplyRequest: function (comment) {
       comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me)
+    },
+    checkSubmittedSmallComment: function(e) {
+      if (e.keyCode === 13) {
+        let data = {
+          replyToComment: this.comment.parent,
+          html: '<p>' + this.smallComment + '</p>'
+        }
+        this.$emit('submit-small-comment', data)
+      }
+    },
+    submitSmallComment: function (data) {
+      this.$emit('submit-small-comment', data)
     }
   },
   computed: {
