@@ -446,32 +446,6 @@ function embedNbApp() {
                 if (!newUser) return // logged out
                 if (newUser === oldUser) return // same user, do nothing
 
-                const req = await axios.get('/api/nb/config')
-                const configs = req.data
-                this.nbConfigs = configs
-                console.log(configs)
-
-                this.currentConfigs.isEmphasize = configs['SPOTLIGHT_EM'] === 'true' ? true : false
-                this.currentConfigs.isShowNumberOfReplies = configs['SHOW_NUMBER_OF_REPLIES'] === 'false' ? false : true
-                this.currentConfigs.isShowIndicatorForUnseenThread = configs['SHOW_INDICATOR_FOR_UNSEEN_THREAD'] === 'false' ? false : true
-                this.currentConfigs.isShowIndicatorForInstructorComment = configs['SHOW_INDICATOR_FOR_INSTRUCTOR_COMMENT'] === 'false' ? false : true
-                this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
-                this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
-                this.currentConfigs.isShowIndicatorForQuestionedThread = configs['SHOW_INDICATOR_FOR_QUESTIONED_THREAD'] === 'false' ? false : true
-                this.currentConfigs.isIgnoreSectionsInClass = configs['IGNORE_SECTIONS_IN_CLASS'] === 'true' ? true : false
-
-                if (document.location.href.includes('/nb_viewer.html')) {
-                    this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
-                    this.currentConfigs.isInnotation = false
-                    this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
-                    this.showSyncFeatures = this.syncConfig
-                } else {
-                    this.currentConfigs.isMarginalia = false
-                    this.currentConfigs.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
-                    this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
-                    this.showSyncFeatures = this.syncConfig
-                }
-
                 const source = window.location.origin + window.location.pathname
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
@@ -500,13 +474,40 @@ function embedNbApp() {
             },
             activeClass: async function (newActiveClass, oldActiveClass) {
                 if (newActiveClass != {} && this.user) {
+                    const token = localStorage.getItem("nb.user");
+                    const NbConfigReqconfig = { headers: { Authorization: 'Bearer ' + token }, params: { course: newActiveClass.id } }
+                    const req = await axios.get('/api/nb/config', NbConfigReqconfig)
+                    const configs = req.data
+                    this.nbConfigs = configs
+
+                    this.currentConfigs.isEmphasize = configs['SPOTLIGHT_EM'] === 'true' ? true : false
+                    this.currentConfigs.isShowNumberOfReplies = configs['SHOW_NUMBER_OF_REPLIES'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForUnseenThread = configs['SHOW_INDICATOR_FOR_UNSEEN_THREAD'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForInstructorComment = configs['SHOW_INDICATOR_FOR_INSTRUCTOR_COMMENT'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForQuestionedThread = configs['SHOW_INDICATOR_FOR_QUESTIONED_THREAD'] === 'false' ? false : true
+                    this.currentConfigs.isIgnoreSectionsInClass = configs['IGNORE_SECTIONS_IN_CLASS'] === 'true' ? true : false
+
+                    if (document.location.href.includes('/nb_viewer.html')) {
+                        this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
+                        this.currentConfigs.isInnotation = false
+                        this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
+                        this.showSyncFeatures = this.syncConfig
+                    } else {
+                        this.currentConfigs.isMarginalia = false
+                        this.currentConfigs.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
+                        this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
+                        this.showSyncFeatures = this.syncConfig
+                    }
+
+
                     let source = window.location.origin + window.location.pathname
                     if (this.sourceURL.length > 0) {
                         source = this.sourceURL
                     }
-                    const token = localStorage.getItem("nb.user");
+
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id } }
-                    const decoded = VueJwtDecode.decode(token)
 
                     axios.get('/api/annotations/allUsers', config)
                         .then(res => {
@@ -921,7 +922,7 @@ function embedNbApp() {
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
                 this.threadViewInitiator = threadViewInitiator
-                console.log('threadViewInitiator: ' + this.threadViewInitiator)
+                // console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (this.threadSelected) {
                     socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // selecting new thread so stop typing on this thread
                 }
@@ -962,7 +963,7 @@ function embedNbApp() {
                 }
 
                 this.threadViewInitiator = 'NONE'
-                console.log('threadViewInitiator: ' + this.threadViewInitiator)
+                // console.log('threadViewInitiator: ' + this.threadViewInitiator)
 
             },
             onHoverThread: function (thread) {
