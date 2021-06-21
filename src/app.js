@@ -157,7 +157,7 @@ function embedNbApp() {
                 </nb-marginalias>
                 <notifications position="top left" group="recentlyAddedThreads" />
                 <nb-highlights
-                    :key="resizeKey"
+                    :key="redrawHighlightsKey"
                     :threads="filteredThreads"
                     :thread-selected="threadSelected"
                     :threads-hovered="threadsHovered"
@@ -316,7 +316,10 @@ function embedNbApp() {
             isDragging: false, // indicates if there's a dragging happening in the UI
             sidebarWidth: 300,
             mousePosition: null,
-            resizeKey: Date.now(), // work around to force redraw highlights
+            redrawHighlightsKey: Date.now(), // work around to force redraw highlights
+            // redrawHighlightsOffset: window.pageYOffset,
+            // canRedrawHighlights: true,
+            // canRedrawHighlightsTimeout: null,
             recentlyAddedThreads: [],
             showSyncFeatures: true,
             onlineUsers: [],
@@ -1007,8 +1010,17 @@ function embedNbApp() {
             onToggleHighlights: function (show) {
                 this.showHighlights = show
             },
-            handleResize: function () {
-                this.resizeKey = Date.now()
+            handleRedrawHighlights: function () {
+                // if (this.canRedrawHighlightsTimeout) {
+                //     clearTimeout(this.canRedrawHighlightsTimeout)
+                // }
+
+                // this.canRedrawHighlights = false
+                this.redrawHighlightsKey = Date.now()
+                // this.redrawHighlightsOffset = window.pageYOffset
+                // this.canRedrawHighlightsTimeout = setTimeout(() => {
+                //     this.canRedrawHighlights = true
+                // }, 5000)
             },
             onSwitchClass: function (newClass) {
                 this.activeClass = newClass
@@ -1132,16 +1144,19 @@ function embedNbApp() {
     })
 
     window.addEventListener('resize', _ => {
-        app.handleResize()
+        app.handleRedrawHighlights()
     })
 
-    //   window.addEventListener('scroll', _ => {
-    //     app.handleResize()
-    //   })
+    // window.addEventListener('scroll', _ => {
+    //     if (app.canRedrawHighlights && Math.abs(window.pageYOffset - app.redrawHighlightsOffset) > 200) {
+    //         console.log(`handleRedrawHighlights`)
+    //         app.handleRedrawHighlights()
+    //     }
+    // })
 
-    window.addEventListener('click', _ => {
-        app.handleResize()
-    })
+    // window.addEventListener('click', _ => {
+    //     app.handleRedrawHighlights()
+    // })
 
     window.addEventListener('beforeunload', async function (e) {
         e.preventDefault()
@@ -1152,4 +1167,12 @@ function embedNbApp() {
     window.onbeforeunload = () => {
         app.onUserLeft()
     }
+
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutationRecord) {
+            app.handleRedrawHighlights()
+        })
+    })
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] })
 }

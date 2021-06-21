@@ -40,6 +40,7 @@
           </button>
         </div>
       </div>
+      <div class="nb-emoji-attr">All emojis designed by OpenMoji – the open-source emoji and icon project. License: CC BY-SA 4.0</div>
     </div>
   </div>
 </template>
@@ -127,7 +128,7 @@ export default {
         // [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
         // [{ 'align': [] }],
         // [ 'people' ],
-        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment']
+        ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment', 'needs-work'],
       ],
       placeholder: 'Type # or @ to include tags',
       content: this.initialContent,
