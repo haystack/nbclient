@@ -157,7 +157,7 @@ function embedNbApp() {
                 </nb-marginalias>
                 <notifications position="top left" group="recentlyAddedThreads" />
                 <nb-highlights
-                    :key="resizeKey"
+                    :key="redrawHighlightsKey"
                     :threads="filteredThreads"
                     :thread-selected="threadSelected"
                     :threads-hovered="threadsHovered"
@@ -316,7 +316,7 @@ function embedNbApp() {
             isDragging: false, // indicates if there's a dragging happening in the UI
             sidebarWidth: 300,
             mousePosition: null,
-            resizeKey: Date.now(), // work around to force redraw highlights
+            redrawHighlightsKey: Date.now(), // work around to force redraw highlights
             recentlyAddedThreads: [],
             showSyncFeatures: true,
             onlineUsers: [],
@@ -1007,8 +1007,8 @@ function embedNbApp() {
             onToggleHighlights: function (show) {
                 this.showHighlights = show
             },
-            handleResize: function () {
-                this.resizeKey = Date.now()
+            handleRedrawHighlights: function () {
+                this.redrawHighlightsKey = Date.now()
             },
             onSwitchClass: function (newClass) {
                 this.activeClass = newClass
@@ -1132,15 +1132,16 @@ function embedNbApp() {
     })
 
     window.addEventListener('resize', _ => {
-        app.handleResize()
+        app.handleRedrawHighlights()
     })
 
-    //   window.addEventListener('scroll', _ => {
-    //     app.handleResize()
-    //   })
+    window.addEventListener('scroll', _ => {
+        //app.handleRedrawHighlights()
+        // only handle if scroll is more that 500px and last resize is more than 5 sec
+    })
 
     window.addEventListener('click', _ => {
-        app.handleResize()
+        app.handleRedrawHighlights()
     })
 
     window.addEventListener('beforeunload', async function (e) {

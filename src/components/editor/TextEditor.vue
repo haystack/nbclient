@@ -112,10 +112,11 @@ export default {
       let learningButton = this.$el.querySelector('.ql-learning-goal')
       let realButton = this.$el.querySelector('.ql-real-world-application')
       let lightbulbButton = this.$el.querySelector('.ql-lightbulb-moment') 
-      let cc = this.$el.querySelector('.ql-cc')        
+      let needsWorkButton = this.$el.querySelector('.ql-needs-work') 
+      let cc = this.$el.querySelector('.ql-cc')
 
       //quilljs doesnt have a simple way to add tooltip. emojis are temp and this will be removed soon.
-      interestingTopicButton.title = "interesting topic"      
+      interestingTopicButton.title = "interesting topic"
       surprisedButton.title = "surprised"
       curiousButton.title  = "just curious"
       lostButton.title  = "lost"
@@ -126,6 +127,7 @@ export default {
       learningButton.title  = "learning-goal"
       realButton.title  = "real world application"
       lightbulbButton.title  = "lightbulb moment" 
+      needsWorkButton.title  = "needs work" 
       
       interestingTopicButton.addEventListener('click', () => {this.insertHashtag('interesting-topic')})
       surprisedButton.addEventListener('click', () => {this.insertHashtag('surprised')})
@@ -137,7 +139,8 @@ export default {
       importantButton.addEventListener('click', () => {this.insertHashtag('important')})
       learningButton.addEventListener('click', () => {this.insertHashtag('learning-goal')})
       realButton.addEventListener('click', () => {this.insertHashtag('real-world-application')})
-      lightbulbButton.addEventListener('click', () => {this.insertHashtag('lightbulb-moment')})                
+      lightbulbButton.addEventListener('click', () => {this.insertHashtag('lightbulb-moment')})
+      needsWorkButton.addEventListener('click', () => {this.insertHashtag('needs-work')})
     }
   },
   methods: {
