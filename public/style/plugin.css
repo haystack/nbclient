@@ -830,7 +830,7 @@
     content: "";
 }
 #nb-app .ql-needs-work:after {
-  background-image: url(https://127.0.0.1:3001/emoji/12_needs-work.png);
+  background-image: url(https://nb2.csail.mit.edu/client/emoji/12_needs-work.png);
   background-size: 20px 20px;
   display: inline-block;
   width: 20px;
