@@ -170,7 +170,7 @@ export default {
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
             }
-            if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.isEmphasize) {
+            if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) {
                 return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px; cursor: pointer;'
             }
             if (this.showTypingActivityAnimation) { // if typing, show a pink outline color
