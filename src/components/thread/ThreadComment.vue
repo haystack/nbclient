@@ -107,7 +107,7 @@
                 @submit-small-comment="submitSmallComment">
             </thread-comment>
         </div>
-        <div class="thread-row smallComment" v-if="false && last && comment.parent">
+        <div class="thread-row smallComment" v-if="last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
                     <div v-if="me.role === 'instructor'" class="instr-icon">

@@ -414,7 +414,7 @@ export default {
                 seenByMe: true,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
+            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
             if (data.replyToComment) {
                 data.replyToComment.children.push(comment)
             }
