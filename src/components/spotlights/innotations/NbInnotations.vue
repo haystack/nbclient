@@ -7,6 +7,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :activeClass="activeClass"
+            @log-exp-spotlight="onLogExpSpotlight"
             @select-thread="onSelectThread"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
@@ -18,6 +19,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :activeClass="activeClass"
+            @log-exp-spotlight="onLogExpSpotlight"
             @select-thread="onSelectThread"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
@@ -58,6 +60,9 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
+        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
+            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        }
     },
     components: {
         NbInnotationBlock,

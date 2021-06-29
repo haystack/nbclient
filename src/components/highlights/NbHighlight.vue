@@ -170,7 +170,7 @@ export default {
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
             }
-            if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.isEmphasize) {
+            if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) {
                 return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px; cursor: pointer;'
             }
             if (this.showTypingActivityAnimation) { // if typing, show a pink outline color
@@ -250,6 +250,9 @@ export default {
                 type = this.thread.spotlight.type.toUpperCase()
             }
 
+            const location = this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
+            this.$emit('log-exp-spotlight', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
@@ -259,7 +262,7 @@ export default {
                 type: type, 
                 annotation_id: this.thread.id, 
                 class_id: this.activeClass.id,
-                role: this.user.role.toUpperCase() 
+                role: this.user.role.toUpperCase()
             }, config)
 
             this.logSyncClick()

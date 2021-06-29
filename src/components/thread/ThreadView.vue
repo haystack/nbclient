@@ -29,6 +29,7 @@
             :replyToComment="replyToComment"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="editComment"
             @delete-comment="deleteComment"
             @submit-small-comment="submitSmallComment"
@@ -117,6 +118,9 @@ export default {
         },
         onNextComment: function () {
             this.$emit('next-comment')
+        },
+        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
+            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         }
     },
     components: {
