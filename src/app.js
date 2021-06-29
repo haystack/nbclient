@@ -532,7 +532,7 @@ function embedNbApp() {
                             if (this.expSpotlight.class.control.includes(this.user.id)) {
                                 console.log('control')
                                 this.expSpotlight.group = 'control'
-                                this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
+                                this.currentConfigs.isShowIndicatorForSpotlitThread = false
                                 this.currentConfigs.isEmphasize = false
                                 this.currentConfigs.isMarginalia = false
                                 this.currentConfigs.isInnotation = false
@@ -549,7 +549,7 @@ function embedNbApp() {
                         } else {
                             console.log('Did not start')
                             this.isExpSpotlight = false
-                            this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
+                            this.currentConfigs.isShowIndicatorForSpotlitThread = false
                             this.currentConfigs.isEmphasize = false
                             this.currentConfigs.isMarginalia = false
                             this.currentConfigs.isInnotation = false
@@ -565,6 +565,14 @@ function embedNbApp() {
                             this.users = res.data
                             this.$set(this.user, 'role', this.users[this.user.id].role)
                             this.onLogExpSpotlight('SESSION_START', 'NONE', 'NONE', false)
+
+                            if (this.expSpotlight.class && this.users[this.user.id].role.toUpperCase() === 'INSTRUCTOR') {
+                                console.log('INSTRUCTOR in expSpotlight')
+                                this.currentConfigs.isShowIndicatorForSpotlitThread = true
+                                this.currentConfigs.isEmphasize = true
+                                this.currentConfigs.isMarginalia = false
+                                this.currentConfigs.isInnotation = false
+                            }
 
                             const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
                             axios.post(`/api/spotlights/log/session/start`, {
