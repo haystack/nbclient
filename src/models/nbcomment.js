@@ -28,7 +28,7 @@ class NbComment {
    * @param {Boolean} data.bookmarked - true if the current user bookmarked this comment, sets {@link NbComment#bookmarked}
    * @param {Object} data.spotlight
    */
-  constructor (data, annotationsData) {
+  constructor(data, annotationsData) {
     /**
      * ID of this comment. If this is a new comment,
      * null and set later in {@link NbComment#submitAnnotation}.
@@ -199,7 +199,7 @@ class NbComment {
    * Set {@link NbComment#text} and {@link NbComment#wordCount}
    * using this comment's content defined in {@link NbComment#html}.
    */
-  setText () {
+  setText() {
     if (this.html.includes('ql-formula')) { // work around for latex formula
       let temp = document.createElement('div')
       temp.innerHTML = this.html
@@ -220,9 +220,9 @@ class NbComment {
    * On success, set {@link NbComment#id}. If this is a thread head,
    * {@link NbComment#loadReplies} will be called to also load replies.
    */
-  submitAnnotation (classId, sourceUrl, threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
+  submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogExpSpotlight = () => { }) {
     const token = localStorage.getItem("nb.user");
-    const headers = { headers: { Authorization: 'Bearer ' + token }}
+    const headers = { headers: { Authorization: 'Bearer ' + token } }
     if (!this.parent) {
       return axios.post('/api/annotations/new_annotation', {
         url: sourceUrl,
@@ -239,6 +239,7 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
+        this.logSpotlightAction('NEW_ANNOTATION', this, activeClass, user, 'NONE', onLogExpSpotlight)
         // this.loadReplies()
       })
     } else {
@@ -256,7 +257,7 @@ class NbComment {
         bookmark: this.bookmarked
       }, headers).then(res => {
         this.id = res.data.id
-        this.logSpotlightAction('REPLY', thread, activeClass, user, threadViewInitiator)
+        this.logSpotlightAction('REPLY', thread, activeClass, user, threadViewInitiator, onLogExpSpotlight)
       })
     }
   }
@@ -265,10 +266,10 @@ class NbComment {
    * Async load replies to this comment and add to {@link NbComment#children}.
    * Replies are sorted in the ascending order of {@link NbComment#timestamp}.
    */
-  loadReplies (annotationsData) {
+  loadReplies(annotationsData) {
     if (this.id in annotationsData) { // {thread_id: [children]}
       this.children = annotationsData[this.id].map(item => {
-        item.parent = this 
+        item.parent = this
         return new NbComment(item, annotationsData)
       })
       this.children.sort(compare('timestamp'))
@@ -280,7 +281,7 @@ class NbComment {
    * including replies to the replies to this comment, etc.
    * @return {Number} Total number of replies to this comment
    */
-  countAllReplies () {
+  countAllReplies() {
     let total = this.children.length
     for (let child of this.children) {
       total += child.countAllReplies()
@@ -293,7 +294,7 @@ class NbComment {
    * including reply requests to the replies to this comment, etc.
    * @return {Number} Total number of reply requests to this comment
    */
-  countAllReplyReqs () {
+  countAllReplyReqs() {
     let total = this.replyRequestCount
     for (let child of this.children) {
       total += child.countAllReplyReqs()
@@ -306,7 +307,7 @@ class NbComment {
    * including upvotes to the replies to this comment, etc.
    * @return {Number} Total number of upvotes to this comment
    */
-  countAllUpvotes () {
+  countAllUpvotes() {
     let total = this.upvoteCount
     for (let child of this.children) {
       total += child.countAllUpvotes()
@@ -320,7 +321,7 @@ class NbComment {
    * @param {String} text
    * @return {Boolean} True if the given text (case insensitive) is found
    */
-  hasText (text) {
+  hasText(text) {
     if (this.text.toLowerCase().includes(text.toLowerCase())) {
       return true
     }
@@ -342,7 +343,7 @@ class NbComment {
    * @param {String} text
    * @return {Boolean} True if the given text (case insensitive) is found
    */
-  hasAuthor (text) {
+  hasAuthor(text) {
     let searchText = text.toLowerCase()
     if (searchText.length > 1 && searchText.charAt(0) === '@') {
       // for autocompleted name
@@ -363,7 +364,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) is bookmarked by the current user.
    * @return {Boolean} True if this comment (or descendant) is bookmarked
    */
-  hasBookmarks () {
+  hasBookmarks() {
     if (this.bookmarked) {
       return true
     }
@@ -382,7 +383,7 @@ class NbComment {
    * @param {String} hashtag - hashtag ID
    * @return {Boolean} True if the given hashtag is found
    */
-  hasHashtag (hashtag) {
+  hasHashtag(hashtag) {
     if (this.hashtags.includes(hashtag)) {
       return true
     }
@@ -401,7 +402,7 @@ class NbComment {
    * @param {String} userID - user ID
    * @return {Boolean} True if the given user is tagged
    */
-  hasUserTag (userID) {
+  hasUserTag(userID) {
     if (this.people.includes(userID)) {
       return true
     }
@@ -417,7 +418,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) is authored by instructor.
    * @return {Boolean} True if this comment (or descendant) is authored by instructor
    */
-  hasInstructorPost () {
+  hasInstructorPost() {
     if (this.instructor) { return true }
     for (let child of this.children) {
       if (child.hasInstructorPost()) {
@@ -441,7 +442,7 @@ class NbComment {
    * @param {String} userID - user ID
    * @return {Boolean} True if the given user authored this comment (or descendant)
    */
-  hasUserPost (userID) {
+  hasUserPost(userID) {
     if (this.author === userID) { return true }
     for (let child of this.children) {
       if (child.hasUserPost(userID)) {
@@ -455,7 +456,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) has any reply requests.
    * @return {Boolean} True if this comment (or descendant) has any reply requests.
    */
-  hasReplyRequests () {
+  hasReplyRequests() {
     if (this.replyRequestCount > 0) { return true }
     for (let child of this.children) {
       if (child.hasReplyRequests()) {
@@ -469,7 +470,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) has any reply requests by the current user.
    * @return {Boolean} True if this comment (or descendant) has any reply requests by the current user.
    */
-  hasMyReplyRequests () {
+  hasMyReplyRequests() {
     if (this.replyRequestedByMe) { return true }
     for (let child of this.children) {
       if (child.hasMyReplyRequests()) {
@@ -483,7 +484,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) has any upvotes.
    * @return {Boolean} True if this comment (or descendant) has any upvotes.
    */
-  hasUpvotes () {
+  hasUpvotes() {
     if (this.upvoteCount > 0) { return true }
     for (let child of this.children) {
       if (child.hasUpvotes()) {
@@ -497,7 +498,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) has any upvotes by the current user.
    * @return {Boolean} True if this comment (or descendant) has any upvotes by the current user.
    */
-  hasMyUpvotes () {
+  hasMyUpvotes() {
     if (this.upvotedByMe) { return true }
     for (let child of this.children) {
       if (child.hasMyUpvotes()) {
@@ -511,7 +512,7 @@ class NbComment {
    * Check recursively if this comment (or descendant) hasn't been seen by the current user.
    * @return {Boolean} True if this comment (or descendant) hasn't been seen by the current user
    */
-  isUnseen () {
+  isUnseen() {
     if (!this.seenByMe) { return true }
     for (let child of this.children) {
       if (child.isUnseen()) {
@@ -521,7 +522,7 @@ class NbComment {
     return false
   }
 
-  getAllAuthors () {
+  getAllAuthors() {
     let authors = new Set([this.author])
     for (let child of this.children) {
       for (let author of child.getAllAuthors()) {
@@ -531,7 +532,7 @@ class NbComment {
     return authors
   }
 
-  getMostRecentTimeStamp () {
+  getMostRecentTimeStamp() {
     let mostRecentTimeStamp = this.timestamp
     for (let child of this.children) {
       let childTimeStamp = child.getMostRecentTimeStamp()
@@ -542,7 +543,7 @@ class NbComment {
     return mostRecentTimeStamp
   }
 
-  getChildComment (annotationId) {
+  getChildComment(annotationId) {
     if (this.id === annotationId) {
       return this
     }
@@ -555,7 +556,7 @@ class NbComment {
     return null
   }
 
-  getMostRecentPost () {
+  getMostRecentPost() {
     let mostRecentThread = this
     for (let child of this.children) {
       let childMostRecentThread = child.getMostRecentPost()
@@ -566,7 +567,7 @@ class NbComment {
     return mostRecentThread
   }
 
-  getInstructorPost () {
+  getInstructorPost() {
     if (this.instructor && !this.seenByMe) { return this } // if unseen and is instructor post, return
     for (let child of this.children) {
       let res = child.getInstructorPost()
@@ -577,7 +578,7 @@ class NbComment {
     return null
   }
 
-  getUserTagPost (userID) {
+  getUserTagPost(userID) {
     if (this.people.includes(userID) && !this.seenByMe) { // if unseen and comment has user tag with userID
       return this
     }
@@ -590,7 +591,7 @@ class NbComment {
     return null
   }
 
-  getReplyRequestResponsePost (userID) { // if unseen comment and is responding to a reply request by a userID
+  getReplyRequestResponsePost(userID) { // if unseen comment and is responding to a reply request by a userID
     if (!this.seenByMe && this.parent !== null) {
       if (this.parent.author === userID && this.parent.replyRequestedByMe) {
         return this
@@ -608,12 +609,12 @@ class NbComment {
   /**
    * Mark this comment and all its descendants as seen by the current user.
    */
-  markSeenAll () { // mark this comment and all replies 'seen'
+  markSeenAll() { // mark this comment and all replies 'seen'
     if (!this.seenByMe) {
       this.seenByMe = true
       const token = localStorage.getItem("nb.user");
-      const headers = { headers: { Authorization: 'Bearer ' + token }}
-      axios.post(`/api/annotations/seen/${this.id}`,{} ,headers)
+      const headers = { headers: { Authorization: 'Bearer ' + token } }
+      axios.post(`/api/annotations/seen/${this.id}`, {}, headers)
     }
     for (let child of this.children) {
       child.markSeenAll()
@@ -623,7 +624,7 @@ class NbComment {
   /**
    * Toggle the upvote for this comment by the current user.
    */
-  toggleUpvote (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
+  toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogExpSpotlight = () => { }) {
     if (this.upvotedByMe) {
       this.upvoteCount -= 1
       this.upvotedByMe = false
@@ -631,11 +632,11 @@ class NbComment {
       this.upvoteCount += 1
       this.upvotedByMe = true
 
-      this.logSpotlightAction('STAR', thread, activeClass, user, threadViewInitiator)
+      this.logSpotlightAction('STAR', thread, activeClass, user, threadViewInitiator, onLogExpSpotlight)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
-      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      const headers = { headers: { Authorization: 'Bearer ' + token } }
       axios.post(`/api/annotations/star/${this.id}`, { star: this.upvotedByMe }, headers)
     }
   }
@@ -643,7 +644,7 @@ class NbComment {
   /**
    * Toggle the reply request for this comment by the current user.
    */
-  toggleReplyRequest (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
+  toggleReplyRequest(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogExpSpotlight = () => { }) {
     if (this.replyRequestedByMe) {
       this.replyRequestCount -= 1
       this.replyRequestedByMe = false
@@ -651,11 +652,11 @@ class NbComment {
       this.replyRequestCount += 1
       this.replyRequestedByMe = true
 
-      this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, threadViewInitiator)
+      this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, threadViewInitiator, onLogExpSpotlight)
     }
     if (this.id) {
       const token = localStorage.getItem("nb.user");
-      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      const headers = { headers: { Authorization: 'Bearer ' + token } }
       axios.post(`/api/annotations/replyRequest/${this.id}`, { replyRequest: this.replyRequestedByMe }, headers)
     }
   }
@@ -663,31 +664,37 @@ class NbComment {
   /**
    * Toggle the bookmark for this comment by the current user.
    */
-  toggleBookmark (threadViewInitiator='NONE', thread={}, activeClass={}, user={}) {
+  toggleBookmark(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogExpSpotlight = () => { }) {
     if (!this.bookmarked) {
-      this.logSpotlightAction('BOOKMARK', thread, activeClass, user, threadViewInitiator)
+      this.logSpotlightAction('BOOKMARK', thread, activeClass, user, threadViewInitiator, onLogExpSpotlight)
     }
 
     this.bookmarked = !this.bookmarked
     if (this.id) {
       const token = localStorage.getItem("nb.user");
-      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      const headers = { headers: { Authorization: 'Bearer ' + token } }
       axios.post(`/api/annotations/bookmark/${this.id}`, { bookmark: this.bookmarked }, headers)
     }
   }
 
-  logSpotlightAction(action, comment, activeClass, user, threadViewInitiator) {
+  logSpotlightAction(action, comment, activeClass, user, threadViewInitiator, onLogExpSpotlight = () => { }) {
+    const headComment = this.getHeadComment(comment)
+    onLogExpSpotlight(action, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', headComment.spotlight ? headComment.spotlight.highQuality : false, headComment.id, headComment.countAllReplies())
+
+    if (action === 'NEW_ANNOTATION') {
+      return
+    }
+
     const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
     const token = localStorage.getItem("nb.user");
     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-    const headComment = this.getHeadComment(comment)
     axios.post(`/api/spotlights/log`, {
-        spotlight_id: threadViewInitiator !== 'SPOTLIGHT' ? null : headComment.spotlight.id,
-        action: action.toUpperCase(), 
-        type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : headComment.spotlight.type.toUpperCase(),
-        annotation_id: headComment.id, 
-        class_id: activeClass.id,
-        role: user.role.toUpperCase() 
+      spotlight_id: threadViewInitiator !== 'SPOTLIGHT' ? null : headComment.spotlight.id,
+      action: action.toUpperCase(),
+      type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : headComment.spotlight.type.toUpperCase(),
+      annotation_id: headComment.id,
+      class_id: activeClass.id,
+      role: user.role.toUpperCase()
     }, config)
   }
 
@@ -709,7 +716,7 @@ class NbComment {
    * @param {Boolean} ddata.replyRequestedByMe - new reply request status by the current user,
    *   sets {@link NbComment#replyRequestedByMe} and {@link NbComment#replyRequestCount}
    */
-  saveUpdates (data) {
+  saveUpdates(data) {
     this.timestamp = data.timestamp
     this.html = data.html
     this.hashtags = data.mentions.hashtags
@@ -722,7 +729,7 @@ class NbComment {
     }
     this.setText()
     const token = localStorage.getItem("nb.user");
-    const headers = { headers: { Authorization: 'Bearer ' + token }}
+    const headers = { headers: { Authorization: 'Bearer ' + token } }
     return axios.put(`/api/annotations/annotation/${this.id}`, {
       content: this.html,
       tags: this.hashtags,
@@ -737,13 +744,13 @@ class NbComment {
    * Remove the reply from this comment.
    * @param {NbComment} child - reply to be removed
    */
-  removeChild (child) {
+  removeChild(child) {
     let idx = this.children.indexOf(child)
     if (idx >= 0) {
       this.children.splice(idx, 1)
       if (child.id) {
         const token = localStorage.getItem("nb.user");
-        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        const headers = { headers: { Authorization: 'Bearer ' + token } }
         axios.delete(`/api/annotations/annotation/${child.id}`, headers)
       }
     }
