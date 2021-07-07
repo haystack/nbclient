@@ -16,16 +16,23 @@
       <div v-if="notification.type === 'tag'" class="icon-wrapper tag">
         {{notification.readableType}}
       </div>
-      <div v-if="notification.type === 'recent'" class="icon-wrapper recent">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'recent'" class="icon-wrapper recent"
+        v-tooltip="'Recent comment'"
+      >
+        <font-awesome-icon icon="history"></font-awesome-icon>&nbsp;
       </div>
-      <div :style="timeTextStyle">
-        {{timeString}}
+      <div v-if="notification.type === 'reply'" class="icon-wrapper reply"
+        v-tooltip="'Comment reply'"
+      >
+        <font-awesome-icon icon="reply"></font-awesome-icon>&nbsp;
+      </div>
+      <div :style="textStyle">
+        {{authorName}}: {{commentText}}
       </div>
     </div>
-    <div :style="textStyle">
-      {{authorName}}: {{commentText}}
-    </div>
+    <span :style="timeTextStyle">
+      {{timeString}}
+    </span>
 
 
   </div>

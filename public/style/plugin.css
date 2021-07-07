@@ -367,6 +367,9 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+#nb-app .nb-sidebar .list-view .list-row #notification-row-flags{ /*only for notification row style*/
+  justify-content: flex-start;
+}
 #nb-app .nb-sidebar .list-view .list-row:nth-child(even) {
   background-color: #f0f0f0;
 }
@@ -499,8 +502,17 @@
   border-radius: 3px;
 }
 .icon-wrapper.recent {
-  background-color: #009999;
-  color: #fff;
+  /* background-color: #009999;
+  color: #fff; */
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.reply {
+  /* background-color: #009999;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;

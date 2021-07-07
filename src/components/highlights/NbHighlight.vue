@@ -17,7 +17,7 @@
             :y="box.top + bounds.offsetY"
             :height="box.height"
             :width="box.width">
-            <animate
+            <!-- <animate
                 v-if="showRecentActivityAnimation"
                 attributeType="XML"
                 attributeName="fill"
@@ -30,7 +30,7 @@
                 attributeName="fill"
                 values="#ffffff;#4a2270D9;#ffffff;#ffffff"
                 dur="2.0s"
-                repeatCount="indefinite"/>
+                repeatCount="indefinite"/> -->
         </rect>
 
     </g>
@@ -185,15 +185,15 @@ export default {
                 return 'fill: rgb(80, 54, 255); opacity: 0.7;'
                 // return 'stroke: rgb(80, 54, 255); stroke-width: 8; stroke-opacity: 0.2;'
             }
-            if (this.replyRequestThread) {
-                if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
-                    // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.25;'
-                    return 'fill: rgb(255, 0, 255); opacity: 1.0;'
-                } else {
-                    // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.10;'
-                    return 'fill: rgb(255, 0, 255); opacity: 0.5;'
-                }
-            }
+            // if (this.replyRequestThread) {
+            //     if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
+            //         // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.25;'
+            //         return 'fill: rgb(255, 0, 255); opacity: 1.0;'
+            //     } else {
+            //         // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.10;'
+            //         return 'fill: rgb(255, 0, 255); opacity: 0.5;'
+            //     }
+            // }
             return null
         },
         isRecentThread: function () {
