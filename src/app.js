@@ -706,9 +706,9 @@ function embedNbApp() {
                         // set any type of notification
                         let notification = null
                         if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
-                          notification = new NbNotification(comment, "reply", false, specificAnnotation)
+                          notification = new NbNotification(comment, "reply", false, specificAnnotation, false)
                         } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                          notification = new NbNotification(comment, "recent", false, specificAnnotation)
+                          notification = new NbNotification(comment, "recent", false, specificAnnotation, false)
                         }
                         // if (taggedUsers.includes(this.user.id)) { // user tagged in post
                         //     notification = new NbNotification(comment, "tag", true, specificAnnotation)
@@ -777,7 +777,7 @@ function embedNbApp() {
                     }, 30000)
                 }
             },
-            newNotification: function (comment) {
+            newOfflineNotification: function (comment) {
                 // if (this.notificationThreads.length < 5) { // limit to 5 initial notifications
                 //     let taggedComment = comment.getUserTagPost(this.user.id)
                 //     if (taggedComment !== null) {
@@ -796,7 +796,7 @@ function embedNbApp() {
                 // }
                 let unreadReply = comment.hasMyAuthorReplies(this.user.id)
                 if (unreadReply) { // if thread has unseen comments that reply to this author
-                  return new NbNotification(comment, "reply", false, unreadReply)
+                  return new NbNotification(comment, "reply", false, unreadReply, true)
                 }
                 return null
             },
@@ -819,10 +819,10 @@ function embedNbApp() {
                             // Nb Comment
                             let comment = new NbComment(item, res.data.annotationsData)
                             this.threads.push(comment)
-                            let newNotification = this.newNotification(comment) // Either get back a notification to add or null
-                            if (newNotification !== null) {
-                                this.notificationThreads.push(newNotification)
-                                comment.associatedNotification = newNotification
+                            let offlineNotification = this.newOfflineNotification(comment) // Either get back a notification to add or null
+                            if (offlineNotification !== null) {
+                                this.notificationThreads.push(offlineNotification)
+                                comment.associatedNotification = offlineNotification
                             }
                         }
 
@@ -1148,7 +1148,7 @@ function embedNbApp() {
             onNewRecentThread: function (thread) {
                 let mostRecentThread = thread.getMostRecentPost() // get the most recent thread to see if we should notify about it
                 if (mostRecentThread.author !== this.user.id && thread.associatedNotification === null) { // if not this author and no notifications for this thread yet
-                    let notification = new NbNotification(thread, "recent", false, mostRecentThread) // associated annotation is the most recent one
+                    let notification = new NbNotification(thread, "recent", false, mostRecentThread, false) // associated annotation is the most recent one
                     this.notificationThreads.push(notification)
                     thread.associatedNotification = notification
                 }

@@ -1,10 +1,11 @@
 class NbNotification {
-    constructor (comment, type, triggerPopup=false, specificAnnotation=null){
+    constructor (comment, type, triggerPopup=false, specificAnnotation=null, isOfflineNotification=false){
         this.comment = comment 
         this.unseen = true
         this.type = type // "question", "instructor", "recent", "tag"
         this.triggerPopup = triggerPopup
         this.specificAnnotation = specificAnnotation
+        this.isOfflineNotification = isOfflineNotification
         this.trigger = 'NONE'
         // this.trigger is used to tell the spotlight logs what type of notification the user clicked on
         // ('NONE', 'INSTRUCTOR_COMMENTED', 'REPLY_REQUESTED', 'USER_TAGGED', 'USER_SAW_RECENT_ACTIVITY')

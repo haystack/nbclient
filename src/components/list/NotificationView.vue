@@ -35,9 +35,29 @@
       </div>
       <div class="notification-table">
         <notification-row
-            v-for="(notification,index) in notifications" 
-            :notification="notifications[notifications.length-1-index]"
-            :key="notifications[notifications.length-1-index]"
+            v-for="(notification,index) in onlineNotifications" 
+            :notification="onlineNotifications[onlineNotifications.length-1-index]"
+            :key="onlineNotifications[onlineNotifications.length-1-index]"
+            :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :threads-hovered="threadsHovered"
+            :activeClass="activeClass"
+            :user="user"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverNotification"
+            @unhover-thread="onUnhoverNotification">
+        </notification-row>
+        <h4 id="olderNotificationHeading" v-if="offlineNotifications.length > 0">
+          <span id="olderNotificationSpanWhite">
+            <font-awesome-icon icon="chevron-down"/>
+            Older Notifications
+            <font-awesome-icon icon="chevron-down"/>
+          </span>
+        </h4>
+        <notification-row
+            v-for="(notification,index) in offlineNotifications" 
+            :notification="offlineNotifications[offlineNotifications.length-1-index]"
+            :key="offlineNotifications[offlineNotifications.length-1-index]"
             :thread-selected="threadSelected"
             :notification-selected="notificationSelected"
             :threads-hovered="threadsHovered"
@@ -134,6 +154,12 @@ export default {
     },
     numberUnseen: function () {
         return this.notifications.filter(n => n.unseen).length
+    },
+    offlineNotifications: function () {
+      return this.notifications.filter(n => n.isOfflineNotification)
+    },
+    onlineNotifications: function () {
+      return this.notifications.filter(n => !n.isOfflineNotification)
     }
   },
   methods: {

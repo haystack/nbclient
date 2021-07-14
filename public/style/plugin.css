@@ -1251,3 +1251,20 @@ nb-innotation-controller {
   background-color: #d57d80;
 }
 
+#olderNotificationHeading {
+  width: 100%; 
+  text-align: center; 
+  border-bottom: 1px solid #000; 
+  line-height: 0.1em;
+  margin: 15px 0 15px;
+}
+
+#olderNotificationSpanWhite { 
+  background:#fff; 
+  padding:0 10px; 
+}
+
+#olderNotificationSpanGray { 
+  background:rgb(228, 228, 228);
+  padding:0 10px; 
+}
