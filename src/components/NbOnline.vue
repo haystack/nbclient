@@ -43,12 +43,12 @@
         @hide="showOverflow = false">
         <span
             class="tooltip-target overflow-icon"
-            @click="showOverflow = true">
-          <font-awesome-icon icon="envelope-open" class="icon">
-          </font-awesome-icon>   
+            @click="onOpenSidebarNotifications"
+        >
+          <font-awesome-icon icon="envelope-open" class="icon"></font-awesome-icon>   
           {{ numberNotificationsUnseen }}               
         </span>
-        <template slot="popover">
+        <!-- <template slot="popover">
           <div class="overflow-options">
             <div
               class="overflow-option"
@@ -63,7 +63,7 @@
               Open in sidebar
             </div>
           </div>
-        </template>
+        </template> -->
       </v-popover>
     </div>
 

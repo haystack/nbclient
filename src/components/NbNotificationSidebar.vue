@@ -23,6 +23,7 @@
           @hover-thread="onHoverThread"
           @unhover-thread="onUnhoverThread"
           @toggle-mute-notifications="onToggleMuteNotifications"
+          @dock-draggable-notifications="$emit('dock-draggable-notifications')"
           @close-draggable-notications="$emit('close-draggable-notications')"
       >
       </notification-sidebar-view>

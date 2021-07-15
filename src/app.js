@@ -197,6 +197,7 @@ function embedNbApp() {
                     @hover-thread="onHoverThread"
                     @unhover-thread="onUnhoverThread"
                     @toggle-mute-notifications="onToggleMuteNotifications"
+                    @dock-draggable-notifications="onDockDraggableNotifications"
                     @close-draggable-notications="onCloseDraggableNotifications">
                 </nb-notification-sidebar>
                 <nb-sidebar
@@ -230,8 +231,10 @@ function embedNbApp() {
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
                     @toggle-mute-notifications="onToggleMuteNotifications"
+                    @undock-draggable-notifications="onUndockDraggableNotifications"
                     @open-draggable-notifications="onOpenDraggableNotifications"
                     @open-sidebar-notifications="onOpenSidebarNotifications"
+                    @close-sidebar-notifications="onCloseSidebarNotifications"
                     @toggle-highlights="onToggleHighlights"
                     @search-option="onSearchOption"
                     @search-text="onSearchText"
@@ -1204,8 +1207,19 @@ function embedNbApp() {
             onCloseDraggableNotifications: function () {
                 this.draggableNotificationsOpened = false;
             },
+            onDockDraggableNotifications: function () {
+                this.draggableNotificationsOpened = false;
+                this.sidebarNotificationsOpened = true;
+            },
+            onUndockDraggableNotifications: function () {
+                this.draggableNotificationsOpened = true;
+                this.sidebarNotificationsOpened = false;
+            },
             onOpenDraggableNotifications: function () {
                 this.draggableNotificationsOpened = true;
+            },
+            onCloseSidebarNotifications: function () {
+                this.sidebarNotificationsOpened = false;
             },
             onOpenSidebarNotifications: function () {
                 this.sidebarNotificationsOpened = true;

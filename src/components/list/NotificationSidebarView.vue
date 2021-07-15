@@ -10,6 +10,12 @@
             <font-awesome-icon icon="bell" class="icon" v-else>
             </font-awesome-icon>
         </span>
+        <span class="icons-left" v-tooltip="'Click to dock notifications into sidebar'"
+          @click="$emit('dock-draggable-notifications')"
+        >
+          <font-awesome-icon icon="clone" class="icon">
+          </font-awesome-icon>
+        </span>
       </div>
     </header>
     <div class="notification-table">

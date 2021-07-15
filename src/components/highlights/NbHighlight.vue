@@ -127,6 +127,9 @@ export default {
             let elHeight = rect.height
             let viewHeight = window.innerHeight
             if (elTop < 0 || (elTop + elHeight) > viewHeight) { // out of view
+                console.log(this.thread)
+                console.log(elTop)
+                console.log("\n")
                 inView = false
             }
             let timeDiff = Date.now() - this.thread.getMostRecentTimeStamp()
@@ -181,7 +184,7 @@ export default {
                 // return 'stroke: rgb(0, 255, 255); stroke-width: 15'
                 return
             }
-            if (this.notificationThread) {
+            if (this.unseenNotificationThread) {
                 return 'fill: rgb(80, 54, 255); opacity: 0.7;'
                 // return 'stroke: rgb(80, 54, 255); stroke-width: 8; stroke-opacity: 0.2;'
             }
@@ -217,8 +220,8 @@ export default {
         replyRequestThread: function () {
             return this.showSyncFeatures && this.thread && this.thread.hasReplyRequests()
         },
-        notificationThread: function () {
-            return this.thread && this.thread.associatedNotification !== null && this.showSyncFeatures
+        unseenNotificationThread: function () {
+            return this.thread && this.thread.associatedNotification !== null && this.showSyncFeatures && this.thread.associatedNotification.unseen
         },
         bounds: function () {
             let bounds = {}
@@ -274,11 +277,11 @@ export default {
             }
         },
         logSyncClick: function () {
-            if (this.notificationThread || this.isTypingThread || this.isRecentThread || this.showTypingActivityAnimation) {
+            if (this.unseenNotificationThread || this.isTypingThread || this.isRecentThread || this.showTypingActivityAnimation) {
                 let trigger_type = ''
                 if (this.isTypingThread || this.isRecentThread) {
                     trigger_type = 'USER_SAW_RECENT_ACTIVITY'
-                } else if (this.notificationThread) {
+                } else if (this.unseenNotificationThread) {
                     trigger_type = this.thread.associatedNotification.trigger 
                 } else {
                     trigger_type = 'REPLY_REQUESTED'
@@ -305,7 +308,7 @@ export default {
             let content = ""
             if (this.isRecentThread || this.isTypingThread) {
                 content = "<span>recent comment:</span>"
-            } else if (this.notificationThread) {
+            } else if (this.unseenNotificationThread) {
                 content = "<span>" + 
                 this.thread.associatedNotification.readableType + " notification:</span>"
             } else if (this.replyRequestThread) {
@@ -316,7 +319,7 @@ export default {
             content += "<br>"
 
             let relevantComment = 
-                (this.notificationThread && this.thread.associatedNotification.specificAnnotation !== null) 
+                (this.unseenNotificationThread && this.thread.associatedNotification.specificAnnotation !== null) 
                 ? this.thread.associatedNotification.specificAnnotation : this.thread 
 
             let text = relevantComment.text
