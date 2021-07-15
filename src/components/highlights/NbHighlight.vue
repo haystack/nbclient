@@ -126,10 +126,7 @@ export default {
             let elTop = rect.top
             let elHeight = rect.height
             let viewHeight = window.innerHeight
-            if (elTop < 0 || (elTop + elHeight) > viewHeight) { // out of view
-                console.log(this.thread)
-                console.log(elTop)
-                console.log("\n")
+            if ((elTop + elHeight) > viewHeight) { // past the user's location (true if before the user location)
                 inView = false
             }
             let timeDiff = Date.now() - this.thread.getMostRecentTimeStamp()
