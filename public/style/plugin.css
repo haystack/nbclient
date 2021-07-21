@@ -475,8 +475,8 @@
   display: flex;
 }
 .icon-wrapper.tag {
-  background-color: #4d4d4d;
-  color: #fff;
+  /* background-color: #4d4d4d;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;
@@ -493,8 +493,8 @@
   border-radius: 3px;
 }
 .icon-wrapper.reply-request {
-  background-color: #cc0088;
-  color: #fff;
+  /* background-color: #cc0088;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;

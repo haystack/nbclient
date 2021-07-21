@@ -235,6 +235,8 @@ function embedNbApp() {
                     @open-draggable-notifications="onOpenDraggableNotifications"
                     @open-sidebar-notifications="onOpenSidebarNotifications"
                     @close-sidebar-notifications="onCloseSidebarNotifications"
+                    @thread-typing="onThreadTyping"
+                    @thread-stop-typing="onThreadStopTyping"
                     @toggle-highlights="onToggleHighlights"
                     @search-option="onSearchOption"
                     @search-text="onSearchText"
@@ -262,8 +264,6 @@ function embedNbApp() {
                     @logout="onLogout"
                     @dragging="dragging"
                     @set-mouse-position="setMousePosition">
-                    @thread-typing="onThreadTyping"
-                    @thread-stop-typing="onThreadStopTyping"
                     @prev-comment="onPrevComment"
                     @next-comment="onNextComment"
                     @logout="onLogout">
@@ -708,28 +708,25 @@ function embedNbApp() {
 
                         // set any type of notification
                         let notification = null
-                        if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
-                          notification = new NbNotification(comment, "reply", false, specificAnnotation, false)
+                        if (taggedUsers.includes(this.user.id)) { // user tagged in post
+                            notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
+                        } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
+                            notification = new NbNotification(comment, "question", false, specificAnnotation, false)
+                        } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
+                            notification = new NbNotification(comment, "reply", false, specificAnnotation, false)
+                        } else if (this.users[authorId].role === "instructor") { // instructor comment
+                            notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
+                            // if (isNewThread) {
+                            //     notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
+                            // } else {
+                            //     if (comment.getAllAuthors().has(this.user.id)) {
+                            //         notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
+                            //     }
+                            // }
                         } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                          notification = new NbNotification(comment, "recent", false, specificAnnotation, false)
-                        }
-                        // if (taggedUsers.includes(this.user.id)) { // user tagged in post
-                        //     notification = new NbNotification(comment, "tag", true, specificAnnotation)
-                        // } else if (this.users[authorId].role === "instructor") { // instructor comment
-                        //     if (isNewThread) {
-                        //         notification = new NbNotification(comment, "instructor", false, specificAnnotation)
-                        //     } else {
-                        //         if (comment.getAllAuthors().has(this.user.id)) {
-                        //             notification = new NbNotification(comment, "instructor", false, specificAnnotation)
-                        //         }
-                        //     }
-                        // } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
-                        //     notification = new NbNotification(comment, "question", false, specificAnnotation)
-                        // } else if (specificAnnotation !== null && specificAnnotation.parent.hasMyReplyRequests()) { // reply to an parent comment where user made a reply request
-                        //     notification = new NbNotification(comment, "question", true, specificAnnotation)
-                        // } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                        //     notification = new NbNotification(comment, "recent", false, specificAnnotation)
-                        // }
+                            notification = new NbNotification(comment, "recent", false, specificAnnotation, false)
+                          }
+
                         if (notification !== null) {
                             this.notificationThreads.push(notification)
                             comment.associatedNotification = notification
@@ -782,25 +779,26 @@ function embedNbApp() {
             },
             newOfflineNotification: function (comment) {
                 // if (this.notificationThreads.length < 5) { // limit to 5 initial notifications
-                //     let taggedComment = comment.getUserTagPost(this.user.id)
-                //     if (taggedComment !== null) {
-                //         return new NbNotification(comment, "tag", true, taggedComment)
-                //     }
+                let taggedComment = comment.getUserTagPost(this.user.id)
+                if (taggedComment !== null) {
+                    return new NbNotification(comment, "tag", true, taggedComment, true)
+                }
 
-                //     let replyRequestResponseComment = comment.getReplyRequestResponsePost(this.user.id)
-                //     if (replyRequestResponseComment !== null) {
-                //         return new NbNotification(comment, "question", true, replyRequestResponseComment)
-                //     }
+                let replyRequestResponseComment = comment.getReplyRequestResponsePost(this.user.id)
+                if (replyRequestResponseComment !== null) {
+                    return new NbNotification(comment, "question", true, replyRequestResponseComment, true)
+                }
 
-                //     let instructorResponseComment = comment.getInstructorPost()
-                //     if (instructorResponseComment !== null) {
-                //         return new NbNotification(comment, "instructor", false, instructorResponseComment)
-                //     }
-                // }
-                let unreadReply = comment.hasMyAuthorReplies(this.user.id)
+                let unreadReply = comment.getMyAuthorReplies(this.user.id)
                 if (unreadReply) { // if thread has unseen comments that reply to this author
                   return new NbNotification(comment, "reply", false, unreadReply, true)
                 }
+
+                let instructorResponseComment = comment.getInstructorPost()
+                if (instructorResponseComment !== null) {
+                    return new NbNotification(comment, "instructor", false, instructorResponseComment, true)
+                }
+
                 return null
             },
             getAllAnnotations: async function (source, newActiveClass) {
@@ -907,6 +905,11 @@ function embedNbApp() {
                         }
 
                         this.stillGatheringThreads = false
+                        this.notificationThreads = this.notificationThreads.concat().sort(function(a, b) { // sort notification order
+                            let aTimestamp = a.specificAnnotation ? a.specificAnnotation.timestamp : a.comment.timestamp
+                            let bTimestamp = b.specificAnnotation ? b.specificAnnotation.timestamp : b.comment.timestamp
+                            return new Date(aTimestamp) - new Date(bTimestamp)
+                        }) 
 
                         let link = window.location.hash.match(/^#nb-comment-(.+$)/)
                         if (link) {

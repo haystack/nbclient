@@ -7,14 +7,20 @@
       @mouseleave="onUnhoverNotification"
       @click="onClickNotification">
     <div class="flags" id="notification-row-flags"> 
-      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor" :style="flagsStyle">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor" :style="flagsStyle"
+        v-tooltip="'Comment has instructor comment'"
+      >
+        i
+      </div>&nbsp;
+      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request" :style="flagsStyle"
+        v-tooltip="'Comment has a reply request'"
+      >
+        <font-awesome-icon icon="question"></font-awesome-icon>&nbsp;
       </div>
-      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request" :style="flagsStyle">
-        {{notification.readableType}}
-      </div>
-      <div v-if="notification.type === 'tag'" class="icon-wrapper tag" :style="flagsStyle">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'tag'" class="icon-wrapper tag" :style="flagsStyle"
+        v-tooltip="'Comment has your tag'"
+      >
+        <font-awesome-icon icon="user-tag"></font-awesome-icon>&nbsp;
       </div>
       <div v-if="notification.type === 'recent'" class="icon-wrapper recent" :style="flagsStyle"
         v-tooltip="'Recent comment'"

@@ -606,12 +606,12 @@ class NbComment {
     return null
   }
 
-  hasMyAuthorReplies (myAuthorId) { // if any comment in this thread is unseen & replying to a thread by the authorId
+  getMyAuthorReplies (myAuthorId) { // if any comment in this thread is unseen & replying to a thread by the authorId
     if (!this.seenByMe && this.parent !== null && this.parent.author === myAuthorId) {
       return this
     }
     for (let child of this.children) {
-      let res = child.hasMyAuthorReplies(myAuthorId) 
+      let res = child.getMyAuthorReplies(myAuthorId) 
       if (res != null) {
         return res
       }

@@ -17,7 +17,7 @@
             :y="box.top + bounds.offsetY"
             :height="box.height"
             :width="box.width">
-            <!-- <animate
+            <animate
                 v-if="showRecentActivityAnimation"
                 attributeType="XML"
                 attributeName="fill"
@@ -30,7 +30,7 @@
                 attributeName="fill"
                 values="#ffffff;#4a2270D9;#ffffff;#ffffff"
                 dur="2.0s"
-                repeatCount="indefinite"/> -->
+                repeatCount="indefinite"/>
         </rect>
 
     </g>
