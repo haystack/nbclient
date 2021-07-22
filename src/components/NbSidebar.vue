@@ -76,7 +76,9 @@
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
             @toggle-mute-notifications="onToggleMuteNotifications"
-            @open-draggable-notifications="onOpenDraggableNotifications">
+            @undock-draggable-notifications="onUndockDraggableNotifications"
+            @close-sidebar-notifications="onCloseSidebarNotifications"
+        >
         </notification-view>
         <thread-view
             v-if="threadSelected"
@@ -500,11 +502,17 @@ export default {
         onToggleMuteNotifications: function () {
             this.$emit('toggle-mute-notifications')
         },
+        onUndockDraggableNotifications: function () {
+            this.$emit('undock-draggable-notifications')
+        },
         onOpenDraggableNotifications: function () {
             this.$emit('open-draggable-notifications')
         },
         onOpenSidebarNotifications: function () {
             this.$emit('open-sidebar-notifications')
+        },
+        onCloseSidebarNotifications: function () {
+            this.$emit('close-sidebar-notifications')
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)

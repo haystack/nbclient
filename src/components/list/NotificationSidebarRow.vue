@@ -7,25 +7,38 @@
       @mouseleave="onUnhoverNotification"
       @click="onClickNotification">
     <div class="flags">
-      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'instructor'" class="icon-wrapper instructor"        
+        v-tooltip="'Comment has instructor comment'"
+      >
+        i
+      </div>&nbsp;
+      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request"
+        v-tooltip="'Comment has a reply request'"
+      >
+        <font-awesome-icon icon="question"></font-awesome-icon>&nbsp;
       </div>
-      <div v-if="notification.type === 'question'" class="icon-wrapper reply-request">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'tag'" class="icon-wrapper tag"
+        v-tooltip="'Comment has your tag'"
+      >
+        <font-awesome-icon icon="user-tag"></font-awesome-icon>&nbsp;
       </div>
-      <div v-if="notification.type === 'tag'" class="icon-wrapper tag">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'recent'" class="icon-wrapper recent"
+        v-tooltip="'Recent comment'"
+      >
+        <font-awesome-icon icon="history"></font-awesome-icon>&nbsp;
       </div>
-      <div v-if="notification.type === 'recent'" class="icon-wrapper recent">
-        {{notification.readableType}}
+      <div v-if="notification.type === 'reply'" class="icon-wrapper reply"
+        v-tooltip="'Comment reply'"
+      >
+        <font-awesome-icon icon="reply"></font-awesome-icon>&nbsp;
       </div>
-      <div :style="timeTextStyle">
-        {{timeString}}
+      <div :style="textStyle">
+        {{authorName}}: {{commentText}}
       </div>
     </div>
-    <div :style="textStyle">
-      {{authorName}}: {{commentText}}
-    </div>
+    <span :style="timeTextStyle">
+      {{timeString}}
+    </span>
 
 
   </div>

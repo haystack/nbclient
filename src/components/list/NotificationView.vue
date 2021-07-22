@@ -14,15 +14,6 @@
         <span class="count">
           {{ totalLabel }}
         </span>
-        <!-- <div class="icons-left-parent">
-          <span class="icons-left"
-            v-if="!draggableNotificationsOpened"
-            v-tooltip="'Open in separate popup'"
-            @click="onOpenDraggableNotifications">
-            <font-awesome-icon icon="envelope-open" class="icon">
-            </font-awesome-icon>          
-          </span>        
-        </div> -->
         <div class="icons-left">
           <span v-tooltip="notificationsMuted ? 'Click to unmute notifications' : 'Click to mute notifications'"
             @click="toggleMute">
@@ -30,14 +21,46 @@
             </font-awesome-icon>
             <font-awesome-icon icon="bell" class="icon" v-else>
             </font-awesome-icon>
-          </span>        
+          </span>   
+          <span v-tooltip="'Click to open draggable notifications window'"
+            @click="$emit('undock-draggable-notifications')"
+          >
+            <font-awesome-icon icon="clone" class="icon">
+            </font-awesome-icon>
+          </span>  
+          <span v-tooltip="'Click to close sidebar notifications window'"
+            @click="$emit('close-sidebar-notifications')"
+          >
+            <font-awesome-icon icon="window-close" class="icon">
+            </font-awesome-icon>          
+          </span>     
         </div>
       </div>
       <div class="notification-table">
         <notification-row
-            v-for="(notification,index) in notifications" 
-            :notification="notifications[notifications.length-1-index]"
-            :key="notifications[notifications.length-1-index]"
+            v-for="(notification,index) in onlineNotifications" 
+            :notification="onlineNotifications[onlineNotifications.length-1-index]"
+            :key="onlineNotifications[onlineNotifications.length-1-index]"
+            :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :threads-hovered="threadsHovered"
+            :activeClass="activeClass"
+            :user="user"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverNotification"
+            @unhover-thread="onUnhoverNotification">
+        </notification-row>
+        <h4 id="olderNotificationHeading" v-if="offlineNotifications.length > 0">
+          <span id="olderNotificationSpanWhite">
+            <font-awesome-icon icon="chevron-down"/>
+            Older Notifications
+            <font-awesome-icon icon="chevron-down"/>
+          </span>
+        </h4>
+        <notification-row
+            v-for="(notification,index) in offlineNotifications" 
+            :notification="offlineNotifications[offlineNotifications.length-1-index]"
+            :key="offlineNotifications[offlineNotifications.length-1-index]"
             :thread-selected="threadSelected"
             :notification-selected="notificationSelected"
             :threads-hovered="threadsHovered"
@@ -134,6 +157,12 @@ export default {
     },
     numberUnseen: function () {
         return this.notifications.filter(n => n.unseen).length
+    },
+    offlineNotifications: function () {
+      return this.notifications.filter(n => n.isOfflineNotification)
+    },
+    onlineNotifications: function () {
+      return this.notifications.filter(n => !n.isOfflineNotification)
     }
   },
   methods: {
@@ -151,9 +180,6 @@ export default {
     },
     toggleMute: function () {
       this.$emit('toggle-mute-notifications')
-    },
-    onOpenDraggableNotifications: function () {
-      this.$emit('open-draggable-notifications')
     }
   },
   components: {

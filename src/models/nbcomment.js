@@ -606,6 +606,19 @@ class NbComment {
     return null
   }
 
+  getMyAuthorReplies (myAuthorId) { // if any comment in this thread is unseen & replying to a thread by the authorId
+    if (!this.seenByMe && this.parent !== null && this.parent.author === myAuthorId) {
+      return this
+    }
+    for (let child of this.children) {
+      let res = child.getMyAuthorReplies(myAuthorId) 
+      if (res != null) {
+        return res
+      }
+    }
+    return null 
+  }
+
   /**
    * Mark this comment and all its descendants as seen by the current user.
    */

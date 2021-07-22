@@ -10,13 +10,39 @@
             <font-awesome-icon icon="bell" class="icon" v-else>
             </font-awesome-icon>
         </span>
+        <span class="icons-left" v-tooltip="'Click to dock notifications into sidebar'"
+          @click="$emit('dock-draggable-notifications')"
+        >
+          <font-awesome-icon icon="clone" class="icon">
+          </font-awesome-icon>
+        </span>
       </div>
     </header>
     <div class="notification-table">
       <notification-sidebar-row
-          v-for="(notification,index) in notifications" 
-          :notification="notifications[notifications.length-1-index]"
-          :key="notifications[notifications.length-1-index]"
+          v-for="(notification,index) in onlineNotifications" 
+          :notification="onlineNotifications[onlineNotifications.length-1-index]"
+          :key="onlineNotifications[onlineNotifications.length-1-index]"
+          :thread-selected="threadSelected"
+          :notification-selected="notificationSelected"
+          :threads-hovered="threadsHovered"
+          :user="user"
+          :active-class="activeClass"
+          @select-notification="onSelectNotification"
+          @hover-thread="onHoverNotification"
+          @unhover-thread="onUnhoverNotification">
+      </notification-sidebar-row>
+      <h4 id="olderNotificationHeading" v-if="offlineNotifications.length > 0">
+          <span id="olderNotificationSpanGray">
+            <font-awesome-icon icon="chevron-down"/>
+            Older Notifications
+            <font-awesome-icon icon="chevron-down"/>
+          </span>
+      </h4>
+      <notification-sidebar-row
+          v-for="(notification,index) in offlineNotifications" 
+          :notification="offlineNotifications[offlineNotifications.length-1-index]"
+          :key="offlineNotifications[offlineNotifications.length-1-index]"
           :thread-selected="threadSelected"
           :notification-selected="notificationSelected"
           :threads-hovered="threadsHovered"
@@ -104,6 +130,12 @@ export default {
     },
     numberUnseen: function () {
         return this.notifications.filter(n => n.unseen).length
+    },
+    offlineNotifications: function () {
+      return this.notifications.filter(n => n.isOfflineNotification)
+    },
+    onlineNotifications: function () {
+      return this.notifications.filter(n => !n.isOfflineNotification)
     }
   },
   methods: {

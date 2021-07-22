@@ -367,6 +367,9 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+#nb-app .nb-sidebar .list-view .list-row #notification-row-flags{ /*only for notification row style*/
+  justify-content: flex-start;
+}
 #nb-app .nb-sidebar .list-view .list-row:nth-child(even) {
   background-color: #f0f0f0;
 }
@@ -472,8 +475,8 @@
   display: flex;
 }
 .icon-wrapper.tag {
-  background-color: #4d4d4d;
-  color: #fff;
+  /* background-color: #4d4d4d;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;
@@ -490,8 +493,8 @@
   border-radius: 3px;
 }
 .icon-wrapper.reply-request {
-  background-color: #cc0088;
-  color: #fff;
+  /* background-color: #cc0088;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;
@@ -499,8 +502,17 @@
   border-radius: 3px;
 }
 .icon-wrapper.recent {
-  background-color: #009999;
-  color: #fff;
+  /* background-color: #009999;
+  color: #fff; */
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.icon-wrapper.reply {
+  /* background-color: #009999;
+  color: #fff; */
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
   height: 16px;
@@ -1221,6 +1233,7 @@ nb-innotation-controller {
 .icons-left {
   margin-top: 3px;
   margin-left: auto;
+  margin-right: 10px;
 }
 
 .vdr {
@@ -1239,3 +1252,20 @@ nb-innotation-controller {
   background-color: #d57d80;
 }
 
+#olderNotificationHeading {
+  width: 100%; 
+  text-align: center; 
+  border-bottom: 1px solid #000; 
+  line-height: 0.1em;
+  margin: 15px 0 15px;
+}
+
+#olderNotificationSpanWhite { 
+  background:#fff; 
+  padding:0 10px; 
+}
+
+#olderNotificationSpanGray { 
+  background:rgb(228, 228, 228);
+  padding:0 10px; 
+}
