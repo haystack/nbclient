@@ -527,11 +527,7 @@ export default {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         },
         toggleBar: function(){
-            console.log("in here")
-            console.log(this.sidebarWidth)
-            console.log(this.isHidden)
             this.isHidden = !this.isHidden;
-            console.log(this.isHidden)
         }
     },
     components: {
