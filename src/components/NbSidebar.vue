@@ -1,118 +1,120 @@
 <template>
     <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: isDraggable || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
-        <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
-        <div class="nb-menu" v-if="myClasses.length > 1">
-            <nb-menu 
-                :myClasses="myClasses" 
+        <nav-bar :me="user" @logout="$emit('logout')" @toggle-bar="toggleBar"></nav-bar>
+        <div class="nb-sidebar-container" v-show="!isHidden">
+            <div class="nb-menu" v-if="myClasses.length > 1">
+                <nb-menu 
+                    :myClasses="myClasses" 
+                    :activeClass="activeClass"
+                    @switch-class="onSwitchClass">
+                </nb-menu>
+            </div>
+            <nb-online
+                v-if="syncConfig"
+                :online-users="onlineUsers"
+                :show-sync-features="showSyncFeatures"
+                :nb-menu-showing="myClasses.length > 1"
+                :number-notifications-unseen="numberNotificationsUnseen"
+                :notifications-muted="notificationsMuted"
+                @show-sync-features="onShowSyncFeatures"
+                @toggle-mute-notifications="onToggleMuteNotifications"
+                @open-draggable-notifications="onOpenDraggableNotifications"
+                @open-sidebar-notifications="onOpenSidebarNotifications">
+            </nb-online>
+            <filter-view
+                :me="user"
+                :users="sortedUsers"
+                :hashtags="sortedHashtags"
+                :sync-config="syncConfig"
+                @search-option="onSearchOption"
+                @search-text="onSearchText"
+                @filter-bookmarks="onFilterBookmarks"
+                @filter-hashtags="onFilterHashtags"
+                @filter-user-tags="onFilterUserTags"
+                @filter-comments="onFilterComments"
+                @filter-reply-reqs="onFilterReplyReqs"
+                @filter-upvotes="onFilterUpvotes"
+                @min-words="onMinWords"
+                @max-words="onMaxWords"
+                @min-hashtags="onMinHashtags"
+                @max-hashtags="onMaxHashtags"
+                @min-replies="onMinReplies"
+                @min-reply-reqs="onMinReplyReqs"
+                @min-upvotes="onMinUpvotes">
+            </filter-view>
+            <list-view
+                :threads="threads"
+                :total-count="totalThreads"
+                :thread-selected="threadSelected"
+                :threads-hovered="threadsHovered"
+                :show-highlights="showHighlights"
+                :still-gathering-threads="stillGatheringThreads"
+                :current-configs="currentConfigs"
                 :activeClass="activeClass"
-                @switch-class="onSwitchClass">
-            </nb-menu>
+                :user="user"
+                :show-sync-features="showSyncFeatures"
+                @log-exp-spotlight="onLogExpSpotlight"
+                @toggle-highlights="onToggleHighlights"
+                @select-thread="onSelectThread"
+                @hover-thread="onHoverThread"
+                @unhover-thread="onUnhoverThread">
+            </list-view>
+            <notification-view
+                v-if="showSyncFeatures && sidebarNotificationsOpened"
+                :notifications="notificationThreads"
+                :total-count="notificationThreads.length"
+                :thread-selected="threadSelected"
+                :notification-selected="notificationSelected"
+                :threads-hovered="threadsHovered"
+                :show-highlights="showHighlights"
+                :still-gathering-threads="stillGatheringThreads"
+                :draggable-notifications-opened="draggableNotificationsOpened"
+                :notifications-muted="notificationsMuted"
+                :activeClass="activeClass"
+                :user="user"
+                @toggle-highlights="onToggleHighlights"
+                @select-notification="onSelectNotification"
+                @hover-thread="onHoverThread"
+                @unhover-thread="onUnhoverThread"
+                @toggle-mute-notifications="onToggleMuteNotifications"
+                @undock-draggable-notifications="onUndockDraggableNotifications"
+                @close-sidebar-notifications="onCloseSidebarNotifications"
+            >
+            </notification-view>
+            <thread-view
+                v-if="threadSelected"
+                :thread="threadSelected"
+                :me="user"
+                :replyToComment="replyToComment"
+                :current-configs="currentConfigs"
+                :activeClass="activeClass"
+                :thread-view-initiator="threadViewInitiator"
+                @log-exp-spotlight="onLogExpSpotlight"
+                @edit-comment="onEditComment"
+                @delete-comment="onDeleteComment"
+                @draft-reply="onDraftReply"
+                @submit-small-comment="onSubmitSmallComment"
+                @prev-comment="onPrevComment"
+                @next-comment="onNextComment">
+            </thread-view>
+            <editor-view
+                :author="user"
+                :key="editor.key"
+                :visible="editor.visible"
+                :header="editor.header"
+                :initial-content="editor.initialContent"
+                :initial-visibility="editor.initialSettings.visibility"
+                :initial-anonymity="editor.initialSettings.anonymity"
+                :initial-reply-request="editor.initialSettings.replyRequested"
+                :users="sortedUsers"
+                :hashtags="sortedHashtags"
+                @editor-empty="onEditorEmpty"
+                @submit-comment="onSubmitComment"
+                @cancel-comment="onCancelComment"
+                @thread-typing="onThreadTyping"
+                @thread-stop-typing="onThreadStopTyping">
+            </editor-view>
         </div>
-        <nb-online
-            v-if="syncConfig"
-            :online-users="onlineUsers"
-            :show-sync-features="showSyncFeatures"
-            :nb-menu-showing="myClasses.length > 1"
-            :number-notifications-unseen="numberNotificationsUnseen"
-            :notifications-muted="notificationsMuted"
-            @show-sync-features="onShowSyncFeatures"
-            @toggle-mute-notifications="onToggleMuteNotifications"
-            @open-draggable-notifications="onOpenDraggableNotifications"
-            @open-sidebar-notifications="onOpenSidebarNotifications">
-        </nb-online>
-        <filter-view
-            :me="user"
-            :users="sortedUsers"
-            :hashtags="sortedHashtags"
-            :sync-config="syncConfig"
-            @search-option="onSearchOption"
-            @search-text="onSearchText"
-            @filter-bookmarks="onFilterBookmarks"
-            @filter-hashtags="onFilterHashtags"
-            @filter-user-tags="onFilterUserTags"
-            @filter-comments="onFilterComments"
-            @filter-reply-reqs="onFilterReplyReqs"
-            @filter-upvotes="onFilterUpvotes"
-            @min-words="onMinWords"
-            @max-words="onMaxWords"
-            @min-hashtags="onMinHashtags"
-            @max-hashtags="onMaxHashtags"
-            @min-replies="onMinReplies"
-            @min-reply-reqs="onMinReplyReqs"
-            @min-upvotes="onMinUpvotes">
-        </filter-view>
-        <list-view
-            :threads="threads"
-            :total-count="totalThreads"
-            :thread-selected="threadSelected"
-            :threads-hovered="threadsHovered"
-            :show-highlights="showHighlights"
-            :still-gathering-threads="stillGatheringThreads"
-            :current-configs="currentConfigs"
-            :activeClass="activeClass"
-            :user="user"
-            :show-sync-features="showSyncFeatures"
-            @log-exp-spotlight="onLogExpSpotlight"
-            @toggle-highlights="onToggleHighlights"
-            @select-thread="onSelectThread"
-            @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
-        </list-view>
-        <notification-view
-            v-if="showSyncFeatures && sidebarNotificationsOpened"
-            :notifications="notificationThreads"
-            :total-count="notificationThreads.length"
-            :thread-selected="threadSelected"
-            :notification-selected="notificationSelected"
-            :threads-hovered="threadsHovered"
-            :show-highlights="showHighlights"
-            :still-gathering-threads="stillGatheringThreads"
-            :draggable-notifications-opened="draggableNotificationsOpened"
-            :notifications-muted="notificationsMuted"
-            :activeClass="activeClass"
-            :user="user"
-            @toggle-highlights="onToggleHighlights"
-            @select-notification="onSelectNotification"
-            @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread"
-            @toggle-mute-notifications="onToggleMuteNotifications"
-            @undock-draggable-notifications="onUndockDraggableNotifications"
-            @close-sidebar-notifications="onCloseSidebarNotifications"
-        >
-        </notification-view>
-        <thread-view
-            v-if="threadSelected"
-            :thread="threadSelected"
-            :me="user"
-            :replyToComment="replyToComment"
-            :current-configs="currentConfigs"
-            :activeClass="activeClass"
-            :thread-view-initiator="threadViewInitiator"
-            @log-exp-spotlight="onLogExpSpotlight"
-            @edit-comment="onEditComment"
-            @delete-comment="onDeleteComment"
-            @draft-reply="onDraftReply"
-            @submit-small-comment="onSubmitSmallComment"
-            @prev-comment="onPrevComment"
-            @next-comment="onNextComment">
-        </thread-view>
-        <editor-view
-            :author="user"
-            :key="editor.key"
-            :visible="editor.visible"
-            :header="editor.header"
-            :initial-content="editor.initialContent"
-            :initial-visibility="editor.initialSettings.visibility"
-            :initial-anonymity="editor.initialSettings.anonymity"
-            :initial-reply-request="editor.initialSettings.replyRequested"
-            :users="sortedUsers"
-            :hashtags="sortedHashtags"
-            @editor-empty="onEditorEmpty"
-            @submit-comment="onSubmitComment"
-            @cancel-comment="onCancelComment"
-            @thread-typing="onThreadTyping"
-            @thread-stop-typing="onThreadStopTyping">
-        </editor-view>
     </div>
 </template>
 
@@ -219,6 +221,10 @@ export default {
           type: Boolean,
           default: false
         },
+        isHidden: {
+            type: Boolean, 
+            default: false
+        }
     },
     data () {
         return {
@@ -254,6 +260,9 @@ export default {
           return this.notificationThreads.filter(n => n.unseen).length
         },
         style: function () {
+            if (this.isHidden){
+                return `width: 50px`
+            }
             if (this.threadSelected || this.editor.visible) {
                 return `width: ${this.sidebarWidth}px`
             }
@@ -516,6 +525,13 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        },
+        toggleBar: function(){
+            console.log("in here")
+            console.log(this.sidebarWidth)
+            console.log(this.isHidden)
+            this.isHidden = !this.isHidden;
+            console.log(this.isHidden)
         }
     },
     components: {
