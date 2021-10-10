@@ -40,7 +40,7 @@ import { Environments } from './environments'
 //   tracesSampleRate: 1.0,
 // });
 
-const currentEnv = Environments.dev
+const currentEnv = Environments.prod
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -1311,6 +1311,22 @@ function embedNbApp() {
     })
 
     document.body.addEventListener('mouseup', _ => {
+        let selection = window.getSelection()
+        if (selection.isCollapsed) { return }
+
+        let sidebar = document.querySelector('#nb-app-wrapper')
+        let range = selection.getRangeAt(0)
+        if ( // check selection does not overlap sidebar
+            !isNodePartOf(range.startContainer, sidebar) &&
+            !isNodePartOf(range.endContainer, sidebar)
+        ) {
+            app.draftThread(range)
+            // Selection will be removed in highlight-util.eventsProxyMouse
+            // because 'click' is triggered after 'mouseup'
+        }
+    })
+
+    document.body.addEventListener('touchend', _ => {
         let selection = window.getSelection()
         if (selection.isCollapsed) { return }
 
