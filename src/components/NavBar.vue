@@ -5,7 +5,7 @@
         <font-awesome-icon v-if="hidden"  icon="chevron-left"></font-awesome-icon>
         <font-awesome-icon v-if="!hidden"  icon="chevron-right"></font-awesome-icon>
       </span>
-    <a v-show="!hidden" class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
+    <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
     </div>
     <span v-show="!hidden">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
     <div v-show="!hidden">
@@ -43,7 +43,7 @@ export default {
     hidden: {
       type: Boolean,
       default: false
-    }
+    }, 
   },
   data () {
     return {
@@ -53,9 +53,8 @@ export default {
   computed: {
     style: function () {
       if (this.hidden){
-        return `width: 10px`
-      }
-      return `width: 300px`
+        return `width: 40px`
+      }    
     }
   },
   methods: {

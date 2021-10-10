@@ -292,8 +292,7 @@ export default {
                 // When thread is unselected, cancel reply if editor is empty.
                 this.editor.visible = false
                 this.replyToComment = null
-            }
-
+            } 
             val ? this.isDraggable = true : this.isDraggable = false
         }
     },
@@ -361,7 +360,6 @@ export default {
             this.$emit('min-upvotes', min)
         },
         onSelectThread: function (thread, threadViewInitiator='NONE') {
-            console.log("here")
             this.$emit('select-thread', thread, threadViewInitiator)
         },
         onSelectNotification: function (notification) {
@@ -527,12 +525,13 @@ export default {
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         },
-        toggleBar: function(isHidden){
-            if (isHidden != null){
-                this.hidden = isHidden;
-            } else{
-                this.hidden = !this.hidden;
-            }
+                toggleBar: function(isHidden){
+                if (isHidden != null){
+                    this.hidden = isHidden;
+                } else{
+                    this.hidden = !this.hidden;
+                }
+            
             this.$emit('toggle-bar', this.hidden)
         }
     },
