@@ -1,7 +1,7 @@
 <template>
     <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: isDraggable || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
         <nav-bar :me="user" @logout="$emit('logout')" @toggle-bar="toggleBar"></nav-bar>
-        <div class="nb-sidebar-container" v-show="!isHidden">
+        <div class="nb-sidebar-container" v-show="!hidden">
             <div class="nb-menu" v-if="myClasses.length > 1">
                 <nb-menu 
                     :myClasses="myClasses" 
@@ -221,7 +221,7 @@ export default {
           type: Boolean,
           default: false
         },
-        isHidden: {
+        hidden: {
             type: Boolean, 
             default: false
         }
@@ -260,8 +260,8 @@ export default {
           return this.notificationThreads.filter(n => n.unseen).length
         },
         style: function () {
-            if (this.isHidden){
-                return `width: 50px`
+            if (this.hidden){
+                return `width: 10px; border-left: 0px;`
             }
             if (this.threadSelected || this.editor.visible) {
                 return `width: ${this.sidebarWidth}px`
@@ -361,6 +361,7 @@ export default {
             this.$emit('min-upvotes', min)
         },
         onSelectThread: function (thread, threadViewInitiator='NONE') {
+            console.log("here")
             this.$emit('select-thread', thread, threadViewInitiator)
         },
         onSelectNotification: function (notification) {
@@ -526,8 +527,13 @@ export default {
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         },
-        toggleBar: function(){
-            this.isHidden = !this.isHidden;
+        toggleBar: function(isHidden){
+            if (isHidden != null){
+                this.hidden = isHidden;
+            } else{
+                this.hidden = !this.hidden;
+            }
+            this.$emit('toggle-bar', this.hidden)
         }
     },
     components: {

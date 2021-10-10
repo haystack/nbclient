@@ -128,7 +128,7 @@
   flex-direction: column;
   width: 300px;
   max-width: 800px;
-  min-width: 50px;
+  min-width: 5px;
   height: 100vh;
   overflow-y: scroll;
   padding: 0 10px;

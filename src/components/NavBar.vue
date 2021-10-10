@@ -2,12 +2,13 @@
   <div class="nb-nav-bar" v-bind:style="style">
     <div>
       <span class="window-toggle" @click="hide" style="margin-right: 5px;">
-        <font-awesome-icon icon="bars"></font-awesome-icon>
+        <font-awesome-icon v-if="hidden"  icon="chevron-left"></font-awesome-icon>
+        <font-awesome-icon v-if="!hidden"  icon="chevron-right"></font-awesome-icon>
       </span>
-    <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
+    <a v-show="!hidden" class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
     </div>
-    <span v-show="!isHidden">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
-    <div v-show="!isHidden">
+    <span v-show="!hidden">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
+    <div v-show="!hidden">
       <a v-tooltip="'Report Bug'" href="https://forms.gle/6YERC3jSu1W1zUzS8" target="_blank">🐛</a>
       <v-popover
           class="overflow-menu"
@@ -39,7 +40,7 @@ export default {
   name: 'nav-bar',
   props: {
     me: Object,
-    isHidden: {
+    hidden: {
       type: Boolean,
       default: false
     }
@@ -51,8 +52,8 @@ export default {
   },
   computed: {
     style: function () {
-      if (this.isHidden){
-        return `width: 50px`
+      if (this.hidden){
+        return `width: 10px`
       }
       return `width: 300px`
     }
@@ -65,7 +66,7 @@ export default {
       this.showOverflow = false
     },
     hide: function(){
-      this.isHidden = !this.isHidden;
+      this.hidden = !this.hidden;
       this.$emit('toggle-bar')
     }
   }
