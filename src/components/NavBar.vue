@@ -2,13 +2,13 @@
   <div class="nb-nav-bar" v-bind:style="style">
     <div>
       <span class="window-toggle" @click="hide" style="margin-right: 5px;">
-        <font-awesome-icon v-if="hidden"  icon="chevron-left"></font-awesome-icon>
-        <font-awesome-icon v-if="!hidden"  icon="chevron-right"></font-awesome-icon>
+        <font-awesome-icon v-if="hidden && !threadSelected"  icon="chevron-left"></font-awesome-icon>
+        <font-awesome-icon v-if="!hidden || threadSelected"  icon="chevron-right"></font-awesome-icon>
       </span>
     <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
     </div>
-    <span v-show="!hidden">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
-    <div v-show="!hidden">
+    <span v-show="!hidden || threadSelected">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
+    <div v-show="!hidden || threadSelected">
       <a v-tooltip="'Report Bug'" href="https://forms.gle/6YERC3jSu1W1zUzS8" target="_blank">🐛</a>
       <v-popover
           class="overflow-menu"
@@ -44,6 +44,7 @@ export default {
       type: Boolean,
       default: false
     }, 
+    threadSelected: Object,
   },
   data () {
     return {
@@ -52,7 +53,7 @@ export default {
   },
   computed: {
     style: function () {
-      if (this.hidden){
+      if (this.hidden && !this.threadSelected){
         return `width: 40px`
       }    
     }

@@ -1,7 +1,7 @@
 <template>
     <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: isDraggable || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
-        <nav-bar :me="user" @logout="$emit('logout')" @toggle-bar="toggleBar"></nav-bar>
-        <div class="nb-sidebar-container" v-show="!hidden">
+        <nav-bar :me="user" :threadSelected="threadSelected" @logout="$emit('logout')" @toggle-bar="toggleBar"></nav-bar>
+        <div class="nb-sidebar-container" v-show="!hidden || threadSelected">
             <div class="nb-menu" v-if="myClasses.length > 1">
                 <nb-menu 
                     :myClasses="myClasses" 
@@ -260,7 +260,7 @@ export default {
           return this.notificationThreads.filter(n => n.unseen).length
         },
         style: function () {
-            if (this.hidden){
+            if (this.hidden && !this.threadSelected){
                 return `width: 10px; border-left: 0px;`
             }
             if (this.threadSelected || this.editor.visible) {
@@ -525,13 +525,8 @@ export default {
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         },
-                toggleBar: function(isHidden){
-                if (isHidden != null){
-                    this.hidden = isHidden;
-                } else{
-                    this.hidden = !this.hidden;
-                }
-            
+        toggleBar: function(){
+            this.hidden = !this.hidden;
             this.$emit('toggle-bar', this.hidden)
         }
     },
