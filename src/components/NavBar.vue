@@ -1,10 +1,14 @@
 <template>
   <div class="nb-nav-bar" v-bind:style="style">
-    <div>
+    <div class="nb-nav-bar-container">
       <span class="window-toggle" @click="hide" style="margin-right: 5px;">
         <font-awesome-icon v-if="hidden && !threadSelected"  icon="chevron-left"></font-awesome-icon>
         <font-awesome-icon v-if="!hidden || threadSelected"  icon="chevron-right"></font-awesome-icon>
       </span>
+      <div v-if="hidden" class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="onToggleHighlights(!showHighlights)" style="margin-right: 10px; margin-left: 5px;">
+            <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
+            <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
+      </div>
     <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
     </div>
     <span v-show="!hidden || threadSelected">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
@@ -45,6 +49,10 @@ export default {
       default: false
     }, 
     threadSelected: Object,
+    showHighlights: {
+      type: Boolean,
+      default: true
+    },
   },
   data () {
     return {
@@ -54,7 +62,7 @@ export default {
   computed: {
     style: function () {
       if (this.hidden && !this.threadSelected){
-        return `width: 40px`
+        return `width: 70px`
       }    
     }
   },
@@ -68,7 +76,10 @@ export default {
     hide: function(){
       this.hidden = !this.hidden;
       this.$emit('toggle-bar')
-    }
+    },
+     onToggleHighlights: function (show) {
+      this.$emit('toggle-highlights', show)
+    },
   }
 }
 </script>

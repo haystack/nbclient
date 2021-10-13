@@ -1,6 +1,6 @@
 <template>
     <div id="nb-sidebar" class="nb-sidebar" v-bind:class="{ draggable: isDraggable || editor.visible, 'animatable-width': !isDragging }" @mousedown="mouseDown" :style="style">
-        <nav-bar :me="user" :threadSelected="threadSelected" @logout="$emit('logout')" @toggle-bar="toggleBar"></nav-bar>
+        <nav-bar :me="user" :threadSelected="threadSelected" :showHighlights="showHighlights" @logout="$emit('logout')" @toggle-bar="toggleBar" @toggle-highlights="onToggleHighlights"></nav-bar>
         <div class="nb-sidebar-container" v-show="!hidden || threadSelected">
             <div class="nb-menu" v-if="myClasses.length > 1">
                 <nb-menu 
@@ -261,7 +261,7 @@ export default {
         },
         style: function () {
             if (this.hidden && !this.threadSelected){
-                return `width: 10px; border-left: 0px;`
+                return `width: 70px; border-left: 0px;`
             }
             if (this.threadSelected || this.editor.visible) {
                 return `width: ${this.sidebarWidth}px`
