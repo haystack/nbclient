@@ -5,7 +5,7 @@
         <font-awesome-icon v-if="hidden && !threadSelected"  icon="chevron-left"></font-awesome-icon>
         <font-awesome-icon v-if="!hidden || threadSelected"  icon="chevron-right"></font-awesome-icon>
       </span>
-      <div v-if="hidden" class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="onToggleHighlights(!showHighlights)" style="margin-right: 10px; margin-left: 5px;">
+      <div v-if="hidden && !threadSelected" class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="onToggleHighlights(!showHighlights)" style="margin-right: 10px; margin-left: 5px;">
             <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
             <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
       </div>
@@ -74,8 +74,10 @@ export default {
       this.showOverflow = false
     },
     hide: function(){
-      this.hidden = !this.hidden;
-      this.$emit('toggle-bar')
+      if (!this.threadSelected){
+        this.hidden = !this.hidden;
+        this.$emit('toggle-bar')
+      }
     },
      onToggleHighlights: function (show) {
       this.$emit('toggle-highlights', show)
