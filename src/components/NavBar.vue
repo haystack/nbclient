@@ -74,6 +74,9 @@ export default {
       this.showOverflow = false
     },
     hide: function(){
+      if (!this.hidden && window.location.pathname !== '/nb_viewer.html'){
+        window.location.reload();
+      }
       if (!this.threadSelected){
         this.hidden = !this.hidden;
         this.$emit('toggle-bar')
