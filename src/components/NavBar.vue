@@ -75,7 +75,8 @@ export default {
     },
     hide: function(){
       if (!this.hidden && window.location.pathname !== '/nb_viewer.html'){
-        window.location.reload();
+        document.getElementById("nb-app-wrapper").remove()
+        document.body.setAttribute('style', 'margin: 0 0 0 0 !important;')
       }
       if (!this.threadSelected){
         this.hidden = !this.hidden;
