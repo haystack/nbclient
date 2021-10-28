@@ -768,7 +768,7 @@ function embedNbApp() {
                     })
                 }
             },
-            playNotificationSound: function (sound = new Audio("http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
+            playNotificationSound: function (sound = new Audio("https://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
                 if (this.showSyncFeatures && this.playSoundNotification && !this.notificationsMuted) {
                     sound.play();
                     this.playSoundNotification = false
