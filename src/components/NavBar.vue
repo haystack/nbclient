@@ -13,7 +13,7 @@
           :open="showOverflow"
           @hide="onHideOverflow">
         <span class="tooltip-target overflow-icon" @click="toggleOverflow">
-          <font-awesome-icon icon="bars"></font-awesome-icon>
+          <font-awesome-icon icon="bars" class="icon"></font-awesome-icon>
         </span>
         <template slot="popover">
           <div class="overflow-options">
