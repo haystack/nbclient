@@ -301,6 +301,8 @@
   margin-left: 5px;
   color: #888;
   cursor: pointer;
+  transform: initial;
+  font-size: initial;
 }
 #nb-app .nb-sidebar .filter-view .filter-header .icon.active {
   color: #70a0f0;
@@ -367,6 +369,16 @@
 }
 #nb-app .nb-sidebar .list-view .list-header .toggle-highlights .icon {
   vertical-align: bottom;
+  transform: initial;
+  font-size: initial;
+}
+#nb-app .icon{
+    transform: initial;
+    font-size: initial;
+}
+#nb-app .svg-inline--fa{
+    transform: initial;
+    font-size: initial;
 }
 #nb-app .nb-sidebar .list-view .list-header .sort {
   font-size: 13px;

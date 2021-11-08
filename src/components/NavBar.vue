@@ -23,6 +23,7 @@
           :open="showOverflow"
           @hide="onHideOverflow">
         <span class="tooltip-target overflow-icon" @click="toggleOverflow">
+          hide-show-window
           <font-awesome-icon icon="user-cog"></font-awesome-icon>
         </span>
         <template slot="popover">

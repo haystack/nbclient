@@ -40,7 +40,7 @@ import { Environments } from './environments'
 //   tracesSampleRate: 1.0,
 // });
 
-const currentEnv = Environments.dev
+const currentEnv = Environments.prod
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -771,7 +771,7 @@ function embedNbApp() {
                     })
                 }
             },
-            playNotificationSound: function (sound = new Audio("http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
+            playNotificationSound: function (sound = new Audio("https://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
                 if (this.showSyncFeatures && this.playSoundNotification && !this.notificationsMuted) {
                     sound.play();
                     this.playSoundNotification = false
@@ -1322,6 +1322,22 @@ function embedNbApp() {
     })
 
     document.body.addEventListener('mouseup', _ => {
+        let selection = window.getSelection()
+        if (selection.isCollapsed) { return }
+
+        let sidebar = document.querySelector('#nb-app-wrapper')
+        let range = selection.getRangeAt(0)
+        if ( // check selection does not overlap sidebar
+            !isNodePartOf(range.startContainer, sidebar) &&
+            !isNodePartOf(range.endContainer, sidebar)
+        ) {
+            app.draftThread(range)
+            // Selection will be removed in highlight-util.eventsProxyMouse
+            // because 'click' is triggered after 'mouseup'
+        }
+    })
+
+    document.body.addEventListener('touchend', _ => {
         let selection = window.getSelection()
         if (selection.isCollapsed) { return }
 
