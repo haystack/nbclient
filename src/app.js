@@ -174,8 +174,7 @@ function embedNbApp() {
                     @unselect-thread="onUnselectThread"
                     @hover-thread="onHoverThread"
                     @unhover-thread="onUnhoverThread"
-                    @new-recent-thread="onNewRecentThread"
-                    @toggle-bar="onToggleBar">
+                    @new-recent-thread="onNewRecentThread">
                 </nb-highlights>
                 <nb-notification-sidebar
                     v-if="syncConfig"
@@ -267,8 +266,7 @@ function embedNbApp() {
                     @set-mouse-position="setMousePosition">
                     @prev-comment="onPrevComment"
                     @next-comment="onNextComment"
-                    @logout="onLogout"
-                    @toggle-bar="onToggleBar">
+                    @logout="onLogout">
                 </nb-sidebar>
             </div>
         </div>
@@ -341,7 +339,6 @@ function embedNbApp() {
             isExpSpotlight: false,
             expSpotlight: {},
             expSpotlightOrder: 0,
-            hidden: false,
         },
         computed: {
             style: function () {
@@ -1164,14 +1161,6 @@ function embedNbApp() {
             },
             onToggleHighlights: function (show) {
                 this.showHighlights = show
-            },
-            onToggleBar: function(isHidden){
-                if (isHidden != null){
-                    this.hidden =isHidden
-                } else{
-                    this.hidden = !this.hidden
-                }
-                // this.$emit('toggle-bar', isHidden)
             },
             handleRedrawHighlights: function () {
                 // if (this.canRedrawHighlightsTimeout) {
