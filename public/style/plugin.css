@@ -128,7 +128,7 @@
   flex-direction: column;
   width: 300px;
   max-width: 800px;
-  min-width: 300px;
+  min-width: 70px;
   height: 100vh;
   overflow-y: scroll;
   padding: 0 10px;
@@ -183,6 +183,26 @@
   background: #eee;
   font-size: 13px;
 }
+
+#nb-app .nb-sidebar .nb-nav-bar .nb-nav-bar-container{
+  display:flex;
+  flex-direction: row;
+}
+
+#nb-app .nb-sidebar .nb-nav-bar .toggle-highlights {
+  color: #444;
+  cursor: pointer;
+  /* margin-top: 30px;
+  margin-left: 25px; */
+}
+#nb-app .nb-sidebar .nb-nav-bar .toggle-highlights .icon {
+  vertical-align: bottom;
+}
+
+#nb-app .nb-sidebar .nb-nav-bar .window-toggle {
+  cursor: pointer;
+}
+
 #nb-app .nb-sidebar .nb-nav-bar .overflow-menu {
   display: inline-block;
   cursor: pointer;

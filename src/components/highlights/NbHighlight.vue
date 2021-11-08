@@ -243,9 +243,7 @@ export default {
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }
-
             let type = 'HIGHLIGHT'
-            
             if ((this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.currentConfigs.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
                 type = this.thread.spotlight.type.toUpperCase()
             }
