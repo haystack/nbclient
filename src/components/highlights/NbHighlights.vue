@@ -83,7 +83,6 @@ export default {
     methods: {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
-            this.$emit('toggle-bar', false)
         },
         onUnselectThread: function () {
             if (this.isInnotationHover) {

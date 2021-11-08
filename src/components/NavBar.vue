@@ -1,18 +1,8 @@
 <template>
-  <div class="nb-nav-bar" v-bind:style="style">
-    <div class="nb-nav-bar-container">
-      <span class="window-toggle" @click="hide" style="margin-right: 5px;">
-        <font-awesome-icon v-if="hidden && !threadSelected"  icon="chevron-left"></font-awesome-icon>
-        <font-awesome-icon v-if="!hidden || threadSelected"  icon="chevron-right"></font-awesome-icon>
-      </span>
-      <div v-if="hidden && !threadSelected" class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="onToggleHighlights(!showHighlights)" style="margin-right: 10px; margin-left: 5px;">
-            <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
-            <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
-      </div>
+  <div class="nb-nav-bar">
     <a class="logo" target="_blank" href="http://nb2.csail.mit.edu/">nb</a>
-    </div>
-    <span v-show="!hidden || threadSelected">Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
-    <div v-show="!hidden || threadSelected">
+    <span>Welcome, {{ `${me.name.first} ${me.name.last}` }}</span>
+    <div>
       <a v-tooltip="'Report Bug'" href="https://forms.gle/6YERC3jSu1W1zUzS8" target="_blank">🐛</a>
       <v-popover
           class="overflow-menu"
@@ -23,8 +13,7 @@
           :open="showOverflow"
           @hide="onHideOverflow">
         <span class="tooltip-target overflow-icon" @click="toggleOverflow">
-          hide-show-window
-          <font-awesome-icon icon="user-cog"></font-awesome-icon>
+          <font-awesome-icon icon="bars" class="icon"></font-awesome-icon>
         </span>
         <template slot="popover">
           <div class="overflow-options">
@@ -44,27 +33,11 @@
 export default {
   name: 'nav-bar',
   props: {
-    me: Object,
-    hidden: {
-      type: Boolean,
-      default: false
-    }, 
-    threadSelected: Object,
-    showHighlights: {
-      type: Boolean,
-      default: true
-    },
+    me: Object
   },
   data () {
     return {
       showOverflow: false
-    }
-  },
-  computed: {
-    style: function () {
-      if (this.hidden && !this.threadSelected){
-        return `width: 70px`
-      }    
     }
   },
   methods: {
@@ -73,20 +46,7 @@ export default {
     },
     onHideOverflow: function () {
       this.showOverflow = false
-    },
-    hide: function(){
-      if (!this.hidden && window.location.pathname !== '/nb_viewer.html'){
-        document.getElementById("nb-app-wrapper").remove()
-        document.body.setAttribute('style', 'margin: 0 0 0 0 !important;')
-      }
-      if (!this.threadSelected){
-        this.hidden = !this.hidden;
-        this.$emit('toggle-bar')
-      }
-    },
-     onToggleHighlights: function (show) {
-      this.$emit('toggle-highlights', show)
-    },
+    }
   }
 }
 </script>
