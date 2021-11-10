@@ -500,6 +500,8 @@ function embedNbApp() {
                     this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForQuestionedThread = configs['SHOW_INDICATOR_FOR_QUESTIONED_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isIgnoreSectionsInClass = configs['IGNORE_SECTIONS_IN_CLASS'] === 'true' ? true : false
+                    this.currentConfigs.isSyncNotificationAudio = configs['SYNC_NOTIFICATION_AUDIO'] === 'true' ? true : false
+                    this.currentConfigs.isSyncNotificationPopup = configs['SYNC_NOTIFICATION_POPUP'] === 'true' ? true : false
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -711,21 +713,14 @@ function embedNbApp() {
                         if (taggedUsers.includes(this.user.id)) { // user tagged in post
                             notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
                         } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
-                            notification = new NbNotification(comment, "question", false, specificAnnotation, false)
+                            notification = new NbNotification(comment, "question", true, specificAnnotation, false)
                         } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
-                            notification = new NbNotification(comment, "reply", false, specificAnnotation, false)
+                            notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
                         } else if (this.users[authorId].role === "instructor") { // instructor comment
-                            notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
-                            // if (isNewThread) {
-                            //     notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
-                            // } else {
-                            //     if (comment.getAllAuthors().has(this.user.id)) {
-                            //         notification = new NbNotification(comment, "instructor", false, specificAnnotation, false)
-                            //     }
-                            // }
-                        } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                            notification = new NbNotification(comment, "recent", false, specificAnnotation, false)
-                          }
+                            notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
+                        } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts                            
+                            notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
+                        }
 
                         if (notification !== null) {
                             this.notificationThreads.push(notification)
@@ -743,7 +738,7 @@ function embedNbApp() {
                     })
             },
             triggerPopupNotification: function (notification) {
-                if (this.showSyncFeatures && notification.triggerPopup && !this.notificationsMuted) {
+                if (this.showSyncFeatures && notification.triggerPopup && this.currentConfigs.isSyncNotificationPopup && !this.notificationsMuted) {
                     let relevantComment = notification.specificAnnotation ? notification.specificAnnotation : notification.comment
                     let text = relevantComment.text.substring(0, 20)
                     if (relevantComment.text.length > 20) {
@@ -769,7 +764,7 @@ function embedNbApp() {
                 }
             },
             playNotificationSound: function (sound = new Audio("https://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
-                if (this.showSyncFeatures && this.playSoundNotification && !this.notificationsMuted) {
+                if (this.showSyncFeatures && this.currentConfigs.isSyncNotificationAudio && this.playSoundNotification && !this.notificationsMuted) {
                     sound.play();
                     this.playSoundNotification = false
                     setTimeout(() => {
@@ -1077,7 +1072,6 @@ function embedNbApp() {
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
                 this.threadViewInitiator = threadViewInitiator
-                // console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (this.threadSelected) {
                     socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // selecting new thread so stop typing on this thread
                 }
@@ -1096,7 +1090,6 @@ function embedNbApp() {
                 if (this.isDragging) return
 
                 this.threadViewInitiator = 'NONE'
-                //console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (!this.isInnotationHover) {
                     this.threadSelected = null
                 }
