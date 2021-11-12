@@ -19,7 +19,7 @@
         v-tooltip="'Classmates online'"
       >
         <font-awesome-icon icon="users" class="icon"></font-awesome-icon> 
-        {{numOnlineUsers}}
+        {{onlineUsers}}
       </span>
     </div>
 
@@ -89,8 +89,8 @@ export default {
   name: 'nb-online',
   props: {
     onlineUsers: {
-      type: Array,
-      default: () => []
+      type: Number,
+      default: 0
     },
     showSyncFeatures: {
       type: Boolean,
@@ -110,9 +110,6 @@ export default {
     },
   },
   computed: {
-    numOnlineUsers: function() {
-      return this.onlineUsers.length
-    },
     style: function() {
       return this.nbMenuShowing ? "margin-top: 5px" : "margin-top: 2.5em"
     }

@@ -145,8 +145,8 @@ export default {
             default: () => {}
         },
         onlineUsers: {
-          type: Array,
-          default: () => []
+          type: Number,
+          default: 0
       },
         myClasses: {
             type: Array,

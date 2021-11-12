@@ -40,7 +40,7 @@ import { Environments } from './environments'
 //   tracesSampleRate: 1.0,
 // });
 
-const currentEnv = Environments.prod
+const currentEnv = Environments.dev
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -328,7 +328,7 @@ function embedNbApp() {
             // canRedrawHighlightsTimeout: null,
             recentlyAddedThreads: [],
             showSyncFeatures: true,
-            onlineUsers: [],
+            onlineUsers: 0,
             currentSectionId: "",
             notificationThreads: [],
             swalClicked: false,
@@ -590,9 +590,11 @@ function embedNbApp() {
 
                     axios.get('/api/annotations/myCurrentSection', config)
                         .then(res => {
-                            socket.emit('left', { username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId })
+                            console.log("this is a response");
+                            console.log(res);
+                            socket.emit('left', { username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
                             this.currentSectionId = res.data
-                            socket.emit('joined', { username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId })
+                            socket.emit('joined', { username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
                         })
 
                     axios.get('/api/annotations/allTagTypes', config)
@@ -617,15 +619,16 @@ function embedNbApp() {
             const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
             hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
             hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
-
+            
             socket.on('connections', (data) => {
-                if (data.classId === this.activeClass.id && data.sectionId === this.currentSectionId) {
-                    let onlineUsersSet = new Set(data.connections)
-                    this.onlineUsers = [...onlineUsersSet]
-                }
+                console.log("***connectiion***");
+                console.log(data);
+                this.onlineUsers = data.online
             })
 
             socket.on("new_thread", (data) => {
+                console.log("***new thread***");
+                console.log(data);
                 let userIdsSet = new Set(data.userIds)
                 if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
                     let classId = data.classId
@@ -639,6 +642,8 @@ function embedNbApp() {
             })
 
             socket.on('thread-typing', (data) => {
+                console.log("***typing***");
+                console.log(data);
                 let thread = this.threads.find(x => x.id === data.threadId)
                 if (thread !== undefined) {
                     thread.usersTyping = data.usersTyping
@@ -646,6 +651,8 @@ function embedNbApp() {
             })
 
             socket.on('new_reply', (data) => {
+                console.log("***reply***");
+                console.log(data);
                 if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
                     let classId = data.classId
                     if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
