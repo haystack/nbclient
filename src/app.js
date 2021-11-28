@@ -619,7 +619,7 @@ function embedNbApp() {
             const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
             hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
             hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
-            
+
             socket.on('connections', (data) => {
                 console.log("***connectiion***");
                 console.log(data);
@@ -631,12 +631,9 @@ function embedNbApp() {
                 console.log(data);
                 let userIdsSet = new Set(data.userIds)
                 if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
-                    let classId = data.classId
-                    if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
-                        if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
-                            this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
-                            console.log("new thread: gathered new annotations")
-                        }
+                    if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                        this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
+                        console.log("new thread: gathered new annotations")
                     }
                 }
             })
@@ -654,11 +651,11 @@ function embedNbApp() {
                 console.log("***reply***");
                 console.log(data);
                 if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
-                    let classId = data.classId
-                    if (this.activeClass) { // originally had a check here to see if currently signed in, then don't retrieve again
-                        if (this.activeClass.id == classId && this.sourceURL === data.sourceUrl) {
-                            this.threads = this.threads.filter(x => x.id !== data.headAnnotationId) // filter out the thread
-                            this.getSingleThread(data.sourceUrl, classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId) // data contains info about the thread and if the new thread as posted by an instructor
+                    if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                        const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                        if (canISeeIt) {
+                            console.log('Do notofication');
+                            this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId)
                         }
                     }
                 }
@@ -690,7 +687,7 @@ function embedNbApp() {
                 this.user = user
             },
             onUserLeft: function () {
-                socket.emit('left', { username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId })
+                socket.emit('left', { username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
             },
             getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null) { // get single thread and add it to the list
                 const token = localStorage.getItem("nb.user");
@@ -793,7 +790,7 @@ function embedNbApp() {
 
                 let unreadReply = comment.getMyAuthorReplies(this.user.id)
                 if (unreadReply) { // if thread has unseen comments that reply to this author
-                  return new NbNotification(comment, "reply", false, unreadReply, true)
+                    return new NbNotification(comment, "reply", false, unreadReply, true)
                 }
 
                 let instructorResponseComment = comment.getInstructorPost()
@@ -907,11 +904,11 @@ function embedNbApp() {
                         }
 
                         this.stillGatheringThreads = false
-                        this.notificationThreads = this.notificationThreads.concat().sort(function(a, b) { // sort notification order
+                        this.notificationThreads = this.notificationThreads.concat().sort(function (a, b) { // sort notification order
                             let aTimestamp = a.specificAnnotation ? a.specificAnnotation.timestamp : a.comment.timestamp
                             let bTimestamp = b.specificAnnotation ? b.specificAnnotation.timestamp : b.comment.timestamp
                             return new Date(aTimestamp) - new Date(bTimestamp)
-                        }) 
+                        })
 
                         let link = window.location.hash.match(/^#nb-comment-(.+$)/)
                         if (link) {
