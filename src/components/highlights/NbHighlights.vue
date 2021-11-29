@@ -11,6 +11,8 @@
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
+            :is-documap="isDocumap"
+            :source-url="sourceUrl"
             @log-exp-spotlight="onLogExpSpotlight"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
@@ -78,6 +80,14 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false
+        },
+        isDocumap: {
+            type: Boolean,
+            default: false
+        },
+        sourceUrl: {
+            type: String,
+            default: ""
         },
     },
     methods: {

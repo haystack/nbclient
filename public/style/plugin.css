@@ -1281,3 +1281,19 @@ nb-innotation-controller {
   background:rgb(228, 228, 228);
   padding:0 10px; 
 }
+
+.nb-documap {
+
+}
+
+.nb-documap #nb-app .nb-sidebar {
+  display: none !important;
+}
+
+.nb-documap #nb-app .nb-highlights{
+  right: 0;
+  width: 100vw;
+  background-color: #fff;
+  /* border-bottom: 1px solid; */
+  pointer-events: initial;
+}

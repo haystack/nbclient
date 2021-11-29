@@ -112,6 +112,14 @@ export default {
             type: Object,
             default: () => {}
         },
+        isDocumap: {
+            type: Boolean,
+            default: false
+        },
+        sourceUrl: {
+            type: String,
+            default: ""
+        },
     },
     data () {
         return {
@@ -161,6 +169,10 @@ export default {
     },
     computed: {
         style: function () {
+            console.log(`is documap: ${this.isDocumap}`)
+            if (this.isDocumap) {
+                return 'fill: rgb(74 34 112); fill-opacity: 0.3; cursor: pointer;'
+            }
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -240,6 +252,15 @@ export default {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
         },
         onClick: function () {
+            if (this.isDocumap) {
+                console.log(this.thread)
+                console.log(this.sourceUrl)
+                let url = `${this.sourceUrl}#nb-comment-${this.thread.id}`
+                console.log(url)
+                window.open(url, '_blank');
+                return
+            }
+
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }

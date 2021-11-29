@@ -40,7 +40,7 @@ import { Environments } from './environments'
 //   tracesSampleRate: 1.0,
 // });
 
-const currentEnv = Environments.prod
+const currentEnv = Environments.dev
 
 Vue.use(VueQuill)
 Vue.use(VTooltip)
@@ -90,7 +90,12 @@ function embedNbApp() {
     loadCSS(`${PLUGIN_HOST_URL}/style/tooltip.css`)
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js')
     document.documentElement.setAttribute('style', 'overflow: overlay !important;')
-    document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
+    if (!window.location.search.includes('documap=true')) {
+        document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
+    } else {
+        document.body.classList.add('nb-documap')
+        document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden;')
+    }
     let element = document.createElement('div')
     element.id = 'nb-app-wrapper'
     let child = document.createElement('div')
@@ -169,6 +174,8 @@ function embedNbApp() {
                     :current-configs="currentConfigs"
                     :show-sync-features="showSyncFeatures"
                     :is-innotation-hover="isInnotationHover"
+                    :is-documap="isDocumap"
+                    :source-url="sourceURL"
                     @log-exp-spotlight="onLogExpSpotlight"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
@@ -284,6 +291,7 @@ function embedNbApp() {
             stillGatheringThreads: true,
             draftRange: null,
             isEditorEmpty: true,
+            isDocumap: false,
             isInnotationHover: false,
             filter: {
                 searchOption: 'text',
@@ -469,8 +477,23 @@ function embedNbApp() {
                         this.activeClass = this.myClasses[0]
                     }
                     this.sourceURL = source
+                } else if (window.location.href.includes('/nb_viewer.html?id=')) {
+                    let searchParams = new URLSearchParams(window.location.search);
+                    const sourceNbViewer = `${window.location.origin}${window.location.pathname}?id=${searchParams.get('id')}`
+                    const configNbViewer = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceNbViewer } }
+                    const myClassesNbViewer = await axios.get('/api/annotations/myClasses', configNbViewer)
+                    if (myClassesNbViewer.data.length > 0) {
+                        this.myClasses = myClassesNbViewer.data
+                        if (this.myClasses.length === 1) {
+                            this.activeClass = this.myClasses[0]
+                        }
+                        this.sourceURL = sourceNbViewer
+                    } else {
+                        console.log("Sorry you don't have access");
+                    }
+
                 } else {
-                    const sourceWithQuery = window.location.href // try the source with query params as well
+                    const sourceWithQuery = window.location.href.replace('&documap=true', '') // try the source with query params as well
                     const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery } }
                     const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
                     if (myClassesWithQuery.data.length > 0) {
@@ -786,7 +809,7 @@ function embedNbApp() {
 
                 let unreadReply = comment.getMyAuthorReplies(this.user.id)
                 if (unreadReply) { // if thread has unseen comments that reply to this author
-                  return new NbNotification(comment, "reply", false, unreadReply, true)
+                    return new NbNotification(comment, "reply", false, unreadReply, true)
                 }
 
                 let instructorResponseComment = comment.getInstructorPost()
@@ -900,16 +923,20 @@ function embedNbApp() {
                         }
 
                         this.stillGatheringThreads = false
-                        this.notificationThreads = this.notificationThreads.concat().sort(function(a, b) { // sort notification order
+                        this.notificationThreads = this.notificationThreads.concat().sort(function (a, b) { // sort notification order
                             let aTimestamp = a.specificAnnotation ? a.specificAnnotation.timestamp : a.comment.timestamp
                             let bTimestamp = b.specificAnnotation ? b.specificAnnotation.timestamp : b.comment.timestamp
                             return new Date(aTimestamp) - new Date(bTimestamp)
-                        }) 
+                        })
 
                         let link = window.location.hash.match(/^#nb-comment-(.+$)/)
                         if (link) {
                             let id = link[1]
-                            this.threadSelected = this.threads.find(x => x.id === id)
+                            setTimeout(() => this.threadSelected = this.threads.find(x => x.id === id), 1000);
+                        }
+
+                        if (window.location.search.includes('documap=true')) {
+                            this.isDocumap = true
                         }
                     })
             },
