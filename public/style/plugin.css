@@ -1293,7 +1293,7 @@ nb-innotation-controller {
 .nb-documap #nb-app .nb-highlights{
   right: 0;
   width: 100vw;
-  background-color: #fff;
+  background-color: #f4ad3e;
   /* border-bottom: 1px solid; */
   pointer-events: initial;
 }

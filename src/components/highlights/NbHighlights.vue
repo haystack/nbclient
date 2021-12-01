@@ -12,6 +12,7 @@
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
             :is-documap="isDocumap"
+            :douc-settings="doucSettings"
             :source-url="sourceUrl"
             @log-exp-spotlight="onLogExpSpotlight"
             @select-thread="onSelectThread"
@@ -84,6 +85,10 @@ export default {
         isDocumap: {
             type: Boolean,
             default: false
+        },
+        doucSettings: {
+            type: Object,
+            default: () => {}
         },
         sourceUrl: {
             type: String,

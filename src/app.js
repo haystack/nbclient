@@ -94,7 +94,7 @@ function embedNbApp() {
         document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
     } else {
         document.body.classList.add('nb-documap')
-        document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden;')
+        document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden; height: 100%; background: #f4ad3e;')
     }
     let element = document.createElement('div')
     element.id = 'nb-app-wrapper'
@@ -175,6 +175,7 @@ function embedNbApp() {
                     :show-sync-features="showSyncFeatures"
                     :is-innotation-hover="isInnotationHover"
                     :is-documap="isDocumap"
+                    :douc-settings="doucSettings"
                     :source-url="sourceURL"
                     @log-exp-spotlight="onLogExpSpotlight"
                     @select-thread="onSelectThread"
@@ -292,6 +293,7 @@ function embedNbApp() {
             draftRange: null,
             isEditorEmpty: true,
             isDocumap: false,
+            doucSettings: {},
             isInnotationHover: false,
             filter: {
                 searchOption: 'text',
@@ -937,6 +939,10 @@ function embedNbApp() {
 
                         if (window.location.search.includes('documap=true')) {
                             this.isDocumap = true
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const doucsettings = urlParams.get('doucsettings');
+                            console.log(JSON.parse(doucsettings))
+                            this.doucSettings = JSON.parse(doucsettings)
                         }
                     })
             },

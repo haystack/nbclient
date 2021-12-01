@@ -116,6 +116,10 @@ export default {
             type: Boolean,
             default: false
         },
+        doucSettings: {
+            type: Object,
+            default: () => {}
+        },
         sourceUrl: {
             type: String,
             default: ""
@@ -169,9 +173,18 @@ export default {
     },
     computed: {
         style: function () {
-            console.log(`is documap: ${this.isDocumap}`)
-            if (this.isDocumap) {
-                return 'fill: rgb(74 34 112); fill-opacity: 0.3; cursor: pointer;'
+
+            if (this.isDocumap && this.doucSettings.Me && this.thread.author === this.user.id) {
+                return 'fill: rgb(209 5 5); fill-opacity: 0.9; cursor: pointer;'
+            }
+            if (this.isDocumap && this.thread.author !== this.user.id && this.doucSettings.Tags && this.thread.hashtags.length > 0) {
+                return 'fill: rgb(50 163 45); fill-opacity: 0.9; cursor: pointer;'
+            }
+            if (this.isDocumap && this.thread.author !== this.user.id && this.doucSettings.Others) {
+                return 'fill: rgb(233 233 233); fill-opacity: 0.9; cursor: pointer;'
+            }
+            if (this.isDocumap ) {
+                return 'fill: rgb(255, 204, 1); fill-opacity: 0.3; cursor: pointer;'
             }
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
