@@ -94,7 +94,7 @@ function embedNbApp() {
         document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
     } else {
         document.body.classList.add('nb-documap')
-        document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden; height: 100%; background: #f4ad3e;')
+        document.getElementsByTagName('html')[0].setAttribute('style', 'height: 100%; background: #f4ad3e;')
     }
     let element = document.createElement('div')
     element.id = 'nb-app-wrapper'
@@ -623,6 +623,7 @@ function embedNbApp() {
                     axios.get('/api/annotations/allTagTypes', config)
                         .then(res => {
                             this.hashtags = res.data
+                            console.log(this.hashtags)
                         })
 
                     this.getAllAnnotations(source, newActiveClass) // another axios call put into a helper method
