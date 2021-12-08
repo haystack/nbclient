@@ -112,10 +112,37 @@ export default {
             type: Object,
             default: () => {}
         },
+        isDocumap: {
+            type: Boolean,
+            default: false
+        },
+        doucSettings: {
+            type: Object,
+            default: () => {}
+        },
+        sourceUrl: {
+            type: String,
+            default: ""
+        },
     },
     data () {
         return {
-        recent: false
+            recent: false,
+            // tags: {
+            //     Discuss: '536e5be0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Interesting: '53672ff0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Lost: '53664590-d2bf-11eb-9e48-c593f3f42f13',
+            // }
+            // tags: {
+            //     Discuss: '9c76cd81-e445-11eb-9382-d1c5af161561',
+            //     Interesting: '9c70da10-e445-11eb-9382-d1c5af161561',
+            //     Lost: '9c703dd0-e445-11eb-9382-d1c5af161561',
+            // }
+            tags: {
+                Discuss: 'df6f87a0-4f92-11eb-bd80-bd642962df02',
+                Interesting: 'df43e3c0-4f92-11eb-bd80-bd642962df02',
+                Lost: 'df43bcb0-4f92-11eb-bd80-bd642962df02',
+            }
         }
     },
     mounted () {
@@ -161,6 +188,26 @@ export default {
     },
     computed: {
         style: function () {
+            if (this.isDocumap && this.doucSettings.Me.status && this.thread.author === this.user.id) {
+                return `fill: ${this.doucSettings.Me.color}; fill-opacity: 0.9; cursor: pointer;`
+            }
+            if (this.isDocumap && this.thread.hashtags.length > 0) {
+                if (this.doucSettings.Discuss.status && this.thread.hashtags.includes(this.tags.Discuss)) {
+                    return `fill: ${this.doucSettings.Discuss.color}; fill-opacity: 0.9; cursor: pointer;`
+                }
+                if (this.doucSettings.Interesting.status && this.thread.hashtags.includes(this.tags.Interesting)) {
+                    return `fill: ${this.doucSettings.Interesting.color}; fill-opacity: 0.9; cursor: pointer;`
+                }
+                if (this.doucSettings.Lost.status && this.thread.hashtags.includes(this.tags.Lost)) {
+                    return `fill: ${this.doucSettings.Lost.color}; fill-opacity: 0.9; cursor: pointer;`
+                }
+            }
+            if (this.isDocumap && this.thread.author !== this.user.id && this.doucSettings.Others.status) {
+                return `fill: ${this.doucSettings.Others.color}; fill-opacity: 0.9; cursor: pointer;`
+            }
+            if (this.isDocumap ) {
+                return 'fill: rgb(209, 143, 40); fill-opacity: 0.3; cursor: pointer;'
+            }
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -240,6 +287,15 @@ export default {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
         },
         onClick: function () {
+            if (this.isDocumap) {
+                console.log(this.thread)
+                console.log(this.sourceUrl)
+                let url = `${this.sourceUrl}#nb-comment-${this.thread.id}`
+                console.log(url)
+                window.open(url, '_blank');
+                return
+            }
+
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }
