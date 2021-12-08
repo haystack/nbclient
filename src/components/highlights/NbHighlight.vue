@@ -128,10 +128,20 @@ export default {
     data () {
         return {
             recent: false,
+            // tags: {
+            //     Discuss: '536e5be0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Interesting: '53672ff0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Lost: '53664590-d2bf-11eb-9e48-c593f3f42f13',
+            // }
+            // tags: {
+            //     Discuss: '9c76cd81-e445-11eb-9382-d1c5af161561',
+            //     Interesting: '9c70da10-e445-11eb-9382-d1c5af161561',
+            //     Lost: '9c703dd0-e445-11eb-9382-d1c5af161561',
+            // }
             tags: {
-                Discuss: '536e5be0-d2bf-11eb-9e48-c593f3f42f13',
-                Interesting: '53672ff0-d2bf-11eb-9e48-c593f3f42f13',
-                Lost: '53664590-d2bf-11eb-9e48-c593f3f42f13',
+                Discuss: 'df6f87a0-4f92-11eb-bd80-bd642962df02',
+                Interesting: 'df43e3c0-4f92-11eb-bd80-bd642962df02',
+                Lost: 'df43bcb0-4f92-11eb-bd80-bd642962df02',
             }
         }
     },
