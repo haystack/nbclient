@@ -328,7 +328,7 @@ function embedNbApp() {
             // canRedrawHighlightsTimeout: null,
             recentlyAddedThreads: [],
             showSyncFeatures: true,
-            onlineUsers: 0,
+            onlineUsers: { ids: [], instructors: [], students: [] },
             currentSectionId: "",
             notificationThreads: [],
             swalClicked: false,
@@ -502,19 +502,30 @@ function embedNbApp() {
                     this.currentConfigs.isIgnoreSectionsInClass = configs['IGNORE_SECTIONS_IN_CLASS'] === 'true' ? true : false
                     this.currentConfigs.isSyncNotificationAudio = configs['SYNC_NOTIFICATION_AUDIO'] === 'true' ? true : false
                     this.currentConfigs.isSyncNotificationPopup = configs['SYNC_NOTIFICATION_POPUP'] === 'true' ? true : false
+                    this.currentConfigs.isSyncSpotlightNewThread = configs['SYNC_SPOTLIGHT_NEW_THREAD'] === 'true' ? true : false
+                    this.currentConfigs.syncSpotlightNewThreadConfig = configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD'] ? JSON.parse(configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD']) : {}
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
                         this.currentConfigs.isInnotation = false
                         this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
                         this.showSyncFeatures = this.syncConfig
+
+                        if (this.currentConfigs.syncSpotlightNewThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.syncSpotlightNewThreadConfig.type)) {
+                            this.currentConfigs.syncSpotlightNewThreadConfig.type = 'MARGIN'
+                        }
+
                     } else {
                         this.currentConfigs.isMarginalia = false
                         this.currentConfigs.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
                         this.syncConfig = configs['SYNC_FEATURES'] === 'true' ? true : false
                         this.showSyncFeatures = this.syncConfig
-                    }
 
+                        if (this.currentConfigs.syncSpotlightNewThreadConfig.type && ['MARGIN'].includes(this.currentConfigs.syncSpotlightNewThreadConfig.type)) {
+                            this.currentConfigs.syncSpotlightNewThreadConfig.type = 'LEFT'
+                        }
+
+                    }
 
                     let source = window.location.origin + window.location.pathname
                     if (this.sourceURL.length > 0) {
@@ -592,9 +603,10 @@ function embedNbApp() {
                         .then(res => {
                             console.log("this is a response");
                             console.log(res);
-                            socket.emit('left', { username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
+                            console.log(this.user)
+                            socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
                             this.currentSectionId = res.data
-                            socket.emit('joined', { username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
+                            socket.emit('joined', { id: this.user.id, username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
                         })
 
                     axios.get('/api/annotations/allTagTypes', config)
@@ -623,7 +635,7 @@ function embedNbApp() {
             socket.on('connections', (data) => {
                 console.log("***connectiion***");
                 console.log(data);
-                this.onlineUsers = data.online
+                this.onlineUsers = data.users
             })
 
             socket.on("new_thread", (data) => {
@@ -705,6 +717,13 @@ function embedNbApp() {
                         }
                         // Nb Comment
                         let comment = new NbComment(item, res.data.annotationsData)
+
+
+                        // if spotlight new sync thread
+                        if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread) {
+                            comment.spotlight = this.currentConfigs.syncSpotlightNewThreadConfig
+                        }
+
 
                         // get the specific annotation that was recently posted
                         let specificAnnotation = null
@@ -904,6 +923,9 @@ function embedNbApp() {
                         }
 
                         this.stillGatheringThreads = false
+
+                        console.log(this.threads)
+
                         this.notificationThreads = this.notificationThreads.concat().sort(function (a, b) { // sort notification order
                             let aTimestamp = a.specificAnnotation ? a.specificAnnotation.timestamp : a.comment.timestamp
                             let bTimestamp = b.specificAnnotation ? b.specificAnnotation.timestamp : b.comment.timestamp

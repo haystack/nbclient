@@ -30,6 +30,9 @@ export default {
     },
     computed: {
         style: function () {
+            let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
+            let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fef5d7'
+
             // console.log('=====================================');
             // console.log(this.thread.range)
             // console.log(document.body.getBoundingClientRect().top);
@@ -41,11 +44,11 @@ export default {
 
              if (this.threadsHovered.includes(this.thread)) {
                 // style = `${style} outline: 2px dashed #ccc;`
-               style = `${style} background-color: #fef5d7; z-index: 1;`
+               style = `${style} color: ${color}; background-color: ${backgroundColor}; z-index: 1;`
             }
 
             if (this.thread === this.threadSelected) {
-                style = `${style} mask-image: unset; background-color: #fef5d7; z-index: 2;`
+                style = `${style} mask-image: unset; color: ${color}; background-color: ${backgroundColor}; z-index: 2;`
             }
 
             return style

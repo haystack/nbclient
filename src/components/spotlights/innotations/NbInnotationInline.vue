@@ -25,10 +25,13 @@ export default {
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
         if (elm) elm.remove()
+
+        let color = this.thread.spotlight.color? this.thread.spotlight.color : 'blue'
         
         // build innotation item
         const endNode = this.thread.range.end
         const innotation = document.createElement('nb-innotation-inline')
+        innotation.style.color = color
         innotation.id = `nb-innotation-inline-${this.thread.id}`
         const text = this.thread.text.length > 100 ? `${this.thread.text.substring(0, 100)}...` : this.thread.text;
         innotation.innerText = (`${text}`)

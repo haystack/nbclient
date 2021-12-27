@@ -1281,3 +1281,16 @@ nb-innotation-controller {
   background:rgb(228, 228, 228);
   padding:0 10px; 
 }
+
+.online-instructors {
+    background-color: #f4ad3e;
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Verdana', 'Geneva', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+}

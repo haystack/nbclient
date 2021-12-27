@@ -5,7 +5,7 @@
   >
     <div> 
       <!-- below: focus mode on means showSyncFeatures false -->
-      <label v-tooltip="'Check if you do not want to receive notifications from your classmates'">Focus Mode</label>
+      <label v-tooltip="'Check if you do not want to receive notifications from your classmates'">Focus</label>
       <input type="checkbox"
           v-model="showSyncFeatures"
           :true-value="false" 
@@ -16,10 +16,19 @@
 
     <div>
       <span v-if="showSyncFeatures"
-        v-tooltip="'Classmates online'"
+        v-tooltip="'Users online'"
       >
         <font-awesome-icon icon="users" class="icon"></font-awesome-icon> 
-        {{onlineUsers}}
+        {{onlineUsersCount}}
+      </span>
+    </div>
+
+    <div>
+      <span v-if="showSyncFeatures"
+        v-tooltip="'Instructors online'"
+      >
+        <span class="online-instructors">i</span> 
+        {{onlineInstructorsCount}}
       </span>
     </div>
 
@@ -86,62 +95,71 @@
 import Avatar from 'vue-avatar-component'
 
 export default {
-  name: 'nb-online',
-  props: {
-    onlineUsers: {
-      type: Number,
-      default: 0
+    name: 'nb-online',
+    props: {
+        onlineUsers: {
+            type: Object,
+            default: () => {}
+        },
+        showSyncFeatures: {
+            type: Boolean,
+            default: true
+        },
+        nbMenuShowing: {
+            type: Boolean,
+            default: false
+        },
+        numberNotificationsUnseen: {
+            type: Number,
+            default: 0,
+        },
+        notificationsMuted: {
+            type: Boolean,
+            default: false,
+        },
     },
-    showSyncFeatures: {
-      type: Boolean,
-      default: true
+    computed: {
+        style: function() {
+            return this.nbMenuShowing ? "margin-top: 5px" : "margin-top: 2.5em"
+        },
+        onlineUsersCount: function() {
+            return this.onlineUsers.ids.length
+        },
+        onlineInstructorsCount: function() {
+            return this.onlineUsers.instructors.length
+        },
+        onlineStudentsCount: function() {
+            return this.onlineUsers.students.length
+        }
     },
-    nbMenuShowing: {
-      type: Boolean,
-      default: false
+    data: {
+        showOverflow: false,
     },
-    numberNotificationsUnseen: {
-      type: Number,
-      default: 0,
+    methods: {
+        onShowSyncFeaturesChange: function(event) {
+            this.$emit('show-sync-features', this.showSyncFeatures)
+        },
+        toggleMute: function () {
+            this.$emit('toggle-mute-notifications')
+        },
+        onOpenDraggableNotifications: function () {
+            this.$emit('open-draggable-notifications')
+        },
+        onOpenSidebarNotifications: function () {
+            this.$emit('open-sidebar-notifications')
+        },
+        getTooltipContent: function () {
+            return `<div>
+                <span><label>blinking thread: </label>comment has recent typing or new post activity</span>
+                <br><br>
+                <span><label style="background-color: rgb(255, 0, 255);">pink: </label>comment has a reply request</span>
+                <br><br>
+                <span><label style="background-color: rgba(80, 54, 255, 0.9);">purple: </label>comment has notification associated</span>
+            </div>`
+        }
     },
-    notificationsMuted: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    style: function() {
-      return this.nbMenuShowing ? "margin-top: 5px" : "margin-top: 2.5em"
+    components: {
+        Avatar
     }
-  },
-  data: {
-    showOverflow: false,
-  },
-  methods: {
-    onShowSyncFeaturesChange: function(event) {
-        this.$emit('show-sync-features', this.showSyncFeatures)
-    },
-    toggleMute: function () {
-      this.$emit('toggle-mute-notifications')
-    },
-    onOpenDraggableNotifications: function () {
-      this.$emit('open-draggable-notifications')
-    },
-    onOpenSidebarNotifications: function () {
-      this.$emit('open-sidebar-notifications')
-    },
-    getTooltipContent: function () {
-      return `<div>
-        <span><label>blinking thread: </label>comment has recent typing or new post activity</span>
-        <br><br>
-        <span><label style="background-color: rgb(255, 0, 255);">pink: </label>comment has a reply request</span>
-        <br><br>
-        <span><label style="background-color: rgba(80, 54, 255, 0.9);">purple: </label>comment has notification associated</span>
-      </div>`
-    }
-  },
-  components: {
-    Avatar
-  }
 }
 </script>

@@ -31,10 +31,16 @@ export default {
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
         if (elm) elm.remove()
 
+        let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
+        let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fff5a4'
+
+
         const commonAncestor = this.getCommonAncestor()
 
         // build innotation item
         const innotation = document.createElement('nb-innotation')
+        innotation.style.color = color
+        innotation.style.backgroundColor = backgroundColor
         innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
         innotation.innerText = (`${text}`)
