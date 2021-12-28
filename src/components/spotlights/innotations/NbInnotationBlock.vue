@@ -4,6 +4,8 @@
 <script>
 import NbInnotationPosition from './NbInnotationPosition'
 import axios from 'axios'
+import moment from 'moment'
+import { CommentAnonymity } from '../../../models/enums.js'
 
 const INNO_WIDTH = 180
 const INNO_HEIGHT = 120
@@ -22,6 +24,9 @@ export default {
     data () {
         return {
             innoPos: null,
+            ago: '',
+            time: '',
+            interval:null
         }
     },
     created: function() {
@@ -34,7 +39,6 @@ export default {
         let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
         let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fff5a4'
 
-
         const commonAncestor = this.getCommonAncestor()
 
         // build innotation item
@@ -43,7 +47,16 @@ export default {
         innotation.style.backgroundColor = backgroundColor
         innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
-        innotation.innerText = (`${text}`)
+
+        if (this.thread.spotlight.showTime) {
+            this.time = this.thread.timestamp
+            this.interval = setInterval(() => {
+                this.ago = moment(this.time).fromNow();
+            }, 1000)
+            innotation.insertAdjacentHTML('afterbegin', `<span class="nb-innotation-block-time"> <b>${this.authorName}</b> @ <span id="nb-innotation-block-time-${this.thread.id}-${this.innoPos}">${this.ago}</span></span>`)
+         }
+        
+        innotation.insertAdjacentHTML('beforeend', `${text}`)
         innotation.addEventListener('mouseenter', this.onMouseEnter)
         innotation.addEventListener('mouseleave', this.onMouseLeave)
         innotation.addEventListener('click', this.onClick)
@@ -96,11 +109,28 @@ export default {
 
         window.dispatchEvent(new Event('resize'))
     },
+    destroyed: function() {
+        if (this.thread.spotlight.showTime) {
+            clearInterval(this.interval)
+        }
+    },
     watch: {
         threadSelected: function (val) {
             const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
             this.thread !== val ? elm.classList.remove('active') : elm.classList.add('active')
-        }
+        },
+        ago: function (val) {
+            const elm = document.getElementById(`nb-innotation-block-time-${this.thread.id}-${this.innoPos}`)
+            elm.textContent = `${this.ago}`
+        },
+    },
+    computed: {
+        authorName: function () {
+            if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
+                    return 'Anonymous'
+            }
+            return this.thread.authorName
+        },
     },
     methods: {
         getCommonAncestor: function () {
