@@ -40,7 +40,7 @@
                     :activeClass="activeClass"
                     :show-sync-features="showSyncFeatures"
                     :user="user"
-                    @log-exp-spotlight="onLogExpSpotlight"
+                    @log-sync="onLogSync"
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
                     @unhover-thread="$emit('unhover-thread', thread)">
@@ -174,17 +174,17 @@ export default {
     methods: {
         toggleHighlights: function () {
             if( this.showHighlights ) {
-                this.onLogExpSpotlight('HIDE_HIGHLIGHT')
+                this.onLogSync('HIDE_HIGHLIGHT')
             } else {
-                this.onLogExpSpotlight('SHOW_HIGHLIGHT')
+                this.onLogSync('SHOW_HIGHLIGHT')
             }
             this.$emit('toggle-highlights', !this.showHighlights)
         },
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent=false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
         }
     },
     components: {

@@ -50,7 +50,7 @@ export default {
     methods: {
         onClick: function () {
             clearTimeout(this.hoverLogTimeout)
-            this.$emit('log-exp-spotlight', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-sync', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }

@@ -52,7 +52,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-sync="onLogSync"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
@@ -88,7 +88,7 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-sync="onLogSync"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
@@ -416,7 +416,7 @@ export default {
                 seenByMe: true,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
+            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogSync)
             if (data.replyToComment) {
                 data.replyToComment.children.push(comment)
             }
@@ -448,7 +448,7 @@ export default {
                 seenByMe: true
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
+            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogSync)
             if (this.draftRange) {
                 this.$emit('new-thread', comment)
             } else if (this.replyToComment) {
@@ -514,8 +514,8 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent = false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
         }
     },
     components: {

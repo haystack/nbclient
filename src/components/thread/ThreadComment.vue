@@ -98,7 +98,7 @@
                 :activeClass="activeClass"
                 :thread-view-initiator="threadViewInitiator"
                 :last="index === comment.children.length-1"
-                @log-exp-spotlight="onLogExpSpotlight"
+                @log-sync="onLogSync"
                 @edit-comment="editComment"
                 @delete-comment="deleteComment"
                 @draft-reply="draftReply"
@@ -202,13 +202,13 @@ export default {
             this.$emit('draft-reply', comment)
         },
         toggleBookmark: function (comment) {
-            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogSync)
         },
         toggleUpvote: function (comment) {
-            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogSync)
         },
         toggleReplyRequest: function (comment) {
-            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogSync)
         },
         checkSubmittedSmallComment: function(e) {
             if (e.keyCode === 13) {
@@ -222,8 +222,8 @@ export default {
         submitSmallComment: function (data) {
             this.$emit('submit-small-comment', data)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent=false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
         }
     },
     computed: {
