@@ -743,7 +743,7 @@ function embedNbApp() {
 
                         this.threads.push(comment)
                         let syncLogEvent = isNewThread ? 'SYNC_RECEIVED_ANNOTATION' : 'SYNC_RECEIVED_REPLY'
-                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', true, true, replyAnnotationId || comment.id, comment.countAllReplies())
+                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', true, true, comment.associatedNotification ? comment.associatedNotification.trigger : 'NONE', replyAnnotationId || comment.id, comment.countAllReplies())
                     })
             },
             triggerPopupNotification: function (notification) {
@@ -1208,9 +1208,9 @@ function embedNbApp() {
                 this.showHighlights = true
                 window.removeEventListener('scroll', this.handleScroll)
             },
-            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, annotationId = null, countAnnotationReplies = 0) {
+            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0) {
                 if (this.currentConfigs.isNbLog) {
-                    // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
+                    console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
 
@@ -1226,6 +1226,7 @@ function embedNbApp() {
                         initiator: initiator,
                         is_sync_annotation: isSyncAnnotation,
                         has_sync_annotation: hasSyncAnnotation,
+                        notification_trigger: notificationTrigger,
                         count_source_annotations: this.threads.length,
                         count_annotation_replies: countAnnotationReplies,
                         count_online_students: this.onlineUsers.students.length,
