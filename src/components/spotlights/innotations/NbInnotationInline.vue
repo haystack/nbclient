@@ -50,7 +50,7 @@ export default {
     methods: {
         onClick: function () {
             clearTimeout(this.hoverLogTimeout)
-            this.$emit('log-sync', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.id, this.thread.countAllReplies())
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
@@ -68,7 +68,7 @@ export default {
         onHover: function (state) {
         },
         onMouseEnter: function (state) {
-            console.log('onMouseEnter')
+            // console.log('onMouseEnter')
             //if (this.thread === this.threadSelected) return // ignore hover when thread is selected
 
             this.hoverLogTimeout = setTimeout(this.logHover, 3000)
@@ -76,7 +76,7 @@ export default {
             this.$emit('hover-innotation', this.thread)
         },
         onMouseLeave: function (state) {
-            console.log('onMouseLeave')
+            // console.log('onMouseLeave')
             //if (this.thread === this.threadSelected) return // ignore hover when thread is selected
 
             clearTimeout(this.hoverLogTimeout)
@@ -84,12 +84,12 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         logHover: function () {
-            console.log('Log Hover!')
+            // console.log('Log Hover!')
         },
         extendInnotationText: function () {
-            console.log('extendInnotationText...')
+            // console.log('extendInnotationText...')
             if (this.isInnotationTextExtended) return
-            console.log('extendInnotationText')
+            // console.log('extendInnotationText')
             const innotation = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
             const text = this.thread.text.length > 300 ? `${this.thread.text.substring(0, 300)}...` : this.thread.text;
             innotation.innerText = (`${text}`)
@@ -97,9 +97,9 @@ export default {
             window.dispatchEvent(new Event('resize'))
         },
         collapseInnotationText: function() {
-            console.log('collapseInnotationText...')
+            // console.log('collapseInnotationText...')
             if (!this.isInnotationTextExtended) return
-            console.log('collapseInnotationText...')
+            // console.log('collapseInnotationText...')
             const innotation = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
             const text = this.thread.text.length > 100 ? `${this.thread.text.substring(0, 100)}...` : this.thread.text;
             innotation.innerText = (`${text}`)

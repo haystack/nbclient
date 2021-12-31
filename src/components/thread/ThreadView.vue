@@ -29,7 +29,8 @@
             :replyToComment="replyToComment"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
-            @log-sync="onLogSync"
+            :current-configs="currentConfigs"
+            @log-nb="onLogNb"
             @edit-comment="editComment"
             @delete-comment="deleteComment"
             @submit-small-comment="submitSmallComment"
@@ -71,9 +72,9 @@ export default {
         me: Object,
         replyToComment: Object,
         currentConfigs: {
-                type: Object,
-                default: () => {}
-            },
+            type: Object,
+            default: () => {}
+        },
         activeClass: Object,
         threadViewInitiator: String,
     },
@@ -119,8 +120,8 @@ export default {
         onNextComment: function () {
             this.$emit('next-comment')
         },
-        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent=false, annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, annotationId, countAnnotationReplies)
         }
     },
     components: {

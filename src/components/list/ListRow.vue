@@ -126,7 +126,7 @@ export default {
     },
     methods: {
         onClick: function () {
-            this.$emit('log-sync', 'CLICK', 'LIST', this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', 'LIST', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.id, this.thread.countAllReplies())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");

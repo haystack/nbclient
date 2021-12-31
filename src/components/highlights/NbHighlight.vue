@@ -254,7 +254,7 @@ export default {
             }
 
             const location = this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
-            this.$emit('log-sync', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync , this.thread.id, this.thread.countAllReplies())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
@@ -268,7 +268,7 @@ export default {
                 role: this.user.role.toUpperCase()
             }, config)
 
-            this.logSyncClick()
+            this.logNbClick()
 
             if (this.currentConfigs.isEmphasize && this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
                 this.$emit('select-thread', this.thread, 'SPOTLIGHT')
@@ -276,7 +276,7 @@ export default {
                 this.$emit('select-thread', this.thread, 'HIGHLIGHT')
             }
         },
-        logSyncClick: function () {
+        logNbClick: function () {
             if (this.unseenNotificationThread || this.isTypingThread || this.isRecentThread || this.showTypingActivityAnimation) {
                 let trigger_type = ''
                 if (this.isTypingThread || this.isRecentThread) {
@@ -286,7 +286,7 @@ export default {
                 } else {
                     trigger_type = 'REPLY_REQUESTED'
                 }
-                console.log(trigger_type)
+                // console.log(trigger_type)
                 const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }

@@ -1,8 +1,5 @@
 <template>
-  <div 
-    class="nb-sync"
-    :style="style"
-  >
+  <div class="nb-sync" :style="style">
     <div> 
       <!-- below: focus mode on means showSyncFeatures false -->
       <label v-tooltip="'Check if you do not want to receive notifications from your classmates'">Focus</label>
@@ -15,18 +12,14 @@
     </div>
 
     <div>
-      <span v-if="showSyncFeatures"
-        v-tooltip="'Users online'"
-      >
+      <span v-if="showSyncFeatures" v-tooltip="'Users online'">
         <font-awesome-icon icon="users" class="icon"></font-awesome-icon> 
         {{onlineUsersCount}}
       </span>
     </div>
 
     <div>
-      <span v-if="showSyncFeatures"
-        v-tooltip="'Instructors online'"
-      >
+      <span v-if="showSyncFeatures" v-tooltip="'Instructors online'">
         <span class="online-instructors">i</span> 
         {{onlineInstructorsCount}}
       </span>
@@ -74,14 +67,6 @@
           </div>
         </template> -->
       </v-popover>
-    </div>
-
-    <div v-if="showSyncFeatures">
-      <span 
-        v-tooltip="{ content: getTooltipContent() }"
-      >
-        <font-awesome-icon icon="info-circle" class="icon"></font-awesome-icon> 
-      </span> 
     </div>
 
   </div>
@@ -148,15 +133,6 @@ export default {
         onOpenSidebarNotifications: function () {
             this.$emit('open-sidebar-notifications')
         },
-        getTooltipContent: function () {
-            return `<div>
-                <span><label>blinking thread: </label>comment has recent typing or new post activity</span>
-                <br><br>
-                <span><label style="background-color: rgb(255, 0, 255);">pink: </label>comment has a reply request</span>
-                <br><br>
-                <span><label style="background-color: rgba(80, 54, 255, 0.9);">purple: </label>comment has notification associated</span>
-            </div>`
-        }
     },
     components: {
         Avatar

@@ -224,7 +224,7 @@ class NbComment {
      * On success, set {@link NbComment#id}. If this is a thread head,
      * {@link NbComment#loadReplies} will be called to also load replies.
      */
-    submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogSync = () => { }) {
+    submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         const token = localStorage.getItem("nb.user");
         const headers = { headers: { Authorization: 'Bearer ' + token } }
         if (!this.parent) {
@@ -243,7 +243,7 @@ class NbComment {
                 bookmark: this.bookmarked
             }, headers).then(res => {
                 this.id = res.data.id
-                this.logSpotlightAction('NEW_ANNOTATION', this, activeClass, user, 'NONE', onLogSync)
+                this.logNbEvent('NEW_ANNOTATION', this, activeClass, user, 'NONE', onLogNb)
                 // this.loadReplies()
             })
         } else {
@@ -261,7 +261,7 @@ class NbComment {
                 bookmark: this.bookmarked
             }, headers).then(res => {
                 this.id = res.data.id
-                this.logSpotlightAction('REPLY', thread, activeClass, user, threadViewInitiator, onLogSync)
+                this.logNbEvent('REPLY', thread, activeClass, user, threadViewInitiator, onLogNb)
             })
         }
     }
@@ -641,7 +641,7 @@ class NbComment {
     /**
      * Toggle the upvote for this comment by the current user.
      */
-    toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogSync = () => { }) {
+    toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         if (this.upvotedByMe) {
             this.upvoteCount -= 1
             this.upvotedByMe = false
@@ -649,7 +649,7 @@ class NbComment {
             this.upvoteCount += 1
             this.upvotedByMe = true
 
-            this.logSpotlightAction('STAR', thread, activeClass, user, threadViewInitiator, onLogSync)
+            this.logNbEvent('STAR', thread, activeClass, user, threadViewInitiator, onLogNb)
         }
         if (this.id) {
             const token = localStorage.getItem("nb.user");
@@ -661,7 +661,7 @@ class NbComment {
     /**
      * Toggle the reply request for this comment by the current user.
      */
-    toggleReplyRequest(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogSync = () => { }) {
+    toggleReplyRequest(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         if (this.replyRequestedByMe) {
             this.replyRequestCount -= 1
             this.replyRequestedByMe = false
@@ -669,7 +669,7 @@ class NbComment {
             this.replyRequestCount += 1
             this.replyRequestedByMe = true
 
-            this.logSpotlightAction('REPLY_REQUEST', thread, activeClass, user, threadViewInitiator, onLogSync)
+            this.logNbEvent('REPLY_REQUEST', thread, activeClass, user, threadViewInitiator, onLogNb)
         }
         if (this.id) {
             const token = localStorage.getItem("nb.user");
@@ -681,9 +681,9 @@ class NbComment {
     /**
      * Toggle the bookmark for this comment by the current user.
      */
-    toggleBookmark(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogSync = () => { }) {
+    toggleBookmark(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         if (!this.bookmarked) {
-            this.logSpotlightAction('BOOKMARK', thread, activeClass, user, threadViewInitiator, onLogSync)
+            this.logNbEvent('BOOKMARK', thread, activeClass, user, threadViewInitiator, onLogNb)
         }
 
         this.bookmarked = !this.bookmarked
@@ -694,18 +694,18 @@ class NbComment {
         }
     }
 
-    logSpotlightAction(action, comment, activeClass, user, threadViewInitiator, onLogSync = () => { }) {
+    logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
         const headComment = this.getHeadComment(comment)
-        onLogSync(action, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.id, headComment.countAllReplies())
+        onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.id, headComment.countAllReplies())
 
-        if (action === 'NEW_ANNOTATION') { return }
+        if (event === 'NEW_ANNOTATION') { return }
 
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
         axios.post(`/api/spotlights/log`, {
             spotlight_id: threadViewInitiator !== 'SPOTLIGHT' ? null : headComment.spotlight.id,
-            action: action.toUpperCase(),
+            action: event.toUpperCase(),
             type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : headComment.spotlight.type.toUpperCase(),
             annotation_id: headComment.id,
             class_id: activeClass.id,

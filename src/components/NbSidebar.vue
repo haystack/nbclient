@@ -52,7 +52,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
-            @log-sync="onLogSync"
+            @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
@@ -88,7 +88,7 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
-            @log-sync="onLogSync"
+            @log-nb="onLogNb"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
@@ -399,7 +399,7 @@ export default {
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
                 range: null, // null if this is reply
-                parent: data.replyToComment, // null if this is the head of thread
+                parent: data.replyToComment.parent, // null if this is the head of thread
                 timestamp: null,
                 author: this.user.id,
                 authorName: `${this.user.name.first} ${this.user.name.last}`,
@@ -416,9 +416,9 @@ export default {
                 seenByMe: true,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogSync)
-            if (data.replyToComment) {
-                data.replyToComment.children.push(comment)
+            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogNb)
+            if (data.replyToComment.parent) {
+                data.replyToComment.parent.children.push(comment)
             }
         },
         onSubmitComment: function (data) {
@@ -448,7 +448,7 @@ export default {
                 seenByMe: true
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogSync)
+            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
             if (this.draftRange) {
                 this.$emit('new-thread', comment)
             } else if (this.replyToComment) {
@@ -514,8 +514,8 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent = false, annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation = false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, annotationId, countAnnotationReplies)
         }
     },
     components: {

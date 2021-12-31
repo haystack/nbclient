@@ -76,7 +76,7 @@ export default {
             return style
         },
         authorName: function () {
-            console.log(this.thread)
+            // console.log(this.thread)
             if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
                     return 'Anonymous'
             }
@@ -96,6 +96,8 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
+            this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.id, this.thread.countAllReplies())
+
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }

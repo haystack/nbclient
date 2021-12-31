@@ -11,7 +11,7 @@
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
-            @log-sync="onLogSync"
+            @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
             @unhover-thread="$emit('unhover-thread',thread)"
@@ -91,8 +91,8 @@ export default {
 
             this.$emit('unselect-thread', null)
         },
-        onLogSync: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncEvent=false, hasSyncEvent = false, annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-sync', event, initiator, spotlightType, isSyncEvent, hasSyncEvent, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation = false, annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, annotationId, countAnnotationReplies)
         }
     },
     mounted: function () {

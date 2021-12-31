@@ -137,7 +137,7 @@ function embedNbApp() {
                     :thread-selected="threadSelected"
                     :user="user"
                     :activeClass="activeClass"
-                    @log-sync="onLogSync"
+                    @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
                     @hover-innotation="onHoverInnotation"
@@ -151,6 +151,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :user="user"
                     :activeClass="activeClass"
+                    @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
                     @hover-thread="onHoverThread"
@@ -169,7 +170,7 @@ function embedNbApp() {
                     :current-configs="currentConfigs"
                     :show-sync-features="showSyncFeatures"
                     :is-innotation-hover="isInnotationHover"
-                    @log-sync="onLogSync"
+                    @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
                     @hover-thread="onHoverThread"
@@ -227,7 +228,7 @@ function embedNbApp() {
                     threadSelectedPane="allThreads"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
-                    @log-sync="onLogSync"
+                    @log-nb="onLogNb"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
                     @toggle-mute-notifications="onToggleMuteNotifications"
@@ -317,6 +318,15 @@ function embedNbApp() {
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,
                 isIgnoreSectionsInClass: false,
+                isSyncNotificationAudio: false,
+                isSyncNotificationPopup: false,
+                isSyncSpotlightNewThread: false,
+                isNbLog: false,
+                syncSpotlightNewThreadConfig: {},
+                isNbLogScroll: false,
+                nbLogScrollSpoConfig: 2000,
+                isShowQuickEditor: false,
+                sortByConfig: 'init',
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -336,7 +346,9 @@ function embedNbApp() {
             draggableNotificationsOpened: false,
             sidebarNotificationsOpened: false,
             playSoundNotification: true,
-            syncLogEventsOrder: 0,
+            nbLogEventsOrder: 0,
+            filterLogTimer: null,
+            scrollLogTimer: null,
         },
         computed: {
             style: function () {
@@ -452,6 +464,13 @@ function embedNbApp() {
             }
         },
         watch: {
+            filter: {
+                handler() {
+                    clearTimeout(this.filterLogTimer)
+                    this.filterLogTimer = setTimeout(() => this.onLogNb('FILTER'), 5000)
+                },
+                deep: true
+            },
             user: async function (newUser, oldUser) {
                 if (!newUser) return // logged out
                 if (newUser === oldUser) return // same user, do nothing
@@ -501,8 +520,12 @@ function embedNbApp() {
                     this.currentConfigs.isSyncNotificationAudio = configs['SYNC_NOTIFICATION_AUDIO'] === 'true' ? true : false
                     this.currentConfigs.isSyncNotificationPopup = configs['SYNC_NOTIFICATION_POPUP'] === 'true' ? true : false
                     this.currentConfigs.isSyncSpotlightNewThread = configs['SYNC_SPOTLIGHT_NEW_THREAD'] === 'true' ? true : false
-                    this.currentConfigs.isSyncLog = configs['SYNC_LOG'] === 'true' ? true : false
+                    this.currentConfigs.isNbLog = configs['NB_LOG'] === 'true' ? true : false
                     this.currentConfigs.syncSpotlightNewThreadConfig = configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD'] ? JSON.parse(configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD']) : {}
+                    this.currentConfigs.isNbLogScroll = configs['NB_LOG_SCROLL'] === 'true' ? true : false
+                    this.currentConfigs.nbLogScrollSpoConfig = configs['CONFIG_NB_LOG_SCROLL'] ? Number(configs['CONFIG_NB_LOG_SCROLL']) : 2000
+                    this.currentConfigs.isShowQuickEditor = configs['SHOW_QUICK_EDITOR'] === 'true' ? true : false
+                    this.currentConfigs.sortByConfig = configs['CONFIG_SORT_BY'] ? configs['CONFIG_SORT_BY'] : 'recent'
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -557,6 +580,8 @@ function embedNbApp() {
                     })
 
                     this.getAllAnnotations(source, newActiveClass)
+                    window.removeEventListener('scroll', this.handleScroll);
+                    window.addEventListener('scroll', this.handleScroll);
                 }
 
             }
@@ -575,26 +600,31 @@ function embedNbApp() {
             hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
 
             socket.on('connections', (data) => {
-                console.log("***connectiion***");
-                console.log(data);
+                // console.log("***connectiion***");
+                // console.log(data);
+                let isInitConnection = this.onlineUsers.ids.length === 0
                 this.onlineUsers = data.users
+
+                if (!isInitConnection) {
+                    this.onLogNb('SYNC_RECEIVED_CONNECTION')
+                }
             })
 
             socket.on("new_thread", (data) => {
-                console.log("***new thread***");
-                console.log(data);
+                // console.log("***new thread***");
+                // console.log(data);
                 let userIdsSet = new Set(data.userIds)
                 if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                         this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
-                        console.log("new thread: gathered new annotations")
+                        // console.log("new thread: gathered new annotations")
                     }
                 }
             })
 
             socket.on('thread-typing', (data) => {
-                console.log("***typing***");
-                console.log(data);
+                // console.log("***typing***");
+                // console.log(data);
                 let thread = this.threads.find(x => x.id === data.threadId)
                 if (thread !== undefined) {
                     thread.usersTyping = data.usersTyping
@@ -602,18 +632,21 @@ function embedNbApp() {
             })
 
             socket.on('new_reply', (data) => {
-                console.log("***reply***");
-                console.log(data);
+                // console.log("***reply***");
+                // console.log(data);
                 if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                         const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
                         if (canISeeIt) {
-                            console.log('Do notofication');
+                            // console.log('Do notofication');
                             this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId)
                         }
                     }
                 }
             })
+        },
+        destroyed: function () {
+            window.removeEventListener('scroll', this.handleScroll)
         },
         methods: {
             dragging: function (isDragging) {
@@ -660,7 +693,7 @@ function embedNbApp() {
 
                         // Nb Comment
                         let comment = new NbComment(item, res.data.annotationsData)
-                        comment.isSync = true
+                        comment.hasSync = true
 
                         // if spotlight new sync thread
                         if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread) {
@@ -674,6 +707,14 @@ function embedNbApp() {
                             specificAnnotation.isSync = true
                         }
 
+                        // if this thread is open in the thread view, then refresh it
+                        if (this.threadSelected && this.threadSelected.id === oldHeadAnnotationId) {
+                            //this.threadSelected = comment
+                            console.log(this.threadSelected);
+                            console.log(comment);
+                            // this.threadSelected.children = comment.children
+                        }
+
                         // set any type of notification
                         let notification = null
                         if (taggedUsers.includes(this.user.id)) { // user tagged in post
@@ -684,7 +725,7 @@ function embedNbApp() {
                             notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
                         } else if (this.users[authorId].role === "instructor") { // instructor comment
                             notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
-                        } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts                            
+                        } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
                             notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
                         }
 
@@ -701,6 +742,8 @@ function embedNbApp() {
                         })
 
                         this.threads.push(comment)
+                        let syncLogEvent = isNewThread ? 'SYNC_RECEIVED_ANNOTATION' : 'SYNC_RECEIVED_REPLY'
+                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', true, true, replyAnnotationId || comment.id, comment.countAllReplies())
                     })
             },
             triggerPopupNotification: function (notification) {
@@ -793,7 +836,7 @@ function embedNbApp() {
 
                     this.stillGatheringThreads = false
 
-                    this.sleep(300).then(() => this.onLogSync('SESSION_START', 'NONE', 'NONE'))
+                    this.sleep(300).then(() => this.onLogNb('SESSION_START'))
 
                     // TODO: check this
                     this.notificationThreads = this.notificationThreads.concat().sort(function (a, b) { // sort notification order
@@ -1067,6 +1110,7 @@ function embedNbApp() {
                 this.activeClass = newClass
             },
             onShowSyncFeatures: function (showSyncFeatures) {
+                showSyncFeatures ? this.onLogNb('NOTIFICATION_ON') : this.onLogNb('NOTIFICATION_OFF')
                 this.showSyncFeatures = showSyncFeatures
             },
             onThreadTyping: function (threadId) {
@@ -1118,7 +1162,7 @@ function embedNbApp() {
             },
             onSessionEnd: async function () {
                 if (this.activeClass.id) {
-                    this.onLogSync('SESSION_END', 'NONE', 'NONE')
+                    this.onLogNb('SESSION_END')
 
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
@@ -1162,25 +1206,26 @@ function embedNbApp() {
                     minUpvotes: 0
                 }
                 this.showHighlights = true
+                window.removeEventListener('scroll', this.handleScroll)
             },
-            onLogSync: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncEvent = false, hasSyncEvent = false, annotationId = null, countAnnotationReplies = 0) {
-                if (this.currentConfigs.isSyncLog) {
-                    console.log(`onLogSync \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncEvent: ${isSyncEvent} \nhasSyncEvent: ${hasSyncEvent} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
+            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, annotationId = null, countAnnotationReplies = 0) {
+                if (this.currentConfigs.isNbLog) {
+                    console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
 
                     const pageYOffset = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0)
                     const pageHeight = (document.documentElement.scrollHeight - document.documentElement.clientHeight)
 
-                    axios.post(`/api/log/sync`, {
+                    axios.post(`/api/log/nb`, {
                         class_id: this.activeClass.id,
                         annotation_id: annotationId,
                         event: event.toUpperCase(),
                         spotlight_type: spotlightType.toUpperCase(),
-                        order: this.syncLogEventsOrder,
+                        order: this.nbLogEventsOrder,
                         initiator: initiator,
-                        is_sync_event: isSyncEvent,
-                        has_sync_event: hasSyncEvent,
+                        is_sync_annotation: isSyncAnnotation,
+                        has_sync_annotation: hasSyncAnnotation,
                         count_source_annotations: this.threads.length,
                         count_annotation_replies: countAnnotationReplies,
                         count_online_students: this.onlineUsers.students.length,
@@ -1188,10 +1233,12 @@ function embedNbApp() {
                         page_position: this.calculatePagePosition(pageYOffset, pageHeight).toUpperCase(),
                         page_y_offset: pageYOffset,
                         page_height: pageHeight,
-                        role: this.users[this.user.id].role.toUpperCase()
+                        role: this.users[this.user.id].role.toUpperCase(),
+                        applied_filter: JSON.stringify(this.filter),
+                        applied_sort: this.currentConfigs.sortByConfig,
                     }, config)
 
-                    this.syncLogEventsOrder = this.syncLogEventsOrder + 1
+                    this.nbLogEventsOrder = this.nbLogEventsOrder + 1
                 }
             },
             calculatePagePosition: function (pageYOffset, pageHeight) {
@@ -1204,11 +1251,17 @@ function embedNbApp() {
                 } else if (pageYOffset <= (quarterLength * 3)) {
                     return '3/4'
                 } else {
-                    return '3/3'
+                    return '4/4'
                 }
             },
             sleep: function (ms) {
                 return new Promise(resolve => setTimeout(resolve, ms))
+            },
+            handleScroll: function (e) {
+                if (this.currentConfigs.isNbLogScroll) {
+                    clearTimeout(this.scrollLogTimer)
+                    this.scrollLogTimer = setTimeout(() => this.onLogNb('SCROLL'), this.currentConfigs.nbLogScrollSpoConfig)
+                }
             }
         },
         components: {
