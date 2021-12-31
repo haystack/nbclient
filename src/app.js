@@ -1210,7 +1210,7 @@ function embedNbApp() {
             },
             onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0) {
                 if (this.currentConfigs.isNbLog) {
-                    console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
+                    // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
 
