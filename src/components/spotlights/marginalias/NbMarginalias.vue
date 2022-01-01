@@ -8,6 +8,7 @@
             :user="user"
             :threads-hovered="threadsHovered"
             :activeClass="activeClass"
+            @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
             @unhover-thread="$emit('unhover-thread',thread)">
@@ -47,6 +48,9 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        }
     },
     components: {
         NbMarginalia,

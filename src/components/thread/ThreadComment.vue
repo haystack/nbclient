@@ -98,7 +98,8 @@
                 :activeClass="activeClass"
                 :thread-view-initiator="threadViewInitiator"
                 :last="index === comment.children.length-1"
-                @log-exp-spotlight="onLogExpSpotlight"
+                :current-configs="currentConfigs"
+                @log-nb="onLogNb"
                 @edit-comment="editComment"
                 @delete-comment="deleteComment"
                 @draft-reply="draftReply"
@@ -107,7 +108,7 @@
                 @submit-small-comment="submitSmallComment">
             </thread-comment>
         </div>
-        <div class="thread-row smallComment" v-if="last && comment.parent">
+        <div class="thread-row smallComment" v-if="currentConfigs.isShowQuickEditor && last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
                     <div v-if="me.role === 'instructor'" class="instr-icon">
@@ -167,7 +168,11 @@ export default {
         last: {
             type: Boolean,
             default: false
-        }
+        },
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
     },
     data () {
         return {
@@ -202,19 +207,20 @@ export default {
             this.$emit('draft-reply', comment)
         },
         toggleBookmark: function (comment) {
-            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleUpvote: function (comment) {
-            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleReplyRequest: function (comment) {
-            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         checkSubmittedSmallComment: function(e) {
             if (e.keyCode === 13) {
-                let data = {
-                replyToComment: this.comment.parent,
-                html: '<p>' + this.smallComment + '</p>'
+                    let data = {
+                    replyToComment: this.comment,
+                    thisComment: this.comment,
+                    html: '<p>' + this.smallComment + '</p>'
                 }
                 this.$emit('submit-small-comment', data)
             }
@@ -222,8 +228,8 @@ export default {
         submitSmallComment: function (data) {
             this.$emit('submit-small-comment', data)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
     },
     computed: {
