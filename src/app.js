@@ -559,6 +559,12 @@ function embedNbApp() {
                     axios.get('/api/annotations/allUsers', config).then(res => {
                         this.users = res.data
                         this.$set(this.user, 'role', this.users[this.user.id].role)
+                        
+                        axios.get('/api/annotations/myCurrentSection', config).then(res => {
+                            socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
+                            this.currentSectionId = res.data
+                            socket.emit('joined', { id: this.user.id, username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
+                        })
 
                         const configSessionStart = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
                         axios.post(`/api/spotlights/log/session/start`, {
@@ -567,12 +573,6 @@ function embedNbApp() {
                             class_id: this.activeClass.id,
                             role: this.users[this.user.id].role.toUpperCase()
                         }, configSessionStart)
-                    })
-
-                    axios.get('/api/annotations/myCurrentSection', config).then(res => {
-                        socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
-                        this.currentSectionId = res.data
-                        socket.emit('joined', { id: this.user.id, username: this.user.username, classId: newActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
                     })
 
                     axios.get('/api/annotations/allTagTypes', config).then(res => {
