@@ -600,8 +600,8 @@ function embedNbApp() {
             hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
 
             socket.on('connections', (data) => {
-                // console.log("***connectiion***");
-                // console.log(data);
+                console.log("***connectiion***");
+                console.log(data);
                 let isInitConnection = this.onlineUsers.ids.length === 0
                 this.onlineUsers = data.users
 
@@ -611,8 +611,8 @@ function embedNbApp() {
             })
 
             socket.on("new_thread", (data) => {
-                // console.log("***new thread***");
-                // console.log(data);
+                console.log("***new thread***");
+                console.log(data);
                 let userIdsSet = new Set(data.userIds)
                 if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
@@ -623,8 +623,8 @@ function embedNbApp() {
             })
 
             socket.on('thread-typing', (data) => {
-                // console.log("***typing***");
-                // console.log(data);
+//                 console.log("***typing***");
+//                 console.log(data);
                 let thread = this.threads.find(x => x.id === data.threadId)
                 if (thread !== undefined) {
                     thread.usersTyping = data.usersTyping
@@ -632,8 +632,8 @@ function embedNbApp() {
             })
 
             socket.on('new_reply', (data) => {
-                // console.log("***reply***");
-                // console.log(data);
+                console.log("***reply***");
+                console.log(data);
                 if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                         const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
@@ -1232,8 +1232,8 @@ function embedNbApp() {
                         count_online_students: this.onlineUsers.students.length,
                         count_online_instructors: this.onlineUsers.instructors.length,
                         page_position: this.calculatePagePosition(pageYOffset, pageHeight).toUpperCase(),
-                        page_y_offset: pageYOffset,
-                        page_height: pageHeight,
+                        page_y_offset: parseInt(pageYOffset, 10),
+                        page_height: parseInt(pageHeight, 10),
                         role: this.users[this.user.id].role.toUpperCase(),
                         applied_filter: JSON.stringify(this.filter),
                         applied_sort: this.currentConfigs.sortByConfig,
