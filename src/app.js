@@ -609,6 +609,10 @@ function embedNbApp() {
                     this.onLogNb('SYNC_RECEIVED_CONNECTION')
                 }
             })
+            
+            socket.on('disconnect', function() {
+                socket.io.reconnect()
+            })
 
             socket.on("new_thread", (data) => {
                 console.log("***new thread***");
