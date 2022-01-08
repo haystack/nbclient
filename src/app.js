@@ -332,6 +332,7 @@ function embedNbApp() {
                 isFilterMaxThreads: false,
                 filterMaxThreadsConfig: null,
                 isShowSpotlightControls: false,
+                syncNotificationPopupTimerConfig: 60000,
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -565,6 +566,7 @@ function embedNbApp() {
                     this.currentConfigs.isFilterMaxThreads = configs['FILTER_MAX_THREADS'] === 'true' ? true : false
                     this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? configs['CONFIG_FILTER_MAX_THREADS'] : null
                     this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
+                    this.currentConfigs.syncNotificationPopupTimerConfig = configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] ? configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] : 60000
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -810,7 +812,7 @@ function embedNbApp() {
                         confirmButtonText: 'Bring me there!',
                         toast: true,
                         position: 'top-start',
-                        timer: 6000,
+                        timer: this.currentConfigs.syncNotificationPopupTimerConfig,
                     }).then((result) => {
                         if (result.value) {
                             this.swalClicked = true
