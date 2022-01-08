@@ -331,6 +331,7 @@ function embedNbApp() {
                 sortByConfig: 'init',
                 isFilterMaxThreads: false,
                 filterMaxThreadsConfig: null,
+                isShowSpotlightControls: false,
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -465,9 +466,7 @@ function embedNbApp() {
                     items = items.filter(item => item.countAllUpvotes() >= minUpvotes)
                 }
 
-                console.log(this.currentConfigs.sortByConfig);
                 let sortedItems
-
                 switch (this.currentConfigs.sortByConfig) {
                     case 'position':
                         sortedItems = this.threads.concat().sort(compareDomPosition)
@@ -491,8 +490,6 @@ function embedNbApp() {
                         sortedItems = this.threads
                         break
                 }
-
-                console.log('after switch');
 
                 let maxThreads = this.filter.maxThreads
                 if (maxThreads) {
@@ -567,6 +564,7 @@ function embedNbApp() {
                     this.currentConfigs.sortByConfig = configs['CONFIG_SORT_BY'] ? configs['CONFIG_SORT_BY'] : 'recent'
                     this.currentConfigs.isFilterMaxThreads = configs['FILTER_MAX_THREADS'] === 'true' ? true : false
                     this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? configs['CONFIG_FILTER_MAX_THREADS'] : null
+                    this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
