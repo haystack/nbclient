@@ -122,6 +122,10 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false,
+        },
+        filter: {
+            type: Object,
+            default: () => {}
         }
     },
     data () {
