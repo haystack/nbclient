@@ -13,7 +13,7 @@ import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
-import { compareDomPosition } from './utils/compare-util.js'
+import { compare, compareDomPosition } from './utils/compare-util.js'
 import NbInnotations from './components/spotlights/innotations/NbInnotations.vue'
 import NbMarginalias from './components/spotlights/marginalias/NbMarginalias.vue'
 import NbHighlights from './components/highlights/NbHighlights.vue'
@@ -225,9 +225,9 @@ function embedNbApp() {
                     :draggable-notifications-opened="draggableNotificationsOpened"
                     :sidebar-notifications-opened="sidebarNotificationsOpened"
                     :notifications-muted="notificationsMuted"
-                    threadSelectedPane="allThreads"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
+                    :filter="filter"
                     @log-nb="onLogNb"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
@@ -251,6 +251,7 @@ function embedNbApp() {
                     @max-words="onMaxWords"
                     @min-hashtags="onMinHashtags"
                     @max-hashtags="onMaxHashtags"
+                    @max-threads="onMaxThreads"
                     @min-replies="onMinReplies"
                     @min-reply-reqs="onMinReplyReqs"
                     @min-upvotes="onMinUpvotes"
@@ -301,7 +302,8 @@ function embedNbApp() {
                 maxHashtags: null,
                 minReplies: 0,
                 minReplyReqs: 0,
-                minUpvotes: 0
+                minUpvotes: 0,
+                maxThreads: null,
             },
             showHighlights: true,
             sourceURL: '',
@@ -327,6 +329,10 @@ function embedNbApp() {
                 nbLogScrollSpoConfig: 2000,
                 isShowQuickEditor: false,
                 sortByConfig: 'init',
+                isFilterMaxThreads: false,
+                filterMaxThreadsConfig: null,
+                isShowSpotlightControls: false,
+                syncNotificationPopupTimerConfig: 60000,
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -460,7 +466,38 @@ function embedNbApp() {
                 if (minUpvotes > 0) {
                     items = items.filter(item => item.countAllUpvotes() >= minUpvotes)
                 }
-                return items.concat().sort(compareDomPosition) // sort now so we can go prev and next comment
+
+                let sortedItems
+                switch (this.currentConfigs.sortByConfig) {
+                    case 'position':
+                        sortedItems = this.threads.concat().sort(compareDomPosition)
+                        break
+                    case 'recent':
+                        sortedItems = this.threads.concat().sort(compare('timestamp', 'key', false))
+                        break
+                    case 'comment':
+                        sortedItems = this.threads.concat().sort(compare('countAllReplies', 'func', false))
+                        break
+                    case 'reply_request':
+                        sortedItems = this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
+                        break
+                    case 'upvote':
+                        sortedItems = this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
+                        break
+                    case 'unseen':
+                        sortedItems = this.threads.concat().sort(compare('isUnseen', 'func', false))
+                        break
+                    default:
+                        sortedItems = this.threads
+                        break
+                }
+
+                let maxThreads = this.filter.maxThreads
+                if (maxThreads) {
+                    sortedItems = sortedItems.slice(0, maxThreads)
+                }
+
+                return sortedItems
             }
         },
         watch: {
@@ -526,6 +563,10 @@ function embedNbApp() {
                     this.currentConfigs.nbLogScrollSpoConfig = configs['CONFIG_NB_LOG_SCROLL'] ? Number(configs['CONFIG_NB_LOG_SCROLL']) : 2000
                     this.currentConfigs.isShowQuickEditor = configs['SHOW_QUICK_EDITOR'] === 'true' ? true : false
                     this.currentConfigs.sortByConfig = configs['CONFIG_SORT_BY'] ? configs['CONFIG_SORT_BY'] : 'recent'
+                    this.currentConfigs.isFilterMaxThreads = configs['FILTER_MAX_THREADS'] === 'true' ? true : false
+                    this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? configs['CONFIG_FILTER_MAX_THREADS'] : null
+                    this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
+                    this.currentConfigs.syncNotificationPopupTimerConfig = configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] ? configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] : 60000
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -549,6 +590,10 @@ function embedNbApp() {
 
                     }
 
+                    if (this.currentConfigs.isFilterMaxThreads) {
+                        this.filter.maxThreads = this.currentConfigs.filterMaxThreadsConfig
+                    }
+
                     let source = window.location.origin + window.location.pathname
                     if (this.sourceURL.length > 0) {
                         source = this.sourceURL
@@ -559,7 +604,7 @@ function embedNbApp() {
                     axios.get('/api/annotations/allUsers', config).then(res => {
                         this.users = res.data
                         this.$set(this.user, 'role', this.users[this.user.id].role)
-                        
+
                         axios.get('/api/annotations/myCurrentSection', config).then(res => {
                             socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
                             this.currentSectionId = res.data
@@ -609,8 +654,8 @@ function embedNbApp() {
                     this.onLogNb('SYNC_RECEIVED_CONNECTION')
                 }
             })
-            
-            socket.on('disconnect', function() {
+
+            socket.on('disconnect', function () {
                 socket.io.reconnect()
             })
 
@@ -627,8 +672,8 @@ function embedNbApp() {
             })
 
             socket.on('thread-typing', (data) => {
-//                 console.log("***typing***");
-//                 console.log(data);
+                //                 console.log("***typing***");
+                //                 console.log(data);
                 let thread = this.threads.find(x => x.id === data.threadId)
                 if (thread !== undefined) {
                     thread.usersTyping = data.usersTyping
@@ -767,7 +812,7 @@ function embedNbApp() {
                         confirmButtonText: 'Bring me there!',
                         toast: true,
                         position: 'top-start',
-                        timer: 6000,
+                        timer: this.currentConfigs.syncNotificationPopupTimerConfig,
                     }).then((result) => {
                         if (result.value) {
                             this.swalClicked = true
@@ -994,6 +1039,12 @@ function embedNbApp() {
                     this.threadSelected = null // reset selection if filtered
                 }
                 this.filter.maxHashtags = max
+            },
+            onMaxThreads: function (max) {
+                if (this.threadSelected) {
+                    this.threadSelected = null
+                }
+                this.filter.maxThreads = max
             },
             onMinReplies: function (min) {
                 if (this.threadSelected && this.threadSelected.countAllReplies() < min) {

@@ -98,7 +98,7 @@ export default {
             }
         },
         isEnabled: function () {
-            return this.me.role === 'instructor' && (this.currentConfigs.isInnotation || this.currentConfigs.isMarginalia || this.currentConfigs.isEmphasize)
+            return this.me.role === 'instructor' && this.currentConfigs.isShowSpotlightControls && (this.currentConfigs.isInnotation || this.currentConfigs.isMarginalia || this.currentConfigs.isEmphasize)
         }
     },
     methods: {

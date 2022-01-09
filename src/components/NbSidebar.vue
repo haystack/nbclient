@@ -25,6 +25,7 @@
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :sync-config="syncConfig"
+            :filter="filter"
             @search-option="onSearchOption"
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
@@ -37,6 +38,7 @@
             @max-words="onMaxWords"
             @min-hashtags="onMinHashtags"
             @max-hashtags="onMaxHashtags"
+            @max-threads="onMaxThreads"
             @min-replies="onMinReplies"
             @min-reply-reqs="onMinReplyReqs"
             @min-upvotes="onMinUpvotes">
@@ -52,6 +54,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
+            :filter="filter"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
@@ -77,8 +80,7 @@
             @unhover-thread="onUnhoverThread"
             @toggle-mute-notifications="onToggleMuteNotifications"
             @undock-draggable-notifications="onUndockDraggableNotifications"
-            @close-sidebar-notifications="onCloseSidebarNotifications"
-        >
+            @close-sidebar-notifications="onCloseSidebarNotifications">
         </notification-view>
         <thread-view
             v-if="threadSelected"
@@ -219,6 +221,10 @@ export default {
           type: Boolean,
           default: false
         },
+        filter: {
+            type: Object,
+            default: () => {}
+        }
     },
     data () {
         return {
@@ -341,6 +347,9 @@ export default {
         },
         onMaxHashtags: function (max) {
             this.$emit('max-hashtags', max)
+        },
+        onMaxThreads: function (max) {
+            this.$emit('max-threads', max)
         },
         onMinReplies: function (min) {
             this.$emit('min-replies', min)
