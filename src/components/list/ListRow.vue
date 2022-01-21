@@ -1,6 +1,7 @@
 <template>
     <div
         class="list-row"
+        v-bind:id = "thread.id"
         :style="rowStyle"
         :key="thread.id"
         @mouseenter="$emit('hover-thread', thread)"

@@ -11,6 +11,7 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
+import CommentAnonymity  from './models/enums.js'
 import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
 import { compareDomPosition } from './utils/compare-util.js'
@@ -274,6 +275,7 @@ function embedNbApp() {
         data: {
             user: null,
             myClasses: [],
+            myfollowing: [],
             activeClass: {},
             users: {},
             hashtags: {},
@@ -395,6 +397,13 @@ function embedNbApp() {
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
                             return true
                         }
+                        if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
+                            for(let i = 0; i < this.myfollowing.length; i++){
+                                if (item.hasUserPost(this.myfollowing[i].follower_id)){
+                                    return true
+                                }
+                            }
+                        } 
                         return false
                     })
                 }
@@ -454,6 +463,7 @@ function embedNbApp() {
             }
         },
         watch: {
+
             user: async function (newUser, oldUser) {
                 if (!newUser) return // logged out
                 if (newUser === oldUser) return // same user, do nothing
@@ -462,7 +472,7 @@ function embedNbApp() {
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
                 const myClasses = await axios.get('/api/annotations/myClasses', config)
-
+               
                 if (myClasses.data.length > 0) {
                     this.myClasses = myClasses.data
                     if (this.myClasses.length === 1) {
@@ -483,6 +493,7 @@ function embedNbApp() {
                         console.log("Sorry you don't have access");
                     }
                 }
+
             },
             activeClass: async function (newActiveClass, oldActiveClass) {
                 if (newActiveClass != {} && this.user) {
@@ -609,7 +620,12 @@ function embedNbApp() {
                 const decoded = VueJwtDecode.decode(token)
                 this.user = decoded.user
             }
-
+            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+            .then((res) => {
+                this.myfollowing = res.data
+            })
+            
+            
             // remove hypothesis
             const hypothesisSidebar = document.getElementsByTagName('hypothesis-sidebar')
             const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
@@ -997,6 +1013,13 @@ function embedNbApp() {
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {
                         filtered = false
                     }
+                    if (filters.includes('following') && item.anonymity != 'ANONYMOUS'){
+                        for(let i = 0; i < this.myfollowing.length; i++){
+                            if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
+                                filtered = false
+                            }
+                        }
+                    } 
                     if (filtered) {
                         this.threadSelected = null // reset selection if filtered
                     }
@@ -1076,6 +1099,7 @@ function embedNbApp() {
                 this.filter.minUpvotes = min
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
+                console.log("here")
                 this.threadViewInitiator = threadViewInitiator
                 // console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (this.threadSelected) {
