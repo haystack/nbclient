@@ -88,6 +88,7 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myfollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
@@ -219,6 +220,10 @@ export default {
           type: Boolean,
           default: false
         },
+        myfollowing: {
+            type: Array,
+            default: () => []
+        }
     },
     data () {
         return {

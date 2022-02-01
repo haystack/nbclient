@@ -64,6 +64,8 @@
             <div class="body" v-html="comment.html"></div>
             <!-- <input type="text"> -->
             <div class="footer">
+                <button v-if="isfollowing && !authorIsMe && !isAnonymous" v-on:click="unfollowUser()"> Unfollow Author </button>
+                <button v-else-if="!authorIsMe && !isAnonymous" v-on:click="followUser()"> Follow Author</button>
                 <span
                     v-tooltip="'reply'"
                     @click="draftReply(comment)">
@@ -98,6 +100,7 @@
                 :activeClass="activeClass"
                 :thread-view-initiator="threadViewInitiator"
                 :last="index === comment.children.length-1"
+                :myfollowing="myfollowing"
                 @log-exp-spotlight="onLogExpSpotlight"
                 @edit-comment="editComment"
                 @delete-comment="deleteComment"
@@ -156,6 +159,7 @@ Vue.use(BootstrapVueIcons)
  * @vue-event {NbComment} draft-reply - Emit this comment when user clicks on
  *   reply button in this row
  */
+import axios from 'axios'
 export default {
     name: 'thread-comment',
     props: {
@@ -164,6 +168,11 @@ export default {
         replyToComment: Object,
         activeClass: Object,
         threadViewInitiator: String,
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
+        isfollowing: Boolean,
         last: {
             type: Boolean,
             default: false
@@ -224,7 +233,35 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
-        }
+        },
+        followUser: function() {
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.get(`/api/users/${this.comment.author}`, headers)
+            .then(res => {
+                axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                .then(res2 => {
+                    console.log(res2)
+                    console.log(this.isfollowing)
+                    this.isfollowing = true
+                })
+            })
+        },
+        unfollowUser: function(){
+            console.log(this.comment)
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.get(`/api/users/${this.comment.author}`, headers)
+            .then(res => {
+                axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                .then(res2 => {
+                    console.log(res2)
+                    console.log(this.isfollowing)
+                    this.isfollowing = false
+                })
+            })  
+            
+        },
     },
     computed: {
         authorName: function () {
@@ -264,7 +301,20 @@ export default {
                 return { background: '#ffffd0' }
             }
             return null
-        }
+        },
+        authorIsMe: function(){
+            if (this.me.id === this.comment.author){
+                return true
+            }
+            return false
+        },
+        isAnonymous: function(){
+            if(this.comment.anonymity === CommentAnonymity.ANONYMOUS){
+                return true
+            }
+            return false
+        },
+        
     }
 }
 </script>

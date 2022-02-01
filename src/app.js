@@ -228,6 +228,7 @@ function embedNbApp() {
                     threadSelectedPane="allThreads"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
+                    :myfollowing="myfollowing"
                     @log-exp-spotlight="onLogExpSpotlight"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"

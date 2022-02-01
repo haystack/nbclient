@@ -29,6 +29,8 @@
             :replyToComment="replyToComment"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myfollowing"
+            :isfollowing="isFollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="editComment"
             @delete-comment="deleteComment"
@@ -76,6 +78,10 @@ export default {
             },
         activeClass: Object,
         threadViewInitiator: String,
+        myfollowing:{
+            type: Object,
+            default: () => []
+        }
     },
     computed: {
         numComments: function () {
@@ -98,7 +104,15 @@ export default {
         },
         isEnabled: function () {
             return this.me.role === 'instructor' && (this.currentConfigs.isInnotation || this.currentConfigs.isMarginalia || this.currentConfigs.isEmphasize)
-        }
+        },
+        isFollowing: function(){
+            for(let i = 0; i < this.myfollowing.length; i++){
+                if (this.thread.author === this.myfollowing[i].follower_id){
+                    return true
+                }
+            }
+            return false
+        },  
     },
     methods: {
         editComment: function (comment) {
