@@ -134,7 +134,8 @@ export default {
                 { text: 'Longest Thread', value: 'comment' },
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
-                { text: 'Unseen', value: 'unseen'}
+                { text: 'Unseen', value: 'unseen'},
+                { text: 'Following', value: 'following'}
             ]
         }
     },
@@ -160,6 +161,8 @@ export default {
                     return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
                 case 'unseen':
                     return this.threads.concat().sort(compare('isUnseen', 'func', false))
+                case 'following':
+                    return this.threads.concat().sort(compare('isFollowed', 'func', true))
                 default:
                     return this.threads
             }

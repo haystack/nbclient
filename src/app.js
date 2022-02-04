@@ -716,7 +716,6 @@ function embedNbApp() {
                         }
                         // Nb Comment
                         let comment = new NbComment(item, res.data.annotationsData)
-
                         // get the specific annotation that was recently posted
                         let specificAnnotation = null
                         if (replyAnnotationId !== null) {
