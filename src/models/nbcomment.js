@@ -25,6 +25,7 @@ class NbComment {
    * @param {Boolean} data.starredByMe - true if the current user upvoted this comment, sets {@link NbComment#upvotedByMe}
    * @param {Number} data.starCount - total upvotes for this comment, sets {@link NbComment#upvoteCount}
    * @param {Boolean} data.seenByMe - true if the current user's seen this comment, sets {@link NbComment#seenByMe}
+   * @param {Boolean} data.followed - true if the current user's follows author of this comment, sets {@link NbComment#followed}
    * @param {Boolean} data.bookmarked - true if the current user bookmarked this comment, sets {@link NbComment#bookmarked}
    * @param {Object} data.spotlight
    */
@@ -169,6 +170,13 @@ class NbComment {
      * @type Boolean
      */
     this.seenByMe = data.seenByMe
+
+      /**
+     * Flag for followed user. True if the current user's follows author of this comment.
+     * @name NbComment#followed
+     * @type Boolean
+     */
+    this.followed = data.followed
 
     /**
      * Flag for bookmark. True if the current user's bookmarked this comment.
@@ -516,6 +524,16 @@ class NbComment {
     if (!this.seenByMe) { return true }
     for (let child of this.children) {
       if (child.isUnseen()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  isFollowed() {
+    if (!this.followed) { return true }
+    for (let child of this.children) {
+      if (child.isFollowed()) {
         return true
       }
     }
