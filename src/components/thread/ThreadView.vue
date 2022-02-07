@@ -30,12 +30,13 @@
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
             :myfollowing="myfollowing"
-            :isfollowing="isFollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="editComment"
             @delete-comment="deleteComment"
             @submit-small-comment="submitSmallComment"
-            @draft-reply="draftReply">
+            @draft-reply="draftReply"
+            @follow-author="followAuthor"
+            @unfollow-author="unfollowAuthor">
         </thread-comment>
     </div>
 </template>
@@ -105,14 +106,7 @@ export default {
         isEnabled: function () {
             return this.me.role === 'instructor' && (this.currentConfigs.isInnotation || this.currentConfigs.isMarginalia || this.currentConfigs.isEmphasize)
         },
-        isFollowing: function(){
-            for(let i = 0; i < this.myfollowing.length; i++){
-                if (this.thread.author === this.myfollowing[i].follower_id){
-                    return true
-                }
-            }
-            return false
-        },  
+        
     },
     methods: {
         editComment: function (comment) {
@@ -135,7 +129,13 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
-        }
+        },
+        followAuthor: function(comment){
+            this.$emit('follow-author', comment)
+        },
+        unfollowAuthor: function(comment){
+            this.$emit('unfollow-author', comment)
+        },
     },
     components: {
         ThreadComment,

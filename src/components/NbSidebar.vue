@@ -95,7 +95,9 @@
             @draft-reply="onDraftReply"
             @submit-small-comment="onSubmitSmallComment"
             @prev-comment="onPrevComment"
-            @next-comment="onNextComment">
+            @next-comment="onNextComment"
+            @follow-author="onFollowAuthor"
+            @unfollow-author="onUnfollowAuthor">
         </thread-view>
         <editor-view
             :author="user"
@@ -521,6 +523,28 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        },
+        onFollowAuthor: function(comment){
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+             axios.get(`/api/users/${comment.author}`, headers)
+            .then((res) => {
+            axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                .then(res2 => {
+                    this.myfollowing = res2.data                
+                })
+            })
+        },
+        onUnfollowAuthor: function(comment){
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.get(`/api/users/${comment.author}`, headers)
+            .then((res) => {
+            axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                .then(res2 => {
+                    this.myfollowing = res2.data  
+                })
+        })
         }
     },
     components: {

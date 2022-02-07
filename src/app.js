@@ -1099,7 +1099,6 @@ function embedNbApp() {
                 this.filter.minUpvotes = min
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
-                console.log("here")
                 this.threadViewInitiator = threadViewInitiator
                 // console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (this.threadSelected) {
