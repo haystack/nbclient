@@ -7,6 +7,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :emojiHeatmap="emojiHeatmap"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
@@ -64,6 +65,9 @@ export default {
         showHighlights: {
             type: Boolean,
             default: true
+        },
+        emojiHeatmap: {
+            type: Boolean,
         },
         user: Object,
         activeClass: {

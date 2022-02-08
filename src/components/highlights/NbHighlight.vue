@@ -100,6 +100,9 @@ export default {
             type: Boolean,
             default: true
         },
+        emojiHeatmap: {
+            type: Boolean,
+        },
         activeClass: {
             type: Object,
             default: () => {}
@@ -161,6 +164,22 @@ export default {
     },
     computed: {
         style: function () {
+
+            var colorDict = {
+                '1edea120-6011-11ec-8fb7-df1993aaa1da': {Red: 230, Green:20 ,Blue:140,},
+                '1ee11221-6011-11ec-8fb7-df1993aaa1da': {Red: 170, Green:20 ,Blue:230,},
+                '1ede5300-6011-11ec-8fb7-df1993aaa1da': {Red: 30, Green:20 ,Blue:230,},
+                '1ede7a10-6011-11ec-8fb7-df1993aaa1da': {Red: 20, Green:160 ,Blue:230,},
+                '1ee11220-6011-11ec-8fb7-df1993aaa1da': {Red: 20, Green:230 ,Blue:140,},
+                '1ee16040-6011-11ec-8fb7-df1993aaa1da': {Red: 30, Green:230 ,Blue:20,},
+                '1ee0eb10-6011-11ec-8fb7-df1993aaa1da': {Red: 210, Green:230 ,Blue:20,},
+                '1ee16041-6011-11ec-8fb7-df1993aaa1da': {Red: 230, Green:190 ,Blue:20,},
+                '1ee44670-6011-11ec-8fb7-df1993aaa1da': {Red: 230, Green:140 ,Blue:20,},
+                '1ede04e0-6011-11ec-8fb7-df1993aaa1da': {Red: 150, Green:50 ,Blue:50,},
+                '1edccc60-6011-11ec-8fb7-df1993aaa1da': {Red: 100, Green:120 ,Blue:210,},
+                '1ee509c0-6011-11ec-8fb7-df1993aaa1da': {Red: 30, Green:110 ,Blue:90,},
+            };
+
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -195,6 +214,36 @@ export default {
             //         return 'fill: rgb(255, 0, 255); opacity: 0.5;'
             //     }
             // }
+
+            const reducer = (hashtag, previousValue, currentValue) => { 
+                if (this.thread.hasHashtag(hashtag)){
+                    if (previousValue == null){
+                        return currentValue
+                    }
+                    else{
+                        return {Red: currentValue['Red']+previousValue['Red']/2,
+                        Green: currentValue['Green']+previousValue['Green'] / 2,
+                        Blue: currentValue['Blue']+previousValue['Blue'] / 2 }
+                    };
+                }
+                else{
+                    return previousValue
+                }
+            } 
+            
+            if (this.emojiHeatmap){
+                if (this.thread.hashtags.length > 0) {
+                    let prev = null
+                    for (const[hashtag, current] of Object.entries(colorDict)){
+                        prev = reducer(hashtag, prev, current)
+                    }
+                    let resRGB = prev
+                    return `fill: rgb(${resRGB['Red']}, ${resRGB['Green']}, ${resRGB['Blue']}); fill-opacity: 0.3; cursor: pointer;`
+                }   
+                else {
+                    return 'fill: rgb(255, 255, 255); opacity: 0.3;'
+                }
+            }
             return null
         },
         isRecentThread: function () {
