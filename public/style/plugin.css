@@ -608,6 +608,7 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .timestamp {
   font-size: 13px;
   color: #444;
+  cursor: default;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options {
   position: absolute;

@@ -8,7 +8,7 @@
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
-                <span class="timestamp">{{ timeString }}</span>
+                <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
                     <span
                         class="bookmark"
@@ -132,7 +132,7 @@
 
 <script>
 import Vue from 'vue'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { CommentAnonymity } from '../../models/enums.js'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
@@ -245,6 +245,9 @@ export default {
         },
         timeString: function () {
             return moment(this.comment.timestamp).fromNow()
+        },
+        timeFull: function () {
+            return moment(this.comment.timestamp).tz(moment.tz.guess()).format("dddd, MMMM Do YYYY, h:mm:ss a (z)")
         },
         firstComment: function () {
             return !this.comment.parent
