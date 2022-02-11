@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp , faCheckSquare} from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import NbNotification from './models/nbnotification.js'
@@ -47,7 +47,7 @@ Vue.use(VTooltip)
 Vue.use(Notifications)
 Vue.use(VueSweetalert2);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, faChevronDown, faChevronUp)
+library.add(fas, far, faChevronDown, faChevronUp, faCheckSquare)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
@@ -698,6 +698,7 @@ function embedNbApp() {
                             this.threads = this.threads.filter(x => x.id !== oldHeadAnnotationId) // filter out the thread
                         }
                         // Nb Comment
+
                         let comment = new NbComment(item, res.data.annotationsData)
 
                         // get the specific annotation that was recently posted

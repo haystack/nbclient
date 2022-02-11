@@ -10,6 +10,35 @@
                 </span>
                 <span class="timestamp">{{ timeString }}</span>
                 <div class="options">
+                    <div
+                        class="endorsed"
+                        v-if="me.role == 'instructor'"
+                    > 
+                    <span
+                        class="check-square"
+                        v-tooltip="comment.endorsed ? 'remove endorsment' : 'endorse comment'"
+                        @click="toggleEndorsed(comment)"
+                        style="cursor:pointer;">
+                        <font-awesome-icon v-if="comment.endorsed"
+                            :icon="['fas', 'check-square']" class="fas icon">
+                        </font-awesome-icon>
+                        <font-awesome-icon v-else
+                            :icon="['far', 'check-square']" class="far icon">
+                        </font-awesome-icon>
+                    </span>
+                    </div>
+                    <div 
+                        class="endorsed"
+                        v-else-if="comment.endorsed"
+                    >
+                    <span
+                        class="check-square"
+                        v-tooltip="'This comment has been endorsed by an instructor'">
+                        <font-awesome-icon
+                            :icon="['fas', 'check-square']" class="fas icon">
+                        </font-awesome-icon>
+                    </span>
+                    </div>
                     <span
                         class="bookmark"
                         v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
@@ -224,6 +253,10 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        },
+        toggleEndorsed: function(comment){
+            comment.toggleEndorsed();
+
         }
     },
     computed: {

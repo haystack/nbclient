@@ -601,9 +601,11 @@
   position: absolute;
   right: 0;
   top: 0;
+  display: flex;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark {
   cursor: pointer;
+  margin-right: 10px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .icon {
   height: 16px;
@@ -615,11 +617,32 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .far {
   color: #444;
 }
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark:hover {
   color: #70a0f0;
 }
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square {
+  margin-right: 10px;
+}
+ 
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .icon {
+  height: 16px;
+  vertical-align: middle;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .fas {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .far {
+  color: #444;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square:hover {
+  color: #70a0f0;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .overflow-menu {
-  margin: 0 3px 0 6px;
+  margin-top: 2px;
   vertical-align: middle;
   display: inline-block;
   cursor: pointer;
