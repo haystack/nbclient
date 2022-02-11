@@ -248,11 +248,14 @@ export default {
             })
         },
         isFollowing: function(){
+            console.log("hi")
             for(let i = 0; i < this.myfollowing.length; i++){
                 if (this.comment.author === this.myfollowing[i].follower_id){
+                    console.log("true")
                     return true
                 }
             }
+            
             return false
         }, 
     },

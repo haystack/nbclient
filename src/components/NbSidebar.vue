@@ -531,6 +531,7 @@ export default {
             .then((res) => {
             axios.post(`/api/follow/user`, {username: res.data.username}, headers)
                 .then(res2 => {
+                    console.log("in follow")
                     this.myfollowing = res2.data                
                 })
             })
@@ -542,6 +543,7 @@ export default {
             .then((res) => {
             axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
                 .then(res2 => {
+                    console.log("in unfollow")
                     this.myfollowing = res2.data  
                 })
         })
