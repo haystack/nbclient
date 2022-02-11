@@ -603,6 +603,21 @@
   top: 0;
   display: flex;
 }
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 3px;
+}
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark {
   cursor: pointer;
   margin-right: 10px;

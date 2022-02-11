@@ -185,6 +185,7 @@ class NbComment {
      */
     this.bookmarked = data.bookmarked
 
+    this.instructorVotes = data.instructorVotes
     /**
      * This comment's content in plaintext, set in {@link NbComment#setText}.
      * @name NbComment#text
@@ -534,7 +535,7 @@ class NbComment {
   }
 
   isEndorsed(){
-    if(!this.endorsed) { return true }
+    if(this.endorsed) { return true }
     for (let child of this.children) {
       if (child.isEndorsed()) {
         return true
@@ -715,8 +716,23 @@ class NbComment {
   * Toggle the endorsed for this comment by the current user.
   */
   toggleEndorsed() {
-    this.endorsed = !this.endorsed
-    // this.saveUpdates()
+    if(this.endorsed && this.upvotedByMe){
+      this.instructorVotes -= 1
+      if (this.instructorVotes == 0){
+        this.endorsed = false
+        this.updateEndorsed()
+      }
+    } else if (this.endorsed && !this.upvotedByMe){
+      this.instructorVotes += 1
+    } else {
+      this.endorsed = true
+      this.instructorVotes += 1
+      this.updateEndorsed()
+
+    }
+
+  }
+  updateEndorsed () {
     if (this.id) {
       // const token = localStorage.getItem("nb.user");
       // const headers = { headers: { Authorization: 'Bearer ' + token } }
@@ -734,7 +750,6 @@ class NbComment {
     }, headers)
     }
   }
-
   logSpotlightAction(action, comment, activeClass, user, threadViewInitiator, onLogExpSpotlight = () => { }) {
     const headComment = this.getHeadComment(comment)
     onLogExpSpotlight(action, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', headComment.spotlight ? headComment.spotlight.highQuality : false, headComment.id, headComment.countAllReplies())

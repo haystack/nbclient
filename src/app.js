@@ -389,7 +389,7 @@ function embedNbApp() {
                 let filterComments = this.filter.comments
                 if (filterComments.length > 0) {
                     items = items.filter(item => {
-                        if (filterComments.includes('instructor') && item.hasInstructorPost()) {
+                        if (filterComments.includes('instructor') && (item.hasInstructorPost() || item.isEndorsed())) {
                             return true
                         }
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
@@ -992,7 +992,7 @@ function embedNbApp() {
             onFilterComments: function (filters) {
                 if (this.threadSelected && filters.length > 0) {
                     let filtered = true
-                    if (filters.includes('instructor') && this.threadSelected.hasInstructorPost()) {
+                    if (filters.includes('instructor') && (this.threadSelected.hasInstructorPost() || this.threadSelected.isEndorsed())) {
                         filtered = false
                     }
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {
