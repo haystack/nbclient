@@ -88,7 +88,6 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
-            :followed="threadSelected"
             :myfollowing="myNewFollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="onEditComment"
