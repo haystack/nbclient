@@ -1012,7 +1012,7 @@ function embedNbApp() {
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {
                         filtered = false
                     }
-                    if (filters.includes('following') && item.anonymity != 'ANONYMOUS'){
+                    if (filters.includes('following') && this.threadSelected.anonymity != 'ANONYMOUS'){
                         for(let i = 0; i < this.myfollowing.length; i++){
                             if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
                                 filtered = false
@@ -1098,7 +1098,6 @@ function embedNbApp() {
                 this.filter.minUpvotes = min
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
-                console.log("here")
                 this.threadViewInitiator = threadViewInitiator
                 // console.log('threadViewInitiator: ' + this.threadViewInitiator)
                 if (this.threadSelected) {
