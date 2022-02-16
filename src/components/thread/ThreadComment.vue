@@ -64,7 +64,7 @@
             <div class="body" v-html="comment.html"></div>
             <!-- <input type="text"> -->
             <div class="footer">
-                <button v-if="isFollowing() && !authorIsMe && !isAnonymous" v-on:click="unfollowAuthor(comment)"> Unfollow Author </button>
+                <button v-if="!authorIsMe && !isAnonymous && isFollowing()" v-on:click="unfollowAuthor(comment)"> Unfollow Author </button>
                 <button v-else-if="!authorIsMe && !isAnonymous" v-on:click="followAuthor(comment)"> Follow Author</button>
                 <span
                     v-tooltip="'reply'"
@@ -241,17 +241,9 @@ export default {
         unfollowAuthor: function(comment){
             this.$emit('unfollow-author', comment)          
         },
-        myFollowing: function(){
-            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
-            .then((res) => {
-               return res.data
-            })
-        },
         isFollowing: function(){
-            console.log("hi")
             for(let i = 0; i < this.myfollowing.length; i++){
                 if (this.comment.author === this.myfollowing[i].follower_id){
-                    console.log("true")
                     return true
                 }
             }

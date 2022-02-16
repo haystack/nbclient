@@ -88,7 +88,8 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
-            :myfollowing="myfollowing"
+            :followed="threadSelected"
+            :myfollowing="myNewFollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
@@ -244,6 +245,7 @@ export default {
                 isEmpty: true,
                 isDraggable: false,
             },
+            myNewFollowing: this.myfollowing,
         }
     },
     computed: {
@@ -524,30 +526,28 @@ export default {
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
         },
-        onFollowAuthor: function(comment){
-            const token = localStorage.getItem("nb.user");
-            const headers = { headers: { Authorization: 'Bearer ' + token }}
-             axios.get(`/api/users/${comment.author}`, headers)
-            .then((res) => {
-            axios.post(`/api/follow/user`, {username: res.data.username}, headers)
-                .then(res2 => {
-                    console.log("in follow")
-                    this.myfollowing = res2.data                
+        onFollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                 axios.get(`/api/users/${comment.author}`, headers)
+                .then((res) => {
+                axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data                
+                    })
                 })
+            },
+            onUnfollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                axios.get(`/api/users/${comment.author}`, headers)
+                .then((res) => {
+                axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data  
+                    })
             })
-        },
-        onUnfollowAuthor: function(comment){
-            const token = localStorage.getItem("nb.user");
-            const headers = { headers: { Authorization: 'Bearer ' + token }}
-            axios.get(`/api/users/${comment.author}`, headers)
-            .then((res) => {
-            axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
-                .then(res2 => {
-                    console.log("in unfollow")
-                    this.myfollowing = res2.data  
-                })
-        })
-        }
+            }
     },
     components: {
         NavBar,
