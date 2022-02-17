@@ -399,6 +399,11 @@ function embedNbApp() {
                             return true
                         }
                         if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
+                            const token = localStorage.getItem("nb.user")
+                            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                            .then((res) => {
+                                this.myfollowing = res.data
+                            })
                             for(let i = 0; i < this.myfollowing.length; i++){
                                 if (item.hasUserPost(this.myfollowing[i].follower_id)){
                                     return true
@@ -623,7 +628,6 @@ function embedNbApp() {
             }
             axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
             .then((res) => {
-                console.log("in created")
                 this.myfollowing = res.data
             })
             
@@ -1015,6 +1019,11 @@ function embedNbApp() {
                         filtered = false
                     }
                     if (filters.includes('following') && this.threadSelected.anonymity != 'ANONYMOUS'){
+                        const token = localStorage.getItem("nb.user")
+                        axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                        .then((res) => {
+                            this.myfollowing = res.data
+                        })
                         for(let i = 0; i < this.myfollowing.length; i++){
                             if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
                                 filtered = false
@@ -1321,7 +1330,7 @@ function embedNbApp() {
 
                     this.expSpotlightOrder = this.expSpotlightOrder + 1
                 }
-            }
+            },
         },
         components: {
             NbInnotations,

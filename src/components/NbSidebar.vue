@@ -532,7 +532,7 @@ export default {
                 .then((res) => {
                 axios.post(`/api/follow/user`, {username: res.data.username}, headers)
                     .then(res2 => {
-                        this.myNewFollowing = res2.data                
+                        this.myNewFollowing = res2.data 
                     })
                 })
             },
@@ -543,7 +543,7 @@ export default {
                 .then((res) => {
                 axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
                     .then(res2 => {
-                        this.myNewFollowing = res2.data  
+                        this.myNewFollowing = res2.data 
                     })
             })
             }
