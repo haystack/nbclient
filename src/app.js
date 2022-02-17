@@ -316,6 +316,7 @@ function embedNbApp() {
                 isShowNumberOfReplies: true,
                 isShowIndicatorForUnseenThread: true,
                 isShowIndicatorForInstructorComment: true,
+                isShowIndicatorForFollowComment: true,
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,

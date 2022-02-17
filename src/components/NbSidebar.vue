@@ -52,6 +52,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
+            :myfollowing="myNewFollowing"
             @log-exp-spotlight="onLogExpSpotlight"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
