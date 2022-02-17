@@ -570,6 +570,13 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .author {
   font-size: 12px;
 }
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .follow-icon {
+  vertical-align: baseline;
+  color: #444;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
   height: 16px;

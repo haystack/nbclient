@@ -3,6 +3,18 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
+                    <font-awesome-icon 
+                        v-if="!authorIsMe && !isAnonymous && isFollowing()" 
+                        icon="user-check"
+                        v-on:click="unfollowAuthor(comment)"
+                        class="follow-icon">
+                    </font-awesome-icon>
+                    <font-awesome-icon 
+                        v-else-if="!authorIsMe && !isAnonymous" 
+                        icon="user-plus"
+                        v-on:click="followAuthor(comment)"
+                        class="follow-icon">
+                    </font-awesome-icon>
                     <div v-if="comment.instructor" class="instr-icon">
                         instr
                     </div>
@@ -64,8 +76,8 @@
             <div class="body" v-html="comment.html"></div>
             <!-- <input type="text"> -->
             <div class="footer">
-                <button v-if="!authorIsMe && !isAnonymous && isFollowing()" v-on:click="unfollowAuthor(comment)"> Unfollow Author </button>
-                <button v-else-if="!authorIsMe && !isAnonymous" v-on:click="followAuthor(comment)"> Follow Author</button>
+                <!-- <button v-if="!authorIsMe && !isAnonymous && isFollowing()" v-on:click="unfollowAuthor(comment)"> Unfollow Author </button>
+                <button v-else-if="!authorIsMe && !isAnonymous" v-on:click="followAuthor(comment)"> Follow Author</button> -->
                 <span
                     v-tooltip="'reply'"
                     @click="draftReply(comment)">
