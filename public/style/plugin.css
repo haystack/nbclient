@@ -938,6 +938,10 @@
     display: inline-grid;
 }
 
+.filter-options input {
+  position: relative !important;
+}
+
 .filter-options label > img {
     width: 25px;
 }
