@@ -109,16 +109,19 @@
             :initial-reply-request="editor.initialSettings.replyRequested"
             :users="sortedUsers"
             :hashtags="sortedHashtags"
+            :is-submitting="editor.isSubmitting"
             @editor-empty="onEditorEmpty"
             @submit-comment="onSubmitComment"
             @cancel-comment="onCancelComment"
             @thread-typing="onThreadTyping"
             @thread-stop-typing="onThreadStopTyping">
         </editor-view>
+        <notifications position="bottom right" group="annotation" />
     </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import htmlToText from 'html-to-text'
 import { compare } from '../utils/compare-util.js'
 import { CommentVisibility, CommentAnonymity } from '../models/enums.js'
@@ -127,10 +130,13 @@ import NavBar from './NavBar.vue'
 import FilterView from './filters/FilterView.vue'
 import ListView from './list/ListView.vue'
 import NotificationView from './list/NotificationView.vue'
+import Notifications from 'vue-notification'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+
+Vue.use(Notifications)
 
 const SIDEBAR_BORDER_SIZE = 8;
 const SIDEBAR_MIN_WIDTH = 300
@@ -242,6 +248,7 @@ export default {
                 },
                 isEmpty: true,
                 isDraggable: false,
+                isSubmitting: false,
             },
         }
     },
@@ -404,7 +411,7 @@ export default {
             this.editor.isEmpty = isEmpty
             this.$emit('editor-empty', isEmpty)
         },
-        onSubmitSmallComment: function (data) {
+        onSubmitSmallComment: async function (data) {
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
                 range: null, // null if this is reply
@@ -425,18 +432,19 @@ export default {
                 seenByMe: true,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogNb)
-            if (data.replyToComment.parent) {
-                data.replyToComment.parent.children.push(comment)
+
+            try{
+                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogNb)
+                if (data.replyToComment.parent) {
+                    data.replyToComment.parent.children.push(comment)
+                }
+            } catch(e) {
+                Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
+            
         },
-        onSubmitComment: function (data) {
-            this.editor.visible = false
-            if (this.edittingComment) {
-                this.edittingComment.saveUpdates(data)
-                this.edittingComment = null
-                return
-            }
+        onSubmitComment: async function (data) {
+            this.editor.isSubmitting = true
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
                 range: this.draftRange, // null if this is reply
@@ -457,13 +465,30 @@ export default {
                 seenByMe: true
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
-            if (this.draftRange) {
-                this.$emit('new-thread', comment)
-            } else if (this.replyToComment) {
-                this.replyToComment.children.push(comment)
-                this.replyToComment = null
+
+            try {
+                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
+
+                 Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
+
+                this.editor.visible = false
+                if (this.edittingComment) {
+                    this.edittingComment.saveUpdates(data)
+                    this.edittingComment = null
+                    return
+                }
+
+                if (this.draftRange) {
+                    this.$emit('new-thread', comment)
+                } else if (this.replyToComment) {
+                    this.replyToComment.children.push(comment)
+                    this.replyToComment = null
+                }
+            } catch(e) {
+                Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
+
+            this.editor.isSubmitting = false
         },
         onCancelComment: function () {
             this.editor.visible = false
