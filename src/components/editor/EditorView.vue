@@ -34,9 +34,10 @@
         <input type="checkbox" id="draft-request-reply" v-model="replyRequested">
         <label for="draft-request-reply">Request replies</label>
         <div class="buttons">
-          <button class="cancel" @click="cancel">Cancel</button>
-          <button class="submit" @click="submit" :disabled="isEditorEmpty">
-            Submit
+          <button class="cancel" @click="cancel" :disabled='isSubmitting'>Cancel</button>
+          <button class="submit" @click="submit" :disabled='isSubmitting || isEditorEmpty'>
+            <span v-if="isSubmitting">Submitting...</span>
+            <span v-else>Submit</span>
           </button>
         </div>
       </div>
@@ -111,6 +112,10 @@ export default {
       default: CommentAnonymity.IDENTIFIED
     },
     initialReplyRequest: {
+      type: Boolean,
+      default: false
+    },
+    isSubmitting: {
       type: Boolean,
       default: false
     },

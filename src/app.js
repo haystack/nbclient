@@ -494,7 +494,16 @@ function embedNbApp() {
 
                 let maxThreads = this.filter.maxThreads
                 if (maxThreads) {
+                    let hiddenItems = sortedItems.slice(maxThreads + 1)
+
+                    let myHiddenItems = hiddenItems.filter(item => {
+                        if (item.hasUserPost(this.user.id) || item.hasInstructorPost()) return true
+                        return false
+                    })
+
+                    console.log(myHiddenItems);
                     sortedItems = sortedItems.slice(0, maxThreads)
+                    sortedItems = sortedItems.concat(myHiddenItems)
                 }
 
                 return sortedItems

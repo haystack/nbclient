@@ -718,7 +718,14 @@
   background-color: #666;
   border-color: #666;
 }
-#nb-app .editor-view .footer .checkbox-buttons button.cancel:hover {
+#nb-app .editor-view .footer .checkbox-buttons button.cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.cancel:disabled:hover {
+  background-color: #666;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.cancel:enabled:hover {
   background-color: #444;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit {
@@ -936,6 +943,10 @@
 
 .filter-options label {
     display: inline-grid;
+}
+
+.filter-options input {
+  position: relative !important;
 }
 
 .filter-options label > img {
