@@ -398,6 +398,17 @@
   color: #fff;
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
+  
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.instr-endorsed {
+  color: #f4ad3e;
+  background-color: #fff;
+  border-color: #f4ad3e;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid;
+  width: 14px;
+  height: 14px;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
   width: 13px;
