@@ -5,6 +5,7 @@
                 <span class="author">
                     <font-awesome-icon 
                         v-if="!authorIsMe && !isAnonymous && isFollowing()" 
+                        v-tooltip="'unfollow author'"
                         icon="user-check"
                         v-on:click="unfollowAuthor(comment)"
                         class="follow-icon">
@@ -12,6 +13,7 @@
                     <font-awesome-icon 
                         v-else-if="!authorIsMe && !isAnonymous" 
                         icon="user-plus"
+                        v-tooltip="'follow author'"
                         v-on:click="followAuthor(comment)"
                         class="follow-icon">
                     </font-awesome-icon>
