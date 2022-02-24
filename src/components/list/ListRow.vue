@@ -36,7 +36,7 @@
             </div>
             <div v-if="currentConfigs.isShowIndicatorForFollowComment">
                 <div v-if="isFollowing()" 
-                v-tooltip="'This comment has a comment from an author you follow'"
+                v-tooltip="'This comment was written by from an author you follow'"
                 class="icon-wrapper follow">
                     <font-awesome-icon icon="user-check">
                     </font-awesome-icon>

@@ -8,7 +8,7 @@
                         v-tooltip="'unfollow author'"
                         icon="user-check"
                         v-on:click="unfollowAuthor(comment)"
-                        class="follow-icon">
+                        class="unfollow-icon">
                     </font-awesome-icon>
                     <font-awesome-icon 
                         v-else-if="!authorIsMe && !isAnonymous" 
