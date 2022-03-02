@@ -37,8 +37,6 @@
     "@fortawesome/free-regular-svg-icons": "^5.8.1",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/vue-fontawesome": "^0.1.6",
-    "@sentry/tracing": "^6.2.5",
-    "@sentry/vue": "^6.2.5",
     "axios": ">=0.21.1",
     "bootstrap-vue": "^2.21.2",
     "express": "^4.17.0",
