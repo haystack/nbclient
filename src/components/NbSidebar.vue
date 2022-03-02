@@ -110,6 +110,7 @@
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :is-submitting="editor.isSubmitting"
+            :current-configs="currentConfigs"
             @editor-empty="onEditorEmpty"
             @submit-comment="onSubmitComment"
             @cancel-comment="onCancelComment"
@@ -447,6 +448,7 @@ export default {
             this.editor.isSubmitting = true
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
+                type: data.type,
                 range: this.draftRange, // null if this is reply
                 parent: this.replyToComment, // null if this is the head of thread
                 timestamp: null,
@@ -462,14 +464,15 @@ export default {
                 replyRequestCount: data.replyRequested ? 1 : 0,
                 upvotedByMe: false,
                 upvoteCount: 0,
-                seenByMe: true
+                seenByMe: true,
+                mediaBlob: data.mediaBlob,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
 
             try {
                 await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
 
-                 Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
+                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
 
                 this.editor.visible = false
                 if (this.edittingComment) {

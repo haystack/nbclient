@@ -51,6 +51,7 @@ library.add(fas, far, faChevronDown, faChevronUp)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
+export const BASE_HOST_URL = currentEnv.baseURL
 axios.defaults.withCredentials = true
 
 if ((document.attachEvent && document.readyState === 'complete') || (!document.attachEvent && document.readyState !== 'loading')) {
@@ -333,6 +334,7 @@ function embedNbApp() {
                 filterMaxThreadsConfig: null,
                 isShowSpotlightControls: false,
                 syncNotificationPopupTimerConfig: 60000,
+                isCommentMediaAudio: false,
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -501,7 +503,6 @@ function embedNbApp() {
                         return false
                     })
 
-                    console.log(myHiddenItems);
                     sortedItems = sortedItems.slice(0, maxThreads)
                     sortedItems = sortedItems.concat(myHiddenItems)
                 }
@@ -576,6 +577,7 @@ function embedNbApp() {
                     this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? configs['CONFIG_FILTER_MAX_THREADS'] : null
                     this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
                     this.currentConfigs.syncNotificationPopupTimerConfig = configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] ? configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] : 60000
+                    this.currentConfigs.isCommentMediaAudio = configs['COMMENT_MEDIA_AUDIO_STUDENT'] === 'true' ? true : false
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -613,6 +615,10 @@ function embedNbApp() {
                     axios.get('/api/annotations/allUsers', config).then(res => {
                         this.users = res.data
                         this.$set(this.user, 'role', this.users[this.user.id].role)
+
+                        if (this.user.role === 'instructor') {
+                            this.currentConfigs.isCommentMediaAudio = configs['COMMENT_MEDIA_AUDIO_INSTRUCTOR'] === 'true' ? true : false
+                        }
 
                         axios.get('/api/annotations/myCurrentSection', config).then(res => {
                             socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
@@ -780,8 +786,8 @@ function embedNbApp() {
                         // if this thread is open in the thread view, then refresh it
                         if (this.threadSelected && this.threadSelected.id === oldHeadAnnotationId) {
                             //this.threadSelected = comment
-                            console.log(this.threadSelected);
-                            console.log(comment);
+                            // console.log(this.threadSelected);
+                            // console.log(comment);
                             // this.threadSelected.children = comment.children
                         }
 
@@ -880,7 +886,7 @@ function embedNbApp() {
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id, sectioned: !this.currentConfigs.isIgnoreSectionsInClass } }
 
-                axios.get('/api/annotations/new_annotation', config).then(async res => {
+                axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
 
                     for (const item of res.data.headAnnotations) {

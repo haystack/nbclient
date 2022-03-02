@@ -54,8 +54,11 @@
 
         </div>
 
-        <span :style="textStyle">
+        <span v-if="thread.text !== ''" :style="textStyle">
             {{ thread.text }}
+        </span>
+        <span v-else :style="textStyle">
+            {{ thread.type }} by {{thread.authorName}}
         </span>
         
         <div v-if="showSyncFeatures" class="typing">
@@ -181,6 +184,11 @@ export default {
             if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
                 return 'font-weight: bold;'
             }
+
+            if (this.thread.type === 'audio') {
+                return 'color: #7a7a7a; font-style: italic; font-size: small;'
+            }
+
             return null
         }
     },

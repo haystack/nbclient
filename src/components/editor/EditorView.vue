@@ -1,18 +1,32 @@
 <template>
   <div class="editor-view" v-show="visible">
     <div class="header">{{ header }}</div>
-    <text-editor
-        :key="key"
-        :toolbar="toolbar"
-        :placeholder="placeholder"
-        :initial-content="initialContent"
-        :users="users"
-        :hashtags="hashtags"
-        @text-change="onTextChange"
-        @thread-typing="onThreadTyping"
-        @thread-stop-typing="onThreadStopTyping"
-        >
-    </text-editor>
+    <tabs v-if="currentConfigs.isCommentMediaAudio">
+      <tab v-bind:class="{ active: activeTab === 'text' }" @click="handleTabChange('text')"><span><font-awesome-icon icon="i-cursor" class="ev-icon"></font-awesome-icon></span></tab>
+      <tab v-if="currentConfigs.isCommentMediaAudio" v-bind:class="{ active: activeTab === 'audio' }" @click="handleTabChange('audio')"><span><font-awesome-icon icon="microphone" class="ev-icon"></font-awesome-icon></span></tab>
+      <tab v-if="false" v-bind:class="{ active: activeTab === 'video' }" @click="handleTabChange('video')"><span><font-awesome-icon icon="video" class="ev-icon"></font-awesome-icon></span></tab>
+    </tabs>
+    <div class="area" v-bind:class="{ active: activeTab === 'text' }">
+      <text-editor
+          :key="key"
+          :toolbar="toolbar"
+          :placeholder="placeholder"
+          :initial-content="initialContent"
+          :users="users"
+          :hashtags="hashtags"
+          @text-change="onTextChange"
+          @thread-typing="onThreadTyping"
+          @thread-stop-typing="onThreadStopTyping">
+      </text-editor>
+    </div>
+    <div v-if="currentConfigs.isCommentMediaAudio" class="area" v-bind:class="{ active: activeTab === 'audio' }">
+        <audio-editor v-if="activeTab === 'audio' || mediaBlob"
+                      @audio-stop="onAudioStop">
+        </audio-editor>
+    </div>
+    <div v-if="false" class="area" v-bind:class="{ active: activeTab === 'video' }">
+      Video
+    </div>
     <div class="footer">
       <div class="selections">
         Post to
@@ -22,7 +36,7 @@
             {{ option.text }}
           </option>
         </select>
-        as
+        <br>as
         <select v-model="anonymity">
           <option v-for="option in anonymityOptions" :key="option.value"
               :value="option.value" :disabled="option.disabled">
@@ -35,7 +49,7 @@
         <label for="draft-request-reply">Request replies</label>
         <div class="buttons">
           <button class="cancel" @click="cancel" :disabled='isSubmitting'>Cancel</button>
-          <button class="submit" @click="submit" :disabled='isSubmitting || isEditorEmpty'>
+          <button class="submit" @click="submit" :disabled='isSubmitting || !canSubmit'>
             <span v-if="isSubmitting">Submitting...</span>
             <span v-else>Submit</span>
           </button>
@@ -50,6 +64,7 @@
 import htmlToText from 'html-to-text'
 import { CommentVisibility, CommentAnonymity } from '../../models/enums.js'
 import TextEditor from './TextEditor.vue'
+import AudioEditor from './AudioEditor.vue'
 
 /**
  * Component for the comment composer/editor on the side bar.
@@ -119,9 +134,13 @@ export default {
       type: Boolean,
       default: false
     },
+    currentConfigs: {
+        type: Object,
+        default: () => {}
+    },
     users: Array,
     hashtags: Array,
-    visible: Boolean
+    visible: Boolean,
   },
   data () {
     return {
@@ -138,6 +157,7 @@ export default {
       ],
       placeholder: 'Type # or @ to include tags',
       content: this.initialContent,
+      mediaBlob: null,
       visibility: this.initialVisibility,
       visibilityOptions: [
         { text: 'Entire class', value: CommentVisibility.EVERYONE },
@@ -151,9 +171,14 @@ export default {
       ],
       anonymousIdx: 1, // index for 'anonymous' in anonymityOptions
       replyRequested: this.initialReplyRequest,
+      activeTab: 'text',
     }
   },
   computed: {
+    canSubmit: function() {
+      return (this.activeTab === 'text' && !this.isEditorEmpty)
+          || (this.activeTab === 'audio' && this.mediaBlob)
+    },
     isEditorEmpty: function () {
       return htmlToText.fromString(this.content, { wordwrap: false }) === ''
     }
@@ -164,6 +189,9 @@ export default {
     }
   },
   methods: {
+    handleTabChange: function(tab) {
+      this.activeTab = tab
+    },
     onThreadStopTyping: function() {
       this.$emit("thread-stop-typing", true)
     },
@@ -172,6 +200,9 @@ export default {
     },
     onTextChange: function (html) {
       this.content = html
+    },
+    onAudioStop: function(blob) {
+      this.mediaBlob = blob
     },
     extractMentions () {
       let tags = this.$el.getElementsByClassName('mention')
@@ -186,9 +217,19 @@ export default {
       return extracted
     },
     submit: function () {
+      let text = this.content
+      let blob = null
+
+      if (this.activeTab === 'audio') {
+        text = ''
+        blob = this.mediaBlob
+      }
+
       let comment = {
         timestamp: Date.now(),
-        html: this.content,
+        type: this.activeTab,
+        html: text,
+        mediaBlob: blob,
         mentions: this.extractMentions(),
         visibility: this.visibility,
         anonymity: this.anonymity,
@@ -217,7 +258,62 @@ export default {
     }
   },
   components: {
-    TextEditor
+    TextEditor,
+    AudioEditor
   }
 }
 </script>
+
+<style>
+#nb-app .editor-view tabs {
+  background: white;
+  border-bottom: 1px solid #d4d4d4;
+  margin: 5px 0;
+  width: 100%;
+  display: flex;
+  height: 30px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#nb-app .editor-view tab {
+  display: flex;
+  width: 50px;
+  border: 1px solid #dadada;
+  background: #f9f5f5;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#nb-app .editor-view tab span {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+#nb-app .editor-view tab:hover {
+  background: #eee;
+}
+
+#nb-app .editor-view tab.active {
+  background: #dadada;
+  cursor: default;
+}
+
+#nb-app .editor-view .area {
+  display: none;
+  min-height: 50px;
+  transition: all 0.5s;
+}
+
+#nb-app .editor-view .area.active {
+  display: block;
+  transition: all 0.5s;
+}
+
+.editor-view .ev-icon {
+    color: #484848;
+}
+</style>
