@@ -25,20 +25,6 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
-// import * as Sentry from "@sentry/vue";
-// import { Integrations } from "@sentry/tracing";
-
-//prodcution log
-// Sentry.init({
-//   Vue,
-//   dsn: "https://1a47ffe142234c9cb942cf7ddd6d4ec3@o564291.ingest.sentry.io/5722075",
-//   integrations: [new Integrations.BrowserTracing()],
-
-//   // Set tracesSampleRate to 1.0 to capture 100%
-//   // of transactions for performance monitoring.
-//   // We recommend adjusting this value in production
-//   tracesSampleRate: 1.0,
-// });
 
 const currentEnv = Environments.dev
 
