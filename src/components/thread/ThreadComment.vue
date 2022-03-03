@@ -8,6 +8,7 @@
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
+                <br/>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
                     <span
@@ -60,6 +61,9 @@
                         </template>
                     </v-popover>
                 </div>
+            </div>
+            <div v-if="comment.type === 'audio'" class="media"> 
+                <audio :id="comment.id" :src="mediaPath" controls></audio>
             </div>
             <div class="body" v-html="comment.html"></div>
             <!-- <input type="text"> -->
@@ -133,6 +137,7 @@
 <script>
 import Vue from 'vue'
 import moment from 'moment-timezone'
+import {BASE_HOST_URL} from '../../app' 
 import { CommentAnonymity } from '../../models/enums.js'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
@@ -180,7 +185,21 @@ export default {
             smallComment: ""
         }
     },
+    mounted: function () {
+        if (this.comment.type === 'audio') {
+            document.getElementById(this.comment.id).addEventListener('playing', this.onPlayAudio); 
+        }
+    },
+    updated: function () {
+         if (this.comment.type === 'audio') {
+            document.getElementById(this.comment.id).addEventListener('playing', this.onPlayAudio); 
+        }
+    },
     methods: {
+        onPlayAudio: function() {
+            const headComment = this.comment.getHeadComment(this.comment)
+            this.onLogNb('PLAY_MEDIA_AUDIO', this.threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', this.comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+        },
         copyLink: function (comment) {
             this.showOverflow = false
             let url = new URL(window.location.href)
@@ -243,6 +262,9 @@ export default {
             }
             return this.comment.authorName
         },
+        mediaPath: function() {
+            return `${BASE_HOST_URL}${this.comment.mediaPath}`
+        },
         timeString: function () {
             return moment(this.comment.timestamp).fromNow()
         },
@@ -277,3 +299,9 @@ export default {
     }
 }
 </script>
+
+<style>
+.thread-row .media audio {
+    width: 100%;
+}
+</style>

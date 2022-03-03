@@ -29,6 +29,9 @@ class NbComment {
      * @param {Object} data.spotlight
      * @param {Boolean} data.isSync - true if the comment added to the user synchronously
      * @param {Boolean} data.hasSync - true if this a headComment and has a comment that was added to the user synchronously
+     * @param {String} data.type - type of comment (text, audio, video)
+     * @param {Blob} data.mediaBlob - blob of recoreded comment
+     * @param {String} data.mediaPath - url of audio comment
      */
     constructor(data, annotationsData) {
         /**
@@ -192,11 +195,25 @@ class NbComment {
          */
         this.setText()
 
+        if (data.type) {
+            this.type = data.type
+        } else {
+            this.type = 'text'
+        }
+
+        if (data.media) {
+            this.type = data.media.type
+            this.mediaPath = data.media.filepath
+        }
+
         this.spotlight = data.spotlight
         this.usersTyping = []
         this.associatedNotification = null
         this.isSync = false
         this.hasSync = false
+
+        this.mediaBlob = data.mediaBlob
+
     }
 
     /**
@@ -226,9 +243,8 @@ class NbComment {
      */
     submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         const token = localStorage.getItem("nb.user");
-        const headers = { headers: { Authorization: 'Bearer ' + token } }
         if (!this.parent) {
-            return axios.post('/api/annotations/new_annotation', {
+            const data = {
                 url: sourceUrl,
                 class: classId,
                 content: this.html,
@@ -240,14 +256,32 @@ class NbComment {
                 anonymity: CommentAnonymity[this.anonymity],
                 replyRequest: this.replyRequestedByMe,
                 star: this.upvotedByMe,
-                bookmark: this.bookmarked
-            }, headers).then(res => {
-                this.id = res.data.id
-                this.logNbEvent('NEW_ANNOTATION', this, activeClass, user, 'NONE', onLogNb)
-                // this.loadReplies()
-            })
+                bookmark: this.bookmarked,
+                type: 'text'
+            }
+
+            if (this.type === 'text') {
+                const headers = { headers: { Authorization: 'Bearer ' + token } }
+
+                return axios.post('/api/annotations/annotation', data, headers).then(res => {
+                    this.id = res.data.id
+                    this.logNbEvent('NEW_ANNOTATION', this, activeClass, user, 'NONE', onLogNb)
+                })
+            } else if (this.type === 'audio') {
+                data.type = 'audio'
+                let formData = new FormData()
+                formData.append('file', this.mediaBlob)
+                formData.append('annotation', JSON.stringify(data))
+                const headers = { headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'multipart/form-data', } }
+
+                return axios.post('/api/annotations/media/annotation', formData, headers).then(res => {
+                    this.id = res.data.id
+                    this.mediaPath = res.data.Media.filepath
+                    this.logNbEvent('NEW_ANNOTATION_AUDIO', this, activeClass, user, 'NONE', onLogNb)
+                })
+            }
         } else {
-            return axios.post(`/api/annotations/new_reply/${this.parent.id}`, {
+            const data = {
                 url: sourceUrl,
                 class: classId,
                 content: this.html,
@@ -259,10 +293,29 @@ class NbComment {
                 replyRequest: this.replyRequestedByMe,
                 star: this.upvotedByMe,
                 bookmark: this.bookmarked
-            }, headers).then(res => {
-                this.id = res.data.id
-                this.logNbEvent('REPLY', thread, activeClass, user, threadViewInitiator, onLogNb)
-            })
+            }
+
+            if (this.type === 'text') {
+                const headers = { headers: { Authorization: 'Bearer ' + token } }
+
+                return axios.post(`/api/annotations/reply/${this.parent.id}`, data, headers).then(res => {
+                    this.id = res.data.id
+                    this.logNbEvent('REPLY', thread, activeClass, user, threadViewInitiator, onLogNb)
+                })
+            } else if (this.type === 'audio') {
+                data.type = 'audio'
+                let formData = new FormData()
+                formData.append('file', this.mediaBlob)
+                formData.append('annotation', JSON.stringify(data))
+                const headers = { headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'multipart/form-data', } }
+
+                return axios.post(`/api/annotations/media/reply/${this.parent.id}`, formData, headers).then(res => {
+                    this.id = res.data.id
+                    this.mediaPath = res.data.Media.filepath
+                    this.logNbEvent('REPLY_AUDIO', thread, activeClass, user, threadViewInitiator, onLogNb)
+                })
+            }
+
         }
     }
 
@@ -698,7 +751,7 @@ class NbComment {
         const headComment = this.getHeadComment(comment)
         onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
 
-        if (event === 'NEW_ANNOTATION') { return }
+        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return }
 
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
