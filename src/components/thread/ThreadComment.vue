@@ -3,8 +3,8 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
-                    <div v-if="comment.instructor" class="instr-icon">
-                        instr
+                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
@@ -12,7 +12,7 @@
                 <div class="options">
                     <div v-if="comment.endorsed" 
                     v-tooltip="'This comment has been endorsed by an instructor'"
-                    class="icon-wrapper instr">
+                    class="icon-wrapper instr-endorsed">
                         i
                     </div>
                     <span
@@ -115,8 +115,8 @@
         <div class="thread-row smallComment" v-if="last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
-                    <div v-if="me.role === 'instructor'" class="instr-icon">
-                        instr
+                    <div v-if="me.role === 'instructor'" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
                 </span>
