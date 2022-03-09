@@ -3,41 +3,17 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
-                    <div v-if="comment.instructor" class="instr-icon">
-                        instr
+                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
                 <span class="timestamp">{{ timeString }}</span>
                 <div class="options">
-                    <div
-                        class="endorsed"
-                        v-if="me.role == 'instructor'"
-                    > 
-                    <span
-                        class="check-square"
-                        v-tooltip="comment.endorsed ? 'remove endorsment' : 'endorse comment'"
-                        @click="toggleEndorsed(comment)"
-                        style="cursor:pointer;">
-                        <font-awesome-icon v-if="comment.endorsed"
-                            :icon="['fas', 'check-square']" class="fas icon">
-                        </font-awesome-icon>
-                        <font-awesome-icon v-else
-                            :icon="['far', 'check-square']" class="far icon">
-                        </font-awesome-icon>
-                    </span>
-                    </div>
-                    <div 
-                        class="endorsed"
-                        v-else-if="comment.endorsed"
-                    >
-                    <span
-                        class="check-square"
-                        v-tooltip="'This comment has been endorsed by an instructor'">
-                        <font-awesome-icon
-                            :icon="['fas', 'check-square']" class="fas icon">
-                        </font-awesome-icon>
-                    </span>
+                    <div v-if="comment.endorsed" 
+                    v-tooltip="'This comment has been endorsed by an instructor'"
+                    class="icon-wrapper instr-endorsed">
+                        i
                     </div>
                     <span
                         class="bookmark"
@@ -139,8 +115,8 @@
         <div class="thread-row smallComment" v-if="last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
-                    <div v-if="me.role === 'instructor'" class="instr-icon">
-                        instr
+                    <div v-if="me.role === 'instructor'" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
                 </span>
@@ -234,6 +210,9 @@ export default {
             comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
         },
         toggleUpvote: function (comment) {
+            if (this.me.role === 'instructor'){
+                comment.toggleEndorsed();
+            }
             comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
         },
         toggleReplyRequest: function (comment) {

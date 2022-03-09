@@ -31,6 +31,11 @@
                 class="icon-wrapper instr">
                     i
                 </div>
+                <div v-else-if="thread.isEndorsed()" 
+                v-tooltip="'This comment has been endorsed by an instructor'"
+                class="icon-wrapper instr-endorsed">
+                    i
+                </div>
                 <div v-else class="placeholder instr"></div>
             </div>
 
