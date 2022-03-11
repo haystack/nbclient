@@ -25,6 +25,7 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
+import hash from 'hash.js'
 // import * as Sentry from "@sentry/vue";
 // import { Integrations } from "@sentry/tracing";
 
@@ -276,6 +277,9 @@ function embedNbApp() {
             myClasses: [],
             activeClass: {},
             users: {},
+            orderedUsers: [],
+            userNumber: 0,
+            sectionNumber: 2,
             hashtags: {},
             threads: [],
             threadSelected: null,
@@ -566,6 +570,7 @@ function embedNbApp() {
                     axios.get('/api/annotations/allUsers', config)
                         .then(res => {
                             this.users = res.data
+                            this.createOrderedUsers(res.data)
                             this.$set(this.user, 'role', this.users[this.user.id].role)
                             this.onLogExpSpotlight('SESSION_START', 'NONE', 'NONE', false)
 
@@ -584,6 +589,7 @@ function embedNbApp() {
                                 class_id: this.activeClass.id,
                                 role: this.users[this.user.id].role.toUpperCase()
                             }, configSessionStart)
+                            
                         })
 
                     axios.get('/api/annotations/myCurrentSection', config)
@@ -827,6 +833,18 @@ function embedNbApp() {
                             }
                         }
 
+                        console.log(this.threads)
+                        const sectionned = this.threads.filter(t => {
+                            console.log("")
+                            console.log(t.instructor)
+                            console.log(this.orderedUsers.slice(this.userNumber-this.sectionNumber, this.userNumber+this.sectionNumber))
+                            console.log(t.author)
+                            console.log(t.instructor || this.orderedUsers.slice(this.userNumber-this.sectionNumber, this.userNumber+this.sectionNumber).includes(t.author))
+                           return t.instructor || this.orderedUsers.slice(this.userNumber-this.sectionNumber, this.userNumber+this.sectionNumber).includes(t.author)
+                        })
+                        console.log(sectionned)
+                        this.threads = sectionned
+                        console.log(this.threads)
                         if (this.isExpSpotlight && this.expSpotlight.group === 'treatment') {
                             if (!this.expSpotlight.assignment.annotations) {
                                 console.log('need to assign annotations')
@@ -1297,7 +1315,26 @@ function embedNbApp() {
 
                     this.expSpotlightOrder = this.expSpotlightOrder + 1
                 }
-            }
+            },
+            createOrderedUsers: function(allUsers){
+                // console.log(allUsers)
+                // let hashedUser = []
+                // for (const u in allUsers){
+                //     hashedUser.push(hash.sha1().update(u).digest('hex'))
+                // }
+                // console.log(hashedUser)
+                // hashedUser.sort()
+                // console.log(hashedUser)
+                
+                for (const u in allUsers){
+                    this.orderedUsers.push(u)
+                }
+                this.orderedUsers.sort()
+                this.userNumber = this.orderedUsers.indexOf(this.user.id)
+                console.log(this.userNumber)
+                console.log(this.orderedUsers)
+
+            },
         },
         components: {
             NbInnotations,

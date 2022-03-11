@@ -9,6 +9,7 @@
         </header>
         <div v-if="!isCollapsed">
             <div class="list-header">
+                <div class="list-header-container">
                 <span class="count">
                     {{ threads.length }} of {{ totalLabel }}
                 </span>
@@ -24,6 +25,11 @@
                         </option>
                     </select>
                 </span>
+                </div>
+                <div class="range">
+                    <input type="range" min="1" max="100" value="50" id="myRange">
+                    0 of 2 authors shown
+                </div>
             </div>
             <div class="list-table">
                 <div v-if="stillGatheringThreads">
