@@ -278,6 +278,7 @@ function embedNbApp() {
             activeClass: {},
             users: {},
             orderedUsers: [],
+            hashedUser: {},
             userNumber: 0,
             sectionNumber: 2,
             hashtags: {},
@@ -1327,12 +1328,15 @@ function embedNbApp() {
                 // console.log(hashedUser)
                 
                 for (const u in allUsers){
-                    this.orderedUsers.push(u)
+                    this.hashedUser[(hash.sha1().update(u).digest('hex'))] = u
                 }
+                console.log(this.hashedUser)
+                this.orderedUsers = Object.keys(this.hashedUser)
                 this.orderedUsers.sort()
-                this.userNumber = this.orderedUsers.indexOf(this.user.id)
+                this.userNumber = this.orderedUsers.indexOf(hash.sha1().update(this.user.id).digest('hex'))
                 console.log(this.userNumber)
                 console.log(this.orderedUsers)
+                
 
             },
         },
