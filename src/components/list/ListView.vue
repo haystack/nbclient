@@ -10,7 +10,7 @@
         <div v-if="!isCollapsed">
             <div class="list-header">
                 <span class="count">
-                    {{ threads.length }} of {{ totalLabel }}
+                    <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
                     <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
@@ -146,6 +146,9 @@ export default {
         this.sortBy = this.currentConfigs.sortByConfig
     },
     computed: {
+        currentThreadsCount: function () {
+            return this.threads.length
+        },
         totalLabel: function () {
             if (this.totalCount === 1) {
                 return '1 thread'
@@ -216,3 +219,11 @@ export default {
     }
 }
 </script>
+<style>
+.filterdThreads {
+    background: yellow;
+    font-weight: bold;
+    font-style: italic;
+}
+
+</style>
