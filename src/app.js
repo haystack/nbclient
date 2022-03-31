@@ -311,8 +311,8 @@ function embedNbApp() {
                 isSyncNotificationPopup: false,
                 isSyncSpotlightNewThread: false,
                 isNbLog: false,
+                nbLogEventsEnabled: [],
                 syncSpotlightNewThreadConfig: {},
-                isNbLogScroll: false,
                 nbLogScrollSpoConfig: 2000,
                 isShowQuickEditor: false,
                 sortByConfig: 'init',
@@ -554,8 +554,8 @@ function embedNbApp() {
                     this.currentConfigs.isSyncNotificationPopup = configs['SYNC_NOTIFICATION_POPUP'] === 'true' ? true : false
                     this.currentConfigs.isSyncSpotlightNewThread = configs['SYNC_SPOTLIGHT_NEW_THREAD'] === 'true' ? true : false
                     this.currentConfigs.isNbLog = configs['NB_LOG'] === 'true' ? true : false
+                    this.currentConfigs.nbLogEventsEnabled = configs['CONFIG_NB_LOG_EVENTS_ENABLED'] ? JSON.parse(configs['CONFIG_NB_LOG_EVENTS_ENABLED']) : []
                     this.currentConfigs.syncSpotlightNewThreadConfig = configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD'] ? JSON.parse(configs['CONFIG_SYNC_SPOTLIGHT_NEW_THREAD']) : {}
-                    this.currentConfigs.isNbLogScroll = configs['NB_LOG_SCROLL'] === 'true' ? true : false
                     this.currentConfigs.nbLogScrollSpoConfig = configs['CONFIG_NB_LOG_SCROLL'] ? Number(configs['CONFIG_NB_LOG_SCROLL']) : 2000
                     this.currentConfigs.isShowQuickEditor = configs['SHOW_QUICK_EDITOR'] === 'true' ? true : false
                     this.currentConfigs.sortByConfig = configs['CONFIG_SORT_BY'] ? configs['CONFIG_SORT_BY'] : 'recent'
@@ -1277,7 +1277,7 @@ function embedNbApp() {
                 window.removeEventListener('scroll', this.handleScroll)
             },
             onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0) {
-                if (this.currentConfigs.isNbLog) {
+                if (this.currentConfigs.isNbLog && this.currentConfigs.nbLogEventsEnabled.includes(event)) {
                     // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
@@ -1327,7 +1327,7 @@ function embedNbApp() {
                 return new Promise(resolve => setTimeout(resolve, ms))
             },
             handleScroll: function (e) {
-                if (this.currentConfigs.isNbLogScroll) {
+                if (this.currentConfigs.nbLogEventsEnabled.includes('SCROLL')) {
                     clearTimeout(this.scrollLogTimer)
                     this.scrollLogTimer = setTimeout(() => this.onLogNb('SCROLL'), this.currentConfigs.nbLogScrollSpoConfig)
                 }
