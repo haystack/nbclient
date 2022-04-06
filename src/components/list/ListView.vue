@@ -27,8 +27,8 @@
                 </span>
                 </div>
                 <div class="range">
-                    <input type="range" min="1" max="100" value="50" id="myRange">
-                    0 of 2 authors shown
+                    <input v-model="numberOfThreads" type="range" id="myRange" min=minThreads @change="onChangeNumberThreads">
+                    {{numberOfThreads}} of {{maxThreads}} threads shown
                 </div>
             </div>
             <div class="list-table">
@@ -128,6 +128,18 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false,
+        },
+        maxThreads: {
+            type: Number, 
+            default: 0,
+        },
+        minThreads: {
+            type: Number, 
+            default: 0,
+        },
+        numberOfThreads:{
+            type: Number, 
+            default: 0,
         }
     },
     data () {
@@ -141,7 +153,9 @@ export default {
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
                 { text: 'Unseen', value: 'unseen'}
-            ]
+            ],
+            numberOfThreads: minThreads,
+
         }
     },
     computed: {
@@ -191,7 +205,24 @@ export default {
         },
         onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
             this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        },
+        onChangeNumberThreads: function(){
+            this.$emit('change-number-threads', this.numberOfThreads)
         }
+    },
+    watch: {
+        minThreads(newValue, oldValue){
+            console.log(document.querySelector("#myRange"))
+            console.log(newValue)
+            console.log(oldValue)
+            document.querySelector("#myRange").setAttribute('min', newValue.toString())
+        },
+        maxThreads(newValue, oldValue){
+            console.log(document.querySelector("#myRange"))
+            console.log(newValue)
+            console.log(oldValue)
+            document.querySelector("#myRange").setAttribute('max', newValue.toString())
+        },
     },
     components: {
         ListRow
