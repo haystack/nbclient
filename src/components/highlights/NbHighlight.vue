@@ -116,25 +116,10 @@ export default {
             type: Object,
             default: () => {}
         },
-<<<<<<< HEAD
-        isDocumap: {
-            type: Boolean,
-            default: false
-        },
-        doucSettings: {
-            type: Object,
-            default: () => {}
-        },
-        sourceUrl: {
-            type: String,
-            default: ""
-        },
-=======
         hashtags: {
             type: Object,
             default: () => {}
         },
->>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
     },
     data () {
         return {
@@ -202,34 +187,11 @@ export default {
          The style param is responsible for the color of the text based on different criteria
         */
         style: function () {
-<<<<<<< HEAD
-            if (this.isDocumap && this.doucSettings.Me.status && this.thread.author === this.user.id) {
-                return `fill: ${this.doucSettings.Me.color}; fill-opacity: 0.9; cursor: pointer;`
-            }
-            if (this.isDocumap && this.thread.hashtags.length > 0) {
-                if (this.doucSettings.Discuss.status && this.thread.hashtags.includes(this.tags.Discuss)) {
-                    return `fill: ${this.doucSettings.Discuss.color}; fill-opacity: 0.9; cursor: pointer;`
-                }
-                if (this.doucSettings.Interesting.status && this.thread.hashtags.includes(this.tags.Interesting)) {
-                    return `fill: ${this.doucSettings.Interesting.color}; fill-opacity: 0.9; cursor: pointer;`
-                }
-                if (this.doucSettings.Lost.status && this.thread.hashtags.includes(this.tags.Lost)) {
-                    return `fill: ${this.doucSettings.Lost.color}; fill-opacity: 0.9; cursor: pointer;`
-                }
-            }
-            if (this.isDocumap && this.thread.author !== this.user.id && this.doucSettings.Others.status) {
-                return `fill: ${this.doucSettings.Others.color}; fill-opacity: 0.9; cursor: pointer;`
-            }
-            if (this.isDocumap ) {
-                return 'fill: rgb(209, 143, 40); fill-opacity: 0.3; cursor: pointer;'
-            }
-=======
             let hashtagIds = []
             if (this.hashtags) {
                 hashtagIds = Object.values(this.hashtags).map(h => h.id);
             }
 
->>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
