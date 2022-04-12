@@ -157,11 +157,13 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :emojiHeatmap="emojiHeatmap"
                     :user="user"
                     :activeClass="activeClass"
                     :current-configs="currentConfigs"
                     :show-sync-features="showSyncFeatures"
                     :is-innotation-hover="isInnotationHover"
+                    :hashtags="hashtags"
                     @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
@@ -209,6 +211,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :emojiHeatmap="emojiHeatmap"
                     :source-url="sourceURL"
                     :current-configs="currentConfigs"
                     :is-dragging="isDragging"
@@ -252,6 +255,7 @@ function embedNbApp() {
                     @hover-thread="onHoverThread"
                     @unhover-thread="onUnhoverThread"
                     @delete-thread="onDeleteThread"
+                    @change-heatmap-mode="changeHeatmapMode"
                     @new-thread="onNewThread"
                     @cancel-draft="onCancelDraft"
                     @editor-empty="onEditorEmpty"
@@ -300,6 +304,7 @@ function embedNbApp() {
                 maxThreads: null,
             },
             showHighlights: true,
+            emojiHeatmap: false,
             sourceURL: '',
             threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
             nbConfigs: {},
@@ -950,6 +955,9 @@ function embedNbApp() {
                     const headers = { headers: { Authorization: 'Bearer ' + token } }
                     axios.delete(`/api/annotations/annotation/${thread.id}`, headers)
                 }
+            },
+            changeHeatmapMode: function (mode) {
+                this.emojiHeatmap = mode
             },
             onNewThread: function (thread) {
                 this.threads.push(thread)

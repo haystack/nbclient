@@ -54,6 +54,7 @@
 
 <script>
 import { getTextBoundingBoxes } from '../../utils/overlay-util.js'
+import {RgbList} from '../../utils/highlight-util.js'
 import axios from 'axios'
 
 /**
@@ -100,6 +101,9 @@ export default {
             type: Boolean,
             default: true
         },
+        emojiHeatmap: {
+            type: Boolean,
+        },
         activeClass: {
             type: Object,
             default: () => {}
@@ -112,6 +116,7 @@ export default {
             type: Object,
             default: () => {}
         },
+<<<<<<< HEAD
         isDocumap: {
             type: Boolean,
             default: false
@@ -124,6 +129,12 @@ export default {
             type: String,
             default: ""
         },
+=======
+        hashtags: {
+            type: Object,
+            default: () => {}
+        },
+>>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
     },
     data () {
         return {
@@ -187,7 +198,11 @@ export default {
         }
     },
     computed: {
+        /*
+         The style param is responsible for the color of the text based on different criteria
+        */
         style: function () {
+<<<<<<< HEAD
             if (this.isDocumap && this.doucSettings.Me.status && this.thread.author === this.user.id) {
                 return `fill: ${this.doucSettings.Me.color}; fill-opacity: 0.9; cursor: pointer;`
             }
@@ -208,6 +223,13 @@ export default {
             if (this.isDocumap ) {
                 return 'fill: rgb(209, 143, 40); fill-opacity: 0.3; cursor: pointer;'
             }
+=======
+            let hashtagIds = []
+            if (this.hashtags) {
+                hashtagIds = Object.values(this.hashtags).map(h => h.id);
+            }
+
+>>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -242,6 +264,44 @@ export default {
             //         return 'fill: rgb(255, 0, 255); opacity: 0.5;'
             //     }
             // }
+            /*
+             The reducer function gets 2 arguments previousValue(the paint accumulated so far) and hashtag(some valid hashtag),
+             The reducer checks if the current thread has this hashtag, in case it does have it. it calculate new paint for the thread(based on the previous value and the color of the new hashtag)
+            */
+            const reducer = (hashtag, previousValue) => { 
+                if (this.thread.hasHashtag(hashtag)){
+                    let currentValue = RgbList[hashtagIds.indexOf(hashtag)]
+                    console.log(currentValue)
+                    if (previousValue == null){
+                        return currentValue
+                    }
+                    else{
+                        return {Red: currentValue['Red']+previousValue['Red']/2,
+                        Green: currentValue['Green']+previousValue['Green'] / 2,
+                        Blue: currentValue['Blue']+previousValue['Blue'] / 2 }
+                    };
+                }
+                else{
+                    return previousValue
+                }
+            } 
+            /*
+             This condition checks if the user selected to present the emoji heatmap
+             In case the current thread has more then one hashtag, we use the reducer to evaluate the thread color.
+            */
+            if (this.emojiHeatmap){
+                if (this.thread.hashtags.length > 0) {
+                    let prev = null
+                    for (const hashtag of hashtagIds){
+                        prev = reducer(hashtag, prev)
+                    }
+                    let resRGB = prev
+                    return `fill: rgb(${resRGB['Red']}, ${resRGB['Green']}, ${resRGB['Blue']}); fill-opacity: 0.3; cursor: pointer;`
+                }   
+                else {
+                    return 'fill: rgb(255, 255, 255); opacity: 0.3;'
+                }
+            }
             return null
         },
         isRecentThread: function () {
