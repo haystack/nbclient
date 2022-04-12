@@ -40,6 +40,7 @@
                     :activeClass="activeClass"
                     :show-sync-features="showSyncFeatures"
                     :user="user"
+                    :myfollowing="myfollowing"
                     @log-exp-spotlight="onLogExpSpotlight"
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
@@ -122,7 +123,11 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false,
-        }
+        },
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
     },
     data () {
         return {

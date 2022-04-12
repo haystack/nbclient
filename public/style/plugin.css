@@ -399,12 +399,24 @@
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
 }
+
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.follow {
+  width: 13px;
+  color: #70a0f0;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
   width: 13px;
   color: #aaa;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
   width: 16px;
+  height: 16px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.follow {
+  width: 20px;
   height: 16px;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.question {
@@ -570,6 +582,20 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .author {
   font-size: 12px;
 }
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .follow-icon {
+  vertical-align: baseline;
+  color: #444;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .unfollow-icon {
+  vertical-align: baseline;
+  color: #70a0f0;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
   height: 16px;

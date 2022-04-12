@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faUserCheck, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import CommentAnonymity  from './models/enums.js'
@@ -48,7 +48,7 @@ Vue.use(VTooltip)
 Vue.use(Notifications)
 Vue.use(VueSweetalert2);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, faChevronDown, faChevronUp)
+library.add(fas, far, faChevronDown, faChevronUp, faUserCheck, faUserPlus)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
@@ -228,6 +228,7 @@ function embedNbApp() {
                     threadSelectedPane="allThreads"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
+                    :myfollowing="myfollowing"
                     @log-exp-spotlight="onLogExpSpotlight"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
@@ -315,6 +316,7 @@ function embedNbApp() {
                 isShowNumberOfReplies: true,
                 isShowIndicatorForUnseenThread: true,
                 isShowIndicatorForInstructorComment: true,
+                isShowIndicatorForFollowComment: true,
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,
@@ -398,6 +400,11 @@ function embedNbApp() {
                             return true
                         }
                         if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
+                            const token = localStorage.getItem("nb.user")
+                            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                            .then((res) => {
+                                this.myfollowing = res.data
+                            })
                             for(let i = 0; i < this.myfollowing.length; i++){
                                 if (item.hasUserPost(this.myfollowing[i].follower_id)){
                                     return true
@@ -1013,6 +1020,11 @@ function embedNbApp() {
                         filtered = false
                     }
                     if (filters.includes('following') && this.threadSelected.anonymity != 'ANONYMOUS'){
+                        const token = localStorage.getItem("nb.user")
+                        axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                        .then((res) => {
+                            this.myfollowing = res.data
+                        })
                         for(let i = 0; i < this.myfollowing.length; i++){
                             if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
                                 filtered = false
@@ -1319,7 +1331,7 @@ function embedNbApp() {
 
                     this.expSpotlightOrder = this.expSpotlightOrder + 1
                 }
-            }
+            },
         },
         components: {
             NbInnotations,
