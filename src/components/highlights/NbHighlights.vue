@@ -84,25 +84,10 @@ export default {
             type: Boolean,
             default: false
         },
-<<<<<<< HEAD
-        isDocumap: {
-            type: Boolean,
-            default: false
-        },
-        doucSettings: {
-            type: Object,
-            default: () => {}
-        },
-        sourceUrl: {
-            type: String,
-            default: ""
-        },
-=======
         hashtags: {
             type: Object,
             default: () => {}
         },
->>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
     },
     methods: {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
