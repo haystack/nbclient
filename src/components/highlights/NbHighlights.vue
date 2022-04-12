@@ -11,10 +11,7 @@
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
-            :is-documap="isDocumap"
-            :douc-settings="doucSettings"
-            :source-url="sourceUrl"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
             @unhover-thread="$emit('unhover-thread',thread)"
@@ -106,8 +103,8 @@ export default {
 
             this.$emit('unselect-thread', null)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
     },
     mounted: function () {

@@ -32,6 +32,8 @@ npm run start
 ```
 You will then find the files hosted at `localhost:3001` (e.g. `localhost:3001/js/bundle.js`)
 
+Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. Got to this URL `localhost:3001/js/bundle.js` in Chrome then type: thisisunsafe. (note: there is no text box to type this in, you have to type it on yout keyboard to get through). You can also press the advanced button then press continue to site.
+
 ### Code documentation
 To see a nice webpage version of the in-file code documentation as, do:
 ```
