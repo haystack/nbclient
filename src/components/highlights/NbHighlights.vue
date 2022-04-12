@@ -7,10 +7,12 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :emojiHeatmap="emojiHeatmap"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
+            :hashtags="hashtags"
             @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
@@ -65,6 +67,9 @@ export default {
             type: Boolean,
             default: true
         },
+        emojiHeatmap: {
+            type: Boolean,
+        },
         user: Object,
         activeClass: {
             type: Object,
@@ -79,6 +84,7 @@ export default {
             type: Boolean,
             default: false
         },
+<<<<<<< HEAD
         isDocumap: {
             type: Boolean,
             default: false
@@ -91,6 +97,12 @@ export default {
             type: String,
             default: ""
         },
+=======
+        hashtags: {
+            type: Object,
+            default: () => {}
+        },
+>>>>>>> 1b873cb223831e3e8f7e08b10d37896e12c6b601
     },
     methods: {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
