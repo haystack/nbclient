@@ -400,11 +400,6 @@ function embedNbApp() {
                             return true
                         }
                         if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
-                            const token = localStorage.getItem("nb.user")
-                            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
-                            .then((res) => {
-                                this.myfollowing = res.data
-                            })
                             for(let i = 0; i < this.myfollowing.length; i++){
                                 if (item.hasUserPost(this.myfollowing[i].follower_id)){
                                     return true
