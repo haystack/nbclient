@@ -824,7 +824,6 @@ function embedNbApp() {
 
                 axios.get('/api/annotations/new_annotation', config)
                     .then(async res => {
-                        console.log("axios get");
                         this.threads = []
                         for (const item of res.data.headAnnotations) {
                             try {
@@ -962,6 +961,7 @@ function embedNbApp() {
                 let maxThreads = (this.numberOfThreads-this.threads.length)/2
                 let counter = 0 
                 let currentNeighbor = this.userNumber+1
+                
 
                 //loop through the right neihghbors
                 while(counter < maxThreads && currentNeighbor!= this.userNumber){
@@ -983,15 +983,15 @@ function embedNbApp() {
                 } 
                 
                 counter = 0
-                currentNeighbor = this.userNumber -= 1
-                
+                currentNeighbor = this.userNumber - 1
                 //loop through the left neihghbors
-                while(counter < maxThreads  && currentNeighbor!= this.userNumber ){
+                while(counter < maxThreads  && currentNeighbor!= this.userNumber && this.threads.length < this.numberOfThreads){
                     //loop through the threads of current neighbor
                     let currentAuthor = this.hashedUser[this.orderedUsers[currentNeighbor]]
                     for(let t in this.allThreads[currentAuthor]){
-                        if (!this.threads.includes(t)){
-                            this.threads.push(t)
+                        if (!this.threads.includes(this.allThreads[currentAuthor][t])){
+
+                            this.threads.push(this.allThreads[currentAuthor][t])
                             counter += 1
                             if (counter >= maxThreads){
                                  break
@@ -1002,7 +1002,7 @@ function embedNbApp() {
                     if (currentNeighbor == -1){
                         currentNeighbor = this.orderedUsers.length-1
                     }
-                }    
+                }  
             },
             removeThreads: function(){
                 this.threads = this.threads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id))
@@ -1407,7 +1407,6 @@ function embedNbApp() {
                 for (const u in allUsers){
                     this.hashedUser[(hash.sha1().update(u).digest('hex'))] = u
                 }
-                console.log(this.hashedUser)
                 this.orderedUsers = Object.keys(this.hashedUser)
                 this.orderedUsers.sort()
                 this.userNumber = this.orderedUsers.indexOf(hash.sha1().update(this.user.id).digest('hex'))

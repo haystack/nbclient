@@ -11,7 +11,7 @@
             <div class="list-header">
                 <div class="list-header-container">
                 <span class="count">
-                    {{ threads.length }} of {{ totalLabel }}
+                    {{numberOfThreads}} of {{maxThreads}} threads
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
                     <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
@@ -27,8 +27,7 @@
                 </span>
                 </div>
                 <div class="range">
-                    <input v-model="numberOfThreads" type="range" id="myRange" min=minThreads @change="onChangeNumberThreads">
-                    {{numberOfThreads}} of {{maxThreads}} threads shown
+                    <input v-model="numberOfThreads" type="range" id="myRange" min=minThreads @change="onChangeNumberThreads" style="width:300px;">
                 </div>
             </div>
             <div class="list-table">
@@ -212,15 +211,9 @@ export default {
     },
     watch: {
         minThreads(newValue, oldValue){
-            console.log(document.querySelector("#myRange"))
-            console.log(newValue)
-            console.log(oldValue)
             document.querySelector("#myRange").setAttribute('min', newValue.toString())
         },
         maxThreads(newValue, oldValue){
-            console.log(document.querySelector("#myRange"))
-            console.log(newValue)
-            console.log(oldValue)
             document.querySelector("#myRange").setAttribute('max', newValue.toString())
         },
     },
