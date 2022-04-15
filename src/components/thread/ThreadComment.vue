@@ -3,13 +3,33 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
-                    <div v-if="comment.instructor" class="instr-icon">
-                        instr
+                    <font-awesome-icon 
+                        v-if="!authorIsMe && !isAnonymous && isFollowing()" 
+                        v-tooltip="'unfollow author'"
+                        icon="user-check"
+                        v-on:click="unfollowAuthor(comment)"
+                        class="unfollow-icon">
+                    </font-awesome-icon>
+                    <font-awesome-icon 
+                        v-else-if="!authorIsMe && !isAnonymous" 
+                        icon="user-plus"
+                        v-tooltip="'follow author'"
+                        v-on:click="followAuthor(comment)"
+                        class="follow-icon">
+                    </font-awesome-icon>
+                   <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
-                <span class="timestamp">{{ timeString }}</span>
+                <br/>
+                <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
+                    <div v-if="comment.endorsed" 
+                    v-tooltip="'This comment has been endorsed by an instructor'"
+                    class="icon-wrapper instr-endorsed">
+                        i
+                    </div>
                     <span
                         class="bookmark"
                         v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
@@ -61,9 +81,14 @@
                     </v-popover>
                 </div>
             </div>
+            <div v-if="comment.type === 'audio'" class="media"> 
+                <audio :id="comment.id" :src="mediaPath" controls></audio>
+            </div>
             <div class="body" v-html="comment.html"></div>
             <!-- <input type="text"> -->
             <div class="footer">
+                <!-- <button v-if="!authorIsMe && !isAnonymous && isFollowing()" v-on:click="unfollowAuthor(comment)"> Unfollow Author </button>
+                <button v-else-if="!authorIsMe && !isAnonymous" v-on:click="followAuthor(comment)"> Follow Author</button> -->
                 <span
                     v-tooltip="'reply'"
                     @click="draftReply(comment)">
@@ -98,20 +123,24 @@
                 :activeClass="activeClass"
                 :thread-view-initiator="threadViewInitiator"
                 :last="index === comment.children.length-1"
-                @log-exp-spotlight="onLogExpSpotlight"
+                :myfollowing="myfollowing"
+                :current-configs="currentConfigs"
+                @log-nb="onLogNb"
                 @edit-comment="editComment"
                 @delete-comment="deleteComment"
                 @draft-reply="draftReply"
                 @toggle-upvote="toggleUpvote"
                 @toggle-reply-request="toggleReplyRequest"
-                @submit-small-comment="submitSmallComment">
+                @submit-small-comment="submitSmallComment"
+                @follow-author="followAuthor"
+                @unfollow-author="unfollowAuthor">
             </thread-comment>
         </div>
-        <div class="thread-row smallComment" v-if="last && comment.parent">
+        <div class="thread-row smallComment" v-if="currentConfigs.isShowQuickEditor && last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
-                    <div v-if="me.role === 'instructor'" class="instr-icon">
-                        instr
+                    <div v-if="me.role === 'instructor'" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
                 </span>
@@ -131,7 +160,8 @@
 
 <script>
 import Vue from 'vue'
-import moment from 'moment'
+import moment from 'moment-timezone'
+import {BASE_HOST_URL} from '../../app' 
 import { CommentAnonymity } from '../../models/enums.js'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
@@ -156,6 +186,7 @@ Vue.use(BootstrapVueIcons)
  * @vue-event {NbComment} draft-reply - Emit this comment when user clicks on
  *   reply button in this row
  */
+import axios from 'axios'
 export default {
     name: 'thread-comment',
     props: {
@@ -164,10 +195,18 @@ export default {
         replyToComment: Object,
         activeClass: Object,
         threadViewInitiator: String,
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
         last: {
             type: Boolean,
             default: false
-        }
+        },
+        currentConfigs: {
+            type: Object,
+            default: () => {}
+        },
     },
     data () {
         return {
@@ -175,7 +214,21 @@ export default {
             smallComment: ""
         }
     },
+    mounted: function () {
+        if (this.comment.type === 'audio') {
+            document.getElementById(this.comment.id).addEventListener('playing', this.onPlayAudio); 
+        }
+    },
+    updated: function () {
+         if (this.comment.type === 'audio') {
+            document.getElementById(this.comment.id).addEventListener('playing', this.onPlayAudio); 
+        }
+    },
     methods: {
+        onPlayAudio: function() {
+            const headComment = this.comment.getHeadComment(this.comment)
+            this.onLogNb('PLAY_MEDIA_AUDIO', this.threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', this.comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+        },
         copyLink: function (comment) {
             this.showOverflow = false
             let url = new URL(window.location.href)
@@ -202,19 +255,23 @@ export default {
             this.$emit('draft-reply', comment)
         },
         toggleBookmark: function (comment) {
-            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleUpvote: function (comment) {
+            if (this.me.role === 'instructor'){
+                comment.toggleEndorsed();
+            }
             comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
         },
         toggleReplyRequest: function (comment) {
-            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
+            comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         checkSubmittedSmallComment: function(e) {
             if (e.keyCode === 13) {
-                let data = {
-                replyToComment: this.comment.parent,
-                html: '<p>' + this.smallComment + '</p>'
+                    let data = {
+                    replyToComment: this.comment,
+                    thisComment: this.comment,
+                    html: '<p>' + this.smallComment + '</p>'
                 }
                 this.$emit('submit-small-comment', data)
             }
@@ -222,8 +279,26 @@ export default {
         submitSmallComment: function (data) {
             this.$emit('submit-small-comment', data)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        followAuthor: function(comment) {
+            this.$emit('follow-author', comment)
+        },
+        unfollowAuthor: function(comment){
+            this.$emit('unfollow-author', comment)          
+        },
+        isFollowing: function(){
+            for(let i = 0; i < this.myfollowing.length; i++){
+                if (this.comment.author === this.myfollowing[i].follower_id){
+                    return true
+                }
+            }
+            
+            return false
+        }, 
+        toggleEndorsed: function(comment){
+            comment.toggleEndorsed();
+        },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
     },
     computed: {
@@ -237,8 +312,14 @@ export default {
             }
             return this.comment.authorName
         },
+        mediaPath: function() {
+            return `${BASE_HOST_URL}${this.comment.mediaPath}`
+        },
         timeString: function () {
             return moment(this.comment.timestamp).fromNow()
+        },
+        timeFull: function () {
+            return moment(this.comment.timestamp).tz(moment.tz.guess()).format("dddd, MMMM Do YYYY, h:mm:ss a (z)")
         },
         firstComment: function () {
             return !this.comment.parent
@@ -264,7 +345,26 @@ export default {
                 return { background: '#ffffd0' }
             }
             return null
-        }
+        },
+        authorIsMe: function(){
+            if (this.me.id === this.comment.author){
+                return true
+            }
+            return false
+        },
+        isAnonymous: function(){
+            if(this.comment.anonymity === CommentAnonymity.ANONYMOUS){
+                return true
+            }
+            return false
+        },
+        
     }
 }
 </script>
+
+<style>
+.thread-row .media audio {
+    width: 100%;
+}
+</style>

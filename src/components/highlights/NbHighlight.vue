@@ -165,26 +165,27 @@ export default {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.thread === this.threadSelected) {
-                return 'fill: rgb(1, 99, 255); fill-opacity: 0.3; cursor: pointer;'
+                return 'fill: rgb(255, 255, 255); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
             }
             if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) {
-                return 'stroke: lime; fill: lime; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px; cursor: pointer;'
+                let color = this.thread.spotlight.color? this.thread.spotlight.color : 'lime'
+                return `stroke: ${color}; fill: ${color}; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px; cursor: pointer;`
             }
             if (this.showTypingActivityAnimation) { // if typing, show a pink outline color
                 // return 'stroke: rgb(255, 0, 255); stroke-width: 25'
                 return
             }
-            if (this.showRecentActivityAnimation) { // if recently shown, show a cyan outline color
-                // return 'stroke: rgb(0, 255, 255); stroke-width: 15'
-                return
-            }
-            if (this.unseenNotificationThread) {
-                return 'fill: rgb(80, 54, 255); opacity: 0.7;'
-                // return 'stroke: rgb(80, 54, 255); stroke-width: 8; stroke-opacity: 0.2;'
-            }
+            // if (this.showRecentActivityAnimation) { // if recently shown, show a cyan outline color
+            //     // return 'stroke: rgb(0, 255, 255); stroke-width: 15'
+            //     return
+            // }
+            // if (this.unseenNotificationThread) {
+            //     return 'fill: rgb(80, 54, 255); opacity: 0.7;'
+            //     // return 'stroke: rgb(80, 54, 255); stroke-width: 8; stroke-opacity: 0.2;'
+            // }
             // if (this.replyRequestThread) {
             //     if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
             //         // return 'stroke: rgb(255, 0, 255); stroke-width: 8; stroke-opacity: 0.25;'
@@ -203,12 +204,14 @@ export default {
             return this.thread && this.thread.usersTyping && this.thread.usersTyping.length > 0 && this.showSyncFeatures
         },
         showRecentActivityAnimation: function () {
+            return false
             if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
                 return false
             }
             return this.thread && this.recent && this.showSyncFeatures
         },
         showTypingActivityAnimation: function () {
+            return false
             if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
                 return false
             }
@@ -251,7 +254,7 @@ export default {
             }
 
             const location = this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
-            this.$emit('log-exp-spotlight', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
@@ -265,7 +268,7 @@ export default {
                 role: this.user.role.toUpperCase()
             }, config)
 
-            this.logSyncClick()
+            this.logNbClick()
 
             if (this.currentConfigs.isEmphasize && this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
                 this.$emit('select-thread', this.thread, 'SPOTLIGHT')
@@ -273,7 +276,7 @@ export default {
                 this.$emit('select-thread', this.thread, 'HIGHLIGHT')
             }
         },
-        logSyncClick: function () {
+        logNbClick: function () {
             if (this.unseenNotificationThread || this.isTypingThread || this.isRecentThread || this.showTypingActivityAnimation) {
                 let trigger_type = ''
                 if (this.isTypingThread || this.isRecentThread) {
@@ -283,7 +286,7 @@ export default {
                 } else {
                     trigger_type = 'REPLY_REQUESTED'
                 }
-                console.log(trigger_type)
+                // console.log(trigger_type)
                 const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
