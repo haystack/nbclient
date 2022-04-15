@@ -40,6 +40,7 @@
                     :activeClass="activeClass"
                     :show-sync-features="showSyncFeatures"
                     :user="user"
+                    :myfollowing="myfollowing"
                     @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
@@ -123,6 +124,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
         filter: {
             type: Object,
             default: () => {}
@@ -138,7 +143,7 @@ export default {
                 { text: 'Longest Thread', value: 'comment' },
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
-                { text: 'Unseen', value: 'unseen'}
+                { text: 'Unseen', value: 'unseen'},
             ]
         }
     },

@@ -118,6 +118,17 @@
                   me
                 </label>
               </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="following-comments"
+                    value="following"
+                    v-model="filterComments"
+                    @change="onFilterChange('comments')">
+                <label for="following-comments">
+                  following
+                </label>
+              </div>
             </div>
             <div class="title">Reply Requests</div>
             <div class="reply-requests">

@@ -8,9 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
-import { faChevronDown, faChevronUp , faCheckSquare} from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faUserCheck, faUserPlus, faCheckSquare } from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
+import CommentAnonymity  from './models/enums.js'
 import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
 import { compare, compareDomPosition } from './utils/compare-util.js'
@@ -33,7 +34,7 @@ Vue.use(VTooltip)
 Vue.use(Notifications)
 Vue.use(VueSweetalert2);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, faChevronDown, faChevronUp, faCheckSquare)
+library.add(fas, far, faChevronDown, faChevronUp, faUserCheck, faUserPlus, faCheckSquare)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
@@ -214,6 +215,7 @@ function embedNbApp() {
                     :notifications-muted="notificationsMuted"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
+                    :myfollowing="myfollowing"
                     :filter="filter"
                     @log-nb="onLogNb"
                     @switch-class="onSwitchClass"
@@ -263,6 +265,7 @@ function embedNbApp() {
         data: {
             user: null,
             myClasses: [],
+            myfollowing: [],
             activeClass: {},
             users: {},
             hashtags: {},
@@ -303,6 +306,7 @@ function embedNbApp() {
                 isShowNumberOfReplies: true,
                 isShowIndicatorForUnseenThread: true,
                 isShowIndicatorForInstructorComment: true,
+                isShowIndicatorForFollowComment: true,
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,
@@ -399,6 +403,13 @@ function embedNbApp() {
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
                             return true
                         }
+                        if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
+                            for(let i = 0; i < this.myfollowing.length; i++){
+                                if (item.hasUserPost(this.myfollowing[i].follower_id)){
+                                    return true
+                                }
+                            }
+                        } 
                         return false
                     })
                 }
@@ -512,7 +523,7 @@ function embedNbApp() {
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
                 const myClasses = await axios.get('/api/annotations/myClasses', config)
-
+               
                 if (myClasses.data.length > 0) {
                     this.myClasses = myClasses.data
                     if (this.myClasses.length === 1) {
@@ -533,6 +544,7 @@ function embedNbApp() {
                         console.log("Sorry you don't have access");
                     }
                 }
+
             },
             activeClass: async function (newActiveClass, oldActiveClass) {
                 if (newActiveClass != {} && this.user) {
@@ -638,7 +650,12 @@ function embedNbApp() {
                 const decoded = VueJwtDecode.decode(token)
                 this.user = decoded.user
             }
-
+            axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+            .then((res) => {
+                this.myfollowing = res.data
+            })
+            
+            
             // remove hypothesis
             const hypothesisSidebar = document.getElementsByTagName('hypothesis-sidebar')
             const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
@@ -994,6 +1011,18 @@ function embedNbApp() {
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {
                         filtered = false
                     }
+                    if (filters.includes('following') && this.threadSelected.anonymity != 'ANONYMOUS'){
+                        const token = localStorage.getItem("nb.user")
+                        axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                        .then((res) => {
+                            this.myfollowing = res.data
+                        })
+                        for(let i = 0; i < this.myfollowing.length; i++){
+                            if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
+                                filtered = false
+                            }
+                        }
+                    } 
                     if (filtered) {
                         this.threadSelected = null // reset selection if filtered
                     }
@@ -1332,7 +1361,7 @@ function embedNbApp() {
                     clearTimeout(this.scrollLogTimer)
                     this.scrollLogTimer = setTimeout(() => this.onLogNb('SCROLL'), this.currentConfigs.nbLogScrollSpoConfig)
                 }
-            }
+            },
         },
         components: {
             NbInnotations,

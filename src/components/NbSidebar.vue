@@ -54,6 +54,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
+            :myfollowing="myNewFollowing"
             :filter="filter"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
@@ -90,13 +91,16 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myNewFollowing"
             @log-nb="onLogNb"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
             @submit-small-comment="onSubmitSmallComment"
             @prev-comment="onPrevComment"
-            @next-comment="onNextComment">
+            @next-comment="onNextComment"
+            @follow-author="onFollowAuthor"
+            @unfollow-author="onUnfollowAuthor">
         </thread-view>
         <editor-view
             :author="user"
@@ -228,6 +232,10 @@ export default {
           type: Boolean,
           default: false
         },
+        myfollowing: {
+            type: Array,
+            default: () => []
+        },
         filter: {
             type: Object,
             default: () => {}
@@ -251,6 +259,7 @@ export default {
                 isDraggable: false,
                 isSubmitting: false,
             },
+            myNewFollowing: this.myfollowing,
         }
     },
     computed: {
@@ -550,6 +559,28 @@ export default {
         },
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
+        },
+        onFollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                 axios.get(`/api/users/${comment.author}`, headers)
+                .then((res) => {
+                axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data 
+                    })
+                })
+        },
+        onUnfollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                axios.get(`/api/users/${comment.author}`, headers)
+                .then((res) => {
+                axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data 
+                    })
+            })
         },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
             this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)

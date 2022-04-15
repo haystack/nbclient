@@ -549,6 +549,13 @@ class NbComment {
         return false
     }
 
+      /**
+     * Flag for followed user. True if the current user's follows author of this comment.
+     * @name NbComment#followed
+     * @type Boolean
+     */
+    this.followed = data.followed
+
     /**
      * Check recursively if this comment (or descendant) has any upvotes.
      * @return {Boolean} True if this comment (or descendant) has any upvotes.
@@ -576,6 +583,16 @@ class NbComment {
         }
         return false
     }
+
+  isFollowed() {
+    if (!this.followed) { return true }
+    for (let child of this.children) {
+      if (child.isFollowed()) {
+        return true
+      }
+    }
+    return false
+  }
 
     /**
      * Check recursively if this comment (or descendant) hasn't been seen by the current user.
