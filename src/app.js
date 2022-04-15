@@ -26,7 +26,6 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
-import hash from 'hash.js'
 
 const currentEnv = Environments.dev
 
@@ -216,9 +215,6 @@ function embedNbApp() {
                     :notifications-muted="notificationsMuted"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
-                    :minThreads="minThreads"
-                    :maxThreads="maxThreads"
-                    :numberOfThreads="numberOfThreads"
                     :myfollowing="myfollowing"
                     :filter="filter"
                     @log-nb="onLogNb"
@@ -252,7 +248,6 @@ function embedNbApp() {
                     @select-notification="onSelectNotification"
                     @hover-thread="onHoverThread"
                     @unhover-thread="onUnhoverThread"
-                    @change-number-threads="onChangeNumberThreads"
                     @delete-thread="onDeleteThread"
                     @new-thread="onNewThread"
                     @cancel-draft="onCancelDraft"
@@ -273,15 +268,8 @@ function embedNbApp() {
             myfollowing: [],
             activeClass: {},
             users: {},
-            orderedUsers: [],
-            hashedUser: {},
-            userNumber: 0,
-            numberOfThreads: 1,
-            minThreads: 0,
-            maxThreads: 0,
             hashtags: {},
             threads: [],
-            allThreads: {},
             threadSelected: null,
             threadsHovered: [], // in case of hover on overlapping highlights
             notificationSelected: null,
@@ -516,7 +504,6 @@ function embedNbApp() {
                     sortedItems = sortedItems.concat(myHiddenItems)
                 }
 
-                 this.numberOfThreads = sortedItems.length
                 return sortedItems
             }
         },
@@ -625,7 +612,6 @@ function embedNbApp() {
 
                     axios.get('/api/annotations/allUsers', config).then(res => {
                         this.users = res.data
-                        this.createOrderedUsers(res.data)
                         this.$set(this.user, 'role', this.users[this.user.id].role)
 
                         if (this.user.role === 'instructor') {
@@ -915,33 +901,10 @@ function embedNbApp() {
                             console.warn(`Could not deserialize range for ${item.id}`)
                             continue
                         }
-                        if (this.threads.length < this.numberOfThreads){
-                            this.addThreads()
-                        }
-                        this.numberOfThreads=this.threads.length
 
                         // Nb Comment
                         let comment = new NbComment(item, res.data.annotationsData)
-                        this.maxThreads +=1
-                        //put threads in dict{author: thread}
-                        //get all authors for thread
-                        let allAuthors = comment.getAllAuthors()
-                        allAuthors.forEach((author) => {
-                            if (author in this.allThreads){
-                                this.allThreads[author].push(comment)
-                            } else {
-                                this.allThreads[author] = [comment]
-                            }
-                            if(author === this.user.id){
-                                this.threads.push(comment)
-                                this.minThreads += 1
-                            }
-                        })
-
-                        if (comment.hasInstructorPost() && !this.threads.includes(comment)){
-                            this.threads.push(comment)
-                            this.minThreads+=1
-                        }
+                        this.threads.push(comment)
 
                         // TODO: check this code
                         let offlineNotification = this.newOfflineNotification(comment) // Either get back a notification to add or null
@@ -969,59 +932,6 @@ function embedNbApp() {
                     }
                 })
             },
-            addThreads: function(){
-                let maxThreads = (this.numberOfThreads-this.threads.length)/2
-                let counter = 0 
-                let currentNeighbor = this.userNumber+1
-                
-
-                //loop through the right neihghbors
-                while(counter < maxThreads && currentNeighbor!= this.userNumber){
-                    let currentAuthor = this.hashedUser[this.orderedUsers[currentNeighbor]]
-                    //loop through the threads of current neighbor
-                    for(let t in this.allThreads[currentAuthor]){
-                        if (!this.threads.includes(this.allThreads[currentAuthor][t])){
-                            this.threads.push(this.allThreads[currentAuthor][t])
-                            counter += 1
-                            if (counter >= maxThreads){
-                                break
-                            }
-                        }
-                    }
-                    currentNeighbor += 1
-                    if (currentNeighbor == this.orderedUsers.length){
-                        currentNeighbor = 0
-                    }
-                } 
-                
-                counter = 0
-                currentNeighbor = this.userNumber - 1
-                //loop through the left neihghbors
-                while(counter < maxThreads  && currentNeighbor!= this.userNumber && this.threads.length < this.numberOfThreads){
-                    //loop through the threads of current neighbor
-                    let currentAuthor = this.hashedUser[this.orderedUsers[currentNeighbor]]
-                    for(let t in this.allThreads[currentAuthor]){
-                        if (!this.threads.includes(this.allThreads[currentAuthor][t])){
-
-                            this.threads.push(this.allThreads[currentAuthor][t])
-                            counter += 1
-                            if (counter >= maxThreads){
-                                 break
-                            }
-                        }
-                    }
-                    currentNeighbor -= 1
-                    if (currentNeighbor == -1){
-                        currentNeighbor = this.orderedUsers.length-1
-                    }
-                }  
-            },
-            removeThreads: function(){
-                this.threads = this.threads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id))
-                if(this.threads.length < this.numberOfThreads){
-                    this.addThreads()
-                }
-            },
             draftThread: function (range) {
                 if (this.user) { // only if selection was after user log in
                     this.draftRange = createNbRange(range)
@@ -1035,15 +945,11 @@ function embedNbApp() {
                     const token = localStorage.getItem("nb.user");
                     const headers = { headers: { Authorization: 'Bearer ' + token } }
                     axios.delete(`/api/annotations/annotation/${thread.id}`, headers)
-                    this.minThreads -=1
-                    this.numberOfThreads -= 1
                 }
             },
             onNewThread: function (thread) {
                 this.threads.push(thread)
                 this.draftRange = null
-                this.maxThreads += 1
-                this.numberOfThreads += 1
             },
             onCancelDraft: function () {
                 this.draftRange = null
@@ -1269,15 +1175,6 @@ function embedNbApp() {
                     if (idx >= 0) this.threadsHovered.splice(idx, 1)
                 }
             },
-            onChangeNumberThreads: function(num){
-                if (num > this.numberOfThreads){
-                    this.numberOfThreads = num
-                    this.addThreads()
-                } else {
-                    this.numberOfThreads = num
-                    this.removeThreads()
-                }
-            },
             onUnhoverInnotation: function (thread) {
                 // console.log('onUnhoverInnotation in app')
                 this.isInnotationHover = false
@@ -1384,7 +1281,7 @@ function embedNbApp() {
                 this.activeClass = {}
                 this.users = {}
                 this.hashtags = {}
-                this.threads = {}
+                this.threads = []
                 this.threadSelected = null
                 this.threadsHovered = []
                 this.draftRange = null
@@ -1442,14 +1339,6 @@ function embedNbApp() {
 
                     this.nbLogEventsOrder = this.nbLogEventsOrder + 1
                 }
-            },
-            createOrderedUsers: function(allUsers){
-                for (const u in allUsers){
-                    this.hashedUser[(hash.sha1().update(u).digest('hex'))] = u
-                }
-                this.orderedUsers = Object.keys(this.hashedUser)
-                this.orderedUsers.sort()
-                this.userNumber = this.orderedUsers.indexOf(hash.sha1().update(this.user.id).digest('hex'))
             },
             calculatePagePosition: function (pageYOffset, pageHeight) {
                 const quarterLength = pageHeight / 4

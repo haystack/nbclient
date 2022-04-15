@@ -9,9 +9,7 @@
         </header>
         <div v-if="!isCollapsed">
             <div class="list-header">
-                <div class="list-header-container">
                 <span class="count">
-                    {{numberOfThreads}} of {{maxThreads}} threads
                     <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
@@ -26,10 +24,6 @@
                         </option>
                     </select>
                 </span>
-                </div>
-                <div class="range">
-                    <input v-model="numberOfThreads" type="range" id="myRange" min=minThreads @change="onChangeNumberThreads" style="width:300px;">
-                </div>
             </div>
             <div class="list-table">
                 <div v-if="stillGatheringThreads">
@@ -130,18 +124,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        maxThreads: {
-            type: Number, 
-            default: 0,
-        },
-        minThreads: {
-            type: Number, 
-            default: 0,
-        },
-        numberOfThreads:{
-            type: Number, 
-            default: 0,
-       },
         myfollowing: {
             type: Object,
             default: () => []
@@ -161,9 +143,8 @@ export default {
                 { text: 'Longest Thread', value: 'comment' },
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
-                { text: 'Unseen', value: 'unseen'}
-            ],
-            numberOfThreads: minThreads,
+                { text: 'Unseen', value: 'unseen'},
+            ]
         }
     },
     created: async function () {
@@ -234,20 +215,9 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onChangeNumberThreads: function(){
-            this.$emit('change-number-threads', this.numberOfThreads)
-        },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
             this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
-    },
-    watch: {
-        minThreads(newValue, oldValue){
-            document.querySelector("#myRange").setAttribute('min', newValue.toString())
-        },
-        maxThreads(newValue, oldValue){
-            document.querySelector("#myRange").setAttribute('max', newValue.toString())
-        },
     },
     components: {
         ListRow
