@@ -9,9 +9,6 @@ module.exports = {
     path: path.join(__dirname, 'public/js'),
     filename: 'bundle.js'
   },
-  node: {
-    fs: 'empty'
-  },
   module: {
     rules: [
       {
