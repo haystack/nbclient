@@ -59,8 +59,11 @@
 
         </div>
 
-        <span :style="textStyle">
+        <span v-if="thread.text !== ''" :style="textStyle">
             {{ thread.text }}
+        </span>
+        <span v-else :style="textStyle">
+            {{ thread.type }} by {{thread.authorName}}
         </span>
         
         <div v-if="showSyncFeatures" class="typing">
@@ -131,7 +134,7 @@ export default {
     },
     methods: {
         onClick: function () {
-            this.$emit('log-exp-spotlight', 'CLICK', 'LIST', this.thread.spotlight ? this.thread.spotlight.type : 'NONE', this.thread.spotlight ? this.thread.spotlight.highQuality : false, this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', 'LIST', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
@@ -186,6 +189,11 @@ export default {
             if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
                 return 'font-weight: bold;'
             }
+
+            if (this.thread.type === 'audio') {
+                return 'color: #7a7a7a; font-style: italic; font-size: small;'
+            }
+
             return null
         }
     },
