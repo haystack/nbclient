@@ -5,6 +5,7 @@
         @click="onClick()"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
+            <span v-if="thread.spotlight.showTime" class="nb-marginalia-time"> <b>{{ authorName }}</b> @ {{ ago }}</span>
             {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text}}
     </div>
 </template>
@@ -12,6 +13,8 @@
 <script>
 import { getTextBoundingBoxes } from '../../../utils/overlay-util.js'
 import axios from 'axios'
+import moment from 'moment'
+import { CommentAnonymity } from '../../../models/enums.js'
 
 export default {
     name: 'nb-marginalia',
@@ -28,8 +31,31 @@ export default {
             default: () => {}
         },
     },
+    data () {
+        return {
+            ago: '',
+            time: '',
+            interval:null
+        }
+    },
+    created: function() {
+        if (this.thread.spotlight.showTime) {
+            this.time = this.thread.timestamp
+            this.interval = setInterval(() => {
+                this.ago = moment(this.time).fromNow();
+            }, 1000)
+        }
+    },
+    destroyed: function() {
+         if (this.thread.spotlight.showTime) {
+            clearInterval(this.interval)
+         }
+    },
     computed: {
         style: function () {
+            let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
+            let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fef5d7'
+
             // console.log('=====================================');
             // console.log(this.thread.range)
             // console.log(document.body.getBoundingClientRect().top);
@@ -40,15 +66,21 @@ export default {
             let style = `top: ${getTextBoundingBoxes(this.thread.range.toRange())[0].top - document.body.getBoundingClientRect().top}px; transition: 0.3s;`
 
              if (this.threadsHovered.includes(this.thread)) {
-                // style = `${style} outline: 2px dashed #ccc;`
-               style = `${style} background-color: #fef5d7; z-index: 1;`
+               style = `${style} color: ${color}; background-color: ${backgroundColor}; z-index: 1;`
             }
 
             if (this.thread === this.threadSelected) {
-                style = `${style} mask-image: unset; background-color: #fef5d7; z-index: 2;`
+                style = `${style} mask-image: unset; color: ${color}; background-color: ${backgroundColor}; z-index: 2;`
             }
 
             return style
+        },
+        authorName: function () {
+            // console.log(this.thread)
+            if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
+                    return 'Anonymous'
+            }
+            return this.thread.authorName
         },
     },
     watch: {
@@ -64,6 +96,8 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
+            this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
+
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }

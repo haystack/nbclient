@@ -7,7 +7,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :activeClass="activeClass"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
@@ -19,7 +19,7 @@
             :thread-selected="threadSelected"
             :user="user"
             :activeClass="activeClass"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-innotation="$emit('hover-innotation',thread)"
             @unhover-innotation="$emit('unhover-innotation',thread)">
@@ -60,8 +60,8 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
     },
     components: {

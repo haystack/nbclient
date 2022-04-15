@@ -50,8 +50,8 @@ export default {
       default: () => {}
     },
     onlineUsers: {
-      type: Array,
-      default: () => []
+      type: Number,
+      default: 0
     },
     activeClass: {
       type: Object,

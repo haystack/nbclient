@@ -69,6 +69,17 @@
 
               </div>
             </div>
+            <div class="title">Max. # of threads</div>
+             <div>
+                <input
+                    type="number"
+                    id="max-threads"
+                    placeholder="n/a"
+                    min="0"
+                    v-model="maxThreads"
+                    @keypress="event => validateNumber(event)"
+                    @change="onFilterChange('max-threads')">
+              </div>
             <div class="title">Users tagged</div>
             <div class="user-tags">
               <div>
@@ -93,7 +104,7 @@
                     v-model="filterComments"
                     @change="onFilterChange('comments')">
                 <label for="instructor-comments">
-                  instructors
+                  instructors/endorsed
                 </label>
               </div>
               <div>
@@ -378,6 +389,7 @@ export default {
     users: Array,
     hashtags: Array,
     syncConfig: Boolean,
+    filter: Object,
   },
   data () {
     return {
@@ -392,13 +404,24 @@ export default {
       maxWords: null,
       minHashtags: null,
       maxHashtags: null,
+      maxThreads: null,
       minReplies: null,
       minReplyReqs: null,
       minUpvotes: null,
       pluginHostURL: PLUGIN_HOST_URL
     }
   },
+  watch: {
+      currentMaxThread: function() {
+          if (this.filter.maxThreads !== this.maxThreads) {
+              this.maxThreads = this.filter.maxThreads
+          }
+      }
+  },
   computed: {
+      currentMaxThread: function() {
+          return this.filter.maxThreads
+      },
     showAdvanced: function () {
       return this.me.role === 'instructor'
     },
@@ -489,6 +512,13 @@ export default {
             this.$emit('max-hashtags', parseInt(this.maxHashtags))
           } else {
             this.$emit('max-hashtags', null)
+          }
+          break
+        case 'max-threads':
+          if (this.maxThreads) {
+            this.$emit('max-threads', parseInt(this.maxThreads))
+          } else {
+            this.$emit('max-threads', null)
           }
           break
         case 'min-replies':

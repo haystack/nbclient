@@ -25,6 +25,7 @@
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :sync-config="syncConfig"
+            :filter="filter"
             @search-option="onSearchOption"
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
@@ -37,6 +38,7 @@
             @max-words="onMaxWords"
             @min-hashtags="onMinHashtags"
             @max-hashtags="onMaxHashtags"
+            @max-threads="onMaxThreads"
             @min-replies="onMinReplies"
             @min-reply-reqs="onMinReplyReqs"
             @min-upvotes="onMinUpvotes">
@@ -53,7 +55,8 @@
             :user="user"
             :show-sync-features="showSyncFeatures"
             :myfollowing="myNewFollowing"
-            @log-exp-spotlight="onLogExpSpotlight"
+            :filter="filter"
+            @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
@@ -78,8 +81,7 @@
             @unhover-thread="onUnhoverThread"
             @toggle-mute-notifications="onToggleMuteNotifications"
             @undock-draggable-notifications="onUndockDraggableNotifications"
-            @close-sidebar-notifications="onCloseSidebarNotifications"
-        >
+            @close-sidebar-notifications="onCloseSidebarNotifications">
         </notification-view>
         <thread-view
             v-if="threadSelected"
@@ -90,7 +92,7 @@
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
             :myfollowing="myNewFollowing"
-            @log-exp-spotlight="onLogExpSpotlight"
+            @log-nb="onLogNb"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
@@ -111,16 +113,20 @@
             :initial-reply-request="editor.initialSettings.replyRequested"
             :users="sortedUsers"
             :hashtags="sortedHashtags"
+            :is-submitting="editor.isSubmitting"
+            :current-configs="currentConfigs"
             @editor-empty="onEditorEmpty"
             @submit-comment="onSubmitComment"
             @cancel-comment="onCancelComment"
             @thread-typing="onThreadTyping"
             @thread-stop-typing="onThreadStopTyping">
         </editor-view>
+        <notifications position="bottom right" group="annotation" />
     </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import htmlToText from 'html-to-text'
 import { compare } from '../utils/compare-util.js'
 import { CommentVisibility, CommentAnonymity } from '../models/enums.js'
@@ -129,10 +135,13 @@ import NavBar from './NavBar.vue'
 import FilterView from './filters/FilterView.vue'
 import ListView from './list/ListView.vue'
 import NotificationView from './list/NotificationView.vue'
+import Notifications from 'vue-notification'
 import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+
+Vue.use(Notifications)
 
 const SIDEBAR_BORDER_SIZE = 8;
 const SIDEBAR_MIN_WIDTH = 300
@@ -149,8 +158,8 @@ export default {
             default: () => {}
         },
         onlineUsers: {
-          type: Array,
-          default: () => []
+          type: Object,
+          default: () => {}
       },
         myClasses: {
             type: Array,
@@ -226,6 +235,10 @@ export default {
         myfollowing: {
             type: Array,
             default: () => []
+        },
+        filter: {
+            type: Object,
+            default: () => {}
         }
     },
     data () {
@@ -244,6 +257,7 @@ export default {
                 },
                 isEmpty: true,
                 isDraggable: false,
+                isSubmitting: false,
             },
             myNewFollowing: this.myfollowing,
         }
@@ -351,6 +365,9 @@ export default {
         onMaxHashtags: function (max) {
             this.$emit('max-hashtags', max)
         },
+        onMaxThreads: function (max) {
+            this.$emit('max-threads', max)
+        },
         onMinReplies: function (min) {
             this.$emit('min-replies', min)
         },
@@ -404,11 +421,11 @@ export default {
             this.editor.isEmpty = isEmpty
             this.$emit('editor-empty', isEmpty)
         },
-        onSubmitSmallComment: function (data) {
+        onSubmitSmallComment: async function (data) {
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
                 range: null, // null if this is reply
-                parent: data.replyToComment, // null if this is the head of thread
+                parent: data.replyToComment.parent, // null if this is the head of thread
                 timestamp: null,
                 author: this.user.id,
                 authorName: `${this.user.name.first} ${this.user.name.last}`,
@@ -425,20 +442,22 @@ export default {
                 seenByMe: true,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
-            if (data.replyToComment) {
-                data.replyToComment.children.push(comment)
+
+            try{
+                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, data.replyToComment, this.activeClass, this.user, this.onLogNb)
+                if (data.replyToComment.parent) {
+                    data.replyToComment.parent.children.push(comment)
+                }
+            } catch(e) {
+                Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
+            
         },
-        onSubmitComment: function (data) {
-            this.editor.visible = false
-            if (this.edittingComment) {
-                this.edittingComment.saveUpdates(data)
-                this.edittingComment = null
-                return
-            }
+        onSubmitComment: async function (data) {
+            this.editor.isSubmitting = true
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
+                type: data.type,
                 range: this.draftRange, // null if this is reply
                 parent: this.replyToComment, // null if this is the head of thread
                 timestamp: null,
@@ -454,16 +473,34 @@ export default {
                 replyRequestCount: data.replyRequested ? 1 : 0,
                 upvotedByMe: false,
                 upvoteCount: 0,
-                seenByMe: true
+                seenByMe: true,
+                mediaBlob: data.mediaBlob,
             })
             let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
-            comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogExpSpotlight)
-            if (this.draftRange) {
-                this.$emit('new-thread', comment)
-            } else if (this.replyToComment) {
-                this.replyToComment.children.push(comment)
-                this.replyToComment = null
+
+            try {
+                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
+
+                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
+
+                this.editor.visible = false
+                if (this.edittingComment) {
+                    this.edittingComment.saveUpdates(data)
+                    this.edittingComment = null
+                    return
+                }
+
+                if (this.draftRange) {
+                    this.$emit('new-thread', comment)
+                } else if (this.replyToComment) {
+                    this.replyToComment.children.push(comment)
+                    this.replyToComment = null
+                }
+            } catch(e) {
+                Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
+
+            this.editor.isSubmitting = false
         },
         onCancelComment: function () {
             this.editor.visible = false
@@ -523,9 +560,6 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
-        },
         onFollowAuthor: async function(comment){
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
@@ -536,8 +570,8 @@ export default {
                         this.myNewFollowing = res2.data 
                     })
                 })
-            },
-            onUnfollowAuthor: async function(comment){
+        },
+        onUnfollowAuthor: async function(comment){
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 axios.get(`/api/users/${comment.author}`, headers)
@@ -547,7 +581,10 @@ export default {
                         this.myNewFollowing = res2.data 
                     })
             })
-            }
+        },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        }
     },
     components: {
         NavBar,

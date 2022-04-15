@@ -10,7 +10,7 @@
         <div v-if="!isCollapsed">
             <div class="list-header">
                 <span class="count">
-                    {{ threads.length }} of {{ totalLabel }}
+                    <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
                     <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
@@ -41,7 +41,7 @@
                     :show-sync-features="showSyncFeatures"
                     :user="user"
                     :myfollowing="myfollowing"
-                    @log-exp-spotlight="onLogExpSpotlight"
+                    @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
                     @unhover-thread="$emit('unhover-thread', thread)">
@@ -128,14 +128,18 @@ export default {
             type: Object,
             default: () => []
         },
+        filter: {
+            type: Object,
+            default: () => {}
+        }
     },
     data () {
         return {
             isCollapsed: false,
-            sortBy: "position",
+            sortBy: "init",
             sortByOptions: [
-                { text: 'Default', value: 'position' },
                 { text: 'Most Recent', value: 'recent' },
+                { text: 'Location', value: 'position' },
                 { text: 'Longest Thread', value: 'comment' },
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
@@ -143,7 +147,13 @@ export default {
             ]
         }
     },
+    created: async function () {
+        this.sortBy = this.currentConfigs.sortByConfig
+    },
     computed: {
+        currentThreadsCount: function () {
+            return this.threads.length
+        },
         totalLabel: function () {
             if (this.totalCount === 1) {
                 return '1 thread'
@@ -175,21 +185,38 @@ export default {
         title: function () {
             return 'All Threads'
         },
+        sortByConfig: function () {
+            return this.currentConfigs.sortByConfig
+        }
+    },
+    watch: {
+        sortBy: function(newSortBy, oldSortBy) {
+            this.currentConfigs.sortByConfig = this.sortBy
+            if(oldSortBy !== 'init') {
+                this.onLogNb('SORT')
+            }
+        },
+        sortByConfig: function() {
+            if(this.sortBy !== this.currentConfigs.sortByConfig) {
+                this.sortBy = this.currentConfigs.sortByConfig
+            }
+            
+        }
     },
     methods: {
         toggleHighlights: function () {
             if( this.showHighlights ) {
-                this.onLogExpSpotlight('HIDE_HIGHLIGHT')
+                this.onLogNb('HIDE_HIGHLIGHT')
             } else {
-                this.onLogExpSpotlight('SHOW_HIGHLIGHT')
+                this.onLogNb('SHOW_HIGHLIGHT')
             }
             this.$emit('toggle-highlights', !this.showHighlights)
         },
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogExpSpotlight: async function (event = 'NONE', initiator = 'NONE', type = 'NONE', highQuality = false, annotationId = null, annotation_replies_count = 0) {
-            this.$emit('log-exp-spotlight', event, initiator, type, highQuality, annotationId, annotation_replies_count)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
     },
     components: {
@@ -197,3 +224,11 @@ export default {
     }
 }
 </script>
+<style>
+.filterdThreads {
+    background: yellow;
+    font-weight: bold;
+    font-style: italic;
+}
+
+</style>
