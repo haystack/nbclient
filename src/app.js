@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp , faCheckSquare} from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import NbNotification from './models/nbnotification.js'
@@ -33,7 +33,7 @@ Vue.use(VTooltip)
 Vue.use(Notifications)
 Vue.use(VueSweetalert2);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, faChevronDown, faChevronUp)
+library.add(fas, far, faChevronDown, faChevronUp, faCheckSquare)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
@@ -393,7 +393,7 @@ function embedNbApp() {
                 let filterComments = this.filter.comments
                 if (filterComments.length > 0) {
                     items = items.filter(item => {
-                        if (filterComments.includes('instructor') && item.hasInstructorPost()) {
+                        if (filterComments.includes('instructor') && (item.hasInstructorPost() || item.isEndorsed())) {
                             return true
                         }
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
@@ -754,6 +754,7 @@ function embedNbApp() {
                         }
 
                         // Nb Comment
+
                         let comment = new NbComment(item, res.data.annotationsData)
                         comment.hasSync = true
 
@@ -987,7 +988,7 @@ function embedNbApp() {
             onFilterComments: function (filters) {
                 if (this.threadSelected && filters.length > 0) {
                     let filtered = true
-                    if (filters.includes('instructor') && this.threadSelected.hasInstructorPost()) {
+                    if (filters.includes('instructor') && (this.threadSelected.hasInstructorPost() || this.threadSelected.isEndorsed())) {
                         filtered = false
                     }
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {

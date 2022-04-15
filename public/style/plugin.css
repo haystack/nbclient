@@ -415,6 +415,17 @@
   color: #fff;
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
+  
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.instr-endorsed {
+  color: #f4ad3e;
+  background-color: #fff;
+  border-color: #f4ad3e;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid;
+  width: 14px;
+  height: 14px;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
   width: 13px;
@@ -590,25 +601,24 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
   height: 16px;
-  padding: 0 3px;
+  padding: 0 6px;
   border-radius: 3px;
   background-color: #f4ad3e;
   color: #fff;
-  font-size: 11px;
+  font-size: 14px;
   vertical-align: bottom;
   font-family: 'Verdana', 'Geneva', sans-serif;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .smallCommentHeader .author .instr-icon {
   display: inline-block;
   height: 16px;
-  padding: 0 3px;
+  padding: 0 6px;
   border-radius: 3px;
   background-color: #f4ad3e;
   color: #fff;
-  font-size: 11px;
+  font-size: 14px;
   vertical-align: bottom;
   font-family: 'Verdana', 'Geneva', sans-serif;
-  font-size: 12px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .timestamp {
   font-size: 10px;
@@ -619,9 +629,45 @@
   position: absolute;
   right: 0;
   top: 0;
+  display: flex;
 }
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 3px;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr-endorsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: #fff;
+  color: #f4ad3e;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 3px;
+  border-color: #f4ad3e;
+  border: 2px solid;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark {
   cursor: pointer;
+  margin-right: 10px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .icon {
   height: 16px;
@@ -633,11 +679,32 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .far {
   color: #444;
 }
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark:hover {
   color: #70a0f0;
 }
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square {
+  margin-right: 10px;
+}
+ 
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .icon {
+  height: 16px;
+  vertical-align: middle;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .fas {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .far {
+  color: #444;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square:hover {
+  color: #70a0f0;
+}
+
 #nb-app .nb-sidebar .thread-view .thread-row .header .overflow-menu {
-  margin: 0 3px 0 6px;
+  margin-top: 2px;
   vertical-align: middle;
   display: inline-block;
   cursor: pointer;

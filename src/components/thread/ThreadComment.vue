@@ -3,14 +3,19 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
-                    <div v-if="comment.instructor" class="instr-icon">
-                        instr
+                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
                 <br/>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
+                    <div v-if="comment.endorsed" 
+                    v-tooltip="'This comment has been endorsed by an instructor'"
+                    class="icon-wrapper instr-endorsed">
+                        i
+                    </div>
                     <span
                         class="bookmark"
                         v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
@@ -115,8 +120,8 @@
         <div class="thread-row smallComment" v-if="currentConfigs.isShowQuickEditor && last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
-                    <div v-if="me.role === 'instructor'" class="instr-icon">
-                        instr
+                    <div v-if="me.role === 'instructor'" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
                 </span>
@@ -229,7 +234,10 @@ export default {
             comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleUpvote: function (comment) {
-            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
+            if (this.me.role === 'instructor'){
+                comment.toggleEndorsed();
+            }
+            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogExpSpotlight)
         },
         toggleReplyRequest: function (comment) {
             comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
@@ -246,6 +254,9 @@ export default {
         },
         submitSmallComment: function (data) {
             this.$emit('submit-small-comment', data)
+        },
+        toggleEndorsed: function(comment){
+            comment.toggleEndorsed();
         },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
             this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
