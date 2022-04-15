@@ -145,6 +145,13 @@ class NbComment {
          * @type Boolean
          */
         this.endorsed = data.endorsed
+        
+        /**
+         * Flag for followed user. True if the current user's follows author of this comment.
+         * @name NbComment#followed
+         * @type Boolean
+         */
+        this.followed = data.followed
       
         /**
          * Flag for the current user's reply request.
@@ -548,13 +555,6 @@ class NbComment {
         }
         return false
     }
-
-      /**
-     * Flag for followed user. True if the current user's follows author of this comment.
-     * @name NbComment#followed
-     * @type Boolean
-     */
-    this.followed = data.followed
 
     /**
      * Check recursively if this comment (or descendant) has any upvotes.
