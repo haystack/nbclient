@@ -892,7 +892,6 @@ function embedNbApp() {
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
-
                     for (const item of res.data.headAnnotations) {
 
                         try {

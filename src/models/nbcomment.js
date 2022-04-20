@@ -806,6 +806,7 @@ class NbComment {
 
     }
     updateEndorsed () {
+
       if (this.id) {
         // const token = localStorage.getItem("nb.user");
         // const headers = { headers: { Authorization: 'Bearer ' + token } }
