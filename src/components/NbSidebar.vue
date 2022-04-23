@@ -46,6 +46,9 @@
         <list-view
             :threads="threads"
             :total-count="totalThreads"
+            :minThreads="minThreads"
+            :maxThreads="maxThreads"
+            :numberOfThreads="numberOfThreads"
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
@@ -60,7 +63,8 @@
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
+            @unhover-thread="onUnhoverThread"
+            @change-number-threads="onChangeNumberThreads">
         </list-view>
         <notification-view
             v-if="showSyncFeatures && sidebarNotificationsOpened"
@@ -232,6 +236,18 @@ export default {
           type: Boolean,
           default: false
         },
+        maxThreads: {
+            type: Number, 
+            default: 0
+        },
+        minThreads: {
+            type: Number, 
+            default: 0
+        },
+        numberOfThreads:{
+            type: Number,
+            default: 0
+        },
         myfollowing: {
             type: Array,
             default: () => []
@@ -388,6 +404,9 @@ export default {
         },
         onUnhoverThread: function (thread) {
             this.$emit('unhover-thread', thread)
+        },
+        onChangeNumberThreads: function(numberOfThreads) {
+            this.$emit('change-number-threads', numberOfThreads)
         },
         onEditComment: function (comment) {
             if (this.draftRange || this.replyToComment) {
