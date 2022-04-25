@@ -64,7 +64,7 @@
                 
                 <label :for="'filter-hashtag-' + hashtag.id">
                      <img :src="`${pluginHostURL}/emoji/${hashtag.emoji}.png`">
-                     <span v-html="'' + hashtag.value"></span>
+                     <span v-html="'' + hashtag.value" :style="{ 'color': `rgb(${RgbList[hashtagIds.indexOf(hashtag.id)].Red}, ${RgbList[hashtagIds.indexOf(hashtag.id)].Green}, ${RgbList[hashtagIds.indexOf(hashtag.id)].Blue})`}"></span>
                 </label>
 
               </div>
@@ -287,6 +287,7 @@
 <script>
 import SearchBar from './SearchBar.vue'
 import {PLUGIN_HOST_URL} from '../../app' 
+import {RgbList} from '../../utils/highlight-util.js'
 
 /**
  * Component for the search/filter options on the side bar.
@@ -389,6 +390,8 @@ export default {
       filterComments: [],
       filterReplyReqs: [],
       filterUpvotes: [],
+      hashtagIds: [],
+      RgbList: [],
       minWords: null,
       maxWords: null,
       minHashtags: null,
@@ -450,9 +453,11 @@ export default {
       this.onFilterChange('bookmarks')
     },
     toggleFilters: function (event) {
-      if (!this.filterVisible){
+      if (!this.filterVisible && this.filterHashtags.length === 0){
         this.filterHashtags = Object.values(this.hashtags).map(h => h.id);
+        this.hashtagIds = Object.values(this.hashtags).map(h => h.id).sort();
         this.$emit('filter-hashtags', this.filterHashtags)
+        this.RgbList = RgbList
       }
 
       this.filterVisible = !this.filterVisible
