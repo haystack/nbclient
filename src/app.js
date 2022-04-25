@@ -395,7 +395,7 @@ function embedNbApp() {
                     items = items.filter(item => item.hasBookmarks())
                 }
                 let filterHashtags = this.filter.hashtags
-                if (filterHashtags.length > 0) {
+                if (filterHashtags.length > 0 && filterHashtags.length < 12) {
                     items = items.filter(item => {
                         for (let hashtag of filterHashtags) {
                             if (item.hasHashtag(hashtag)) return true

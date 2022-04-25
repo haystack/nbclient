@@ -174,7 +174,7 @@ export default {
         style: function () {
             let hashtagIds = []
             if (this.hashtags) {
-                hashtagIds = Object.values(this.hashtags).map(h => h.id);
+                hashtagIds = Object.values(this.hashtags).map(h => h.id).sort();
             }
 
             if (!this.thread) {
