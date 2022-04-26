@@ -101,8 +101,9 @@ export default {
             type: Boolean,
             default: true
         },
-        emojiHeatmap: {
-            type: Boolean,
+        heatmapMode: {
+            type: String,
+            default: "Default"
         },
         activeClass: {
             type: Object,
@@ -235,18 +236,21 @@ export default {
              This condition checks if the user selected to present the emoji heatmap
              In case the current thread has more then one hashtag, we use the reducer to evaluate the thread color.
             */
-            if (this.emojiHeatmap){
+            if (this.heatmapMode === "Emoji"){
                 if (this.thread.hashtags.length > 0) {
                     let prev = null
                     for (const hashtag of hashtagIds){
                         prev = reducer(hashtag, prev)
                     }
                     let resRGB = prev
-                    return `fill: rgb(${resRGB['Red']}, ${resRGB['Green']}, ${resRGB['Blue']}); fill-opacity: 0.3; cursor: pointer;`
+                    return `fill: rgb(${resRGB['Red']}, ${resRGB['Green']}, ${resRGB['Blue']}); fill-opacity: 0.2; cursor: pointer;`
                 }   
                 else {
-                    return 'fill: rgb(255, 255, 255); opacity: 0.3;'
+                    return 'fill: rgb(255, 255, 255); opacity: 0.1;'
                 }
+            }
+            if(this.heatmapMode === "CE"){
+                return 'fill: rgb(90, 240, 90); fill-opacity: 0.2;'
             }
             return null
         },

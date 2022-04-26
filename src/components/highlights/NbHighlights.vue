@@ -7,7 +7,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
-            :emojiHeatmap="emojiHeatmap"
+            :heatmapMode="heatmapMode"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
@@ -67,8 +67,9 @@ export default {
             type: Boolean,
             default: true
         },
-        emojiHeatmap: {
-            type: Boolean,
+        heatmapMode: {
+            type: String,
+            default: "Default"
         },
         user: Object,
         activeClass: {

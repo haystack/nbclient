@@ -45,8 +45,10 @@
             @min-upvotes="onMinUpvotes">
         </filter-view>
         <div class="buttons">
-          <button class="default-heatmap" @click="defaultHeapmapFunc">Default-heatmap</button>
-          <button class="emoji-heatmap" @click="emojiHeatmapFunc" :disabled="isEditorEmpty">Emoji-heatmap</button>
+          <span>Heatmap modes:</span>
+          <button class="default" @click="setHeatmapMode('Default')">Default</button>
+          <button class="emoji" @click="setHeatmapMode('Emoji')" :disabled="isEditorEmpty">Emoji</button>
+          <button class="CE" @click="setHeatmapMode('CE')" :disabled="isEditorEmpty">CE</button>
         </div>
         <list-view
             :threads="threads"
@@ -54,7 +56,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
-            :emojiHeatmap="emojiHeatmap"
+            :heatmapMode="heatmapMode"
             :still-gathering-threads="stillGatheringThreads"
             :current-configs="currentConfigs"
             :activeClass="activeClass"
@@ -224,8 +226,9 @@ export default {
             type: Boolean,
             default: true
         },
-        emojiHeatmap: {
-            type: Boolean,
+        heatmapMode: {
+            type: String,
+            default: "Default"
         },
         sourceUrl: {
             type: String,
@@ -481,11 +484,8 @@ export default {
                 this.$emit('delete-thread', comment)
             }
         },
-        defaultHeapmapFunc: function () {
-            this.$emit('change-heatmap-mode', false)
-        },
-        emojiHeatmapFunc: function () {
-            this.$emit('change-heatmap-mode', true)
+        setHeatmapMode: function (mode) {
+            this.$emit('change-heatmap-mode', mode)
         },
         toggleParagraphStatistics: function () {
             this.showParagraphStatistics = !this.showParagraphStatistics
