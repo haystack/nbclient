@@ -27,6 +27,7 @@ import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
 import hash from 'hash.js'
+import { max } from 'moment';
 
 const currentEnv = Environments.dev
 
@@ -279,6 +280,7 @@ function embedNbApp() {
             hashedUser: {},
             userNumber: 0,
             numberOfThreads: 1,
+            startThreadNumber: 50,
             minThreads: 0,
             maxThreads: 0,
             hashtags: {},
@@ -956,9 +958,18 @@ function embedNbApp() {
                             })
                         }
                     }
-                    if (this.threads.length < this.numberOfThreads){
-                        this.addThreads()
+                    if(this.maxThreads >= this.numberOfThreads){
+                        if (this.threads.length < this.startThreadNumber){
+                            this.numberOfThreads = this.startThreadNumber
+                            this.addThreads()
+                        }
+                    } else {
+                        if (this.threads.length < this.maxThreads){
+                            this.numberOfThreads = this.maxThreads
+                            this.addThreads()
+                        }
                     }
+                    
                     this.numberOfThreads=this.threads.length
 
                     this.stillGatheringThreads = false
