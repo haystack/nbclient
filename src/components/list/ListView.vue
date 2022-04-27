@@ -12,7 +12,6 @@
                 <div class="list-header-container">
                 <span class="count">
                     {{numberOfThreads}} of {{maxThreads}} threads
-                    <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
                     <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
@@ -163,7 +162,7 @@ export default {
                 { text: 'Upvotes', value: 'upvote' },
                 { text: 'Unseen', value: 'unseen'}
             ],
-            numberOfThreads: minThreads,
+            numberOfThreads: this.minThreads,
         }
     },
     created: async function () {

@@ -222,6 +222,8 @@ function embedNbApp() {
                     :myfollowing="myfollowing"
                     :filter="filter"
                     @log-nb="onLogNb"
+                    @add-author-section="onAddAuthorSection"
+                    @remove-author-section="onRemoveAuthorSection"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
                     @toggle-mute-notifications="onToggleMuteNotifications"
@@ -914,10 +916,6 @@ function embedNbApp() {
                             console.warn(`Could not deserialize range for ${item.id}`)
                             continue
                         }
-                        if (this.threads.length < this.numberOfThreads){
-                            this.addThreads()
-                        }
-                        this.numberOfThreads=this.threads.length
 
                         // Nb Comment
                         let comment = new NbComment(item, res.data.annotationsData)
@@ -936,8 +934,7 @@ function embedNbApp() {
                                 this.minThreads += 1
                             }
                         })
-
-                        if (comment.hasInstructorPost() && !this.threads.includes(comment)){
+                        if ((comment.hasInstructorPost() || comment.isEndorsed()) && !this.threads.includes(comment)){
                             this.threads.push(comment)
                             this.minThreads+=1
                         }
@@ -949,6 +946,20 @@ function embedNbApp() {
                             comment.associatedNotification = offlineNotification
                         }
                     }
+                    for(let i= 0; i < this.myfollowing.length; i++){
+                        if (this.myfollowing[i].follower_id in this.allThreads){
+                            this.allThreads[this.myfollowing[i].follower_id].forEach((t) => {
+                                if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
+                                    this.threads.push(t)
+                                    this.minThreads += 1
+                                }
+                            })
+                        }
+                    }
+                    if (this.threads.length < this.numberOfThreads){
+                        this.addThreads()
+                    }
+                    this.numberOfThreads=this.threads.length
 
                     this.stillGatheringThreads = false
 
@@ -1016,10 +1027,45 @@ function embedNbApp() {
                 }  
             },
             removeThreads: function(){
-                this.threads = this.threads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id))
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token } }
+                axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                .then((res) => {
+                    this.myfollowing = res.data
+                })
+                this.threads = this.threads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id) || t.isEndorsed())
+                for(let i= 0; i < this.myfollowing.length; i++){
+                    if (this.myfollowing[i].follower_id in this.allThreads){
+                        this.allThreads[this.myfollowing[i].follower_id].forEach((t) => {
+                            if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
+                                this.threads.push(t)                            }
+                        })
+                    }
+                }
                 if(this.threads.length < this.numberOfThreads){
                     this.addThreads()
                 }
+            },
+            onAddAuthorSection: function(author){
+                    if (author in this.allThreads){
+                        this.allThreads[author].forEach((t) => {
+                            if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
+                                this.threads.push(t)                          
+                            }
+                            if(t.anonymity === "IDENTIFIED" && !t.isEndorsed() && !t.hasInstructorPost()){
+                                this.minThreads += 1
+                            }  
+                        })  
+                    }
+            },
+            onRemoveAuthorSection: function(author){
+                if (author in this.allThreads){
+                    this.allThreads[author].forEach((t) => {
+                        if(t.anonymity === "IDENTIFIED" && !t.isEndorsed() && !t.hasInstructorPost()){
+                            this.minThreads -= 1
+                        }  
+                    })  
+                } 
             },
             draftThread: function (range) {
                 if (this.user) { // only if selection was after user log in
