@@ -580,6 +580,7 @@ export default {
             this.$emit('close-sidebar-notifications')
         },
         onFollowAuthor: async function(comment){
+                this.$emit('add-author-section', comment.author)
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                  axios.get(`/api/users/${comment.author}`, headers)
@@ -591,6 +592,7 @@ export default {
                 })
         },
         onUnfollowAuthor: async function(comment){
+                this.$emit('remove-author-section', comment.author)
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 axios.get(`/api/users/${comment.author}`, headers)
