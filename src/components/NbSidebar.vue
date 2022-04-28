@@ -583,7 +583,7 @@ export default {
                 this.$emit('add-author-section', comment.author)
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
-                 axios.get(`/api/users/${comment.author}`, headers)
+                 axios.get(`/api/users/user/${comment.author}`, headers)
                 .then((res) => {
                 axios.post(`/api/follow/user`, {username: res.data.username}, headers)
                     .then(res2 => {
@@ -595,7 +595,7 @@ export default {
                 this.$emit('remove-author-section', comment.author)
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
-                axios.get(`/api/users/${comment.author}`, headers)
+                axios.get(`/api/users/user/${comment.author}`, headers)
                 .then((res) => {
                 axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
                     .then(res2 => {

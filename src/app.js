@@ -958,7 +958,7 @@ function embedNbApp() {
                             })
                         }
                     }
-                    if(this.maxThreads >= this.numberOfThreads){
+                    if(this.maxThreads >= this.startThreadNumber){
                         if (this.threads.length < this.startThreadNumber){
                             this.numberOfThreads = this.startThreadNumber
                             this.addThreads()
@@ -991,26 +991,25 @@ function embedNbApp() {
                 })
             },
             addThreads: function(){
-                let maxThreads = (this.numberOfThreads-this.threads.length)/2
+                let currentMaxThreads = (this.numberOfThreads-this.threads.length)/2
                 let counter = 0 
                 let currentNeighbor = this.userNumber+1
-                
 
                 //loop through the right neihghbors
-                while(counter < maxThreads && currentNeighbor!= this.userNumber){
+                while(counter < currentMaxThreads && currentNeighbor!= this.userNumber){
                     let currentAuthor = this.hashedUser[this.orderedUsers[currentNeighbor]]
                     //loop through the threads of current neighbor
                     for(let t in this.allThreads[currentAuthor]){
                         if (!this.threads.includes(this.allThreads[currentAuthor][t])){
                             this.threads.push(this.allThreads[currentAuthor][t])
                             counter += 1
-                            if (counter >= maxThreads){
+                            if (counter >= currentMaxThreads){
                                 break
                             }
                         }
                     }
                     currentNeighbor += 1
-                    if (currentNeighbor == this.orderedUsers.length){
+                    if (currentNeighbor >= this.orderedUsers.length){
                         currentNeighbor = 0
                     }
                 } 
@@ -1018,7 +1017,7 @@ function embedNbApp() {
                 counter = 0
                 currentNeighbor = this.userNumber - 1
                 //loop through the left neihghbors
-                while(counter < maxThreads  && currentNeighbor!= this.userNumber && this.threads.length < this.numberOfThreads){
+                while(counter < currentMaxThreads  && currentNeighbor!= this.userNumber && this.threads.length < this.numberOfThreads){
                     //loop through the threads of current neighbor
                     let currentAuthor = this.hashedUser[this.orderedUsers[currentNeighbor]]
                     for(let t in this.allThreads[currentAuthor]){
@@ -1026,13 +1025,13 @@ function embedNbApp() {
 
                             this.threads.push(this.allThreads[currentAuthor][t])
                             counter += 1
-                            if (counter >= maxThreads){
+                            if (counter >= currentMaxThreads){
                                  break
                             }
                         }
                     }
                     currentNeighbor -= 1
-                    if (currentNeighbor == -1){
+                    if (currentNeighbor <= -1){
                         currentNeighbor = this.orderedUsers.length-1
                     }
                 }  
