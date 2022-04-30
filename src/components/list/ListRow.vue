@@ -167,18 +167,23 @@ export default {
         },
         isFollowing: function(){
             if(this.thread.anonymity !== CommentAnonymity.ANONYMOUS){
-                for(let i = 0; i < this.myfollowing.length; i++){
-                    if (this.thread.author === this.myfollowing[i].follower_id){
-                        return true
+                if(this.thread.author !== this.user.id){
+                    for(let i = 0; i < this.myfollowing.length; i++){
+                        if (this.thread.author === this.myfollowing[i].follower_id){
+                            return true
+                        }
                     }
                 }
+
             }
             for (let child of this.thread.children) {
                 if(child.anonymity !== CommentAnonymity.ANONYMOUS){
+                    if(child.author !== this.user.id){
                     for(let i = 0; i < this.myfollowing.length; i++){
                         if (child.author === this.myfollowing[i].follower_id){
                             return true
                         }
+                    }
                     }
                 }
             }

@@ -390,7 +390,7 @@ function embedNbApp() {
             },
             filteredThreads: function () {
                 let isFiltering = false
-                let items = this.threads
+                let items = this.allThreads
                 let searchText = this.filter.searchText
                 if (searchText.length > 0) {
                     isFiltering  = true
@@ -529,6 +529,7 @@ function embedNbApp() {
                     this.numberOfThreads = sortedItems.length
                     this.usingFilter = true
                 } else {
+                    sortedItems = this.threads
                     this.numberOfThreads = this.threads.length
                     this.maxThreads = this.allThreads.length
                     this.filter.sectioning = null
@@ -925,6 +926,8 @@ function embedNbApp() {
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
                     this.allThreads = []
+                    this.allAuthorThreads = []
+                    this.myfollowing = []
                     for (const item of res.data.headAnnotations) {
 
                         try {
@@ -941,22 +944,24 @@ function embedNbApp() {
                         //get all authors for thread
                         let allAuthors = comment.getAllAuthors()
                         this.allThreads.push(comment)
-
                         allAuthors.forEach((author) => {
                             if (author in this.allAuthorThreads){
-                                this.allAuthorThreads[author].push(comment)
+                                if(!this.allAuthorThreads[author].includes(comment)){
+                                    this.allAuthorThreads[author].push(comment)
+                                }
+                                
                             } else {
                                 this.allAuthorThreads[author] = [comment]
                             }
-                            if(author === this.user.id && !this.threads.includes(comment)){
-                                // this.threads.push(comment)
-                                this.minThreads += 1
-                            }
+                            // if(author === this.user.id && !this.threads.includes(comment)){
+                            //     // this.threads.push(comment)
+                            //     this.minThreads += 1
+                            // }
                         })
-                        if ((comment.hasInstructorPost() || comment.isEndorsed()) && !this.threads.includes(comment)){
-                            // this.threads.push(comment)
-                            this.minThreads+=1
-                        }
+                        // if ((comment.hasInstructorPost() || comment.isEndorsed()) && !this.threads.includes(comment)){
+                        //     // this.threads.push(comment)
+                        //     this.minThreads+=1
+                        // }
 
 
                         // TODO: check this code
@@ -966,25 +971,18 @@ function embedNbApp() {
                             comment.associatedNotification = offlineNotification
                         }
                     }
-                    for(let i= 0; i < this.myfollowing.length; i++){
-                        if (this.myfollowing[i].follower_id in this.allAuthorThreads){
-                            this.allAuthorThreads[this.myfollowing[i].follower_id].forEach((t) => {
-                                if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
-                                    // this.threads.push(t)
-                                    this.minThreads += 1
-                                }
-                            })
-                        }
-                    }
-                    if(this.maxThreads >= this.startThreadNumber){
-                        if (this.minThreads < this.startThreadNumber){
-                            this.numberOfThreads = this.startThreadNumber
-                        } else {
-                            this.numberOfThreads = this.minThreads
-                        }
-                    } else {
-                        this.numberOfThreads = this.maxThreads
-                    }
+                    // for(let i= 0; i < this.myfollowing.length; i++){
+                    //     if (this.myfollowing[i].follower_id in this.allAuthorThreads){
+                    //         this.allAuthorThreads[this.myfollowing[i].follower_id].forEach((t) => {
+                    //             if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
+                    //                 // this.threads.push(t)
+                    //                 this.minThreads += 1
+                    //             }
+                    //         })
+                    //     }
+                    // }
+                    this.numberOfThreads = this.maxThreads > this.startThreadNumber? this.startThreadNumber:this.maxThreads;
+                    this.minThreads = 0
                     this.onSortBy(this.currentConfigs.sortByConfig)
                     
                     this.numberOfThreads=this.threads.length
@@ -1096,23 +1094,32 @@ function embedNbApp() {
                 if (this.threadSelected === thread) { this.threadSelected = null }
                 let idx = this.threads.indexOf(thread)
                 if (idx >= 0) { this.threads.splice(idx, 1) }
+                let idx2 = this.allThreads.indexOf(thread)
+                if (idx2 >= 0) { this.allThreads.splice(idx2, 1) }
+                let idx3 = this.allAuthorThreads[thread.author].indexOf(thread)
+                if (idx3 >= 0) { this.allAuthorThreads[thread.author].splice(idx3, 1) }
                 if (thread.id) {
                     const token = localStorage.getItem("nb.user");
                     const headers = { headers: { Authorization: 'Bearer ' + token } }
                     axios.delete(`/api/annotations/annotation/${thread.id}`, headers)
-                    if(thread.anonymity === "IDENTIFIED" && !thread.isEndorsed() && !thread.hasInstructorPost()){
+                    if((thread.anonymity === "IDENTIFIED" && this.myfollowing.includes(thread.author))|| !thread.isEndorsed() || !thread.hasInstructorPost() || thread.author == this.user.id){
                         this.minThreads -= 1
                     }                     
                     this.numberOfThreads -= 1
-                    this.maxthreads -=1
+                    this.maxThreads -=1
                 }
             },
             onNewThread: function (thread) {
                 this.threads.push(thread)
+                this.allThreads.push(thread)
+                if(!(thread.author in this.allAuthorThreads)){
+                    this.allAuthorThreads[thread.author] = []
+                } 
+                this.allAuthorThreads[thread.author].push(thread)
                 this.draftRange = null
                 this.maxThreads += 1
                 this.numberOfThreads += 1
-                if(thread.anonymity === "IDENTIFIED" && !thread.isEndorsed() && !thread.hasInstructorPost() && this.myfollowing.includes(thread.author)){
+                if((thread.anonymity === "IDENTIFIED" && this.myfollowing.includes(thread.author))|| !thread.isEndorsed() || !thread.hasInstructorPost() || thread.author == this.user.id){
                     this.minThreads += 1
                 }  
             },
@@ -1290,6 +1297,7 @@ function embedNbApp() {
                     }
                 }
                 this.minThreads = this.threads.length
+                
                 switch (sortBy) {
                     case 'position':
                         this.addThreads()

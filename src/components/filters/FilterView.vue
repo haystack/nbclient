@@ -475,7 +475,6 @@ export default {
           this.$emit('filter-user-tags', this.filterUserTags)
           break
         case 'comments':
-          console.log(this.filterComments)
           this.$emit('filter-comments', this.filterComments)
           break
         case 'reply-reqs':
