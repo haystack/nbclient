@@ -64,7 +64,8 @@
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread"
-            @change-number-threads="onChangeNumberThreads">
+            @change-number-threads="onChangeNumberThreads"
+            @sort-by="onSortBy">
         </list-view>
         <notification-view
             v-if="showSyncFeatures && sidebarNotificationsOpened"
@@ -407,6 +408,9 @@ export default {
         },
         onChangeNumberThreads: function(numberOfThreads) {
             this.$emit('change-number-threads', numberOfThreads)
+        },
+        onSortBy: function(sortBy) {
+            this.$emit('sort-by', sortBy)
         },
         onEditComment: function (comment) {
             if (this.draftRange || this.replyToComment) {

@@ -19,7 +19,7 @@
                 </span>
                 <span class="sort">
                     Sort by:
-                    <select v-model="sortBy">
+                    <select v-model="sortBy"  @change="onChangeSortBy">
                         <option v-for="option in sortByOptions" :key="option.value" :value="option.value">
                             {{ option.text }}
                         </option>
@@ -27,7 +27,7 @@
                 </span>
                 </div>
                 <div class="range">
-                    <input v-model="numberOfThreads" type="range" id="myRange" min=minThreads @change="onChangeNumberThreads" style="width:300px;">
+                    <input v-model="numberOfThreads" type="range" id="myRange" min="minThreads" max="maxThreads" @change="onChangeNumberThreads" style="width:300px;">
                 </div>
             </div>
             <div class="list-table">
@@ -36,7 +36,7 @@
                     <tile loading="true"></tile>
                 </div>
                 <list-row
-                    v-for="thread in sorted"
+                    v-for="thread in threads"
                     :key="thread"
                     :thread="thread"
                     :thread-selected="threadSelected"
@@ -179,24 +179,6 @@ export default {
                 return `${this.totalCount} threads`
             }
         },
-        sorted: function () {
-            switch (this.sortBy) {
-                case 'position':
-                    return this.threads.concat().sort(compareDomPosition)
-                case 'recent':
-                    return this.threads.concat().sort(compare('timestamp', 'key', false))
-                case 'comment':
-                    return this.threads.concat().sort(compare('countAllReplies', 'func', false))
-                case 'reply_request':
-                    return this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
-                case 'upvote':
-                    return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
-                case 'unseen':
-                    return this.threads.concat().sort(compare('isUnseen', 'func', false))
-                default:
-                    return this.threads
-            }
-        },
         tooltipType: function () {
             return 'See all your threads after applying some filters.'
         },
@@ -205,7 +187,7 @@ export default {
         },
         sortByConfig: function () {
             return this.currentConfigs.sortByConfig
-        }
+        },
     },
     watch: {
         sortBy: function(newSortBy, oldSortBy) {
@@ -238,7 +220,19 @@ export default {
         },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
             this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
-        }
+        },
+        onChangeSortBy: function(){
+            this.$emit('sort-by', this.sortBy)
+        },
+        // collapse: function(){
+        //     this.isCollapsed = !this.isCollapsed
+        // }
+    },
+    updated: function(){
+            if(!this.isCollapsed){
+                document.querySelector("#myRange").setAttribute('min', this.minThreads.toString())
+                document.querySelector("#myRange").setAttribute('max', this.maxThreads.toString())
+            }
     },
     watch: {
         minThreads(newValue, oldValue){
