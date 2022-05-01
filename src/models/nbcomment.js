@@ -734,6 +734,9 @@ class NbComment {
      * Toggle the upvote for this comment by the current user.
      */
     toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+        if(!this.upvoteCount){
+            this.upvoteCount = 0
+        }
         if (this.upvotedByMe) {
             this.upvoteCount -= 1
             this.upvotedByMe = false

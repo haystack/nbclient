@@ -928,6 +928,26 @@ function embedNbApp() {
                     this.allThreads = []
                     this.allAuthorThreads = []
                     this.myfollowing = []
+                    this.filter= {
+                        searchOption: 'text',
+                        searchText: '',
+                        bookmarks: false,
+                        hashtags: [],
+                        userTags: [],
+                        comments: [],
+                        replyReqs: [],
+                        upvotes: [],
+                        minWords: 0,
+                        maxWords: null,
+                        minHashtags: 0,
+                        maxHashtags: null,
+                        minReplies: 0,
+                        minReplyReqs: 0,
+                        minUpvotes: 0,
+                        maxThreads: null,
+                        sectioning: null,
+                    }
+
                     for (const item of res.data.headAnnotations) {
 
                         try {

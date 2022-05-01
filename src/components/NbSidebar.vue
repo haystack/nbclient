@@ -145,6 +145,7 @@ import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+import axios from 'axios'
 
 Vue.use(Notifications)
 
