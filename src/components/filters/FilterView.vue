@@ -461,6 +461,11 @@ export default {
       this.onFilterChange('bookmarks')
     },
     toggleFilters: function (event) {
+      if (!this.filterVisible){
+        this.filterHashtags = Object.values(this.hashtags).map(h => h.id);
+        this.$emit('filter-hashtags', this.filterHashtags)
+      }
+
       this.filterVisible = !this.filterVisible
     },
     onFilterHide: function () {

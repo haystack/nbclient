@@ -54,6 +54,7 @@
 
 <script>
 import { getTextBoundingBoxes } from '../../utils/overlay-util.js'
+import {RgbList} from '../../utils/highlight-util.js'
 import axios from 'axios'
 
 /**
@@ -100,6 +101,9 @@ export default {
             type: Boolean,
             default: true
         },
+        emojiHeatmap: {
+            type: Boolean,
+        },
         activeClass: {
             type: Object,
             default: () => {}
@@ -112,10 +116,29 @@ export default {
             type: Object,
             default: () => {}
         },
+        hashtags: {
+            type: Object,
+            default: () => {}
+        },
     },
     data () {
         return {
-        recent: false
+            recent: false,
+            // tags: {
+            //     Discuss: '536e5be0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Interesting: '53672ff0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Lost: '53664590-d2bf-11eb-9e48-c593f3f42f13',
+            // }
+            // tags: {
+            //     Discuss: '9c76cd81-e445-11eb-9382-d1c5af161561',
+            //     Interesting: '9c70da10-e445-11eb-9382-d1c5af161561',
+            //     Lost: '9c703dd0-e445-11eb-9382-d1c5af161561',
+            // }
+            tags: {
+                Discuss: 'df6f87a0-4f92-11eb-bd80-bd642962df02',
+                Interesting: 'df43e3c0-4f92-11eb-bd80-bd642962df02',
+                Lost: 'df43bcb0-4f92-11eb-bd80-bd642962df02',
+            }
         }
     },
     mounted () {
@@ -160,7 +183,15 @@ export default {
         }
     },
     computed: {
+        /*
+         The style param is responsible for the color of the text based on different criteria
+        */
         style: function () {
+            let hashtagIds = []
+            if (this.hashtags) {
+                hashtagIds = Object.values(this.hashtags).map(h => h.id);
+            }
+
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -195,6 +226,44 @@ export default {
             //         return 'fill: rgb(255, 0, 255); opacity: 0.5;'
             //     }
             // }
+            /*
+             The reducer function gets 2 arguments previousValue(the paint accumulated so far) and hashtag(some valid hashtag),
+             The reducer checks if the current thread has this hashtag, in case it does have it. it calculate new paint for the thread(based on the previous value and the color of the new hashtag)
+            */
+            const reducer = (hashtag, previousValue) => { 
+                if (this.thread.hasHashtag(hashtag)){
+                    let currentValue = RgbList[hashtagIds.indexOf(hashtag)]
+                    console.log(currentValue)
+                    if (previousValue == null){
+                        return currentValue
+                    }
+                    else{
+                        return {Red: currentValue['Red']+previousValue['Red']/2,
+                        Green: currentValue['Green']+previousValue['Green'] / 2,
+                        Blue: currentValue['Blue']+previousValue['Blue'] / 2 }
+                    };
+                }
+                else{
+                    return previousValue
+                }
+            } 
+            /*
+             This condition checks if the user selected to present the emoji heatmap
+             In case the current thread has more then one hashtag, we use the reducer to evaluate the thread color.
+            */
+            if (this.emojiHeatmap){
+                if (this.thread.hashtags.length > 0) {
+                    let prev = null
+                    for (const hashtag of hashtagIds){
+                        prev = reducer(hashtag, prev)
+                    }
+                    let resRGB = prev
+                    return `fill: rgb(${resRGB['Red']}, ${resRGB['Green']}, ${resRGB['Blue']}); fill-opacity: 0.3; cursor: pointer;`
+                }   
+                else {
+                    return 'fill: rgb(255, 255, 255); opacity: 0.3;'
+                }
+            }
             return null
         },
         isRecentThread: function () {
@@ -243,6 +312,15 @@ export default {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
         },
         onClick: function () {
+            if (this.isDocumap) {
+                console.log(this.thread)
+                console.log(this.sourceUrl)
+                let url = `${this.sourceUrl}#nb-comment-${this.thread.id}`
+                console.log(url)
+                window.open(url, '_blank');
+                return
+            }
+
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }

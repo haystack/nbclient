@@ -80,7 +80,12 @@ function embedNbApp() {
     loadCSS(`${PLUGIN_HOST_URL}/style/tooltip.css`)
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js')
     document.documentElement.setAttribute('style', 'overflow: overlay !important;')
-    document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
+    if (!window.location.search.includes('documap=true')) {
+        document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
+    } else {
+        document.body.classList.add('nb-documap')
+        document.getElementsByTagName('html')[0].setAttribute('style', 'height: 100%; background: #f4ad3e;')
+    }
     let element = document.createElement('div')
     element.id = 'nb-app-wrapper'
     let child = document.createElement('div')
@@ -155,11 +160,13 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :emojiHeatmap="emojiHeatmap"
                     :user="user"
                     :activeClass="activeClass"
                     :current-configs="currentConfigs"
                     :show-sync-features="showSyncFeatures"
                     :is-innotation-hover="isInnotationHover"
+                    :hashtags="hashtags"
                     @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @unselect-thread="onUnselectThread"
@@ -207,6 +214,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :emojiHeatmap="emojiHeatmap"
                     :source-url="sourceURL"
                     :current-configs="currentConfigs"
                     :is-dragging="isDragging"
@@ -258,6 +266,7 @@ function embedNbApp() {
                     @change-number-threads="onChangeNumberThreads"
                     @sort-by="onSortBy"
                     @delete-thread="onDeleteThread"
+                    @change-heatmap-mode="changeHeatmapMode"
                     @new-thread="onNewThread"
                     @cancel-draft="onCancelDraft"
                     @editor-empty="onEditorEmpty"
@@ -296,6 +305,8 @@ function embedNbApp() {
             stillGatheringThreads: true,
             draftRange: null,
             isEditorEmpty: true,
+            isDocumap: false,
+            doucSettings: {},
             isInnotationHover: false,
             filter: {
                 searchOption: 'text',
@@ -317,6 +328,7 @@ function embedNbApp() {
                 sectioning: null,
             },
             showHighlights: true,
+            emojiHeatmap: false,
             sourceURL: '',
             threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
             nbConfigs: {},
@@ -562,8 +574,23 @@ function embedNbApp() {
                         this.activeClass = this.myClasses[0]
                     }
                     this.sourceURL = source
+                } else if (window.location.href.includes('/nb_viewer.html?id=')) {
+                    let searchParams = new URLSearchParams(window.location.search);
+                    const sourceNbViewer = `${window.location.origin}${window.location.pathname}?id=${searchParams.get('id')}`
+                    const configNbViewer = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceNbViewer } }
+                    const myClassesNbViewer = await axios.get('/api/annotations/myClasses', configNbViewer)
+                    if (myClassesNbViewer.data.length > 0) {
+                        this.myClasses = myClassesNbViewer.data
+                        if (this.myClasses.length === 1) {
+                            this.activeClass = this.myClasses[0]
+                        }
+                        this.sourceURL = sourceNbViewer
+                    } else {
+                        console.log("Sorry you don't have access");
+                    }
+
                 } else {
-                    const sourceWithQuery = window.location.href // try the source with query params as well
+                    const sourceWithQuery = window.location.href.replace('&documap=true', '') // try the source with query params as well
                     const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery } }
                     const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
                     if (myClassesWithQuery.data.length > 0) {
@@ -1128,6 +1155,9 @@ function embedNbApp() {
                     this.numberOfThreads -= 1
                     this.maxThreads -=1
                 }
+            },
+            changeHeatmapMode: function (mode) {
+                this.emojiHeatmap = mode
             },
             onNewThread: function (thread) {
                 this.threads.push(thread)
