@@ -30,6 +30,7 @@
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
             @filter-hashtags="onFilterHashtags"
+            @filter-threads-without-emojis="onFilterThreadsWithoutEmojis"
             @filter-user-tags="onFilterUserTags"
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
@@ -103,6 +104,15 @@
             @prev-comment="onPrevComment"
             @next-comment="onNextComment">
         </thread-view>
+        <label>Paragraph statistics:</label>
+        <template>
+            <div class="home">
+                <BarChart
+                class="chart"
+                :chartData="chartData"
+                />
+            </div>
+        </template>
         <editor-view
             :author="user"
             :key="editor.key"
@@ -140,6 +150,7 @@ import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+import BarChart from "./BarChart.vue"
 
 Vue.use(Notifications)
 
@@ -238,10 +249,19 @@ export default {
         filter: {
             type: Object,
             default: () => {}
+        },
+        chartData: {
+            type: Object,
+            default:() => {}
         }
     },
     data () {
+        this.chartData ={
+        labels: [],
+        datasets: []
+      }
         return {
+            chartsLib: null, 
             replyToComment: null,
             edittingComment: null,
             editor: {
@@ -284,6 +304,33 @@ export default {
     watch: {
         draftRange: function (val, oldVal) {
             if (val) {
+                var statDict = {
+                        "#i-think" : 0,
+                        "#interesting-topic" : 0,
+                        "#learning-goal" : 0,
+                        "#lightbulb-moment" : 0,
+                        "#needs-work" : 0,
+                        "#real-world-application" : 0,
+                        "#important" : 0,
+                        "#just-curious" : 0,
+                        "#lets-discuss" : 0,
+                        "#lost" : 0,
+                        "#question" : 0,
+                        "#surprised" : 0,
+                }
+                for(let thread of this.threads){
+                    if(thread.range.start.wholeText === val.start.wholeText){
+                        for(var emoji in statDict){
+                            if(thread.text.includes(emoji)){
+                                statDict[emoji]++
+                            }
+                        }
+                    }
+                }
+                this.chartData = {
+                    labels: Object.keys(statDict),
+                    datasets:[{data: Object.values(statDict), label: 'Count', backgroundColor: '#f87979',}]
+                }
                 if (this.replyToComment || this.edittingComment) {
                     alert("You're already working on another comment. Please save or cancel it first.")
                     this.$emit('cancel-draft', this.draftRange)
@@ -310,6 +357,9 @@ export default {
         }
     },
     methods: {
+        onChartReady (chart, google) {
+            this.chartsLib = google
+        },
         mouseDown: function (e) {
             if (e.offsetX < SIDEBAR_BORDER_SIZE && (this.threadSelected || this.editor.visible)) {
                 e.preventDefault()
@@ -338,6 +388,9 @@ export default {
         },
         onFilterHashtags: function (hashtags) {
             this.$emit('filter-hashtags', hashtags)
+        },
+        onFilterThreadsWithoutEmojis: function (show) {
+            this.$emit('filter-threads-without-emojis', show)
         },
         onFilterUserTags: function (filters) {
             this.$emit('filter-user-tags', filters)
@@ -483,7 +536,7 @@ export default {
             try {
                 await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
 
-                 Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
+                 Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', clean: true})
 
                 this.editor.visible = false
                 if (this.edittingComment) {
@@ -575,6 +628,7 @@ export default {
         NbMenu,
         NotificationView,
         NbOnline,
+        BarChart
     }
 }
 </script>

@@ -218,7 +218,6 @@ export default {
             const reducer = (hashtag, previousValue) => { 
                 if (this.thread.hasHashtag(hashtag)){
                     let currentValue = RgbList[hashtagIds.indexOf(hashtag)]
-                    console.log(currentValue)
                     if (previousValue == null){
                         return currentValue
                     }

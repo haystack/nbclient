@@ -165,7 +165,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
-                    :emojiHeatmap="emojiHeatmap"
+                    :heatmapMode="heatmapMode"
                     :user="user"
                     :activeClass="activeClass"
                     :current-configs="currentConfigs"
@@ -219,7 +219,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
-                    :emojiHeatmap="emojiHeatmap"
+                    :heatmapMode="heatmapMode"
                     :source-url="sourceURL"
                     :current-configs="currentConfigs"
                     :is-dragging="isDragging"
@@ -246,6 +246,7 @@ function embedNbApp() {
                     @search-text="onSearchText"
                     @filter-bookmarks="onFilterBookmarks"
                     @filter-hashtags="onFilterHashtags"
+                    @filter-threads-without-emojis="onFilterThreadsWithoutEmojis"
                     @filter-user-tags="onFilterUserTags"
                     @filter-comments="onFilterComments"
                     @filter-reply-reqs="onFilterReplyReqs"
@@ -295,6 +296,8 @@ function embedNbApp() {
                 searchOption: 'text',
                 searchText: '',
                 bookmarks: false,
+                threadsWithoutEmojis: true,
+                startFilter: false,
                 hashtags: [],
                 userTags: [],
                 comments: [],
@@ -310,7 +313,7 @@ function embedNbApp() {
                 maxThreads: null,
             },
             showHighlights: true,
-            emojiHeatmap: false,
+            heatmapMode: "Default",
             sourceURL: '',
             threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
             nbConfigs: {},
@@ -395,12 +398,18 @@ function embedNbApp() {
                     items = items.filter(item => item.hasBookmarks())
                 }
                 let filterHashtags = this.filter.hashtags
-                if (filterHashtags.length > 0 && filterHashtags.length < 12) {
+                if (this.filter.startFilter) {
                     items = items.filter(item => {
+                        if (item.hashtags.length == 0) return true
                         for (let hashtag of filterHashtags) {
                             if (item.hasHashtag(hashtag)) return true
                         }
                         return false
+                    })
+                }
+                if (!this.filter.threadsWithoutEmojis) {
+                    items = items.filter(item => {
+                        return item.hashtags.length != 0
                     })
                 }
                 let filterUserTags = this.filter.userTags
@@ -943,7 +952,7 @@ function embedNbApp() {
                 }
             },
             changeHeatmapMode: function (mode) {
-                this.emojiHeatmap = mode
+                this.heatmapMode = mode
             },
             onNewThread: function (thread) {
                 this.threads.push(thread)
@@ -993,6 +1002,12 @@ function embedNbApp() {
                     }
                 }
                 this.filter.hashtags = hashtags
+            },
+            onFilterThreadsWithoutEmojis: function (flag) {
+                if(this.threadSelected && this.threadSelected.hashtags.length == 0 && !flag) {
+                    this.threadSelected = null
+                }
+                this.filter.threadsWithoutEmojis = flag
             },
             onFilterUserTags: function (filters) {
                 if (this.threadSelected && filters.includes('me') && !this.threadSelected.hasUserTag(this.user.id)) {
