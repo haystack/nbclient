@@ -1595,7 +1595,7 @@ function embedNbApp() {
                 this.showHighlights = true
                 window.removeEventListener('scroll', this.handleScroll)
             },
-            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0) {
+            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0, endorsed = false, followed = false) {
                 if (this.currentConfigs.isNbLog && this.currentConfigs.nbLogEventsEnabled.includes(event)) {
                     // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
@@ -1624,6 +1624,9 @@ function embedNbApp() {
                         role: this.users[this.user.id].role.toUpperCase(),
                         applied_filter: JSON.stringify(this.filter),
                         applied_sort: this.currentConfigs.sortByConfig,
+                        comment_endorsed: endorsed,
+                        comment_followed: followed,
+                        slider_value: this.numberOfThreads
                     }, config)
 
                     this.nbLogEventsOrder = this.nbLogEventsOrder + 1
