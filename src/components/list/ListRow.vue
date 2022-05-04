@@ -1,6 +1,7 @@
 <template>
     <div
         class="list-row"
+        v-bind:id = "thread.id"
         :style="rowStyle"
         :key="thread.id"
         @mouseenter="$emit('hover-thread', thread)"
@@ -31,7 +32,21 @@
                 class="icon-wrapper instr">
                     i
                 </div>
+                <div v-else-if="thread.isEndorsed()" 
+                v-tooltip="'This comment has been endorsed by an instructor'"
+                class="icon-wrapper instr-endorsed">
+                    i
+                </div>
                 <div v-else class="placeholder instr"></div>
+            </div>
+            <div v-if="currentConfigs.isShowIndicatorForFollowComment">
+                <div v-if="isFollowing()" 
+                v-tooltip="'This comment was written by from an author you follow'"
+                class="icon-wrapper follow">
+                    <font-awesome-icon icon="user-check">
+                    </font-awesome-icon>
+                </div>
+                <div v-else class="placeholder follow"></div>
             </div>
 
             <div v-if="currentConfigs.isShowIndicatorForQuestionedThread">
@@ -103,6 +118,7 @@ import axios from 'axios'
  *   hovering over this row
  */
 import Avatar from 'vue-avatar-component'
+import { CommentAnonymity } from '../../models/enums.js'
 
 export default {
     name: 'list-view',
@@ -125,7 +141,11 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false
-        }
+        },
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
     },
     methods: {
         onClick: function () {
@@ -145,6 +165,31 @@ export default {
 
             this.$emit('select-thread', this.thread, 'LIST')
         },
+        isFollowing: function(){
+            if(this.thread.anonymity !== CommentAnonymity.ANONYMOUS){
+                if(this.thread.author !== this.user.id){
+                    for(let i = 0; i < this.myfollowing.length; i++){
+                        if (this.thread.author === this.myfollowing[i].follower_id){
+                            return true
+                        }
+                    }
+                }
+
+            }
+            for (let child of this.thread.children) {
+                if(child.anonymity !== CommentAnonymity.ANONYMOUS){
+                    if(child.author !== this.user.id){
+                    for(let i = 0; i < this.myfollowing.length; i++){
+                        if (child.author === this.myfollowing[i].follower_id){
+                            return true
+                        }
+                    }
+                    }
+                }
+            }
+            
+            return false
+        }, 
     },
     computed: {
         isSpotlighted: function () {

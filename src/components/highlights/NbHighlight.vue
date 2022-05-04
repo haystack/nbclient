@@ -196,7 +196,7 @@ export default {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.thread === this.threadSelected) {
-                return 'fill: rgb(1, 99, 255); fill-opacity: 0.3; cursor: pointer;'
+                return 'fill: rgb(255, 255, 255); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
