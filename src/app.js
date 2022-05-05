@@ -347,7 +347,7 @@ function embedNbApp() {
                 isSyncNotificationAudio: false,
                 isSyncNotificationPopup: false,
                 isSyncSpotlightNewThread: false,
-                isNbLog: true,
+                isNbLog: false,
                 nbLogEventsEnabled: [],
                 syncSpotlightNewThreadConfig: {},
                 nbLogScrollSpoConfig: 2000,
