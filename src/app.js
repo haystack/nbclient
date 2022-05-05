@@ -1423,6 +1423,7 @@ function embedNbApp() {
                 }
             },
             onChangeNumberThreads: function(num){
+                this.onLogNb('SLIDER_CHANGE')
                 this.filter.sectioning = num
                 if(!this.usingFilter){
                     if (num > this.numberOfThreads){
