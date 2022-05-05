@@ -347,7 +347,7 @@ function embedNbApp() {
                 isSyncNotificationAudio: false,
                 isSyncNotificationPopup: false,
                 isSyncSpotlightNewThread: false,
-                isNbLog: false,
+                isNbLog: true,
                 nbLogEventsEnabled: [],
                 syncSpotlightNewThreadConfig: {},
                 nbLogScrollSpoConfig: 2000,
@@ -1453,6 +1453,7 @@ function embedNbApp() {
                 }
             },
             onChangeNumberThreads: function(num){
+                this.onLogNb('SLIDER_CHANGE')
                 this.filter.sectioning = num
                 if(!this.usingFilter){
                     if (num > this.numberOfThreads){
@@ -1600,7 +1601,7 @@ function embedNbApp() {
                     // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
-
+                    console.log("hjere")
                     const pageYOffset = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0)
                     const pageHeight = (document.documentElement.scrollHeight - document.documentElement.clientHeight)
 

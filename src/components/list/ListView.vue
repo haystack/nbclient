@@ -216,7 +216,6 @@ export default {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
         onChangeNumberThreads: function(){
-            this.onLogNb('SLIDER_CHANGE')
             this.$emit('change-number-threads', this.numberOfThreads)
         },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0, endorsed = false, followed = false) {
