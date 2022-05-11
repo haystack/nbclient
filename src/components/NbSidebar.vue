@@ -104,10 +104,22 @@
             @prev-comment="onPrevComment"
             @next-comment="onNextComment">
         </thread-view>
-        <label>Paragraph statistics:</label>
+        <div v-if="showParagraphStatistics">
+            <button class="Hide-paragraph-statistics" 
+                    @click="toggleParagraphStatistics">
+                    Hide paragraph statistics
+            </button>
+        </div>
+        <div v-else>
+            <button class="Show-paragraph-statistics" 
+                    @click="toggleParagraphStatistics">
+                    Show paragraph statistics
+            </button>
+        </div>
         <template>
             <div class="home">
                 <BarChart
+                v-if="showParagraphStatistics"
                 class="chart"
                 :chartData="chartData"
                 />
@@ -253,6 +265,10 @@ export default {
         chartData: {
             type: Object,
             default:() => {}
+        },
+        showParagraphStatistics: {
+            type: Boolean,
+            default:false
         }
     },
     data () {
@@ -465,6 +481,9 @@ export default {
         },
         emojiHeatmapFunc: function () {
             this.$emit('change-heatmap-mode', true)
+        },
+        toggleParagraphStatistics: function () {
+            this.showParagraphStatistics = !this.showParagraphStatistics
         },
         onDraftReply: function (comment) {
             if (this.draftRange || this.edittingComment) {
