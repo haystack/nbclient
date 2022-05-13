@@ -167,6 +167,9 @@ export default {
     },
     created: async function () {
         this.sortBy = this.currentConfigs.sortByConfig
+        if (this.currentConfigs.sortByConfig === 'init'){
+            this.sortBy = 'recent'
+        }
     },
     computed: {
         currentThreadsCount: function () {
@@ -191,6 +194,8 @@ export default {
     },
     watch: {
         sortBy: function(newSortBy, oldSortBy) {
+             console.log(this.sortBy)
+             consle.log(this.currentConfigs.sortByConfig)
             this.currentConfigs.sortByConfig = this.sortBy
             if(oldSortBy !== 'init') {
                 this.onLogNb('SORT')
