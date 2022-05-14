@@ -134,6 +134,23 @@ function eventsProxyMouse (src, target) {
     }
   })
 }
+/*
+ we use this list to determine the color of each emoji
+*/
+export const RgbList = [
+  {Red: 230, Green:20 ,Blue:140,},
+  {Red: 170, Green:20 ,Blue:230,},
+  {Red: 30, Green:20 ,Blue:230,},
+  {Red: 20, Green:160 ,Blue:230,},
+  {Red: 20, Green:230 ,Blue:140,},
+  {Red: 30, Green:230 ,Blue:20,},
+  {Red: 210, Green:230 ,Blue:20,},
+  {Red: 230, Green:190 ,Blue:20,},
+  {Red: 230, Green:140 ,Blue:20,},
+  {Red: 150, Green:50 ,Blue:50,},
+  {Red: 100, Green:120 ,Blue:210,},
+  {Red: 30, Green:110 ,Blue:90,},
+]
 
 export {
   eventsProxyMouse

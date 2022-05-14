@@ -43,6 +43,10 @@
             @min-reply-reqs="onMinReplyReqs"
             @min-upvotes="onMinUpvotes">
         </filter-view>
+        <div class="buttons">
+          <button class="default-heatmap" @click="defaultHeapmapFunc">Default-heatmap</button>
+          <button class="emoji-heatmap" @click="emojiHeatmapFunc" :disabled="isEditorEmpty">Emoji-heatmap</button>
+        </div>
         <list-view
             :threads="threads"
             :total-count="totalThreads"
@@ -52,6 +56,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :emojiHeatmap="emojiHeatmap"
             :still-gathering-threads="stillGatheringThreads"
             :current-configs="currentConfigs"
             :activeClass="activeClass"
@@ -205,6 +210,9 @@ export default {
         showHighlights: {
             type: Boolean,
             default: true
+        },
+        emojiHeatmap: {
+            type: Boolean,
         },
         sourceUrl: {
             type: String,
@@ -432,6 +440,12 @@ export default {
             } else { // head of thread
                 this.$emit('delete-thread', comment)
             }
+        },
+        defaultHeapmapFunc: function () {
+            this.$emit('change-heatmap-mode', false)
+        },
+        emojiHeatmapFunc: function () {
+            this.$emit('change-heatmap-mode', true)
         },
         onDraftReply: function (comment) {
             if (this.draftRange || this.edittingComment) {

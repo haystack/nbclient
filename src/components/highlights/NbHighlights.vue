@@ -7,10 +7,12 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :emojiHeatmap="emojiHeatmap"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
+            :hashtags="hashtags"
             @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
@@ -65,6 +67,9 @@ export default {
             type: Boolean,
             default: true
         },
+        emojiHeatmap: {
+            type: Boolean,
+        },
         user: Object,
         activeClass: {
             type: Object,
@@ -78,6 +83,10 @@ export default {
         showSyncFeatures: {
             type: Boolean,
             default: false
+        },
+        hashtags: {
+            type: Object,
+            default: () => {}
         },
     },
     methods: {
