@@ -46,6 +46,9 @@
         <list-view
             :threads="threads"
             :total-count="totalThreads"
+            :minThreads="minThreads"
+            :maxThreads="maxThreads"
+            :numberOfThreads="numberOfThreads"
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
@@ -54,12 +57,15 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
+            :myfollowing="myNewFollowing"
             :filter="filter"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
+            @unhover-thread="onUnhoverThread"
+            @change-number-threads="onChangeNumberThreads"
+            @sort-by="onSortBy">
         </list-view>
         <notification-view
             v-if="showSyncFeatures && sidebarNotificationsOpened"
@@ -90,13 +96,16 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myNewFollowing"
             @log-nb="onLogNb"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
             @submit-small-comment="onSubmitSmallComment"
             @prev-comment="onPrevComment"
-            @next-comment="onNextComment">
+            @next-comment="onNextComment"
+            @follow-author="onFollowAuthor"
+            @unfollow-author="onUnfollowAuthor">
         </thread-view>
         <editor-view
             :author="user"
@@ -136,6 +145,7 @@ import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+import axios from 'axios'
 
 Vue.use(Notifications)
 
@@ -228,6 +238,22 @@ export default {
           type: Boolean,
           default: false
         },
+        maxThreads: {
+            type: Number, 
+            default: 0
+        },
+        minThreads: {
+            type: Number, 
+            default: 0
+        },
+        numberOfThreads:{
+            type: Number,
+            default: 0
+        },
+        myfollowing: {
+            type: Array,
+            default: () => []
+        },
         filter: {
             type: Object,
             default: () => {}
@@ -251,6 +277,7 @@ export default {
                 isDraggable: false,
                 isSubmitting: false,
             },
+            myNewFollowing: this.myfollowing,
         }
     },
     computed: {
@@ -379,6 +406,12 @@ export default {
         },
         onUnhoverThread: function (thread) {
             this.$emit('unhover-thread', thread)
+        },
+        onChangeNumberThreads: function(numberOfThreads) {
+            this.$emit('change-number-threads', numberOfThreads)
+        },
+        onSortBy: function(sortBy) {
+            this.$emit('sort-by', sortBy)
         },
         onEditComment: function (comment) {
             if (this.draftRange || this.replyToComment) {
@@ -551,8 +584,32 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onFollowAuthor: async function(comment){
+                this.$emit('add-author-section', comment.author)
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                 axios.get(`/api/users/user/${comment.author}`, headers)
+                .then((res) => {
+                axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data 
+                    })
+                })
+        },
+        onUnfollowAuthor: async function(comment){
+                this.$emit('remove-author-section', comment.author)
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                axios.get(`/api/users/user/${comment.author}`, headers)
+                .then((res) => {
+                axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                    .then(res2 => {
+                        this.myNewFollowing = res2.data 
+                    })
+            })
+        },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0, endorsed = false, followed = false) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies, endorsed, followed)
         }
     },
     components: {
