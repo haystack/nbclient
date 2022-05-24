@@ -288,6 +288,7 @@ function embedNbApp() {
             threads: [],
             usingFilter: false,
             allThreads: [],
+            importantThreads: [],
             sortBy: 'init',
             allAuthorThreads: {},
             threadSelected: null,
@@ -529,11 +530,12 @@ function embedNbApp() {
                     this.numberOfThreads = sortedItems.length
                     this.usingFilter = true
                 } else {
-                    sortedItems = this.threads
+                    // sortedItems = this.threads
                     this.numberOfThreads = this.threads.length
                     this.maxThreads = this.allThreads.length
                     this.filter.sectioning = null
                     this.usingFilter = false
+                    return this.threads
 
                 }
                 return sortedItems
@@ -1002,7 +1004,24 @@ function embedNbApp() {
                     //     }
                     // }
                     this.numberOfThreads = this.maxThreads > this.startThreadNumber? this.startThreadNumber:this.maxThreads;
-                    this.minThreads = 0
+                    // this.minThreads = 0
+                    const token = localStorage.getItem("nb.user");
+                     const headers = { headers: { Authorization: 'Bearer ' + token } }
+                     axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                     .then((res) => {
+                         this.myfollowing = res.data
+                         console.log("end api")
+                     })
+                     this.importantThreads = this.allThreads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id) || t.isEndorsed())
+                     for(let i= 0; i < this.myfollowing.length; i++){
+                         if (this.myfollowing[i].follower_id in this.allAuthorThreads){
+                             this.allAuthorThreads[this.myfollowing[i].follower_id].forEach((t) => {
+                                 if(t.anonymity === "IDENTIFIED"  && !this.importantThreads.includes(t)){
+                                     this.importantThreads.push(t)                            }
+                             })
+                         }
+                     }
+                     this.minThreads = this.importantThreads.length
                     this.onSortBy(this.currentConfigs.sortByConfig)
                     
                     this.numberOfThreads=this.threads.length
@@ -1300,57 +1319,65 @@ function embedNbApp() {
                 this.filter.minUpvotes = min
             },
             onSortBy: function(sortBy) {
+                this.threads = [...this.importantThreads]
+
                 this.sortBy = sortBy
-                const token = localStorage.getItem("nb.user");
-                const headers = { headers: { Authorization: 'Bearer ' + token } }
-                axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
-                .then((res) => {
-                    this.myfollowing = res.data
-                })
-                this.threads = this.allThreads.filter((t) => t.hasInstructorPost() || t.hasUserPost(this.user.id) || t.isEndorsed())
-                for(let i= 0; i < this.myfollowing.length; i++){
-                    if (this.myfollowing[i].follower_id in this.allAuthorThreads){
-                        this.allAuthorThreads[this.myfollowing[i].follower_id].forEach((t) => {
-                            if(t.anonymity === "IDENTIFIED"  && !this.threads.includes(t)){
-                                this.threads.push(t)                            }
-                        })
-                    }
-                }
-                this.minThreads = this.threads.length
-                
+             
+                console.log("first sort")
                 switch (sortBy) {
                     case 'position':
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compareDomPosition)
+                        console.log("after sorting")
                         break
                     case 'recent':
                         this.allThreads = this.allThreads.concat().sort(compare('timestamp', 'key', false))
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compare('timestamp', 'key', false))
+                        console.log("after sorting")
                         break                        
                     case 'comment':
                         this.allThreads = this.allThreads.concat().sort(compare('countAllReplies', 'func', false))
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compare('countAllReplies', 'func', false))
+                        console.log("after sorting")
                         break
                     case 'reply_request':
                         this.allThreads = this.allThreads.concat().sort(compare('countAllReplyReqs', 'func', false))
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
+                        console.log("after sorting")
                         break
                     case 'upvote':
                         this.allThreads = this.allThreads.concat().sort(compare('countAllUpvotes', 'func', false))
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
+                        console.log("after sorting")
                         break
                     case 'unseen':
                         this.allThreads = this.allThreads.concat().sort(compare('isUnseen', 'func', false))
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compare('isUnseen', 'func', false))
+                        console.log("after sorting")
                         break
                     default:
+                        console.log("before adding threads")
                         this.addThreads()
+                        console.log("after adding threads and before sorting")
                         this.threads = this.threads.concat().sort(compareDomPosition)
+                        console.log("after sorting")
                         break
                 }
             },
@@ -1428,11 +1455,12 @@ function embedNbApp() {
                 if(!this.usingFilter){
                     if (num > this.numberOfThreads){
                         this.numberOfThreads = num
-                        this.addThreads()
+                        // this.addThreads()
                     } else {
                         this.numberOfThreads = num
-                        this.removeThreads()
+                        // this.removeThreads()
                     }
+                    this.onSortBy(this.sortBy)
                 }
             },
             onUnhoverInnotation: function (thread) {
