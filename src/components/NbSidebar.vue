@@ -163,6 +163,7 @@ import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
 import BarChart from "./BarChart.vue"
+import {RgbList1} from '../utils/highlight-util.js'
 
 Vue.use(Notifications)
 
@@ -345,7 +346,11 @@ export default {
                 }
                 this.chartData = {
                     labels: Object.keys(statDict),
-                    datasets:[{data: Object.values(statDict), label: 'Count', backgroundColor: '#f87979',}]
+                    datasets:[{
+                        data: Object.values(statDict),
+                        label: 'Count',
+                        backgroundColor: RgbList1}],
+                    
                 }
                 if (this.replyToComment || this.edittingComment) {
                     alert("You're already working on another comment. Please save or cancel it first.")

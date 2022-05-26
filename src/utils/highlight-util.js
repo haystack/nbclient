@@ -151,6 +151,22 @@ export const RgbList = [
   {Red: 100, Green:120 ,Blue:210,},
   {Red: 30, Green:110 ,Blue:90,},
 ]
+export const RgbListForPs = [
+  {Red: 210, Green:230 ,Blue:20,}, // 1
+  {Red: 20, Green:230 ,Blue:140,}, //2
+  {Red: 170, Green:20 ,Blue:230,}, // 3
+  {Red: 230, Green:20 ,Blue:140,}, // 4
+  {Red: 30, Green:110 ,Blue:90,}, // 5
+  {Red: 100, Green:120 ,Blue:210,}, // 6
+  {Red: 150, Green:50 ,Blue:50,}, // 7
+  {Red: 30, Green:20 ,Blue:230,}, // 8
+  {Red: 230, Green:140 ,Blue:20,}, // 9
+  {Red: 20, Green:160 ,Blue:230,}, // 10
+  {Red: 30, Green:230 ,Blue:20,}, // 11
+  {Red: 230, Green:190 ,Blue:20,}, // 12
+]
+// export const RgbList1 = RgbList.map
+export const RgbList1 = RgbListForPs.map(rgb => `rgb(${rgb.Red}, ${rgb.Green}, ${rgb.Blue})`)
 
 export {
   eventsProxyMouse
