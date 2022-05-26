@@ -35,7 +35,7 @@
                     <p>Fetching Annotations</p>
                     <tile loading="true"></tile>
                 </div>
-                <list-row
+                <!-- <list-row
                     v-for="thread in threads"
                     :key="thread"
                     :thread="thread"
@@ -50,7 +50,7 @@
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
                     @unhover-thread="$emit('unhover-thread', thread)">
-                </list-row>
+                </list-row> -->
             </div>
         </div>
     </div>
