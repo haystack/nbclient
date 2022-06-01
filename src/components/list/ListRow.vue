@@ -192,7 +192,6 @@ export default {
     },
     computed: {
         isSpotlighted: function () {
-            console.log("in list row")
             if (this.thread.isSpotlighted()) {
                 if (['ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'IN'].includes(this.thread.spotlight.type) && this.currentConfigs.isInnotation) return true
                 if (this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) return true

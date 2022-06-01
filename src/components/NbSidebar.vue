@@ -282,7 +282,6 @@ export default {
     },
     computed: {
         sortedUsers: function () {
-            console.log("in NB sidebar")
             let items = Object.values(this.users)
             for (let item of items) {
                 Object.assign(item, { value: `${item.name.first} ${item.name.last}` })
@@ -409,6 +408,7 @@ export default {
             this.$emit('unhover-thread', thread)
         },
         onChangeNumberThreads: function(numberOfThreads) {
+            console.log("in NB sidebar")
             this.$emit('change-number-threads', numberOfThreads)
         },
         onSortBy: function(sortBy) {

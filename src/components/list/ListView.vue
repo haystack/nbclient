@@ -166,7 +166,6 @@ export default {
         }
     },
     created: async function () {
-        console.log("in list view")
         this.sortBy = this.currentConfigs.sortByConfig
         if (this.currentConfigs.sortByConfig === 'init'){
             this.sortBy = 'recent'
@@ -220,6 +219,7 @@ export default {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
         onChangeNumberThreads: function(){
+            console.log("in list view")
             this.onLogNb('SLIDER_CHANGE')
             this.$emit('change-number-threads', this.numberOfThreads)
         },
