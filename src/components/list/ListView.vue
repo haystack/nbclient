@@ -166,6 +166,7 @@ export default {
         }
     },
     created: async function () {
+        console.log("in list view")
         this.sortBy = this.currentConfigs.sortByConfig
         if (this.currentConfigs.sortByConfig === 'init'){
             this.sortBy = 'recent'

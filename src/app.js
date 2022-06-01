@@ -1361,6 +1361,7 @@ function embedNbApp() {
                         console.log("after sorting")
                         break
                 }
+                console.log("")
             },
             onSelectThread: function (thread, threadViewInitiator = 'NONE') {
                 this.threadViewInitiator = threadViewInitiator
