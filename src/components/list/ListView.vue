@@ -219,6 +219,7 @@ export default {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
         onChangeNumberThreads: function(){
+            console.log("in list view")
             this.onLogNb('SLIDER_CHANGE')
             this.$emit('change-number-threads', this.numberOfThreads)
         },
