@@ -127,6 +127,12 @@
                 />
             </div>
         </template>
+        <div v-if="showParagraphStatistics">
+            <button class="Reset-paragraph-statistics" 
+                @click="resetParagraphStatistics">
+                Reset paragraph statistics
+            </button>
+        </div>
         <editor-view
             :author="user"
             :key="editor.key"
@@ -273,13 +279,36 @@ export default {
         showParagraphStatistics: {
             type: Boolean,
             default:false
-        }
+        },
+        statDict: {
+            type: Object,
+            default:() =>{},
+        },
+        paragraphSet: {
+            type: Set,
+            default:() =>{},
+        },
     },
     data () {
         this.chartData ={
-        labels: [],
-        datasets: []
-      }
+            labels: [],
+            datasets: []
+        }
+        this.statDict = {
+            "#i-think" : 0,
+            "#interesting-topic" : 0,
+            "#learning-goal" : 0,
+            "#lightbulb-moment" : 0,
+            "#needs-work" : 0,
+            "#real-world-application" : 0,
+            "#important" : 0,
+            "#just-curious" : 0,
+            "#lets-discuss" : 0,
+            "#lost" : 0,
+            "#question" : 0,
+            "#surprised" : 0,
+        },
+        this.paragraphSet  = new Set()
         return {
             chartsLib: null, 
             replyToComment: null,
@@ -324,36 +353,25 @@ export default {
     watch: {
         draftRange: function (val, oldVal) {
             if (val) {
-                var statDict = {
-                        "#i-think" : 0,
-                        "#interesting-topic" : 0,
-                        "#learning-goal" : 0,
-                        "#lightbulb-moment" : 0,
-                        "#needs-work" : 0,
-                        "#real-world-application" : 0,
-                        "#important" : 0,
-                        "#just-curious" : 0,
-                        "#lets-discuss" : 0,
-                        "#lost" : 0,
-                        "#question" : 0,
-                        "#surprised" : 0,
-                }
-                for(let thread of this.threads){
-                    if(thread.range.start.wholeText === val.start.wholeText){
-                        for(var emoji in statDict){
-                            if(thread.text.includes(emoji)){
-                                statDict[emoji]++
+                if(!this.paragraphSet.has(val.start.wholeText)){
+                    this.paragraphSet.add(val.start.wholeText)
+                    for(let thread of this.threads){
+                        if(thread.range.start.wholeText === val.start.wholeText){
+                            for(var emoji in this.statDict){
+                                if(thread.text.includes(emoji)){
+                                    this.statDict[emoji]++
+                                }
                             }
                         }
                     }
-                }
-                this.chartData = {
-                    labels: Object.keys(statDict),
-                    datasets:[{
-                        data: Object.values(statDict),
-                        label: 'Count',
-                        backgroundColor: RgbList1}],
-                    
+                    this.chartData = {
+                        labels: Object.keys(this.statDict),
+                        datasets:[{
+                            data: Object.values(this.statDict),
+                            label: 'Count',
+                            backgroundColor: RgbList1}],
+                        
+                    }
                 }
                 if (this.replyToComment || this.edittingComment) {
                     alert("You're already working on another comment. Please save or cancel it first.")
@@ -489,6 +507,31 @@ export default {
         },
         toggleParagraphStatistics: function () {
             this.showParagraphStatistics = !this.showParagraphStatistics
+            this.resetParagraphStatistics()
+        },
+        resetParagraphStatistics: function () {
+            this.paragraphSet = new Set()
+            this.statDict = {
+                    "#i-think" : 0,
+                    "#interesting-topic" : 0,
+                    "#learning-goal" : 0,
+                    "#lightbulb-moment" : 0,
+                    "#needs-work" : 0,
+                    "#real-world-application" : 0,
+                    "#important" : 0,
+                    "#just-curious" : 0,
+                    "#lets-discuss" : 0,
+                    "#lost" : 0,
+                    "#question" : 0,
+                    "#surprised" : 0,
+            }
+            this.chartData = {
+                labels: Object.keys(this.statDict),
+                datasets:[{
+                    data: Object.values(this.statDict),
+                    label: 'Count',
+                    backgroundColor: RgbList1}],
+            }
         },
         onDraftReply: function (comment) {
             if (this.draftRange || this.edittingComment) {
@@ -535,6 +578,7 @@ export default {
             
         },
         onSubmitComment: async function (data) {
+            this.resetParagraphStatistics()
             this.editor.isSubmitting = true
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
