@@ -9,8 +9,9 @@
         </header>
         <div v-if="!isCollapsed">
             <div class="list-header">
+                <div class="list-header-container">
                 <span class="count">
-                    {{ threads.length }} of {{ totalLabel }}
+                    {{numberOfThreads}} of {{maxThreads}} threads
                 </span>
                 <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
                     <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
@@ -18,12 +19,16 @@
                 </span>
                 <span class="sort">
                     Sort by:
-                    <select v-model="sortBy">
+                    <select v-model="sortBy"  @change="onChangeSortBy">
                         <option v-for="option in sortByOptions" :key="option.value" :value="option.value">
                             {{ option.text }}
                         </option>
                     </select>
                 </span>
+                </div>
+                <div class="range">
+                    <input v-model="numberOfThreads" type="range" id="myRange" min="minThreads" max="maxThreads" @change="onChangeNumberThreads" style="width:300px;">
+                </div>
             </div>
             <div class="list-table">
                 <div v-if="stillGatheringThreads">
@@ -31,7 +36,7 @@
                     <tile loading="true"></tile>
                 </div>
                 <list-row
-                    v-for="thread in sorted"
+                    v-for="thread in threads"
                     :key="thread"
                     :thread="thread"
                     :thread-selected="threadSelected"
@@ -40,6 +45,7 @@
                     :activeClass="activeClass"
                     :show-sync-features="showSyncFeatures"
                     :user="user"
+                    :myfollowing="myfollowing"
                     @log-nb="onLogNb"
                     @select-thread="onSelectThread"
                     @hover-thread="$emit('hover-thread', thread)"
@@ -123,6 +129,22 @@ export default {
             type: Boolean,
             default: false,
         },
+        maxThreads: {
+            type: Number, 
+            default: 0,
+        },
+        minThreads: {
+            type: Number, 
+            default: 0,
+        },
+        numberOfThreads:{
+            type: Number, 
+            default: 0,
+       },
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
         filter: {
             type: Object,
             default: () => {}
@@ -139,36 +161,25 @@ export default {
                 { text: 'Reply Requests', value: 'reply_request' },
                 { text: 'Upvotes', value: 'upvote' },
                 { text: 'Unseen', value: 'unseen'}
-            ]
+            ],
+            numberOfThreads: this.minThreads,
         }
     },
     created: async function () {
         this.sortBy = this.currentConfigs.sortByConfig
+        if (this.currentConfigs.sortByConfig === 'init'){
+            this.sortBy = 'recent'
+        }
     },
     computed: {
+        currentThreadsCount: function () {
+            return this.threads.length
+        },
         totalLabel: function () {
             if (this.totalCount === 1) {
                 return '1 thread'
             } else {
                 return `${this.totalCount} threads`
-            }
-        },
-        sorted: function () {
-            switch (this.sortBy) {
-                case 'position':
-                    return this.threads.concat().sort(compareDomPosition)
-                case 'recent':
-                    return this.threads.concat().sort(compare('timestamp', 'key', false))
-                case 'comment':
-                    return this.threads.concat().sort(compare('countAllReplies', 'func', false))
-                case 'reply_request':
-                    return this.threads.concat().sort(compare('countAllReplyReqs', 'func', false))
-                case 'upvote':
-                    return this.threads.concat().sort(compare('countAllUpvotes', 'func', false))
-                case 'unseen':
-                    return this.threads.concat().sort(compare('isUnseen', 'func', false))
-                default:
-                    return this.threads
             }
         },
         tooltipType: function () {
@@ -179,7 +190,7 @@ export default {
         },
         sortByConfig: function () {
             return this.currentConfigs.sortByConfig
-        }
+        },
     },
     watch: {
         sortBy: function(newSortBy, oldSortBy) {
@@ -207,12 +218,44 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
-        }
+        onChangeNumberThreads: function(){
+            this.onLogNb('SLIDER_CHANGE')
+            this.$emit('change-number-threads', this.numberOfThreads)
+        },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0, endorsed = false, followed = false) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies, endorsed, followed)
+        },
+        onChangeSortBy: function(){
+            this.$emit('sort-by', this.sortBy)
+        },
+        // collapse: function(){
+        //     this.isCollapsed = !this.isCollapsed
+        // }
+    },
+    updated: function(){
+            if(!this.isCollapsed){
+                document.querySelector("#myRange").setAttribute('min', this.minThreads.toString())
+                document.querySelector("#myRange").setAttribute('max', this.maxThreads.toString())
+            }
+    },
+    watch: {
+        minThreads(newValue, oldValue){
+            document.querySelector("#myRange").setAttribute('min', newValue.toString())
+        },
+        maxThreads(newValue, oldValue){
+            document.querySelector("#myRange").setAttribute('max', newValue.toString())
+        },
     },
     components: {
         ListRow
     }
 }
 </script>
+<style>
+.filterdThreads {
+    background: yellow;
+    font-weight: bold;
+    font-style: italic;
+}
+
+</style>

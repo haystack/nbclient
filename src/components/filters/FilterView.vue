@@ -114,23 +114,34 @@
               <div>
                 <input
                     type="checkbox"
-                    id="instructor-comments"
-                    value="instructor"
-                    v-model="filterComments"
-                    @change="onFilterChange('comments')">
-                <label for="instructor-comments">
-                  instructors
-                </label>
-              </div>
-              <div>
-                <input
-                    type="checkbox"
                     id="my-comments"
                     value="me"
                     v-model="filterComments"
                     @change="onFilterChange('comments')">
                 <label for="my-comments">
                   me
+                </label>
+              </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="following-comments"
+                    value="following"
+                    v-model="filterComments"
+                    @change="onFilterChange('comments')">
+                <label for="following-comments">
+                  following
+                </label>
+              </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="instructor-comments"
+                    value="instructor"
+                    v-model="filterComments"
+                    @change="onFilterChange('comments')">
+                <label for="instructor-comments">
+                  instructors/endorsed
                 </label>
               </div>
             </div>

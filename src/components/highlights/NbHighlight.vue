@@ -124,7 +124,22 @@ export default {
     },
     data () {
         return {
-        recent: false
+            recent: false,
+            // tags: {
+            //     Discuss: '536e5be0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Interesting: '53672ff0-d2bf-11eb-9e48-c593f3f42f13',
+            //     Lost: '53664590-d2bf-11eb-9e48-c593f3f42f13',
+            // }
+            // tags: {
+            //     Discuss: '9c76cd81-e445-11eb-9382-d1c5af161561',
+            //     Interesting: '9c70da10-e445-11eb-9382-d1c5af161561',
+            //     Lost: '9c703dd0-e445-11eb-9382-d1c5af161561',
+            // }
+            tags: {
+                Discuss: 'df6f87a0-4f92-11eb-bd80-bd642962df02',
+                Interesting: 'df43e3c0-4f92-11eb-bd80-bd642962df02',
+                Lost: 'df43bcb0-4f92-11eb-bd80-bd642962df02',
+            }
         }
     },
     mounted () {
@@ -182,7 +197,7 @@ export default {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.thread === this.threadSelected) {
-                return 'fill: rgb(1, 99, 255); fill-opacity: 0.3; cursor: pointer;'
+                return 'fill: rgb(255, 255, 255); fill-opacity: 0.3; cursor: pointer;'
             }
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
@@ -300,6 +315,15 @@ export default {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
         },
         onClick: function () {
+            if (this.isDocumap) {
+                console.log(this.thread)
+                console.log(this.sourceUrl)
+                let url = `${this.sourceUrl}#nb-comment-${this.thread.id}`
+                console.log(url)
+                window.open(url, '_blank');
+                return
+            }
+
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }
@@ -311,7 +335,7 @@ export default {
             }
 
             const location = this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
-            this.$emit('log-nb', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies(), this.thread.isEndorsed(), this.thread.isFollowed())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");

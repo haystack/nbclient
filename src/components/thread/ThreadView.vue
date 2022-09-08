@@ -29,12 +29,15 @@
             :replyToComment="replyToComment"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myfollowing"
             :current-configs="currentConfigs"
             @log-nb="onLogNb"
             @edit-comment="editComment"
             @delete-comment="deleteComment"
             @submit-small-comment="submitSmallComment"
-            @draft-reply="draftReply">
+            @draft-reply="draftReply"
+            @follow-author="followAuthor"
+            @unfollow-author="unfollowAuthor">
         </thread-comment>
     </div>
 </template>
@@ -77,6 +80,10 @@ export default {
         },
         activeClass: Object,
         threadViewInitiator: String,
+        myfollowing:{
+            type: Object,
+            default: () => []
+        }
     },
     computed: {
         numComments: function () {
@@ -120,8 +127,14 @@ export default {
         onNextComment: function () {
             this.$emit('next-comment')
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        followAuthor: function(comment){
+            this.$emit('follow-author', comment)
+        },
+        unfollowAuthor: function(comment){
+            this.$emit('unfollow-author', comment)
+        },
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0, endorsed = false, followed = false) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies, endorsed, followed)
         }
     },
     components: {
