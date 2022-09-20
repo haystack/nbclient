@@ -53,6 +53,8 @@
         <template slot="popover">
           <div class="filter-options">
             <div class="title">Hashtags/emojis</div>
+            <button class="clear-all" @click="clearAllFunc">Clear all</button>
+            <button class="select-all" @click="selectAllFunc">Select all</button>
             <div class="hashtags">
               <div v-for="hashtag in hashtags" :key="hashtag.id">
                 <input
@@ -64,9 +66,22 @@
                 
                 <label :for="'filter-hashtag-' + hashtag.id">
                      <img :src="`${pluginHostURL}/emoji/${hashtag.emoji}.png`">
-                     <span v-html="'' + hashtag.value"></span>
+                     <span v-html="'' + hashtag.value" :style="{ 'color': `rgb(${RgbList[hashtagIds.indexOf(hashtag.id)].Red}, ${RgbList[hashtagIds.indexOf(hashtag.id)].Green}, ${RgbList[hashtagIds.indexOf(hashtag.id)].Blue})`}"></span>
                 </label>
 
+              </div>
+            </div>
+            <div class="threads-without-emojis">
+              <div>
+                <input
+                    type="checkbox"
+                    id="threads-without-emojis"
+                    value="filter-threads-without-emojis"
+                    v-model="filterThreadsWithoutEmojis"
+                    @change="onFilterChange('threads-without-emojis')">
+                <label for="threads-without-emojis">
+                  threads-without-emojis
+                </label>
               </div>
             </div>
             <div class="title">Max. # of threads</div>
@@ -298,6 +313,7 @@
 <script>
 import SearchBar from './SearchBar.vue'
 import {PLUGIN_HOST_URL} from '../../app' 
+import {RgbList} from '../../utils/highlight-util.js'
 
 /**
  * Component for the search/filter options on the side bar.
@@ -395,11 +411,14 @@ export default {
     return {
       filterVisible: false,
       filterBookmarks: false,
+      filterThreadsWithoutEmojis: true,
       filterHashtags: [],
       filterUserTags: [],
       filterComments: [],
       filterReplyReqs: [],
       filterUpvotes: [],
+      hashtagIds: [],
+      RgbList: [],
       minWords: null,
       maxWords: null,
       minHashtags: null,
@@ -432,6 +451,19 @@ export default {
     }
   },
   methods: {
+    clearAllFunc: function () {
+      this.filterHashtags = []
+      this.onFilterChange('hashtags')
+      this.filterThreadsWithoutEmojis = false
+      this.$emit('filter-threads-without-emojis', this.filterThreadsWithoutEmojis)
+      
+    },
+    selectAllFunc: function () {
+      this.filterHashtags = Object.values(this.hashtags).map(h => h.id)
+      this.onFilterChange('hashtags')
+      this.filterThreadsWithoutEmojis = true
+      this.$emit('filter-threads-without-emojis', this.filterThreadsWithoutEmojis)
+    },
     onSearchOptionChange: function (option) {
       this.$emit('search-option', option)
     },
@@ -461,9 +493,14 @@ export default {
       this.onFilterChange('bookmarks')
     },
     toggleFilters: function (event) {
-      if (!this.filterVisible){
+      if (!this.filterVisible && this.filterHashtags.length === 0){
         this.filterHashtags = Object.values(this.hashtags).map(h => h.id);
+        this.hashtagIds = Object.values(this.hashtags).map(h => h.id).sort();
         this.$emit('filter-hashtags', this.filterHashtags)
+        this.filterThreadsWithoutEmojis = true
+        this.$emit('filter-threads-without-emojis', this.filterThreadsWithoutEmojis)
+        this.filter.startFilter = true
+        this.RgbList = RgbList
       }
 
       this.filterVisible = !this.filterVisible
@@ -473,6 +510,9 @@ export default {
     },
     onFilterChange: function (type) {
       switch (type) {
+        case 'threads-without-emojis':
+          this.$emit('filter-threads-without-emojis', this.filterThreadsWithoutEmojis)
+          break
         case 'hashtags':
           this.$emit('filter-hashtags', this.filterHashtags)
           break

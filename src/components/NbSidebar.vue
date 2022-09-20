@@ -30,6 +30,7 @@
             @search-text="onSearchText"
             @filter-bookmarks="onFilterBookmarks"
             @filter-hashtags="onFilterHashtags"
+            @filter-threads-without-emojis="onFilterThreadsWithoutEmojis"
             @filter-user-tags="onFilterUserTags"
             @filter-comments="onFilterComments"
             @filter-reply-reqs="onFilterReplyReqs"
@@ -44,8 +45,10 @@
             @min-upvotes="onMinUpvotes">
         </filter-view>
         <div class="buttons">
-          <button class="default-heatmap" @click="defaultHeapmapFunc">Default-heatmap</button>
-          <button class="emoji-heatmap" @click="emojiHeatmapFunc" :disabled="isEditorEmpty">Emoji-heatmap</button>
+          <span>Heatmap modes:</span>
+          <button class="default" @click="setHeatmapMode('Default')">Default</button>
+          <button class="emoji" @click="setHeatmapMode('Emoji')" :disabled="isEditorEmpty">Emoji</button>
+          <button class="CE" @click="setHeatmapMode('CE')" :disabled="isEditorEmpty">CE</button>
         </div>
         <list-view
             :threads="threads"
@@ -56,7 +59,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
-            :emojiHeatmap="emojiHeatmap"
+            :heatmapMode="heatmapMode"
             :still-gathering-threads="stillGatheringThreads"
             :current-configs="currentConfigs"
             :activeClass="activeClass"
@@ -112,6 +115,33 @@
             @follow-author="onFollowAuthor"
             @unfollow-author="onUnfollowAuthor">
         </thread-view>
+        <div v-if="showParagraphStatistics">
+            <button class="Hide-paragraph-statistics" 
+                    @click="toggleParagraphStatistics">
+                    Hide paragraph statistics
+            </button>
+        </div>
+        <div v-else>
+            <button class="Show-paragraph-statistics" 
+                    @click="toggleParagraphStatistics">
+                    Show paragraph statistics
+            </button>
+        </div>
+        <template>
+            <div class="home">
+                <BarChart
+                v-if="showParagraphStatistics"
+                class="chart"
+                :chartData="chartData"
+                />
+            </div>
+        </template>
+        <div v-if="showParagraphStatistics">
+            <button class="Reset-paragraph-statistics" 
+                @click="resetParagraphStatistics">
+                Reset paragraph statistics
+            </button>
+        </div>
         <editor-view
             :author="user"
             :key="editor.key"
@@ -150,6 +180,8 @@ import ThreadView from './thread/ThreadView.vue'
 import EditorView from './editor/EditorView.vue'
 import NbMenu from './NbMenu.vue'
 import NbOnline from './NbOnline.vue'
+import BarChart from "./BarChart.vue"
+import {RgbList1} from '../utils/highlight-util.js'
 import axios from 'axios'
 
 Vue.use(Notifications)
@@ -211,8 +243,9 @@ export default {
             type: Boolean,
             default: true
         },
-        emojiHeatmap: {
-            type: Boolean,
+        heatmapMode: {
+            type: String,
+            default: "Default"
         },
         sourceUrl: {
             type: String,
@@ -265,10 +298,46 @@ export default {
         filter: {
             type: Object,
             default: () => {}
-        }
+        },
+        chartData: {
+            type: Object,
+            default:() => {}
+        },
+        showParagraphStatistics: {
+            type: Boolean,
+            default:false
+        },
+        statDict: {
+            type: Object,
+            default:() =>{},
+        },
+        paragraphSet: {
+            type: Set,
+            default:() =>{},
+        },
     },
     data () {
+        this.chartData ={
+            labels: [],
+            datasets: []
+        }
+        this.statDict = {
+            "#i-think" : 0,
+            "#interesting-topic" : 0,
+            "#learning-goal" : 0,
+            "#lightbulb-moment" : 0,
+            "#needs-work" : 0,
+            "#real-world-application" : 0,
+            "#important" : 0,
+            "#just-curious" : 0,
+            "#lets-discuss" : 0,
+            "#lost" : 0,
+            "#question" : 0,
+            "#surprised" : 0,
+        },
+        this.paragraphSet  = new Set()
         return {
+            chartsLib: null, 
             replyToComment: null,
             edittingComment: null,
             editor: {
@@ -312,6 +381,26 @@ export default {
     watch: {
         draftRange: function (val, oldVal) {
             if (val) {
+                if(!this.paragraphSet.has(val.start.wholeText)){
+                    this.paragraphSet.add(val.start.wholeText)
+                    for(let thread of this.threads){
+                        if(thread.range.start.wholeText === val.start.wholeText){
+                            for(var emoji in this.statDict){
+                                if(thread.text.includes(emoji)){
+                                    this.statDict[emoji]++
+                                }
+                            }
+                        }
+                    }
+                    this.chartData = {
+                        labels: Object.keys(this.statDict),
+                        datasets:[{
+                            data: Object.values(this.statDict),
+                            label: 'Count',
+                            backgroundColor: RgbList1}],
+                        
+                    }
+                }
                 if (this.replyToComment || this.edittingComment) {
                     alert("You're already working on another comment. Please save or cancel it first.")
                     this.$emit('cancel-draft', this.draftRange)
@@ -338,6 +427,9 @@ export default {
         }
     },
     methods: {
+        onChartReady (chart, google) {
+            this.chartsLib = google
+        },
         mouseDown: function (e) {
             if (e.offsetX < SIDEBAR_BORDER_SIZE && (this.threadSelected || this.editor.visible)) {
                 e.preventDefault()
@@ -366,6 +458,9 @@ export default {
         },
         onFilterHashtags: function (hashtags) {
             this.$emit('filter-hashtags', hashtags)
+        },
+        onFilterThreadsWithoutEmojis: function (show) {
+            this.$emit('filter-threads-without-emojis', show)
         },
         onFilterUserTags: function (filters) {
             this.$emit('filter-user-tags', filters)
@@ -441,11 +536,36 @@ export default {
                 this.$emit('delete-thread', comment)
             }
         },
-        defaultHeapmapFunc: function () {
-            this.$emit('change-heatmap-mode', false)
+        setHeatmapMode: function (mode) {
+            this.$emit('change-heatmap-mode', mode)
         },
-        emojiHeatmapFunc: function () {
-            this.$emit('change-heatmap-mode', true)
+        toggleParagraphStatistics: function () {
+            this.showParagraphStatistics = !this.showParagraphStatistics
+            this.resetParagraphStatistics()
+        },
+        resetParagraphStatistics: function () {
+            this.paragraphSet = new Set()
+            this.statDict = {
+                    "#i-think" : 0,
+                    "#interesting-topic" : 0,
+                    "#learning-goal" : 0,
+                    "#lightbulb-moment" : 0,
+                    "#needs-work" : 0,
+                    "#real-world-application" : 0,
+                    "#important" : 0,
+                    "#just-curious" : 0,
+                    "#lets-discuss" : 0,
+                    "#lost" : 0,
+                    "#question" : 0,
+                    "#surprised" : 0,
+            }
+            this.chartData = {
+                labels: Object.keys(this.statDict),
+                datasets:[{
+                    data: Object.values(this.statDict),
+                    label: 'Count',
+                    backgroundColor: RgbList1}],
+            }
         },
         onDraftReply: function (comment) {
             if (this.draftRange || this.edittingComment) {
@@ -492,6 +612,7 @@ export default {
             
         },
         onSubmitComment: async function (data) {
+            this.resetParagraphStatistics()
             this.editor.isSubmitting = true
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
@@ -635,6 +756,7 @@ export default {
         NbMenu,
         NotificationView,
         NbOnline,
+        BarChart
     }
 }
 </script>
