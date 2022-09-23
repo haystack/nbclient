@@ -148,6 +148,25 @@ function embedNbApp() {
                     @unhover-thread="onUnhoverThread">
                 </nb-marginalias>
                 <notifications position="top left" group="recentlyAddedThreads" />
+                <nb-highlights
+                    :key="redrawHighlightsKey"
+                    :threads="filteredThreads"
+                    :thread-selected="threadSelected"
+                    :threads-hovered="threadsHovered"
+                    :draft-range="draftRange"
+                    :show-highlights="showHighlights"
+                    :user="user"
+                    :activeClass="activeClass"
+                    :current-configs="currentConfigs"
+                    :show-sync-features="showSyncFeatures"
+                    :is-innotation-hover="isInnotationHover"
+                    @log-nb="onLogNb"
+                    @select-thread="onSelectThread"
+                    @unselect-thread="onUnselectThread"
+                    @hover-thread="onHoverThread"
+                    @unhover-thread="onUnhoverThread"
+                    @new-recent-thread="onNewRecentThread">
+                </nb-highlights>
                 <nb-notification-sidebar
                     v-if="syncConfig"
                     :user="user"
