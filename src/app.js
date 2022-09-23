@@ -892,6 +892,7 @@ function embedNbApp() {
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
+                    this.myfollowing = []
 
                     for (const item of res.data.headAnnotations) {
 
@@ -913,6 +914,13 @@ function embedNbApp() {
                             comment.associatedNotification = offlineNotification
                         }
                     }
+
+                    const token = localStorage.getItem("nb.user");
+                      const headers = { headers: { Authorization: 'Bearer ' + token } }
+                      axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                      .then((res) => {
+                          this.myfollowing = res.data
+                      })
 
                     this.stillGatheringThreads = false
 

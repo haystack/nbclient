@@ -145,7 +145,14 @@ class NbComment {
          * @type Boolean
          */
         this.endorsed = data.endorsed
-      
+
+        /**
+         * Flag for followed user. True if the current user's follows author of this comment.
+         * @name NbComment#followed
+         * @type Boolean
+         */
+        this.followed = data.followed
+
         /**
          * Flag for the current user's reply request.
          * True if the current user requested reply for this comment.
@@ -549,13 +556,6 @@ class NbComment {
         return false
     }
 
-      /**
-     * Flag for followed user. True if the current user's follows author of this comment.
-     * @name NbComment#followed
-     * @type Boolean
-     */
-    this.followed = data.followed
-
     /**
      * Check recursively if this comment (or descendant) has any upvotes.
      * @return {Boolean} True if this comment (or descendant) has any upvotes.
@@ -734,6 +734,9 @@ class NbComment {
      * Toggle the upvote for this comment by the current user.
      */
     toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+        if(!this.upvoteCount){
+            this.upvoteCount = 0
+        }
         if (this.upvotedByMe) {
             this.upvoteCount -= 1
             this.upvotedByMe = false
