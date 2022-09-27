@@ -1041,8 +1041,6 @@ function embedNbApp() {
                     
                     this.numberOfThreads=this.threads.length
 
-                    const token = localStorage.getItem("nb.user");
-                      const headers = { headers: { Authorization: 'Bearer ' + token } }
                       axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
                       .then((res) => {
                           this.myfollowing = res.data
