@@ -178,11 +178,11 @@ export default {
             for (let child of this.thread.children) {
                 if(child.anonymity !== CommentAnonymity.ANONYMOUS){
                     if(child.author !== this.user.id){
-                    for(let i = 0; i < this.myfollowing.length; i++){
-                        if (child.author === this.myfollowing[i].follower_id){
-                            return true
+                        for(let i = 0; i < this.myfollowing.length; i++){
+                            if (child.author === this.myfollowing[i].follower_id){
+                                return true
+                            }
                         }
-                    }
                     }
                 }
             }

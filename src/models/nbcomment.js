@@ -152,7 +152,7 @@ class NbComment {
          * @type Boolean
          */
         this.followed = data.followed
-      
+        
         /**
          * Flag for the current user's reply request.
          * True if the current user requested reply for this comment.

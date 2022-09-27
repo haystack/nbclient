@@ -961,28 +961,7 @@ function embedNbApp() {
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
-                    this.allThreads = []
-                    this.allAuthorThreads = []
                     this.myfollowing = []
-                    this.filter= {
-                        searchOption: 'text',
-                        searchText: '',
-                        bookmarks: false,
-                        hashtags: [],
-                        userTags: [],
-                        comments: [],
-                        replyReqs: [],
-                        upvotes: [],
-                        minWords: 0,
-                        maxWords: null,
-                        minHashtags: 0,
-                        maxHashtags: null,
-                        minReplies: 0,
-                        minReplyReqs: 0,
-                        minUpvotes: 0,
-                        maxThreads: null,
-                        sectioning: null,
-                    }
 
                     for (const item of res.data.headAnnotations) {
 
@@ -1042,6 +1021,13 @@ function embedNbApp() {
                     this.onSortBy(this.currentConfigs.sortByConfig)
                     
                     this.numberOfThreads=this.threads.length
+
+                    const token = localStorage.getItem("nb.user");
+                      const headers = { headers: { Authorization: 'Bearer ' + token } }
+                      axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }})
+                      .then((res) => {
+                          this.myfollowing = res.data
+                      })
 
                     this.stillGatheringThreads = false
 
