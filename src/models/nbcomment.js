@@ -145,14 +145,14 @@ class NbComment {
          * @type Boolean
          */
         this.endorsed = data.endorsed
-
+        
         /**
          * Flag for followed user. True if the current user's follows author of this comment.
          * @name NbComment#followed
          * @type Boolean
          */
         this.followed = data.followed
-
+        
         /**
          * Flag for the current user's reply request.
          * True if the current user requested reply for this comment.
@@ -809,6 +809,7 @@ class NbComment {
 
     }
     updateEndorsed () {
+
       if (this.id) {
         // const token = localStorage.getItem("nb.user");
         // const headers = { headers: { Authorization: 'Bearer ' + token } }
@@ -829,7 +830,7 @@ class NbComment {
 
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
         const headComment = this.getHeadComment(comment)
-        onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+        onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies(), this.isEndorsed(), this.isFollowed())
 
         if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return }
 

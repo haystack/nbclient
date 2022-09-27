@@ -7,10 +7,12 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :heatmapMode="heatmapMode"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
             :show-sync-features="showSyncFeatures"
+            :hashtags="hashtags"
             @log-nb="onLogNb"
             @select-thread="onSelectThread"
             @hover-thread="$emit('hover-thread',thread)"
@@ -65,6 +67,10 @@ export default {
             type: Boolean,
             default: true
         },
+        heatmapMode: {
+            type: String,
+            default: "Default"
+        },
         user: Object,
         activeClass: {
             type: Object,
@@ -79,6 +85,10 @@ export default {
             type: Boolean,
             default: false
         },
+        hashtags: {
+            type: Object,
+            default: () => {}
+        },
     },
     methods: {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
@@ -91,8 +101,8 @@ export default {
 
             this.$emit('unselect-thread', null)
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0, endorsed = false, followed = false) {
+            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies, endorsed, followed)
         }
     },
     mounted: function () {
