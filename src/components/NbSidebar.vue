@@ -511,6 +511,7 @@ export default {
             this.$emit('unhover-thread', thread)
         },
         onChangeNumberThreads: function(numberOfThreads) {
+            console.log("in NB sidebar")
             this.$emit('change-number-threads', numberOfThreads)
         },
         onSortBy: function(sortBy) {
