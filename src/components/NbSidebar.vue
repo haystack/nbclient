@@ -115,32 +115,42 @@
             @follow-author="onFollowAuthor"
             @unfollow-author="onUnfollowAuthor">
         </thread-view>
-        <div v-if="showParagraphStatistics">
-            <button class="Hide-paragraph-statistics" 
-                    @click="toggleParagraphStatistics">
-                    Hide paragraph statistics
-            </button>
-        </div>
-        <div v-else>
-            <button class="Show-paragraph-statistics" 
-                    @click="toggleParagraphStatistics">
-                    Show paragraph statistics
-            </button>
-        </div>
-        <template>
-            <div class="home">
-                <BarChart
-                v-if="showParagraphStatistics"
-                class="chart"
-                :chartData="chartData"
-                />
-            </div>
-        </template>
-        <div v-if="showParagraphStatistics">
+        <div v-if = "this.heatmapMode == 'Default'" :style ="{'fontSize': 15 + 'px',
+            'color':' #FF7A86'}">
+            Number of comments in the paragraph: {{this.commentCount}}
             <button class="Reset-paragraph-statistics" 
-                @click="resetParagraphStatistics">
-                Reset paragraph statistics
-            </button>
+                    @click="resetParagraphStatistics">
+                    Reset paragraph statistics
+                </button>
+        </div>
+        <div v-if = "this.heatmapMode == 'Emoji'">
+            <div v-if="showParagraphStatistics">
+                <button class="Hide-paragraph-statistics" 
+                        @click="toggleParagraphStatistics">
+                        Hide paragraph statistics
+                </button>
+            </div>
+            <div v-else>
+                <button class="Show-paragraph-statistics" 
+                        @click="toggleParagraphStatistics">
+                        Show paragraph statistics
+                </button>
+            </div>
+            <template>
+                <div class="home">
+                    <BarChart
+                    v-if="showParagraphStatistics"
+                    class="chart"
+                    :chartData="chartData"
+                    />
+                </div>
+            </template>
+            <div v-if="showParagraphStatistics">
+                <button class="Reset-paragraph-statistics" 
+                    @click="resetParagraphStatistics">
+                    Reset paragraph statistics
+                </button>
+            </div>
         </div>
         <editor-view
             :author="user"
@@ -315,6 +325,10 @@ export default {
             type: Set,
             default:() =>{},
         },
+        commentCount: {
+            type: Number,
+            default: 0
+        },
     },
     data () {
         this.chartData ={
@@ -385,6 +399,7 @@ export default {
                     this.paragraphSet.add(val.start.wholeText)
                     for(let thread of this.threads){
                         if(thread.range.start.wholeText === val.start.wholeText){
+                            this.commentCount += 1;
                             for(var emoji in this.statDict){
                                 if(thread.text.includes(emoji)){
                                     this.statDict[emoji]++
@@ -545,6 +560,7 @@ export default {
             this.resetParagraphStatistics()
         },
         resetParagraphStatistics: function () {
+            this.commentCount = 0;
             this.paragraphSet = new Set()
             this.statDict = {
                     "#i-think" : 0,
