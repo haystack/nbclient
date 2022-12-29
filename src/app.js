@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faUserCheck, faUserPlus, faCheckSquare } from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
 import NbNotification from './models/nbnotification.js'
@@ -33,7 +33,7 @@ Vue.use(VTooltip)
 Vue.use(Notifications)
 Vue.use(VueSweetalert2);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, faChevronDown, faChevronUp)
+library.add(fas, far, faChevronDown, faChevronUp, faUserCheck, faUserPlus, faCheckSquare)
 const socket = io(currentEnv.baseURL, { reconnect: true })
 axios.defaults.baseURL = `${currentEnv.baseURL}/`
 export const PLUGIN_HOST_URL = currentEnv.pluginURL
@@ -214,7 +214,10 @@ function embedNbApp() {
                     :notifications-muted="notificationsMuted"
                     :show-sync-features="showSyncFeatures"
                     :sync-config="syncConfig"
+                    :myfollowing="myfollowing"
                     :filter="filter"
+                    @follow-author="onFollowAuthor"
+                    @unfollow-author="onUnfollowAuthor"
                     @log-nb="onLogNb"
                     @switch-class="onSwitchClass"
                     @show-sync-features="onShowSyncFeatures"
@@ -263,6 +266,7 @@ function embedNbApp() {
         data: {
             user: null,
             myClasses: [],
+            myfollowing: [],
             activeClass: {},
             users: {},
             hashtags: {},
@@ -303,6 +307,7 @@ function embedNbApp() {
                 isShowNumberOfReplies: true,
                 isShowIndicatorForUnseenThread: true,
                 isShowIndicatorForInstructorComment: true,
+                isShowIndicatorForFollowComment: true,
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,
@@ -399,6 +404,13 @@ function embedNbApp() {
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
                             return true
                         }
+                        if(filterComments.includes('following') && item.anonymity != 'ANONYMOUS'){
+                            for(let i = 0; i < this.myfollowing.length; i++){
+                                if (item.hasUserPost(this.myfollowing[i].follower_id)){
+                                    return true
+                                }
+                            }
+                        } 
                         return false
                     })
                 }
@@ -512,6 +524,12 @@ function embedNbApp() {
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
                 const myClasses = await axios.get('/api/annotations/myClasses', config)
+
+                axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }}).then((res) => {
+                    console.log(`user`);
+                    console.log(res.data);
+                    this.myfollowing = res.data
+                })
 
                 if (myClasses.data.length > 0) {
                     this.myClasses = myClasses.data
@@ -870,7 +888,8 @@ function embedNbApp() {
             getAllAnnotations: async function (source, newActiveClass) {
                 this.stillGatheringThreads = true
                 const token = localStorage.getItem("nb.user");
-                const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source, class: newActiveClass.id, sectioned: !this.currentConfigs.isIgnoreSectionsInClass } }
+                const headers = { Authorization: 'Bearer ' + token }
+                const config = { headers, params: { url: source, class: newActiveClass.id, sectioned: !this.currentConfigs.isIgnoreSectionsInClass } }
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
@@ -993,6 +1012,13 @@ function embedNbApp() {
                     if (filters.includes('me') && this.threadSelected.hasUserPost(this.user.id)) {
                         filtered = false
                     }
+                    if (filters.includes('following') && this.threadSelected.anonymity != 'ANONYMOUS'){
+                        for(let i = 0; i < this.myfollowing.length; i++){
+                            if (this.threadSelected.hasUserPost(this.myfollowing[i].follower_id)){
+                                filtered = false
+                            }
+                        }
+                    } 
                     if (filtered) {
                         this.threadSelected = null // reset selection if filtered
                     }
@@ -1227,6 +1253,28 @@ function embedNbApp() {
             },
             onOpenSidebarNotifications: function () {
                 this.sidebarNotificationsOpened = true;
+            },
+            onFollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                try {
+                    const res = await axios.get(`/api/users/user/${comment.author}`, headers)
+                    const res2 = await axios.post(`/api/follow/user`, {username: res.data.username}, headers)
+                    this.myfollowing = res2.data 
+                } catch(e) {
+                    console.error(e);
+                }
+            },
+            onUnfollowAuthor: async function(comment){
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                try {
+                    const res = await axios.get(`/api/users/user/${comment.author}`, headers)
+                    const res2 = await axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
+                    this.myfollowing = res2.data
+                } catch(e) {
+                    console.error(e);
+                }
             },
             onSessionEnd: async function () {
                 if (this.activeClass.id) {

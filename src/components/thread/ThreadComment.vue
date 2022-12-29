@@ -3,8 +3,22 @@
         <div class="thread-row" :style="styleRow">
             <div class="header">
                 <span class="author">
-                    <div v-if="comment.instructor" class="instr-icon">
-                        instr
+                    <font-awesome-icon 
+                        v-if="!authorIsMe && !isAnonymous && isFollowing()" 
+                        v-tooltip="'unfollow author'"
+                        icon="user-check"
+                        v-on:click="unfollowAuthor(comment)"
+                        class="unfollow-icon">
+                    </font-awesome-icon>
+                    <font-awesome-icon 
+                        v-else-if="!authorIsMe && !isAnonymous" 
+                        icon="user-plus"
+                        v-tooltip="'follow author'"
+                        v-on:click="followAuthor(comment)"
+                        class="follow-icon">
+                    </font-awesome-icon>
+                   <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
@@ -102,6 +116,7 @@
                 :activeClass="activeClass"
                 :thread-view-initiator="threadViewInitiator"
                 :last="index === comment.children.length-1"
+                :myfollowing="myfollowing"
                 :current-configs="currentConfigs"
                 @log-nb="onLogNb"
                 @edit-comment="editComment"
@@ -109,14 +124,16 @@
                 @draft-reply="draftReply"
                 @toggle-upvote="toggleUpvote"
                 @toggle-reply-request="toggleReplyRequest"
-                @submit-small-comment="submitSmallComment">
+                @submit-small-comment="submitSmallComment"
+                @follow-author="followAuthor"
+                @unfollow-author="unfollowAuthor">
             </thread-comment>
         </div>
         <div class="thread-row smallComment" v-if="currentConfigs.isShowQuickEditor && last && comment.parent">
             <div class="smallCommentHeader">
                 <span class="author">
-                    <div v-if="me.role === 'instructor'" class="instr-icon">
-                        instr
+                    <div v-if="me.role === 'instructor'" class="instr-icon" v-tooltip="'Instructor'">
+                        i
                     </div>
                     <b>{{ me.first_name}} {{me.last_name}}</b>{{ " (me)"}}
                 </span>
@@ -170,6 +187,10 @@ export default {
         replyToComment: Object,
         activeClass: Object,
         threadViewInitiator: String,
+        myfollowing: {
+            type: Object,
+            default: () => []
+        },
         last: {
             type: Boolean,
             default: false
@@ -247,6 +268,21 @@ export default {
         submitSmallComment: function (data) {
             this.$emit('submit-small-comment', data)
         },
+        followAuthor: function(comment) {
+            this.$emit('follow-author', comment)
+        },
+        unfollowAuthor: function(comment){
+            this.$emit('unfollow-author', comment)          
+        },
+        isFollowing: function(){
+            for(let i = 0; i < this.myfollowing.length; i++){
+                if (this.comment.author === this.myfollowing[i].follower_id){
+                    return true
+                }
+            }
+            
+            return false
+        },
         onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
             this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
         }
@@ -295,7 +331,19 @@ export default {
                 return { background: '#ffffd0' }
             }
             return null
-        }
+        },
+        authorIsMe: function(){
+            if (this.me.id === this.comment.author){
+                return true
+            }
+            return false
+        },
+        isAnonymous: function(){
+            if(this.comment.anonymity === CommentAnonymity.ANONYMOUS){
+                return true
+            }
+            return false
+        },
     }
 }
 </script>

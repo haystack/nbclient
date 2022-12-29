@@ -139,6 +139,13 @@ class NbComment {
         this.anonymity = data.anonymity
 
         /**
+         * Flag for followed user. True if the current user's follows author of this comment.
+         * @name NbComment#followed
+         * @type Boolean
+         */
+        this.followed = data.followed
+
+        /**
          * Flag for the current user's reply request.
          * True if the current user requested reply for this comment.
          * @name NbComment#replyRequestedByMe
@@ -565,6 +572,17 @@ class NbComment {
         return false
     }
 
+    isFollowed() {
+        if (!this.followed) { return true }
+
+        for (let child of this.children) {
+            if (child.isFollowed()) {
+                return true
+            }
+        }
+        return false
+    }
+
     /**
      * Check recursively if this comment (or descendant) hasn't been seen by the current user.
      * @return {Boolean} True if this comment (or descendant) hasn't been seen by the current user
@@ -695,6 +713,10 @@ class NbComment {
      * Toggle the upvote for this comment by the current user.
      */
     toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+        if(!this.upvoteCount){
+            this.upvoteCount = 0
+        }
+        
         if (this.upvotedByMe) {
             this.upvoteCount -= 1
             this.upvotedByMe = false
