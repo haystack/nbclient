@@ -25,6 +25,9 @@
                 <br/>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
+                    <div v-if="comment.endorsed" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
+                        i
+                    </div>
                     <span
                         class="bookmark"
                         v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
@@ -250,6 +253,9 @@ export default {
             comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleUpvote: function (comment) {
+            if (this.me.role === 'instructor'){
+                comment.toggleEndorsed();
+            }
             comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
         toggleReplyRequest: function (comment) {

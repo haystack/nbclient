@@ -126,7 +126,7 @@
                     v-model="filterComments"
                     @change="onFilterChange('comments')">
                 <label for="instructor-comments">
-                  instructors
+                  instructors/endorsed
                 </label>
               </div>
             </div>

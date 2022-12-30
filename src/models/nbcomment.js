@@ -139,6 +139,13 @@ class NbComment {
         this.anonymity = data.anonymity
 
         /**
+         * Flag for whether the comment has been endorsed.
+         * @name NbComment#endorsed
+         * @type Boolean
+         */
+        this.endorsed = data.endorsed
+
+        /**
          * Flag for followed user. True if the current user's follows author of this comment.
          * @name NbComment#followed
          * @type Boolean
@@ -188,6 +195,8 @@ class NbComment {
          * @type Boolean
          */
         this.bookmarked = data.bookmarked
+
+        this.instructorVotes = data.instructorVotes
 
         /**
          * This comment's content in plaintext, set in {@link NbComment#setText}.
@@ -261,6 +270,7 @@ class NbComment {
                 userTags: this.people,
                 visibility: CommentVisibility[this.visibility],
                 anonymity: CommentAnonymity[this.anonymity],
+                endorsed: this.endorsed,
                 replyRequest: this.replyRequestedByMe,
                 star: this.upvotedByMe,
                 bookmark: this.bookmarked,
@@ -297,6 +307,7 @@ class NbComment {
                 userTags: this.people,
                 visibility: CommentVisibility[this.visibility],
                 anonymity: CommentAnonymity[this.anonymity],
+                endorsed: this.endorsed,
                 replyRequest: this.replyRequestedByMe,
                 star: this.upvotedByMe,
                 bookmark: this.bookmarked
@@ -597,6 +608,16 @@ class NbComment {
         return false
     }
 
+    isEndorsed(){
+        if(this.endorsed) { return true }
+        for (let child of this.children) {
+          if (child.isEndorsed()) {
+            return true
+          }
+        }
+        return false
+    }
+
     getAllAuthors() {
         let authors = new Set([this.author])
         for (let child of this.children) {
@@ -769,6 +790,43 @@ class NbComment {
         }
     }
 
+    /**
+    * Toggle the endorsed for this comment by the current user.
+    */
+    toggleEndorsed() {
+        if (this.endorsed && this.upvotedByMe) {
+            this.instructorVotes -= 1
+            
+            if (this.instructorVotes == 0){
+                this.endorsed = false
+                this.updateEndorsed()
+            }
+        } else if (this.endorsed && !this.upvotedByMe) {
+            this.instructorVotes += 1
+        } else {
+            this.endorsed = true
+            this.instructorVotes += 1
+            this.updateEndorsed()
+        }
+  
+    }
+
+    updateEndorsed () {
+        if (this.id) {
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token } }
+            return axios.put(`/api/annotations/annotation/${this.id}`, {
+                content: this.html,
+                tags: this.hashtags,
+                userTags: this.people,
+                visibility: CommentVisibility[this.visibility],
+                anonymity: CommentAnonymity[this.anonymity],
+                endorsed: this.endorsed,
+                replyRequest: this.replyRequestedByMe
+            }, headers)
+        }
+    }
+
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
         const headComment = this.getHeadComment(comment)
         onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
@@ -813,6 +871,7 @@ class NbComment {
         this.people = data.mentions.users
         this.visibility = data.visibility
         this.anonymity = data.anonymity
+        this.endorsed = data.endorsed
         if (this.replyRequestedByMe !== data.replyRequested) {
             this.replyRequestedByMe = data.replyRequested
             this.replyRequestCount += data.replyRequested ? 1 : -1
@@ -826,6 +885,7 @@ class NbComment {
             userTags: this.people,
             visibility: CommentVisibility[this.visibility],
             anonymity: CommentAnonymity[this.anonymity],
+            endorsed: this.endorsed,
             replyRequest: this.replyRequestedByMe
         }, headers)
     }
