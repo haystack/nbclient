@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view">
+  <div class="list-view" style="margin-top: 5px;">
     <header class="card-header"
       v-tooltip="tooltipType"
       @click="isCollapsed = !isCollapsed">

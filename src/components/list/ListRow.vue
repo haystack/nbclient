@@ -10,7 +10,7 @@
         <div class="flags">
 
             <div v-if="isSpotlightEnabled">
-                <div v-if="isSpotlighted" class="icon-wrapper inno">
+                <div v-if="isSpotlighted"  v-tooltip="'Spotlight comment'" class="icon-wrapper inno">
                     {{(thread.spotlight.type === "IN" && "~")   ||
                     (thread.spotlight.type === "ABOVE" && "↑")  ||
                     (thread.spotlight.type === "BELLOW" && "↓") ||
@@ -27,17 +27,17 @@
             </div>
 
             <div v-if="currentConfigs.isShowIndicatorForInstructorComment">
-                <div v-if="thread.hasInstructorPost()" v-tooltip="'This comment has an instructor comment'" class="icon-wrapper instr">
+                <div v-if="thread.hasInstructorPost()" v-tooltip="'Comment by an instructor'" class="icon-wrapper instr">
                     i
                 </div>
-                <div v-else-if="thread.isEndorsed()" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
+                <div v-else-if="thread.isEndorsed()" v-tooltip="'Endorsed by an instructor'" class="icon-wrapper instr-endorsed">
                     i
                 </div>
                 <div v-else class="placeholder instr"></div>
             </div>
 
             <div v-if="currentConfigs.isShowIndicatorForFollowComment">
-                <div v-if="isFollowing" v-tooltip="'This comment was written by from an author you follow'" class="icon-wrapper follow">
+                <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
                     <font-awesome-icon icon="user-check"></font-awesome-icon>
                 </div>
                 <div v-else class="placeholder follow"></div>
@@ -46,10 +46,8 @@
             <div v-if="currentConfigs.isShowIndicatorForQuestionedThread">
                 <div v-if="thread.hasReplyRequests()" 
                 v-tooltip="'This comment has a reply request'"
-                class="icon-wrapper question"
-                    :style="iconStyle">
-                    <font-awesome-icon icon="question">
-                    </font-awesome-icon>
+                class="icon-wrapper question">
+                    <font-awesome-icon icon="question"></font-awesome-icon>
                 </div>
                 <div v-else class="placeholder question"></div>
             </div>
@@ -76,7 +74,7 @@
                 v-for="user in thread.usersTyping" 
                 :key="user"
                 :fullname="user"
-                :size="18"
+                :size="14"
             />
           </span>
         </div>
@@ -143,7 +141,7 @@ export default {
     },
     methods: {
         onClick: function () {
-            this.$emit('log-nb', 'CLICK', 'LIST', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', 'LIST', this.thread)
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
@@ -209,12 +207,6 @@ export default {
         counterStyle: function () {
             if (this.thread.isUnseen() && this.currentConfigs.isShowIndicatorForUnseenThread) {
                 return 'background-color: #ffff70; color: #7070ff;'
-            }
-            return null
-        },
-        iconStyle: function () {
-            if (this.threadSelected && this.thread === this.threadSelected) {
-                return 'color: #eee;'
             }
             return null
         },

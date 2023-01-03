@@ -7,6 +7,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :show-spotlights="showSpotlights"
             :user="user"
             :activeClass="activeClass"
             :current-configs="currentConfigs"
@@ -65,6 +66,10 @@ export default {
             type: Boolean,
             default: true
         },
+        showSpotlights: {
+            type: Boolean,
+            default: true
+        },
         user: Object,
         activeClass: {
             type: Object,
@@ -91,8 +96,8 @@ export default {
 
             this.$emit('unselect-thread', null)
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     mounted: function () {

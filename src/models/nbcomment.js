@@ -584,7 +584,7 @@ class NbComment {
     }
 
     isFollowed() {
-        if (!this.followed) { return true }
+        if (this.followed) { return true }
 
         for (let child of this.children) {
             if (child.isFollowed()) {
@@ -813,6 +813,7 @@ class NbComment {
 
     updateEndorsed () {
         if (this.id) {
+            const currentClass = JSON.parse(localStorage.getItem("nbc.current.class"));
             const token = localStorage.getItem("nb.user");
             const headers = { headers: { Authorization: 'Bearer ' + token } }
             return axios.put(`/api/annotations/annotation/${this.id}`, {
@@ -822,17 +823,19 @@ class NbComment {
                 visibility: CommentVisibility[this.visibility],
                 anonymity: CommentAnonymity[this.anonymity],
                 endorsed: this.endorsed,
-                replyRequest: this.replyRequestedByMe
+                replyRequest: this.replyRequestedByMe,
+                url: currentClass.url,
+                class: currentClass.class
             }, headers)
         }
     }
 
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
-        const headComment = this.getHeadComment(comment)
-        onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+        onLogNb(event, threadViewInitiator, comment)
 
-        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return }
+        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
 
+        const headComment = this.getHeadComment(this)
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }

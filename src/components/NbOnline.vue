@@ -1,8 +1,8 @@
 <template>
   <div class="nb-sync" :style="style">
-    <div> 
+    <div style="display: flex;align-items: center;justify-content: space-between;width: 60px;font-size: 12px;"> 
       <!-- below: focus mode on means showSyncFeatures false -->
-      <label v-tooltip="'Check if you do not want to receive notifications from your classmates'">Focus</label>
+      <label v-tooltip="'Check if you do not want to receive\n notifications from your classmates'">Focus</label>
       <input type="checkbox"
           v-model="showSyncFeatures"
           :true-value="false" 

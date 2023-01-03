@@ -120,7 +120,7 @@ function embedNbApp() {
                     v-if="currentConfigs.isInnotation"
                     :innotationsBlock="innotationsBlock"
                     :innotationsInline="innotationsInline"
-                    :show-highlights="showHighlights"
+                    :show-spotlights="showSpotlights"
                     :thread-selected="threadSelected"
                     :user="user"
                     :activeClass="activeClass"
@@ -133,7 +133,7 @@ function embedNbApp() {
                 <nb-marginalias
                     v-if="currentConfigs.isMarginalia"
                     :marginalias="marginalias"
-                    :show-highlights="showHighlights"
+                    :show-spotlights="showSpotlights"
                     :thread-selected="threadSelected"
                     :threads-hovered="threadsHovered"
                     :user="user"
@@ -152,6 +152,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :show-spotlights="showSpotlights"
                     :user="user"
                     :activeClass="activeClass"
                     :current-configs="currentConfigs"
@@ -204,6 +205,7 @@ function embedNbApp() {
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
                     :show-highlights="showHighlights"
+                    :show-spotlights="showSpotlights"
                     :source-url="sourceURL"
                     :current-configs="currentConfigs"
                     :is-dragging="isDragging"
@@ -229,6 +231,7 @@ function embedNbApp() {
                     @thread-typing="onThreadTyping"
                     @thread-stop-typing="onThreadStopTyping"
                     @toggle-highlights="onToggleHighlights"
+                    @toggle-spotlights="onToggleSpotlights"
                     @search-option="onSearchOption"
                     @search-text="onSearchText"
                     @filter-bookmarks="onFilterBookmarks"
@@ -297,6 +300,7 @@ function embedNbApp() {
                 maxThreads: null,
             },
             showHighlights: true,
+            showSpotlights: true,
             sourceURL: '',
             threadViewInitiator: 'NONE', // what triggered the thread view open ['NONE', 'LIST', 'HIGHLIGHT', 'SPOTLIGHT']
             nbConfigs: {},
@@ -326,6 +330,10 @@ function embedNbApp() {
                 isShowSpotlightControls: false,
                 syncNotificationPopupTimerConfig: 60000,
                 isCommentMediaAudio: false,
+                isSpotlightFollowThread: false,
+                spotlightFollowThreadConfig: {},
+                isSpotlightEndorsThread: false,
+                spotlightEndorsThreadConfig: {},
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -526,8 +534,6 @@ function embedNbApp() {
                 const myClasses = await axios.get('/api/annotations/myClasses', config)
 
                 axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }}).then((res) => {
-                    console.log(`user`);
-                    console.log(res.data);
                     this.myfollowing = res.data
                 })
 
@@ -560,10 +566,13 @@ function embedNbApp() {
                     const configs = req.data
                     this.nbConfigs = configs
 
+                    localStorage.setItem("nbc.current.class", JSON.stringify({class: newActiveClass.id, url: this.sourceURL}))
+
                     this.currentConfigs.isEmphasize = configs['SPOTLIGHT_EM'] === 'true' ? true : false
                     this.currentConfigs.isShowNumberOfReplies = configs['SHOW_NUMBER_OF_REPLIES'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForUnseenThread = configs['SHOW_INDICATOR_FOR_UNSEEN_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForInstructorComment = configs['SHOW_INDICATOR_FOR_INSTRUCTOR_COMMENT'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForFollowComment = configs['SHOW_INDICATOR_FOR_FOLLOW_COMMENT'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForQuestionedThread = configs['SHOW_INDICATOR_FOR_QUESTIONED_THREAD'] === 'false' ? false : true
@@ -582,6 +591,10 @@ function embedNbApp() {
                     this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
                     this.currentConfigs.syncNotificationPopupTimerConfig = configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] ? configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] : 60000
                     this.currentConfigs.isCommentMediaAudio = configs['COMMENT_MEDIA_AUDIO_STUDENT'] === 'true' ? true : false
+                    this.currentConfigs.isSpotlightFollowThread = configs['SPOTLIGHT_FOLLOW_THREAD'] === 'true' ? true : false
+                    this.currentConfigs.spotlightFollowThreadConfig = configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD']) : {}
+                    this.currentConfigs.isSpotlightEndorsThread = configs['SPOTLIGHT_ENDORS_THREAD'] === 'true' ? true : false
+                    this.currentConfigs.spotlightEndorsThreadConfig = configs['CONFIG_SPOTLIGHT_ENDORS_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_ENDORS_THREAD']) : {}
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -593,6 +606,15 @@ function embedNbApp() {
                             this.currentConfigs.syncSpotlightNewThreadConfig.type = 'MARGIN'
                         }
 
+                        if (this.currentConfigs.spotlightFollowThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.spotlightFollowThreadConfig.type)) {
+                            this.currentConfigs.spotlightFollowThreadConfig.type = 'MARGIN'
+                        }
+
+                        if (this.currentConfigs.spotlightEndorsThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.spotlightEndorsThreadConfig.type)) {
+                            this.currentConfigs.spotlightEndorsThreadConfig.type = 'MARGIN'
+                        }
+
+
                     } else {
                         this.currentConfigs.isMarginalia = false
                         this.currentConfigs.isInnotation = configs['SPOTLIGHT_INNOTATION'] === 'true' ? true : false
@@ -601,6 +623,14 @@ function embedNbApp() {
 
                         if (this.currentConfigs.syncSpotlightNewThreadConfig.type && ['MARGIN'].includes(this.currentConfigs.syncSpotlightNewThreadConfig.type)) {
                             this.currentConfigs.syncSpotlightNewThreadConfig.type = 'LEFT'
+                        }
+
+                        if (this.currentConfigs.spotlightFollowThreadConfig.type && ['MARGIN'].includes(this.currentConfigs.spotlightFollowThreadConfig.type)) {
+                            this.currentConfigs.spotlightFollowThreadConfig.type = 'LEFT'
+                        }
+
+                        if (this.currentConfigs.spotlightEndorsThreadConfig.type && ['MARGIN'].includes(this.currentConfigs.spotlightEndorsThreadConfig.type)) {
+                            this.currentConfigs.spotlightEndorsThreadConfig.type = 'LEFT'
                         }
 
                     }
@@ -665,7 +695,6 @@ function embedNbApp() {
 
             socket.on('connections', (data) => {
                 console.log(`NB: Socket.IO connections`)
-                // console.log(data);
                 let isInitConnection = this.onlineUsers.ids.length === 0
                 this.onlineUsers = data.users
 
@@ -694,7 +723,6 @@ function embedNbApp() {
 
             socket.on("new_thread", (data) => {
                 console.log(`NB: Socket.IO new_thread`)
-                // console.log(data);
                 let userIdsSet = new Set(data.userIds)
                 if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
@@ -704,8 +732,6 @@ function embedNbApp() {
             })
 
             socket.on('thread-typing', (data) => {
-                //                 console.log("***typing***");
-                //                 console.log(data);
                 let thread = this.threads.find(x => x.id === data.threadId)
                 if (thread !== undefined) {
                     thread.usersTyping = data.usersTyping
@@ -714,7 +740,6 @@ function embedNbApp() {
 
             socket.on('new_reply', (data) => {
                 console.log(`NB: Socket.IO new_reply`)
-                // console.log(data);
                 if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
                     if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                         const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
@@ -724,6 +749,17 @@ function embedNbApp() {
                     }
                 }
             })
+
+            socket.on('update_thread', (data) => {
+                console.log(`NB: Socket.IO update_thread`)
+                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                    const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                    if (canISeeIt) {
+                        this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true)
+                    }
+                }
+            })
+
         },
         destroyed: function () {
             window.removeEventListener('scroll', this.handleScroll)
@@ -756,7 +792,15 @@ function embedNbApp() {
             onUserLeft: function () {
                 socket.emit('left', { username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
             },
-            getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null) { // get single thread and add it to the list
+            iFollowThisUser: function(userId) {
+                for(let i = 0; i < this.myfollowing.length; i++){
+                    if (this.myfollowing[i].follower_id === userId){
+                        return true
+                    }
+                }
+                return false
+            },
+            getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null, isUpdatedComment = false) { // get single thread and add it to the list
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { source_url: sourceUrl, class_id: classId, thread_id: threadId } }
                 axios.get('/api/annotations/specific_thread', config)
@@ -780,6 +824,16 @@ function embedNbApp() {
                             comment.spotlight = this.currentConfigs.syncSpotlightNewThreadConfig
                         }
 
+                        // if spotlight endorsed thread
+                        if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed) {
+                            comment.spotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                        }
+
+                        // if spotlight follow thread
+                        if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(authorId)) {
+                            comment.spotlight = this.currentConfigs.spotlightFollowThreadConfig
+                        }
+
                         // get the specific annotation that was recently posted
                         let specificAnnotation = null
                         if (replyAnnotationId !== null) {
@@ -797,16 +851,25 @@ function embedNbApp() {
 
                         // set any type of notification
                         let notification = null
-                        if (taggedUsers.includes(this.user.id)) { // user tagged in post
-                            notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
-                        } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
-                            notification = new NbNotification(comment, "question", true, specificAnnotation, false)
-                        } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
-                            notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
-                        } else if (this.users[authorId].role === "instructor") { // instructor comment
-                            notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
-                        } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                            notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
+
+                        if (!isUpdatedComment) {
+                            if (taggedUsers && taggedUsers.includes(this.user.id)) { // user tagged in post
+                                notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
+                            } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
+                                notification = new NbNotification(comment, "question", true, specificAnnotation, false)
+                            } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
+                                notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
+                            } else if (this.iFollowThisUser(authorId)) { // if this new comment of author i follow
+                                notification = new NbNotification(comment, "follow", true, specificAnnotation, false)
+                            } else if (replyAnnotationId && this.users[authorId].role === "instructor") { // instructor comment
+                                notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
+                            } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
+                                notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
+                            }
+                        } else {
+                            if (comment.endorsed && this.user.role !== 'instructor') { // instructor endorsed
+                                notification = new NbNotification(comment, "endorsed", true, specificAnnotation, false)
+                            }
                         }
 
                         if (notification !== null) {
@@ -823,7 +886,7 @@ function embedNbApp() {
 
                         this.threads.push(comment)
                         let syncLogEvent = isNewThread ? 'SYNC_RECEIVED_ANNOTATION' : 'SYNC_RECEIVED_REPLY'
-                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', true, true, comment.associatedNotification ? comment.associatedNotification.trigger : 'NONE', replyAnnotationId || comment.id, comment.countAllReplies())
+                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', comment)
                     })
             },
             triggerPopupNotification: function (notification) {
@@ -833,10 +896,10 @@ function embedNbApp() {
                     if (relevantComment.text.length > 20) {
                         text += "..."
                     }
-                    this.$swal({
+                    this.$swal.fire({
                         title: '',
                         text: notification.readableType + ": " + text,
-                        type: 'success',
+                        icon: 'info',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
@@ -845,7 +908,10 @@ function embedNbApp() {
                         position: 'top-start',
                         timer: this.currentConfigs.syncNotificationPopupTimerConfig,
                     }).then((result) => {
+                        console.log('after swal');
+                        console.log(result);
                         if (result.value) {
+                            console.log('here');
                             this.swalClicked = true
                             this.onSelectNotification(notification)
                         }
@@ -907,6 +973,21 @@ function embedNbApp() {
                         let comment = new NbComment(item, res.data.annotationsData)
                         this.threads.push(comment)
 
+                        // check if i follow this user's comments
+                        if (this.iFollowThisUser(comment.author)) {
+                            comment.followed = true
+                        }
+
+                        // if spotlight endorsed thread
+                        if (this.currentConfigs.isSpotlightEndorsThread && comment.endorsed) {
+                            comment.spotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                        }
+
+                        // if spotlight follow thread
+                        if (this.currentConfigs.isSpotlightFollowThread && comment.followed) {
+                            comment.spotlight = this.currentConfigs.spotlightFollowThreadConfig
+                        }
+
                         // TODO: check this code
                         let offlineNotification = this.newOfflineNotification(comment) // Either get back a notification to add or null
                         if (offlineNotification !== null) {
@@ -934,7 +1015,12 @@ function embedNbApp() {
                 })
             },
             draftThread: function (range) {
+                this.draftRange = null
                 if (this.user) { // only if selection was after user log in
+                    if (this.threadSelected) {
+                        socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // drafting new thread so stop typing on this thread
+                        this.threadSelected = null
+                    }
                     this.draftRange = createNbRange(range)
                 }
             },
@@ -1111,6 +1197,7 @@ function embedNbApp() {
                 if (thread.associatedNotification !== null) {
                     thread.associatedNotification.setIsUnseen(false)
                 }
+                console.log(thread);
                 this.threadSelected = thread
                 thread.markSeenAll()
             },
@@ -1188,6 +1275,9 @@ function embedNbApp() {
             onToggleHighlights: function (show) {
                 this.showHighlights = show
             },
+            onToggleSpotlights: function (show) {
+                this.showSpotlights = show
+            },
             handleRedrawHighlights: function () {
                 // if (this.canRedrawHighlightsTimeout) {
                 //     clearTimeout(this.canRedrawHighlightsTimeout)
@@ -1252,15 +1342,16 @@ function embedNbApp() {
                 this.sidebarNotificationsOpened = false;
             },
             onOpenSidebarNotifications: function () {
-                this.sidebarNotificationsOpened = true;
+                this.sidebarNotificationsOpened = !this.sidebarNotificationsOpened;
             },
             onFollowAuthor: async function(comment){
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 try {
-                    const res = await axios.get(`/api/users/user/${comment.author}`, headers)
-                    const res2 = await axios.post(`/api/follow/user`, {username: res.data.username}, headers)
-                    this.myfollowing = res2.data 
+                    const author = await axios.get(`/api/users/user/${comment.author}`, headers)
+                    const following = await axios.post(`/api/follow/user`, {username: author.data.username}, headers)
+                    this.myfollowing = following.data
+                    this.onLogNb('FOLLOW', this.threadViewInitiator, comment)
                 } catch(e) {
                     console.error(e);
                 }
@@ -1269,9 +1360,10 @@ function embedNbApp() {
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 try {
-                    const res = await axios.get(`/api/users/user/${comment.author}`, headers)
-                    const res2 = await axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: res.data.username}})
-                    this.myfollowing = res2.data
+                    const author = await axios.get(`/api/users/user/${comment.author}`, headers)
+                    const following = await axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: author.data.username}})
+                    this.myfollowing = following.data
+                    this.onLogNb('UNFOLLOW', this.threadViewInitiator, comment)
                 } catch(e) {
                     console.error(e);
                 }
@@ -1324,27 +1416,31 @@ function embedNbApp() {
                 this.showHighlights = true
                 window.removeEventListener('scroll', this.handleScroll)
             },
-            onLogNb: async function (event = 'NONE', initiator = 'NONE', spotlightType = 'NONE', isSyncAnnotation = false, hasSyncAnnotation = false, notificationTrigger = 'NONE', annotationId = null, countAnnotationReplies = 0) {
+
+            onLogNb: async function (event = 'NONE', initiator = 'NONE',  comment = undefined) {
+
                 if (this.currentConfigs.isNbLog && this.currentConfigs.nbLogEventsEnabled.includes(event)) {
-                    // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \nspotlightType: ${spotlightType} \nisSyncAnnotation: ${isSyncAnnotation} \nhasSyncAnnotation: ${hasSyncAnnotation} \nnotificationTrigger: ${notificationTrigger} \nannotationId: ${annotationId} \nannotation_replies_count: ${countAnnotationReplies}`)
+                    // console.log(`onLogNb \nevent: ${event} \ninitiator: ${initiator} \ncomment: ${JSON.stringify(comment)}`)
+
+                    const headComment = comment ? comment.getHeadComment(comment) : undefined
                     const token = localStorage.getItem("nb.user");
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
-
                     const pageYOffset = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0)
                     const pageHeight = (document.documentElement.scrollHeight - document.documentElement.clientHeight)
 
                     axios.post(`/api/log/nb`, {
                         class_id: this.activeClass.id,
-                        annotation_id: annotationId,
+                        annotation_id: comment ? comment.id : null,
+                        head_annotation_id: headComment ? headComment.id : null,
                         event: event.toUpperCase(),
-                        spotlight_type: spotlightType.toUpperCase(),
+                        spotlight_type: (headComment && headComment.spotlight) ? headComment.spotlight.type.toUpperCase() : 'NONE',
                         order: this.nbLogEventsOrder,
                         initiator: initiator,
-                        is_sync_annotation: isSyncAnnotation,
-                        has_sync_annotation: hasSyncAnnotation,
-                        notification_trigger: notificationTrigger,
+                        is_sync_annotation: comment ? comment.isSync : null,
+                        has_sync_annotation: headComment ? headComment.hasSync : null,
+                        notification_trigger: (headComment &&  headComment.associatedNotification) ? headComment.associatedNotification.trigger : 'NONE',
                         count_source_annotations: this.threads.length,
-                        count_annotation_replies: countAnnotationReplies,
+                        count_annotation_replies: headComment ? headComment.countAllReplies() : null,
                         count_online_students: this.onlineUsers.students.length,
                         count_online_instructors: this.onlineUsers.instructors.length,
                         page_position: this.calculatePagePosition(pageYOffset, pageHeight).toUpperCase(),
@@ -1353,6 +1449,8 @@ function embedNbApp() {
                         role: this.users[this.user.id].role.toUpperCase(),
                         applied_filter: JSON.stringify(this.filter),
                         applied_sort: this.currentConfigs.sortByConfig,
+                        comment_endorsed: headComment ? headComment.isEndorsed() : null,
+                        comment_followed: headComment ? headComment.isFollowed() : null,
                     }, config)
 
                     this.nbLogEventsOrder = this.nbLogEventsOrder + 1

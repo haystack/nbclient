@@ -20,6 +20,27 @@
             @open-draggable-notifications="onOpenDraggableNotifications"
             @open-sidebar-notifications="onOpenSidebarNotifications">
         </nb-online>
+        <notification-view
+            v-if="showSyncFeatures && sidebarNotificationsOpened"
+            :notifications="notificationThreads"
+            :total-count="notificationThreads.length"
+            :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :still-gathering-threads="stillGatheringThreads"
+            :draggable-notifications-opened="draggableNotificationsOpened"
+            :notifications-muted="notificationsMuted"
+            :activeClass="activeClass"
+            :user="user"
+            @toggle-highlights="onToggleHighlights"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @undock-draggable-notifications="onUndockDraggableNotifications"
+            @close-sidebar-notifications="onCloseSidebarNotifications">
+        </notification-view>
         <filter-view
             :me="user"
             :users="sortedUsers"
@@ -49,6 +70,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :show-spotlights="showSpotlights"
             :still-gathering-threads="stillGatheringThreads"
             :current-configs="currentConfigs"
             :activeClass="activeClass"
@@ -58,31 +80,11 @@
             :filter="filter"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
+            @toggle-spotlights="onToggleSpotlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread">
         </list-view>
-        <notification-view
-            v-if="showSyncFeatures && sidebarNotificationsOpened"
-            :notifications="notificationThreads"
-            :total-count="notificationThreads.length"
-            :thread-selected="threadSelected"
-            :notification-selected="notificationSelected"
-            :threads-hovered="threadsHovered"
-            :show-highlights="showHighlights"
-            :still-gathering-threads="stillGatheringThreads"
-            :draggable-notifications-opened="draggableNotificationsOpened"
-            :notifications-muted="notificationsMuted"
-            :activeClass="activeClass"
-            :user="user"
-            @toggle-highlights="onToggleHighlights"
-            @select-notification="onSelectNotification"
-            @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread"
-            @toggle-mute-notifications="onToggleMuteNotifications"
-            @undock-draggable-notifications="onUndockDraggableNotifications"
-            @close-sidebar-notifications="onCloseSidebarNotifications">
-        </notification-view>
         <thread-view
             v-if="threadSelected"
             :thread="threadSelected"
@@ -197,6 +199,10 @@ export default {
         },
         draftRange: Object,
         showHighlights: {
+            type: Boolean,
+            default: true
+        },
+        showSpotlights: {
             type: Boolean,
             default: true
         },
@@ -327,6 +333,9 @@ export default {
         },
         onToggleHighlights: function (show) {
             this.$emit('toggle-highlights', show)
+        },
+        onToggleSpotlights: function (show) {
+            this.$emit('toggle-spotlights', show)
         },
         onSearchOption: function (option) {
             this.$emit('search-option', option)
@@ -565,8 +574,8 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     components: {
