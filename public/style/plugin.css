@@ -416,12 +416,32 @@
   font-size: 14px;
   font-family: 'Verdana', 'Geneva', sans-serif;
 }
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.instr-endorsed {
+  color: #f4ad3e;
+  background-color: #fff;
+  border-color: #f4ad3e;
+  font-size: 12px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid;
+  width: 12px;
+  height: 12px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.follow {
+  width: 13px;
+  color: #4a2270;
+  margin-left: 4px;
+  margin-right: 4px;
+}
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
   width: 13px;
   color: #aaa;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
   width: 16px;
+  height: 16px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.follow {
+  width: 20px;
   height: 16px;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.question {
@@ -558,6 +578,8 @@
   padding: 0 0 10px 0;
   color: #444;
   border-bottom: 1px solid #666;
+  user-select: none;
+  cursor: default;
 }
 
 #nb-app .nb-sidebar .thread-view .thread-header-arrows {
@@ -587,16 +609,31 @@
 #nb-app .nb-sidebar .thread-view .thread-row .header .author {
   font-size: 12px;
 }
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .follow-icon {
+  vertical-align: baseline;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .unfollow-icon {
+  vertical-align: baseline;
+  color: #4a2270;
+  cursor: pointer;
+  font-size: 1.1em;
+}
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
   display: inline-block;
   height: 16px;
-  padding: 0 3px;
+  padding: 0 6px;
   border-radius: 3px;
   background-color: #f4ad3e;
   color: #fff;
-  font-size: 11px;
+  font-size: 14px;
   vertical-align: bottom;
   font-family: 'Verdana', 'Geneva', sans-serif;
+  user-select: none;
+  cursor: default;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .smallCommentHeader .author .instr-icon {
   display: inline-block;
@@ -614,14 +651,54 @@
   font-size: 10px;
   color: #444;
   cursor: default;
+  user-select: none;
+
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options {
   position: absolute;
   right: 0;
   top: 0;
+  display: flex;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 3px;
+  user-select: none;
+  cursor: default;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr-endorsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: #fff;
+  color: #f4ad3e;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 0px;
+  border-color: #f4ad3e;
+  border: 2px solid;
+  user-select: none;
+  cursor: default;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark {
   cursor: pointer;
+  margin: 1px 10px 0 5px;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .icon {
   height: 16px;
@@ -634,6 +711,22 @@
   color: #444;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark:hover {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square {
+  margin-right: 10px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .icon {
+  height: 16px;
+  vertical-align: middle;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .fas {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square .far {
+  color: #444;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .endorsed .check-square:hover {
   color: #70a0f0;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .overflow-menu {
@@ -653,6 +746,7 @@
   font-size: 14px;
   color: #444;
   margin-top: 8px;
+  user-select: none;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .footer > span {
   cursor: pointer;
@@ -707,6 +801,7 @@
   display: flex;
   padding: 5px 0;
   font-size: 12px;
+  align-items: center;
 }
 #nb-app .editor-view .footer .checkbox-buttons .buttons {
   margin-left: auto;

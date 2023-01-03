@@ -12,4 +12,5 @@ app.use(express.static('public'))
 app.get('/', (req, res) => res.send('Hello World!'))
 
 const server = https.createServer({key: key, cert: cert }, app);
+console.log(`Running on ${port}`);
 server.listen(port)

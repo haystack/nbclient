@@ -54,6 +54,7 @@
             :activeClass="activeClass"
             :user="user"
             :show-sync-features="showSyncFeatures"
+            :myfollowing="myfollowing"
             :filter="filter"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
@@ -90,13 +91,16 @@
             :current-configs="currentConfigs"
             :activeClass="activeClass"
             :thread-view-initiator="threadViewInitiator"
+            :myfollowing="myfollowing"
             @log-nb="onLogNb"
             @edit-comment="onEditComment"
             @delete-comment="onDeleteComment"
             @draft-reply="onDraftReply"
             @submit-small-comment="onSubmitSmallComment"
             @prev-comment="onPrevComment"
-            @next-comment="onNextComment">
+            @next-comment="onNextComment"
+            @follow-author="followAuthor"
+            @unfollow-author="unfollowAuthor">
         </thread-view>
         <editor-view
             :author="user"
@@ -227,6 +231,10 @@ export default {
         syncConfig: {
           type: Boolean,
           default: false
+        },
+        myfollowing: {
+            type: Array,
+            default: () => []
         },
         filter: {
             type: Object,
@@ -379,6 +387,12 @@ export default {
         },
         onUnhoverThread: function (thread) {
             this.$emit('unhover-thread', thread)
+        },
+        followAuthor: function(comment){
+            this.$emit('follow-author', comment)
+        },
+        unfollowAuthor: function(comment){
+            this.$emit('unfollow-author', comment)
         },
         onEditComment: function (comment) {
             if (this.draftRange || this.replyToComment) {
