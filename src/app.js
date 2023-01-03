@@ -108,7 +108,7 @@ function embedNbApp() {
     let app = new Vue({
         el: '#nb-app',
         template: `
-        <div id="nb-app" :style="style" @mouseup="mouseUp" @mousemove="mouseMove">
+        <div id="nb-app" :style="style" @mouseup="mouseUp" @mousemove="mouseMove" @mouseleave="mouseLeave">
             <div v-if="!user" class="nb-sidebar">
                 <nb-login @login="setUser"></nb-login>
             </div>
@@ -256,6 +256,7 @@ function embedNbApp() {
                     @new-thread="onNewThread"
                     @cancel-draft="onCancelDraft"
                     @editor-empty="onEditorEmpty"
+                    @editor-visible="onEditorVisible"
                     @logout="onLogout"
                     @dragging="dragging"
                     @set-mouse-position="setMousePosition">
@@ -280,6 +281,7 @@ function embedNbApp() {
             stillGatheringThreads: true,
             draftRange: null,
             isEditorEmpty: true,
+            isEditorVisible: false,
             isInnotationHover: false,
             filter: {
                 searchOption: 'text',
@@ -406,7 +408,7 @@ function embedNbApp() {
                 let filterComments = this.filter.comments
                 if (filterComments.length > 0) {
                     items = items.filter(item => {
-                        if (filterComments.includes('instructor') && item.hasInstructorPost() || item.isEndorsed()) {
+                        if (filterComments.includes('instructor') && (item.hasInstructorPost() || item.isEndorsed())) {
                             return true
                         }
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
@@ -777,6 +779,12 @@ function embedNbApp() {
                     this.isDragging = false
                 }
             },
+            mouseLeave: function (e) {
+                if (this.isDragging) {
+                    e.preventDefault()
+                    this.isDragging = false
+                }
+            },
             mouseMove: function (e) {
                 if (!this.isDragging) return
                 e.preventDefault()
@@ -899,26 +907,22 @@ function embedNbApp() {
                     this.$swal.fire({
                         title: '',
                         text: notification.readableType + ": " + text,
-                        icon: 'info',
                         showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
+                        confirmButtonColor: '#4a2270',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Bring me there!',
                         toast: true,
                         position: 'top-start',
                         timer: this.currentConfigs.syncNotificationPopupTimerConfig,
                     }).then((result) => {
-                        console.log('after swal');
-                        console.log(result);
+                        this.swalClicked = true
                         if (result.value) {
-                            console.log('here');
-                            this.swalClicked = true
                             this.onSelectNotification(notification)
                         }
                     })
                 }
             },
-            playNotificationSound: function (sound = new Audio("https://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3")) {
+            playNotificationSound: function (sound = new Audio("https://nb.mit.edu/res/ding.mp3")) {
                 if (this.showSyncFeatures && this.currentConfigs.isSyncNotificationAudio && this.playSoundNotification && !this.notificationsMuted) {
                     sound.play();
                     this.playSoundNotification = false
@@ -1043,6 +1047,9 @@ function embedNbApp() {
             },
             onEditorEmpty: function (isEmpty) {
                 this.isEditorEmpty = isEmpty
+            },
+            onEditorVisible: function (isVisible) {
+                this.isEditorVisible = isVisible
             },
             onSearchOption: function (option) {
                 this.filter.searchOption = option
@@ -1197,7 +1204,6 @@ function embedNbApp() {
                 if (thread.associatedNotification !== null) {
                     thread.associatedNotification.setIsUnseen(false)
                 }
-                console.log(thread);
                 this.threadSelected = thread
                 thread.markSeenAll()
             },
@@ -1209,30 +1215,25 @@ function embedNbApp() {
             onUnselectThread: function (thread) {
                 if (this.isDragging) return
 
+                // don't unselect if this was a popup notification click
+                if (this.swalClicked) {
+                    this.swalClicked = false
+                    return
+                }
+
                 this.threadViewInitiator = 'NONE'
+
                 if (!this.isInnotationHover) {
                     this.threadSelected = null
                 }
+
                 if (this.draftRange && this.isEditorEmpty) {
                     this.onCancelDraft()
                 }
+
                 if (this.threadSelected) {
                     socket.emit('thread-stop-typing', { threadId: this.threadSelected.id, username: this.user.username }) // selecting no thread so stop typing
                 }
-                if (this.swalClicked) {
-                    this.swalClicked = false // don't unselect if this was a popup notification click
-                } else { // otherwise, it was a valid unselect thread click
-                    if (!this.isInnotationHover) {
-                        this.threadSelected = null
-                    }
-                    if (this.draftRange && this.isEditorEmpty) {
-                        this.onCancelDraft()
-                    }
-                }
-
-                this.threadViewInitiator = 'NONE'
-                // console.log('threadViewInitiator: ' + this.threadViewInitiator)
-
             },
             onHoverThread: function (thread) {
                 //console.log('onHoverThread in app')
@@ -1307,18 +1308,22 @@ function embedNbApp() {
                     socket.emit('thread-stop-typing', { threadId: threadId, username: this.user.username })
                 }
             },
-            onPrevComment: function () {
-                let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
-                let prevIdx = idx - 1
-                if (prevIdx >= 0 && prevIdx < this.filteredThreads.length) {
-                    this.onSelectThread(this.filteredThreads[prevIdx])
+            onPrevComment: function (e) {
+                if (this.threadSelected && !this.isEditorVisible) {
+                    let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
+                    let prevIdx = idx - 1
+                    if (prevIdx >= 0 && prevIdx < this.filteredThreads.length) {
+                        this.onSelectThread(this.filteredThreads[prevIdx])
+                    }    
                 }
             },
-            onNextComment: function () {
-                let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
-                let nextIdx = idx + 1
-                if (nextIdx >= 0 && nextIdx < this.filteredThreads.length) {
-                    this.onSelectThread(this.filteredThreads[nextIdx])
+            onNextComment: function (e) {
+                if (this.threadSelected && !this.isEditorVisible) {
+                    let idx = this.filteredThreads.findIndex(x => x.id === this.threadSelected.id)
+                    let nextIdx = idx + 1
+                    if (nextIdx >= 0 && nextIdx < this.filteredThreads.length) {
+                        this.onSelectThread(this.filteredThreads[nextIdx])
+                    }
                 }
             },
             onToggleMuteNotifications: function () {
@@ -1523,8 +1528,16 @@ function embedNbApp() {
     })
 
     document.addEventListener('keyup', e => {
-        if (e.key === 'Escape') {
-            app.onUnselectThread()
+        switch (e.key) {
+            case "Escape":
+                app.onUnselectThread()
+                break;
+            case "ArrowUp":
+                app.onPrevComment(e)
+                break;
+            case "ArrowDown":
+                app.onNextComment(e)
+                break;
         }
     })
 

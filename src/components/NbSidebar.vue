@@ -302,14 +302,14 @@ export default {
             } else {
                 // No new thread, not replying or editting
                 if (!this.replyToComment && !this.edittingComment) {
-                    this.editor.visible = false
+                    this.onEditorVisible(false)
                 }
             }
         },
         threadSelected: function (val) {
             if (!val && this.replyToComment && this.editor.isEmpty) {
                 // When thread is unselected, cancel reply if editor is empty.
-                this.editor.visible = false
+                this.onEditorVisible(false)
                 this.replyToComment = null
             }
 
@@ -435,6 +435,10 @@ export default {
             this.editor.isEmpty = isEmpty
             this.$emit('editor-empty', isEmpty)
         },
+        onEditorVisible: function (isVisible) {
+            this.editor.visible = isVisible
+            this.$emit('editor-visible', isVisible)
+        },
         onSubmitSmallComment: async function (data) {
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
@@ -497,7 +501,8 @@ export default {
 
                 Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
 
-                this.editor.visible = false
+                this.onEditorVisible(false)
+
                 if (this.edittingComment) {
                     this.edittingComment.saveUpdates(data)
                     this.edittingComment = null
@@ -517,7 +522,7 @@ export default {
             this.editor.isSubmitting = false
         },
         onCancelComment: function () {
-            this.editor.visible = false
+             this.onEditorVisible(false)
             if (this.draftRange) {
                 this.$emit('cancel-draft', this.draftRange)
             } else if (this.replyToComment) {
@@ -541,7 +546,7 @@ export default {
               replyRequested: false
             }
             this.editor.initialSettings = Object.assign(defaultSettings, settings)
-            this.editor.visible = visible
+            this.onEditorVisible(visible)
         },
         onThreadTyping: function(val) {
             if (this.threadSelected) {

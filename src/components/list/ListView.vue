@@ -33,14 +33,6 @@
                 <span class="count">
                     <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
-                <!-- <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
-                    <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
-                    <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
-                </span>
-                <span class="toggle-spotlights" v-tooltip="showSpotlights ? 'hide spotlights' : 'show spotlights'" @click="toggleSpotlights">
-                    <font-awesome-icon v-if="showSpotlights" icon="toggle-on" class="icon"></font-awesome-icon>
-                    <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
-                </span> -->
                 <span class="sort">
                     Sort by:
                     <select v-model="sortBy">
@@ -50,7 +42,7 @@
                     </select>
                 </span>
             </div>
-            <div class="list-table">
+            <div class="list-table" :style="style">
                 <div v-if="stillGatheringThreads">
                     <p>Fetching Annotations</p>
                     <tile loading="true"></tile>
@@ -180,6 +172,13 @@ export default {
         this.sortBy = this.currentConfigs.sortByConfig
     },
     computed: {
+        style: function () {
+            if (this.threadSelected) {
+                return 'height: 16px;'
+            }
+
+            return ''
+        },
         currentThreadsCount: function () {
             return this.threads.length
         },

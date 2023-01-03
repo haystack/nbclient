@@ -229,19 +229,21 @@ export default {
         */
         threadSelected: function (val) {
             if (this.thread !== val) { return }
-            let el = this.$el
-            let elTop = el.offsetTop
-            let elHeight = el.clientHeight
-            let view = el.parentNode
-            let viewTop = view.scrollTop
-            let viewHeight = view.clientHeight
-            if (elTop < viewTop || (elTop + elHeight) > (viewTop + viewHeight)) {
-                view.scrollTo({
-                top: elTop + (elHeight / 2) - (viewHeight / 2), // bring to center
-                left: 0,
-                behavior: 'smooth'
-                })
-            }
+             setTimeout(() => {
+                let el = this.$el
+                let elTop = el.offsetTop
+                let elHeight = el.clientHeight
+                let view = el.parentNode
+                let viewTop = view.scrollTop
+                let viewHeight = view.clientHeight
+                if (elTop < viewTop || (elTop + elHeight) > (viewTop + viewHeight)) {
+                    view.scrollTo({
+                        top: elTop + (elHeight / 2) - (viewHeight / 2), // bring to center
+                        left: 0,
+                        behavior: 'smooth'
+                    })
+                }
+            }, 300)
         }
     },
     components: {
