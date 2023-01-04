@@ -7,79 +7,74 @@
         @mouseenter="$emit('hover-thread', thread)"
         @mouseleave="$emit('unhover-thread', thread)"
         @click="onClick()">
-        <div class="flags">
-
-            <div v-if="isSpotlightEnabled">
-                <div v-if="isSpotlighted"  v-tooltip="'Spotlight comment'" class="icon-wrapper inno">
-                    {{(thread.spotlight.type === "IN" && "~")   ||
-                    (thread.spotlight.type === "ABOVE" && "↑")  ||
-                    (thread.spotlight.type === "BELLOW" && "↓") ||
-                    (thread.spotlight.type === "LEFT" && "←")  ||
-                    (thread.spotlight.type === "RIGHT" && "→") ||
-                    (thread.spotlight.type === "MARGIN" && "Ɱ") ||
-                    (thread.spotlight.type === "EM" && "❖")}}
-                </div>
-                <div v-else class="placeholder inno"></div>
-            </div>
-
-            <div v-if="currentConfigs.isShowNumberOfReplies" class="icon-wrapper counter" :style="counterStyle">
-                {{ thread.countAllReplies() + 1 }}
-            </div>
-
-            <div v-if="currentConfigs.isShowIndicatorForInstructorComment">
-                <div v-if="thread.hasInstructorPost()" v-tooltip="'Comment by an instructor'" class="icon-wrapper instr">
-                    i
-                </div>
-                <div v-else-if="thread.isEndorsed()" v-tooltip="'Endorsed by an instructor'" class="icon-wrapper instr-endorsed">
-                    i
-                </div>
-                <div v-else class="placeholder instr"></div>
-            </div>
-
-            <div v-if="currentConfigs.isShowIndicatorForFollowComment">
-                <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
-                    <font-awesome-icon icon="user-check"></font-awesome-icon>
-                </div>
-                <div v-else class="placeholder follow"></div>
-            </div>
-
-            <div v-if="currentConfigs.isShowIndicatorForQuestionedThread">
-                <div v-if="thread.hasReplyRequests()" 
-                v-tooltip="'This comment has a reply request'"
-                class="icon-wrapper question">
-                    <font-awesome-icon icon="question"></font-awesome-icon>
-                </div>
-                <div v-else class="placeholder question"></div>
-            </div>
-
-            <div v-if="currentConfigs.isShowIndicatorForNotifiedThread">
-                <div v-if="this.showSyncFeatures && thread.associatedNotification !== null" v-tooltip="'This comment has an associated notification'" class="icon-wrapper notification">
-                    <font-awesome-icon icon="bell" class="icon"></font-awesome-icon>
-                </div>
-                <div v-else class="placeholder notification"></div>
-            </div>
-
+        <div class="top-line">
+             <span v-if="thread.text !== ''" :style="textStyle">
+                {{ thread.text }}
+            </span>
+            <span v-else :style="textStyle">
+                {{ thread.type }} by {{authorName}}
+            </span>
         </div>
-
-        <span v-if="thread.text !== ''" :style="textStyle">
-            {{ thread.text }}
-        </span>
-        <span v-else :style="textStyle">
-            {{ thread.type }} by {{thread.authorName}}
-        </span>
-        
-        <div v-if="showSyncFeatures" class="typing">
-          <span>
-            <avatar
-                v-for="user in thread.usersTyping" 
-                :key="user"
-                :fullname="user"
-                :size="14"
-            />
-          </span>
+        <div class="bottom-line">
+             <div class="flags">
+                <div v-if="currentConfigs.isShowNumberOfReplies" class="icon-wrapper counter" :style="counterStyle">
+                    {{ thread.countAllReplies() + 1 }}
+                </div>
+                <div v-if="isSpotlightEnabled">
+                    <div v-if="isSpotlighted"  v-tooltip="'Spotlight comment'" class="icon-wrapper inno">
+                        {{(spotlight.type === "IN" && "~")   ||
+                        (spotlight.type === "ABOVE" && "↑")  ||
+                        (spotlight.type === "BELLOW" && "↓") ||
+                        (spotlight.type === "LEFT" && "←")  ||
+                        (spotlight.type === "RIGHT" && "→") ||
+                        (spotlight.type === "MARGIN" && "Ɱ") ||
+                        (spotlight.type === "EM" && "❖")}}
+                    </div>
+                    <div v-else class="placeholder inno"></div>
+                </div>
+                <div v-if="currentConfigs.isShowIndicatorForInstructorComment">
+                    <div v-if="thread.hasInstructorPost()" v-tooltip="'Comment by an instructor'" class="icon-wrapper instr">
+                        i
+                    </div>
+                    <div v-else-if="thread.isEndorsed()" v-tooltip="'Endorsed by an instructor'" class="icon-wrapper instr-endorsed">
+                        i
+                    </div>
+                    <div v-else class="placeholder instr"></div>
+                </div>
+                <div v-if="currentConfigs.isShowIndicatorForFollowComment">
+                    <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
+                        <font-awesome-icon icon="user-check"></font-awesome-icon>
+                    </div>
+                    <div v-else class="placeholder follow"></div>
+                </div>
+                <div v-if="currentConfigs.isShowIndicatorForQuestionedThread">
+                    <div v-if="thread.hasReplyRequests()" 
+                    v-tooltip="'This comment has a reply request'"
+                    class="icon-wrapper question">
+                        <font-awesome-icon icon="question"></font-awesome-icon>
+                    </div>
+                    <div v-else class="placeholder question"></div>
+                </div>
+                <div v-if="currentConfigs.isShowIndicatorForNotifiedThread">
+                    <div v-if="this.showSyncFeatures && thread.associatedNotification !== null" v-tooltip="'This comment has an associated notification'" class="icon-wrapper notification">
+                        <font-awesome-icon icon="bell" class="icon"></font-awesome-icon>
+                    </div>
+                    <div v-else class="placeholder notification"></div>
+                </div>
+            </div>
+            <span class="time" :style="timeStyle"><b>{{ authorName }}</b> <span v-if="currentConfigs.isShowIndicatorForTime">@ {{ ago }}</span></span>
+            <div v-if="showSyncFeatures" class="typing">
+                <span>
+                    <avatar
+                        v-for="user in thread.usersTyping" 
+                        :key="user"
+                        :fullname="user"
+                        :size="14"
+                    />
+                </span>
+            </div>
         </div>
     </div>
-  
 </template>
 
 <script>
@@ -111,6 +106,7 @@ import axios from 'axios'
  */
 import Avatar from 'vue-avatar-component'
 import { CommentAnonymity } from '../../models/enums.js'
+import moment from 'moment'
 
 export default {
     name: 'list-view',
@@ -139,6 +135,26 @@ export default {
             default: () => []
         },
     },
+    data () {
+        return {
+            ago: '',
+            time: '',
+            interval:null
+        }
+    },
+    created: function() {
+        if (this.currentConfigs.isShowIndicatorForTime) {
+            this.time = this.thread.timestamp
+            this.interval = setInterval(() => {
+                this.ago = moment(this.time).fromNow();
+            }, 1000)
+        }
+    },
+    destroyed: function() {
+        if (this.currentConfigs.isShowIndicatorForTime) {
+            clearInterval(this.interval)
+        }
+    },
     methods: {
         onClick: function () {
             this.$emit('log-nb', 'CLICK', 'LIST', this.thread)
@@ -159,6 +175,9 @@ export default {
         },
     },
     computed: {
+        spotlight: function () {
+            return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+        },
         isFollowing: function(){
             if(this.thread.anonymity !== CommentAnonymity.ANONYMOUS){
                 if(this.thread.author !== this.user.id){
@@ -185,9 +204,9 @@ export default {
         },
         isSpotlighted: function () {
             if (this.thread.isSpotlighted()) {
-                if (['ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'IN'].includes(this.thread.spotlight.type) && this.currentConfigs.isInnotation) return true
-                if (this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) return true
-                if (this.thread.spotlight.type === 'MARGIN' && this.currentConfigs.isMarginalia) return true
+                if (['ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'IN'].includes(this.spotlight.type) && this.currentConfigs.isInnotation) return true
+                if (this.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) return true
+                if (this.spotlight.type === 'MARGIN' && this.currentConfigs.isMarginalia) return true
             }
 
             return false
@@ -220,7 +239,20 @@ export default {
             }
 
             return null
-        }
+        },
+        timeStyle: function () {
+            if (this.threadSelected && this.threadSelected.id === this.thread.id) {
+                return 'color: #eee;'
+            } 
+            return ''
+        },
+        authorName: function () {
+            // console.log(this.thread)
+            if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
+                    return 'Anonymous'
+            }
+            return this.thread.authorName
+        },
     },
     watch: {
         /**

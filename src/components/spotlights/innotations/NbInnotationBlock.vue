@@ -30,14 +30,14 @@ export default {
         }
     },
     created: function() {
-        this.innoPos = this.thread.spotlight.type.toLowerCase()
+        this.innoPos = this.spotlight.type.toLowerCase()
 
         // remove elm if exists
         const elm = document.getElementById(`nb-innotation-block-${this.thread.id}-${this.innoPos}`)
         if (elm) elm.remove()
 
-        let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
-        let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fff5a4'
+        let color = this.spotlight.color? this.spotlight.color : 'black'
+        let backgroundColor = this.spotlight.background? this.spotlight.background : '#fff5a4'
 
         const commonAncestor = this.getCommonAncestor()
 
@@ -48,7 +48,7 @@ export default {
         innotation.id = `nb-innotation-block-${this.thread.id}-${this.innoPos}`
         const text = this.thread.text.length > 400 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text;
 
-        if (this.thread.spotlight.showTime) {
+        if (this.spotlight.showTime) {
             this.time = this.thread.timestamp
             this.interval = setInterval(() => {
                 this.ago = moment(this.time).fromNow();
@@ -110,7 +110,7 @@ export default {
         window.dispatchEvent(new Event('resize'))
     },
     destroyed: function() {
-        if (this.thread.spotlight.showTime) {
+        if (this.spotlight.showTime) {
             clearInterval(this.interval)
         }
     },
@@ -125,6 +125,9 @@ export default {
         },
     },
     computed: {
+        spotlight: function () {
+            return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+        },
         authorName: function () {
             if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
                     return 'Anonymous'
@@ -157,13 +160,14 @@ export default {
         onClick: function () {
             this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread)
 
+            const spotlightType = this.thread.systemSpotlight ? this.thread.systemSpotlight.type : this.thread.spotlight.type
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
             axios.post(`/api/spotlights/log`, {
-                spotlight_id: this.thread.spotlight.id,
+                spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
                 action: 'CLICK', 
-                type: this.thread.spotlight.type.toUpperCase(), 
+                type: spotlightType.toUpperCase(), 
                 annotation_id: this.thread.id, 
                 class_id: this.activeClass.id,
                 role: this.user.role.toUpperCase() 

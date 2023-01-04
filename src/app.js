@@ -317,6 +317,7 @@ function embedNbApp() {
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
                 isShowIndicatorForQuestionedThread: true,
+                isShowIndicatorForTime: false,
                 isIgnoreSectionsInClass: false,
                 isSyncNotificationAudio: false,
                 isSyncNotificationPopup: false,
@@ -370,13 +371,22 @@ function embedNbApp() {
                 return this.threads.length
             },
             innotationsBlock: function () {
-                return this.filteredThreads.filter(t => t.spotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.spotlight.type))
+                return this.filteredThreads.filter(t => {
+                    return (t.systemSpotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.systemSpotlight.type) )
+                        || (!t.systemSpotlight && t.spotlight && ['ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(t.spotlight.type)) 
+                })
             },
             innotationsInline: function () {
-                return this.filteredThreads.filter(t => t.spotlight && t.spotlight.type === 'IN')
+                return this.filteredThreads.filter(t => {
+                    return (t.systemSpotlight && ['IN'].includes(t.systemSpotlight.type) )
+                    || (!t.systemSpotlight && t.spotlight && ['IN'].includes(t.spotlight.type))
+                })
             },
             marginalias: function () {
-                return this.filteredThreads.filter(t => t.spotlight && t.spotlight.type === 'MARGIN')
+                return this.filteredThreads.filter(t => {
+                    return (t.systemSpotlight && ['MARGIN'].includes(t.systemSpotlight.type) )
+                    || (!t.systemSpotlight && t.spotlight && ['MARGIN'].includes(t.spotlight.type))
+                })
             },
             filteredThreads: function () {
                 let items = this.threads
@@ -578,6 +588,7 @@ function embedNbApp() {
                     this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForQuestionedThread = configs['SHOW_INDICATOR_FOR_QUESTIONED_THREAD'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForTime = configs['SHOW_INDICATOR_FOR_TIME'] === 'true' ? true : false
                     this.currentConfigs.isIgnoreSectionsInClass = configs['IGNORE_SECTIONS_IN_CLASS'] === 'true' ? true : false
                     this.currentConfigs.isSyncNotificationAudio = configs['SYNC_NOTIFICATION_AUDIO'] === 'true' ? true : false
                     this.currentConfigs.isSyncNotificationPopup = configs['SYNC_NOTIFICATION_POPUP'] === 'true' ? true : false
@@ -829,17 +840,17 @@ function embedNbApp() {
 
                         // if spotlight new sync thread
                         if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread) {
-                            comment.spotlight = this.currentConfigs.syncSpotlightNewThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.syncSpotlightNewThreadConfig
                         }
 
                         // if spotlight endorsed thread
                         if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed) {
-                            comment.spotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
                         }
 
                         // if spotlight follow thread
                         if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(authorId)) {
-                            comment.spotlight = this.currentConfigs.spotlightFollowThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
                         }
 
                         // get the specific annotation that was recently posted
@@ -984,12 +995,12 @@ function embedNbApp() {
 
                         // if spotlight endorsed thread
                         if (this.currentConfigs.isSpotlightEndorsThread && comment.endorsed) {
-                            comment.spotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
                         }
 
                         // if spotlight follow thread
                         if (this.currentConfigs.isSpotlightFollowThread && comment.followed) {
-                            comment.spotlight = this.currentConfigs.spotlightFollowThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
                         }
 
                         // TODO: check this code

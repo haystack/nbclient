@@ -26,7 +26,7 @@ export default {
         const elm = document.getElementById(`nb-innotation-inline-${this.thread.id}`)
         if (elm) elm.remove()
 
-        let color = this.thread.spotlight.color? this.thread.spotlight.color : 'blue'
+        let color = this.spotlight.color? this.spotlight.color : 'blue'
         
         // build innotation item
         const endNode = this.thread.range.end
@@ -47,17 +47,23 @@ export default {
             //this.thread !== val ? this.collapseInnotationText() : this.extendInnotationText()
         }
     },
+    computed: {
+        spotlight: function () {
+            return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+        },
+    },
     methods: {
         onClick: function () {
             clearTimeout(this.hoverLogTimeout)
             this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread)
+            const spotlightType = this.thread.systemSpotlight ? this.thread.systemSpotlight.type : this.thread.spotlight.type
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
             axios.post(`/api/spotlights/log`, {
-                spotlight_id: this.thread.spotlight.id,
+                spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
                 action: 'CLICK', 
-                type: this.thread.spotlight.type.toUpperCase(), 
+                type: spotlightType.toUpperCase(), 
                 annotation_id: this.thread.id, 
                 class_id: this.activeClass.id,
                 role: this.user.role.toUpperCase() 

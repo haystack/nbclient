@@ -19,6 +19,13 @@
   font-style: italic;
 }
 
+#nb-app .bug-icon {
+  color: #4a2270;
+  text-decoration: none;
+  font-weight: bold;
+  font-style: italic;
+}
+
 #ql-toolbar.ql-snow {
     border: 1px solid #ccc;
     box-sizing: border-box;
@@ -411,12 +418,32 @@
 #nb-app .nb-sidebar .list-view .list-row {
   display: flex;
   padding: 4px;
-  color: #226;
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 44px;
+  border-bottom: 1px solid #ddd;
+}
+#nb-app .nb-sidebar .list-view .list-row  .top-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
+  flex-grow: 1;
+}
+#nb-app .nb-sidebar .list-view .list-row  .bottom-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+#nb-app .nb-sidebar .list-view .list-row  .bottom-line .time {
+  font-size: 9px;
+  color: #666;
 }
 #nb-app .nb-sidebar .list-view .list-row #notification-row-flags{ /*only for notification row style*/
   justify-content: flex-start;
@@ -428,7 +455,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-right: 5px;
+  margin-right: 0;
   padding-right: 4px;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder,
@@ -443,10 +470,17 @@
   background: #fff;
   margin-right: 1px;
 }
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder {
+  display: none;
+}
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.counter {
   background-color: #eee;
   color: #aaa;
   font-size: 11px;
+  border: 1px solid #bbb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.instr {
   background-color: #f4ad3e;
@@ -1323,6 +1357,11 @@ nb-innotation-controller {
 
 .typing {
   margin-left: auto;
+  float: right;
+  position: absolute;
+  right: 5px;
+  top: auto;
+  bottom: auto;
 }
 
 #nb-app .smallCommentInput {
@@ -1491,4 +1530,20 @@ nb-innotation-controller {
   color: #000;
   font-family: sans-serif;
   margin: 10px 0;
+}
+
+.swal2-actions:not(.swal2-loading) .swal2-styled {
+  color: #ddd;
+  background: #bcbcbc;
+  border: initial;
+  box-shadow: initial;
+  outline: initial;
+}
+.swal2-actions:not(.swal2-loading) .swal2-styled:hover {
+  color: #fff;
+  background: #bcbcbc;
+  border: initial;
+  box-shadow: initial;
+  outline: initial;
+
 }

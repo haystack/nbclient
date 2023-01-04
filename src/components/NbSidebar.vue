@@ -78,6 +78,7 @@
             :show-sync-features="showSyncFeatures"
             :myfollowing="myfollowing"
             :filter="filter"
+            :is-editor-visible="editor.visible"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @toggle-spotlights="onToggleSpotlights"
@@ -473,49 +474,50 @@ export default {
         },
         onSubmitComment: async function (data) {
             this.editor.isSubmitting = true
-            let comment = new NbComment({
-                id: null, // will be updated when submitAnnotation() is called
-                type: data.type,
-                range: this.draftRange, // null if this is reply
-                parent: this.replyToComment, // null if this is the head of thread
-                timestamp: null,
-                author: this.user.id,
-                authorName: `${this.user.name.first} ${this.user.name.last}`,
-                instructor: this.user.role === 'instructor',
-                html: data.html,
-                hashtags: data.mentions.hashtags,
-                people: data.mentions.users,
-                visibility: data.visibility,
-                anonymity: data.anonymity,
-                replyRequestedByMe: data.replyRequested,
-                replyRequestCount: data.replyRequested ? 1 : 0,
-                upvotedByMe: false,
-                upvoteCount: 0,
-                seenByMe: true,
-                mediaBlob: data.mediaBlob,
-            })
-            let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
 
             try {
-                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
-
-                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
-
-                this.onEditorVisible(false)
-
                 if (this.edittingComment) {
                     this.edittingComment.saveUpdates(data)
                     this.edittingComment = null
-                    return
+                } else {
+                    let comment = new NbComment({
+                        id: null, // will be updated when submitAnnotation() is called
+                        type: data.type,
+                        range: this.draftRange, // null if this is reply
+                        parent: this.replyToComment, // null if this is the head of thread
+                        timestamp: null,
+                        author: this.user.id,
+                        authorName: `${this.user.name.first} ${this.user.name.last}`,
+                        instructor: this.user.role === 'instructor',
+                        html: data.html,
+                        hashtags: data.mentions.hashtags,
+                        people: data.mentions.users,
+                        visibility: data.visibility,
+                        anonymity: data.anonymity,
+                        replyRequestedByMe: data.replyRequested,
+                        replyRequestCount: data.replyRequested ? 1 : 0,
+                        upvotedByMe: false,
+                        upvoteCount: 0,
+                        seenByMe: true,
+                        mediaBlob: data.mediaBlob,
+                    })
+                    let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
+                    await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
+
+                    if (this.draftRange) {
+                        this.$emit('new-thread', comment)
+                    } else if (this.replyToComment) {
+                        this.replyToComment.children.push(comment)
+                        this.replyToComment = null
+                    }
+
+                   
                 }
 
-                if (this.draftRange) {
-                    this.$emit('new-thread', comment)
-                } else if (this.replyToComment) {
-                    this.replyToComment.children.push(comment)
-                    this.replyToComment = null
-                }
+                this.onEditorVisible(false)
+                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
             } catch(e) {
+                console.error(e);
                 Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
 

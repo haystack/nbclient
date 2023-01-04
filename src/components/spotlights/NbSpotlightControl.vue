@@ -1,6 +1,6 @@
 <template>
-    <div class='nb-spotlight-control' :style="style"  v-tooltip="tooltip">
-        <span v-on:click="onClick('X')"  v-bind:class="{ active: !thread.spotlight }">X</span>
+    <div class='nb-spotlight-control' v-tooltip="tooltip">
+        <span v-on:click="onClick('X')"  v-bind:class="{ active: !thread.spotlight || thread.spotlight.type === 'NONE' }">X</span>
         <span v-if="currentConfigs.isInnotation" v-on:click="onClick('IN')"        v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'IN'}">~</span>
         <span v-if="currentConfigs.isInnotation" v-on:click="onClick('ABOVE')"     v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'ABOVE'}">↑</span>
         <span v-if="currentConfigs.isInnotation" v-on:click="onClick('BELLOW')"    v-bind:class="{ active: thread.spotlight && thread.spotlight.type === 'BELLOW'}">↓</span>
@@ -24,18 +24,15 @@ export default {
         },
     },
     computed: {
-        style: function () {
-            if (this.thread.spotlight && !this.thread.spotlight.id) {
-                return `cursor: not-allowed; opacity: 0.4;`
-            }
-            return ``
-        },
         tooltip: function () {
-            if (this.thread.spotlight && !this.thread.spotlight.id) {
+            if (this.thread.systemSpotlight) {
                 return `The system overrides this thread spotlight`
             }
             return ``
         }
+    },
+    created: function() {
+        console.log(this.thread);
     },
     methods: {
         onClick: async function (type) {

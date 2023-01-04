@@ -144,7 +144,8 @@ export default {
   },
   data () {
     return {
-      toolbar: [
+      toolbar: {
+        container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         [ 'bold', 'italic', 'underline', 'strike' ],
         [{ 'script': 'super' }, { 'script': 'sub' } ],
@@ -155,6 +156,20 @@ export default {
         // [ 'people' ],
         ['interesting-topic', 'surprised', 'just-curious', 'lost', 'lets-discuss',  'i-think', 'question', 'important', 'learning-goal', 'real-world-application', 'lightbulb-moment', 'needs-work'],
       ],
+      handlers: { // Add empty handler to suppress console warning. Handlers is added in TextEditor.vue
+        'interesting-topic': () => { },
+        'surprised': () => { },
+        'just-curious': () => { },
+        'lost': () => { },
+        'lets-discuss': () => { },
+        'i-think': () => { },
+        'question': () => { },
+        'important': () => { },
+        'learning-goal': () => { },
+        'real-world-application': () => { },
+        'lightbulb-moment': () => { },
+        'needs-work': () => { },
+      }},
       placeholder: 'Type # or @ to include tags',
       content: this.initialContent,
       mediaBlob: null,

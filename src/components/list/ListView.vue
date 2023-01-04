@@ -128,6 +128,10 @@ export default {
             type: Boolean,
             default: true
         },
+        isEditorVisible: {
+            type: Boolean,
+            default: false
+        },
         stillGatheringThreads: {
             type: Boolean,
             default: true
@@ -173,7 +177,7 @@ export default {
     },
     computed: {
         style: function () {
-            if (this.threadSelected) {
+            if (this.threadSelected || this.isEditorVisible) {
                 return 'height: 16px;'
             }
 
