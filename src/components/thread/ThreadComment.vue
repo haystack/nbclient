@@ -222,7 +222,7 @@ export default {
     methods: {
         onPlayAudio: function() {
             const headComment = this.comment.getHeadComment(this.comment)
-            this.onLogNb('PLAY_MEDIA_AUDIO', this.threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', this.comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+            this.onLogNb('PLAY_MEDIA_AUDIO', this.threadViewInitiator, this.comment)
         },
         copyLink: function (comment) {
             this.showOverflow = false
@@ -289,8 +289,8 @@ export default {
             
             return false
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     computed: {

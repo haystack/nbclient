@@ -20,6 +20,27 @@
             @open-draggable-notifications="onOpenDraggableNotifications"
             @open-sidebar-notifications="onOpenSidebarNotifications">
         </nb-online>
+        <notification-view
+            v-if="showSyncFeatures && sidebarNotificationsOpened"
+            :notifications="notificationThreads"
+            :total-count="notificationThreads.length"
+            :thread-selected="threadSelected"
+            :notification-selected="notificationSelected"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :still-gathering-threads="stillGatheringThreads"
+            :draggable-notifications-opened="draggableNotificationsOpened"
+            :notifications-muted="notificationsMuted"
+            :activeClass="activeClass"
+            :user="user"
+            @toggle-highlights="onToggleHighlights"
+            @select-notification="onSelectNotification"
+            @hover-thread="onHoverThread"
+            @unhover-thread="onUnhoverThread"
+            @toggle-mute-notifications="onToggleMuteNotifications"
+            @undock-draggable-notifications="onUndockDraggableNotifications"
+            @close-sidebar-notifications="onCloseSidebarNotifications">
+        </notification-view>
         <filter-view
             :me="user"
             :users="sortedUsers"
@@ -49,6 +70,7 @@
             :thread-selected="threadSelected"
             :threads-hovered="threadsHovered"
             :show-highlights="showHighlights"
+            :show-spotlights="showSpotlights"
             :still-gathering-threads="stillGatheringThreads"
             :current-configs="currentConfigs"
             :activeClass="activeClass"
@@ -56,33 +78,14 @@
             :show-sync-features="showSyncFeatures"
             :myfollowing="myfollowing"
             :filter="filter"
+            :is-editor-visible="editor.visible"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
+            @toggle-spotlights="onToggleSpotlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
             @unhover-thread="onUnhoverThread">
         </list-view>
-        <notification-view
-            v-if="showSyncFeatures && sidebarNotificationsOpened"
-            :notifications="notificationThreads"
-            :total-count="notificationThreads.length"
-            :thread-selected="threadSelected"
-            :notification-selected="notificationSelected"
-            :threads-hovered="threadsHovered"
-            :show-highlights="showHighlights"
-            :still-gathering-threads="stillGatheringThreads"
-            :draggable-notifications-opened="draggableNotificationsOpened"
-            :notifications-muted="notificationsMuted"
-            :activeClass="activeClass"
-            :user="user"
-            @toggle-highlights="onToggleHighlights"
-            @select-notification="onSelectNotification"
-            @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread"
-            @toggle-mute-notifications="onToggleMuteNotifications"
-            @undock-draggable-notifications="onUndockDraggableNotifications"
-            @close-sidebar-notifications="onCloseSidebarNotifications">
-        </notification-view>
         <thread-view
             v-if="threadSelected"
             :thread="threadSelected"
@@ -200,6 +203,10 @@ export default {
             type: Boolean,
             default: true
         },
+        showSpotlights: {
+            type: Boolean,
+            default: true
+        },
         sourceUrl: {
             type: String,
             default: ""
@@ -296,14 +303,14 @@ export default {
             } else {
                 // No new thread, not replying or editting
                 if (!this.replyToComment && !this.edittingComment) {
-                    this.editor.visible = false
+                    this.onEditorVisible(false)
                 }
             }
         },
         threadSelected: function (val) {
             if (!val && this.replyToComment && this.editor.isEmpty) {
                 // When thread is unselected, cancel reply if editor is empty.
-                this.editor.visible = false
+                this.onEditorVisible(false)
                 this.replyToComment = null
             }
 
@@ -327,6 +334,9 @@ export default {
         },
         onToggleHighlights: function (show) {
             this.$emit('toggle-highlights', show)
+        },
+        onToggleSpotlights: function (show) {
+            this.$emit('toggle-spotlights', show)
         },
         onSearchOption: function (option) {
             this.$emit('search-option', option)
@@ -426,6 +436,10 @@ export default {
             this.editor.isEmpty = isEmpty
             this.$emit('editor-empty', isEmpty)
         },
+        onEditorVisible: function (isVisible) {
+            this.editor.visible = isVisible
+            this.$emit('editor-visible', isVisible)
+        },
         onSubmitSmallComment: async function (data) {
             let comment = new NbComment({
                 id: null, // will be updated when submitAnnotation() is called
@@ -460,55 +474,57 @@ export default {
         },
         onSubmitComment: async function (data) {
             this.editor.isSubmitting = true
-            let comment = new NbComment({
-                id: null, // will be updated when submitAnnotation() is called
-                type: data.type,
-                range: this.draftRange, // null if this is reply
-                parent: this.replyToComment, // null if this is the head of thread
-                timestamp: null,
-                author: this.user.id,
-                authorName: `${this.user.name.first} ${this.user.name.last}`,
-                instructor: this.user.role === 'instructor',
-                html: data.html,
-                hashtags: data.mentions.hashtags,
-                people: data.mentions.users,
-                visibility: data.visibility,
-                anonymity: data.anonymity,
-                replyRequestedByMe: data.replyRequested,
-                replyRequestCount: data.replyRequested ? 1 : 0,
-                upvotedByMe: false,
-                upvoteCount: 0,
-                seenByMe: true,
-                mediaBlob: data.mediaBlob,
-            })
-            let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
 
             try {
-                await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
-
-                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
-
-                this.editor.visible = false
                 if (this.edittingComment) {
                     this.edittingComment.saveUpdates(data)
                     this.edittingComment = null
-                    return
+                } else {
+                    let comment = new NbComment({
+                        id: null, // will be updated when submitAnnotation() is called
+                        type: data.type,
+                        range: this.draftRange, // null if this is reply
+                        parent: this.replyToComment, // null if this is the head of thread
+                        timestamp: null,
+                        author: this.user.id,
+                        authorName: `${this.user.name.first} ${this.user.name.last}`,
+                        instructor: this.user.role === 'instructor',
+                        html: data.html,
+                        hashtags: data.mentions.hashtags,
+                        people: data.mentions.users,
+                        visibility: data.visibility,
+                        anonymity: data.anonymity,
+                        replyRequestedByMe: data.replyRequested,
+                        replyRequestCount: data.replyRequested ? 1 : 0,
+                        upvotedByMe: false,
+                        upvoteCount: 0,
+                        seenByMe: true,
+                        mediaBlob: data.mediaBlob,
+                    })
+                    let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
+                    await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
+
+                    if (this.draftRange) {
+                        this.$emit('new-thread', comment)
+                    } else if (this.replyToComment) {
+                        this.replyToComment.children.push(comment)
+                        this.replyToComment = null
+                    }
+
+                   
                 }
 
-                if (this.draftRange) {
-                    this.$emit('new-thread', comment)
-                } else if (this.replyToComment) {
-                    this.replyToComment.children.push(comment)
-                    this.replyToComment = null
-                }
+                this.onEditorVisible(false)
+                Vue.notify({ group: 'annotation', title: 'Comment submitted successfully', type: 'success', })
             } catch(e) {
+                console.error(e);
                 Vue.notify({ group: 'annotation', title: 'Error while submitting your comment!', type: 'error', text: 'Please try again later'}) 
             }
 
             this.editor.isSubmitting = false
         },
         onCancelComment: function () {
-            this.editor.visible = false
+             this.onEditorVisible(false)
             if (this.draftRange) {
                 this.$emit('cancel-draft', this.draftRange)
             } else if (this.replyToComment) {
@@ -532,7 +548,7 @@ export default {
               replyRequested: false
             }
             this.editor.initialSettings = Object.assign(defaultSettings, settings)
-            this.editor.visible = visible
+            this.onEditorVisible(visible)
         },
         onThreadTyping: function(val) {
             if (this.threadSelected) {
@@ -565,8 +581,8 @@ export default {
         onCloseSidebarNotifications: function () {
             this.$emit('close-sidebar-notifications')
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     components: {

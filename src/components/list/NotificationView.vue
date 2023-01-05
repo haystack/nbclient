@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view">
+  <div class="list-view" style="margin-top: 5px;">
     <header class="card-header"
       v-tooltip="tooltipType"
       @click="isCollapsed = !isCollapsed">
@@ -15,25 +15,19 @@
           {{ totalLabel }}
         </span>
         <div class="icons-left">
-          <span v-tooltip="notificationsMuted ? 'Click to unmute notifications' : 'Click to mute notifications'"
+          <span v-tooltip="notificationsMuted ? 'Unmute notifications' : 'Mute notifications'"
             @click="toggleMute">
             <font-awesome-icon icon="bell-slash" class="icon" v-if="notificationsMuted">
             </font-awesome-icon>
             <font-awesome-icon icon="bell" class="icon" v-else>
             </font-awesome-icon>
           </span>   
-          <span v-tooltip="'Click to open draggable notifications window'"
+          <span v-tooltip="'Open notifications window'"
             @click="$emit('undock-draggable-notifications')"
           >
             <font-awesome-icon icon="clone" class="icon">
             </font-awesome-icon>
           </span>  
-          <span v-tooltip="'Click to close sidebar notifications window'"
-            @click="$emit('close-sidebar-notifications')"
-          >
-            <font-awesome-icon icon="window-close" class="icon">
-            </font-awesome-icon>          
-          </span>     
         </div>
       </div>
       <div class="notification-table">

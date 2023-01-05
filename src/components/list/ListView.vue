@@ -8,13 +8,30 @@
             </a>
         </header>
         <div v-if="!isCollapsed">
+            <div class="list-control">
+                <div class="list-control-header">
+                    <font-awesome-icon icon="eye" class="icon"></font-awesome-icon>
+                </div>
+                <div class="list-control-controls">
+                    <span v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'">
+                        <font-awesome-icon icon="highlighter" class="icon"></font-awesome-icon>
+                        <span @click="toggleHighlights">
+                            <font-awesome-icon v-if="showHighlights" icon="toggle-on" class="icon toggle-on"></font-awesome-icon>
+                            <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
+                        </span>
+                    </span>
+                    <span v-tooltip="showSpotlights ? 'hide spotlights' : 'show spotlights'">
+                        <font-awesome-icon icon="sun" class="icon"></font-awesome-icon>
+                        <span @click="toggleSpotlights">
+                            <font-awesome-icon v-if="showSpotlights" icon="toggle-on" class="icon toggle-on"></font-awesome-icon>
+                            <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
+                        </span>
+                   </span>
+                </div>
+            </div>
             <div class="list-header">
                 <span class="count">
                     <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
-                </span>
-                <span class="toggle-highlights" v-tooltip="showHighlights ? 'hide highlights' : 'show highlights'" @click="toggleHighlights">
-                    <font-awesome-icon v-if="showHighlights" icon="eye" class="icon"></font-awesome-icon>
-                    <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
                 </span>
                 <span class="sort">
                     Sort by:
@@ -25,7 +42,7 @@
                     </select>
                 </span>
             </div>
-            <div class="list-table">
+            <div class="list-table" :style="style">
                 <div v-if="stillGatheringThreads">
                     <p>Fetching Annotations</p>
                     <tile loading="true"></tile>
@@ -107,6 +124,14 @@ export default {
             type: Boolean,
             default: true
         },
+        showSpotlights: {
+            type: Boolean,
+            default: true
+        },
+        isEditorVisible: {
+            type: Boolean,
+            default: false
+        },
         stillGatheringThreads: {
             type: Boolean,
             default: true
@@ -151,6 +176,13 @@ export default {
         this.sortBy = this.currentConfigs.sortByConfig
     },
     computed: {
+        style: function () {
+            if (this.threadSelected || this.isEditorVisible) {
+                return 'height: 16px;'
+            }
+
+            return ''
+        },
         currentThreadsCount: function () {
             return this.threads.length
         },
@@ -212,11 +244,19 @@ export default {
             }
             this.$emit('toggle-highlights', !this.showHighlights)
         },
+        toggleSpotlights: function () {
+            if( this.showSpotlights ) {
+                this.onLogNb('HIDE_SPOTLIGHT')
+            } else {
+                this.onLogNb('SHOW_SPOTLIGHT')
+            }
+            this.$emit('toggle-spotlights', !this.showSpotlights)
+        },
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     components: {
@@ -225,10 +265,55 @@ export default {
 }
 </script>
 <style>
-.filterdThreads {
+#nb-app-wrapper .filterdThreads {
     background: yellow;
     font-weight: bold;
     font-style: italic;
+}
+
+#nb-app-wrapper .list-control {
+    display: flex;
+    position: relative;
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 2px 5px;
+    margin: 4px 0 0px 0;
+    align-items: center;
+    height: 16px;
+    justify-content: center;
+}
+
+#nb-app-wrapper .list-control-header {
+    float: left;
+    position: absolute;
+    left: 0;
+    background: #ccc;
+    top: 0;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    color: #777;
+}
+
+#nb-app-wrapper .list-control-controls {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin-left: 24px;
+}
+
+#nb-app-wrapper .list-control-controls span {
+    display: flex;
+    width: 50px;
+    justify-content: space-evenly;
+}
+
+#nb-app-wrapper .list-control-controls span .toggle-on {
+    color: #4a2270;
 }
 
 </style>

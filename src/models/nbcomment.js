@@ -27,6 +27,7 @@ class NbComment {
      * @param {Boolean} data.seenByMe - true if the current user's seen this comment, sets {@link NbComment#seenByMe}
      * @param {Boolean} data.bookmarked - true if the current user bookmarked this comment, sets {@link NbComment#bookmarked}
      * @param {Object} data.spotlight
+     * @param {Object} data.systemSpotlight
      * @param {Boolean} data.isSync - true if the comment added to the user synchronously
      * @param {Boolean} data.hasSync - true if this a headComment and has a comment that was added to the user synchronously
      * @param {String} data.type - type of comment (text, audio, video)
@@ -223,6 +224,7 @@ class NbComment {
         }
 
         this.spotlight = data.spotlight
+        this.systemSpotlight = null
         this.usersTyping = []
         this.associatedNotification = null
         this.isSync = false
@@ -258,6 +260,7 @@ class NbComment {
      * {@link NbComment#loadReplies} will be called to also load replies.
      */
     submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+        console.log(this);
         const token = localStorage.getItem("nb.user");
         if (!this.parent) {
             const data = {
@@ -504,7 +507,7 @@ class NbComment {
     }
 
     isSpotlighted() {
-        if (this.spotlight) {
+        if (this.systemSpotlight || this.spotlight) {
             return true
         }
         return false
@@ -584,7 +587,7 @@ class NbComment {
     }
 
     isFollowed() {
-        if (!this.followed) { return true }
+        if (this.followed) { return true }
 
         for (let child of this.children) {
             if (child.isFollowed()) {
@@ -813,6 +816,7 @@ class NbComment {
 
     updateEndorsed () {
         if (this.id) {
+            const currentClass = JSON.parse(localStorage.getItem("nbc.current.class"));
             const token = localStorage.getItem("nb.user");
             const headers = { headers: { Authorization: 'Bearer ' + token } }
             return axios.put(`/api/annotations/annotation/${this.id}`, {
@@ -822,24 +826,27 @@ class NbComment {
                 visibility: CommentVisibility[this.visibility],
                 anonymity: CommentAnonymity[this.anonymity],
                 endorsed: this.endorsed,
-                replyRequest: this.replyRequestedByMe
+                replyRequest: this.replyRequestedByMe,
+                url: currentClass.url,
+                class: currentClass.class
             }, headers)
         }
     }
 
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
-        const headComment = this.getHeadComment(comment)
-        onLogNb(event, threadViewInitiator, headComment.spotlight ? headComment.spotlight.type.toUpperCase() : 'NONE', comment.isSync, headComment.hasSync, headComment.associatedNotification ? headComment.associatedNotification.trigger : 'NONE', headComment.id, headComment.countAllReplies())
+        onLogNb(event, threadViewInitiator, comment)
 
-        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return }
+        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
 
+        const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
+        const headComment = this.getHeadComment(this)
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
         axios.post(`/api/spotlights/log`, {
-            spotlight_id: threadViewInitiator !== 'SPOTLIGHT' ? null : headComment.spotlight.id,
+            spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
             action: event.toUpperCase(),
-            type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : headComment.spotlight.type.toUpperCase(),
+            type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : spotlightType.toUpperCase(),
             annotation_id: headComment.id,
             class_id: activeClass.id,
             role: user.role.toUpperCase()

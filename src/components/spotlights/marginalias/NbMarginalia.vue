@@ -5,7 +5,7 @@
         @click="onClick()"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
-            <span v-if="thread.spotlight.showTime" class="nb-marginalia-time"> <b>{{ authorName }}</b> @ {{ ago }}</span>
+            <span v-if="showTime" class="nb-marginalia-time"> <b>{{ authorName }}</b> @ {{ ago }}</span>
             {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text}}
     </div>
 </template>
@@ -39,7 +39,7 @@ export default {
         }
     },
     created: function() {
-        if (this.thread.spotlight.showTime) {
+        if (this.spotlight.showTime) {
             this.time = this.thread.timestamp
             this.interval = setInterval(() => {
                 this.ago = moment(this.time).fromNow();
@@ -47,46 +47,47 @@ export default {
         }
     },
     destroyed: function() {
-         if (this.thread.spotlight.showTime) {
+         if (this.spotlight.showTime) {
             clearInterval(this.interval)
          }
     },
     computed: {
+        spotlight: function () {
+            return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+        },
         style: function () {
-            let color = this.thread.spotlight.color? this.thread.spotlight.color : 'black'
-            let backgroundColor = this.thread.spotlight.background? this.thread.spotlight.background : '#fef5d7'
+            const spot = this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+            let color = spot.color? spot.color : 'black'
+            let backgroundColor = spot.background? spot.background : '#fef5d7'
+            const boundingBoxes = getTextBoundingBoxes(this.thread.range.toRange())
+            let style = ''
 
-            // console.log('=====================================');
-            // console.log(this.thread.range)
-            // console.log(document.body.getBoundingClientRect().top);
-            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top);
-            // console.log(this.thread.range.commonAncestor.getBoundingClientRect().top - document.body.getBoundingClientRect().top);
-            // console.log(getTextBoundingBoxes(this.thread.range.toRange()))
-            // console.log(this.getOffset(this.thread.range.commonAncestor).top)
-            let style = `top: ${getTextBoundingBoxes(this.thread.range.toRange())[0].top - document.body.getBoundingClientRect().top}px; transition: 0.3s;`
+            if (boundingBoxes.length > 0) {
+                style = `top: ${boundingBoxes[0].top - document.body.getBoundingClientRect().top}px; transition: 0.3s;`
 
-             if (this.threadsHovered.includes(this.thread)) {
-               style = `${style} color: ${color}; background-color: ${backgroundColor}; z-index: 1;`
-            }
+                if (this.threadsHovered.includes(this.thread)) {
+                style = `${style} color: ${color}; background-color: ${backgroundColor}; z-index: 1;`
+                }
 
-            if (this.thread === this.threadSelected) {
-                style = `${style} mask-image: unset; color: ${color}; background-color: ${backgroundColor}; z-index: 2;`
+                if (this.thread === this.threadSelected) {
+                    style = `${style} mask-image: unset; color: ${color}; background-color: ${backgroundColor}; z-index: 2;`
+                }
             }
 
             return style
         },
         authorName: function () {
-            // console.log(this.thread)
             if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
                     return 'Anonymous'
             }
             return this.thread.authorName
         },
+        showTime: function () {
+            return (this.thread.systemSpotlight && this.thread.systemSpotlight.showTime) || (!this.thread.systemSpotlight && this.thread.spotlight.showTime)
+        }
     },
     watch: {
-        threadSelected: function (val) {
-            
-        }
+        threadSelected: function (val) {}
     },
     methods: {
         onMouseEnter: function () {
@@ -96,15 +97,16 @@ export default {
             this.$emit('unhover-innotation', this.thread)
         },
         onClick: function () {
-            this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
+            this.$emit('log-nb', 'CLICK', 'SPOTLIGHT', this.thread)
 
+            const spotlightType = this.thread.systemSpotlight ? this.thread.systemSpotlight.type : this.thread.spotlight.type
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
             axios.post(`/api/spotlights/log`, {
-                spotlight_id: this.thread.spotlight.id,
+                spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
                 action: 'CLICK', 
-                type: this.thread.spotlight.type.toUpperCase(), 
+                type: spotlightType.toUpperCase(), 
                 annotation_id: this.thread.id, 
                 class_id: this.activeClass.id,
                 role: this.user.role.toUpperCase() 

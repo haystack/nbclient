@@ -100,6 +100,10 @@ export default {
             type: Boolean,
             default: true
         },
+        showSpotlights: {
+            type: Boolean,
+            default: true
+        },
         activeClass: {
             type: Object,
             default: () => {}
@@ -160,6 +164,9 @@ export default {
         }
     },
     computed: {
+        spotlight: function () {
+            return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
+        },
         style: function () {
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
@@ -170,8 +177,8 @@ export default {
             if (this.threadsHovered.includes(this.thread)) {
                 return 'fill: rgb(1, 99, 255); fill-opacity: 0.12; cursor: pointer;'
             }
-            if (this.thread.spotlight && this.thread.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) {
-                let color = this.thread.spotlight.color? this.thread.spotlight.color : 'lime'
+            if (this.showSpotlights && this.spotlight && this.spotlight.type === 'EM' && this.currentConfigs.isEmphasize) {
+                let color = this.spotlight.color? this.spotlight.color : 'lime'
                 return `stroke: ${color}; fill: ${color}; fill-opacity: 0.3; stroke-opacity: 0.9; stroke-dasharray: 1,1; stroke-width: 2px; cursor: pointer;`
             }
             if (this.showTypingActivityAnimation) { // if typing, show a pink outline color
@@ -205,17 +212,17 @@ export default {
         },
         showRecentActivityAnimation: function () {
             return false
-            if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
-                return false
-            }
-            return this.thread && this.recent && this.showSyncFeatures
+            // if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
+            //     return false
+            // }
+            // return this.thread && this.recent && this.showSyncFeatures
         },
         showTypingActivityAnimation: function () {
             return false
-            if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
-                return false
-            }
-            return this.thread && this.thread.usersTyping && this.thread.usersTyping.length > 0 && this.showSyncFeatures
+            // if (this.thread && ( (this.thread === this.threadSelected) || this.threadsHovered.includes(this.thread))) { // if typing or hover, don't animate
+            //     return false
+            // }
+            // return this.thread && this.thread.usersTyping && this.thread.usersTyping.length > 0 && this.showSyncFeatures
         },
         replyRequestThread: function () {
             return this.showSyncFeatures && this.thread && this.thread.hasReplyRequests()
@@ -235,32 +242,33 @@ export default {
             return bounds
         },
         visible: function () {
-            return this.showHighlights || (this.thread === this.threadSelected)
+            return this.showHighlights || (this.thread === this.threadSelected) || (this.showSpotlights && this.spotlight  && this.spotlight.type === 'EM')
         }
     },
     methods: {
         onHover: function (state) {
             this.$emit(state ? 'hover-thread' : 'unhover-thread', this.thread)
         },
+        // TODO 2023: Check this
         onClick: function () {
             if (!this.thread) {
                 return this.$emit('select-thread', this.thread, 'NONE')
             }
 
+            const initiator = this.currentConfigs.isEmphasize && this.spotlight && this.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
+            this.$emit('log-nb', 'CLICK', initiator, this.thread)
+
             let type = 'HIGHLIGHT'
             
-            if ((this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM') || (this.currentConfigs.isInnotation && this.thread.spotlight && this.thread.spotlight.type === 'IN')) {
-                type = this.thread.spotlight.type.toUpperCase()
+            if ((this.currentConfigs.isEmphasize && this.spotlight && this.spotlight.type === 'EM') || (this.currentConfigs.isInnotation && this.spotlight && this.spotlight.type === 'IN')) {
+                type = this.spotlight.type.toUpperCase()
             }
-
-            const location = this.currentConfigs.isEmphasize && this.thread.spotlight && this.thread.spotlight.type === 'EM' ? 'SPOTLIGHT' : 'HIGHLIGHT'
-            this.$emit('log-nb', 'CLICK', location, this.thread.spotlight ? this.thread.spotlight.type.toUpperCase() : 'NONE',  this.thread.isSync, this.thread.hasSync, this.thread.associatedNotification ? this.thread.associatedNotification.trigger : 'NONE', this.thread.id, this.thread.countAllReplies())
 
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
             axios.post(`/api/spotlights/log`, {
-                spotlight_id: type === 'HIGHLIGHT' ? null : this.thread.spotlight.id,
+                spotlight_id: type === 'HIGHLIGHT' || this.thread.systemSpotlight ? null : this.spotlight.id,
                 action: 'CLICK', 
                 type: type, 
                 annotation_id: this.thread.id, 
@@ -270,7 +278,7 @@ export default {
 
             this.logNbClick()
 
-            if (this.currentConfigs.isEmphasize && this.thread.spotlight && (this.thread.spotlight.type === 'EM' || this.thread.spotlight.type === 'IN')) {
+            if (this.currentConfigs.isEmphasize && this.spotlight && (this.spotlight.type === 'EM' || this.spotlight.type === 'IN')) {
                 this.$emit('select-thread', this.thread, 'SPOTLIGHT')
             } else {
                 this.$emit('select-thread', this.thread, 'HIGHLIGHT')

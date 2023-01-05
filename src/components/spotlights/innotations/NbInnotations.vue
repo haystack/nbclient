@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showHighlights">
+    <div v-if="showSpotlights">
         <nb-innotation-inline
             v-for="thread in innotationsInline"
             :key="key(thread)"
@@ -42,7 +42,7 @@ export default {
             type: Array,
             default: () => []
         },
-        showHighlights: {
+        showSpotlights: {
             type: Boolean,
             default: true
         },
@@ -60,8 +60,8 @@ export default {
         onSelectThread: function (thread, threadViewInitiator='NONE') {
             this.$emit('select-thread', thread, threadViewInitiator)
         },
-        onLogNb: async function (event='NONE', initiator='NONE', spotlightType='NONE', isSyncAnnotation=false, hasSyncAnnotation=false, notificationTrigger='NONE', annotationId=null, countAnnotationReplies=0) {
-            this.$emit('log-nb', event, initiator, spotlightType, isSyncAnnotation, hasSyncAnnotation, notificationTrigger, annotationId, countAnnotationReplies)
+        onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
+            this.$emit('log-nb', event, initiator, comment)
         }
     },
     components: {
