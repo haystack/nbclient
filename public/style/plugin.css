@@ -1078,7 +1078,7 @@
 }
 
 #nb-menu {
-    margin: 2.5em 0 0 0;
+    margin: 2.5em 0 -2em 0;
     display: flex;
     align-items: baseline;
 }
@@ -1481,8 +1481,20 @@ nb-innotation-controller {
   font-size: 0.8em;
 }
 
+.nb-marginalia-header {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #00000036;
+}
+
 .nb-innotation-block-time {
   font-size: 0.7em;
+}
+
+.nb-innotation-block-header {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #00000036;
 }
 
 #nb-app audio {
@@ -1546,4 +1558,58 @@ nb-innotation-controller {
   box-shadow: initial;
   outline: initial;
 
+}
+
+.spotlight-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 11px;
+}
+
+.spotlight-header b {
+  margin: 0 2px;
+}
+
+.spotlight-header-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px 0 0;
+  border-radius: 5px;
+}
+
+
+.spotlight-header-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+  transform: initial;
+  font-size: 10px;
+}
+
+.spotlight-header-icon.endorsed{
+  color: #f4ad3e;
+  background-color: #fff;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid #f4ad3e;
+  width: 14px;
+  height: 14px;
+}
+
+.spotlight-header-icon.follow{
+  background-color: #fff;
+  color: #4a2270;
+  border: 1px solid #bbb;
+}
+
+.spotlight-header-icon.question{
+  color: #eee;
+  background-color: purple;
+}
+
+.spotlight-header-icon.general{
+  color: #eee;
+  background-color: #555;
 }

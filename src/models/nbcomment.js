@@ -611,6 +611,19 @@ class NbComment {
         return false
     }
 
+    /**
+     * Check if this comment has question (question requested or question tag).
+     * @return {Boolean} True if this comment (or descendant) is question
+     */
+
+    isQuestion() {
+        if (this.replyRequestCount > 0 || this.text.toLowerCase().includes('#question') || this.text.toLowerCase().includes('?')) {
+            return true
+        }
+
+        return false
+    }
+
     isEndorsed(){
         if(this.endorsed) { return true }
         for (let child of this.children) {

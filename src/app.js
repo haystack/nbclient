@@ -11,6 +11,7 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import { faChevronDown, faChevronUp, faUserCheck, faUserPlus, faCheckSquare } from '@fortawesome/free-solid-svg-icons'
 import { createNbRange, deserializeNbRange } from './models/nbrange.js'
 import NbComment from './models/nbcomment.js'
+import { CommentAnonymity } from './models/enums.js'
 import NbNotification from './models/nbnotification.js'
 import { isNodePartOf } from './utils/dom-util.js'
 import { compare, compareDomPosition } from './utils/compare-util.js'
@@ -25,6 +26,7 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
+import { runExp } from './utils/exp-util'
 
 const currentEnv = Environments.dev
 
@@ -76,6 +78,7 @@ function embedNbApp() {
     loadCSS(`${PLUGIN_HOST_URL}/style/plugin.css`)
     loadCSS(`${PLUGIN_HOST_URL}/style/tooltip.css`)
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js')
+    loadScript(`https://kit.fontawesome.com/e2b88a9f3a.js`)
     document.documentElement.setAttribute('style', 'overflow: overlay !important;')
     document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
     let element = document.createElement('div')
@@ -337,6 +340,12 @@ function embedNbApp() {
                 spotlightFollowThreadConfig: {},
                 isSpotlightEndorsThread: false,
                 spotlightEndorsThreadConfig: {},
+                isSpotlightQuestionThread: false,
+                spotlightQuestionThreadConfig: {},
+                spotlightGeneralThreadConfig: {},
+                isExpClass: false,
+                expClassess: [],
+                expCurrentShowingSpotlights: null,
             },
             syncConfig: false,
             isDragging: false, // indicates if there's a dragging happening in the UI
@@ -387,6 +396,9 @@ function embedNbApp() {
                     return (t.systemSpotlight && ['MARGIN'].includes(t.systemSpotlight.type) )
                     || (!t.systemSpotlight && t.spotlight && ['MARGIN'].includes(t.spotlight.type))
                 })
+            },
+            totalSpotlights: function () {
+                return this.threads.filter(t => (t.spotlight && t.spotlight.type && t.spotlight.type !== 'NONE') ||(t.systemSpotlight && t.systemSpotlight.type && t.systemSpotlight.type !== 'NONE')).length
             },
             filteredThreads: function () {
                 let items = this.threads
@@ -608,6 +620,11 @@ function embedNbApp() {
                     this.currentConfigs.spotlightFollowThreadConfig = configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD']) : {}
                     this.currentConfigs.isSpotlightEndorsThread = configs['SPOTLIGHT_ENDORS_THREAD'] === 'true' ? true : false
                     this.currentConfigs.spotlightEndorsThreadConfig = configs['CONFIG_SPOTLIGHT_ENDORS_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_ENDORS_THREAD']) : {}
+                    this.currentConfigs.isSpotlightQuestionThread = configs['SPOTLIGHT_QUESTION_THREAD'] === 'true' ? true : false
+                    this.currentConfigs.spotlightQuestionThreadConfig = configs['CONFIG_SPOTLIGHT_QUESTION_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_QUESTION_THREAD']) : {}
+                    this.currentConfigs.spotlightGeneralThreadConfig = configs['CONFIG_SPOTLIGHT_GENERAL_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_GENERAL_THREAD']) : {}
+                    this.currentConfigs.expClassess = configs['EXP_CLASSESS'] ? JSON.parse(configs['EXP_CLASSESS']) : []
+                    this.currentConfigs.isExpClass = this.currentConfigs.expClassess.includes(this.activeClass.id)
 
                     if (document.location.href.includes('/nb_viewer.html')) {
                         this.currentConfigs.isMarginalia = configs['SPOTLIGHT_MARGIN'] === 'true' ? true : false
@@ -623,10 +640,17 @@ function embedNbApp() {
                             this.currentConfigs.spotlightFollowThreadConfig.type = 'MARGIN'
                         }
 
+                        if (this.currentConfigs.spotlightQuestionThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.spotlightQuestionThreadConfig.type)) {
+                            this.currentConfigs.spotlightQuestionThreadConfig.type = 'MARGIN'
+                        }
+
                         if (this.currentConfigs.spotlightEndorsThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.spotlightEndorsThreadConfig.type)) {
                             this.currentConfigs.spotlightEndorsThreadConfig.type = 'MARGIN'
                         }
 
+                        if (this.currentConfigs.spotlightGeneralThreadConfig.type && ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT'].includes(this.currentConfigs.spotlightGeneralThreadConfig.type)) {
+                            this.currentConfigs.spotlightGeneralThreadConfig.type = 'MARGIN'
+                        }
 
                     } else {
                         this.currentConfigs.isMarginalia = false
@@ -646,6 +670,9 @@ function embedNbApp() {
                             this.currentConfigs.spotlightEndorsThreadConfig.type = 'LEFT'
                         }
 
+                        if (this.currentConfigs.spotlightGeneralThreadConfig.type && ['MARGIN'].includes(this.currentConfigs.spotlightGeneralThreadConfig.type)) {
+                            this.currentConfigs.spotlightGeneralThreadConfig.type = 'LEFT'
+                        }
                     }
 
                     if (this.currentConfigs.isFilterMaxThreads) {
@@ -811,9 +838,13 @@ function embedNbApp() {
             onUserLeft: function () {
                 socket.emit('left', { username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL })
             },
-            iFollowThisUser: function(userId) {
+            iFollowThisUser: function(comment) {
+                if (comment.anonymity === CommentAnonymity.ANONYMOUS) {
+                    return false
+                }
+
                 for(let i = 0; i < this.myfollowing.length; i++){
-                    if (this.myfollowing[i].follower_id === userId){
+                    if (this.myfollowing[i].follower_id === comment.author){
                         return true
                     }
                 }
@@ -839,17 +870,22 @@ function embedNbApp() {
                         comment.hasSync = true
 
                         // if spotlight new sync thread
-                        if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread) {
+                        if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread && !this.currentConfigs.isExpClass) {
                             comment.systemSpotlight = this.currentConfigs.syncSpotlightNewThreadConfig
                         }
 
                         // if spotlight endorsed thread
-                        if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed) {
+                        if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed && !this.currentConfigs.isExpClass) {
                             comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
                         }
 
+                        // if spotlight question thread
+                        if (isNewThread && this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion() && !this.currentConfigs.isExpClass) {
+                            comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
+                        }
+
                         // if spotlight follow thread
-                        if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(authorId)) {
+                        if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment) && !this.currentConfigs.isExpClass) {
                             comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
                         }
 
@@ -878,7 +914,7 @@ function embedNbApp() {
                                 notification = new NbNotification(comment, "question", true, specificAnnotation, false)
                             } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
                                 notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
-                            } else if (this.iFollowThisUser(authorId)) { // if this new comment of author i follow
+                            } else if (this.iFollowThisUser(comment)) { // if this new comment of author i follow
                                 notification = new NbNotification(comment, "follow", true, specificAnnotation, false)
                             } else if (replyAnnotationId && this.users[authorId].role === "instructor") { // instructor comment
                                 notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
@@ -974,8 +1010,21 @@ function embedNbApp() {
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
                     this.threads = []
+                    const UE = []
+                    const ME = []
+                    const UF = []
+                    const MF = []
+                    const UQ = []
+                    const MQ = []
+                    const N = []
 
                     for (const item of res.data.headAnnotations) {
+                        // 0 0 0
+                        // | | |
+                        // | | L--- Endorsed
+                        // | L----- Question
+                        // L------- Follow
+                        let score = `000`.split('')
 
                         try {
                             item.range = deserializeNbRange(item.range)
@@ -989,18 +1038,62 @@ function embedNbApp() {
                         this.threads.push(comment)
 
                         // check if i follow this user's comments
-                        if (this.iFollowThisUser(comment.author)) {
+                        if (this.iFollowThisUser(comment)) {
                             comment.followed = true
                         }
 
                         // if spotlight endorsed thread
                         if (this.currentConfigs.isSpotlightEndorsThread && comment.endorsed) {
-                            comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                            if (this.currentConfigs.isExpClass) {
+                                score[2] = 1
+                            } else {
+                                comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                            }
+                        }
+
+                        // if spotlight question thread
+                        if (this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion()) {
+                            if (this.currentConfigs.isExpClass) {
+                                score[1] = 1   
+                            } else {
+                                comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
+                            }
                         }
 
                         // if spotlight follow thread
-                        if (this.currentConfigs.isSpotlightFollowThread && comment.followed) {
-                            comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
+                        if (this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment)) {
+                            if (this.currentConfigs.isExpClass) {
+                                score[0] = 1
+                            } else {
+                                comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
+                            }
+                        }
+
+                        // Remove any of my comment to be spotlit
+                        if (comment.author === this.user.id) {
+                            score = `999`.split('')
+                        }
+
+                        if (score.join('') === '000') {
+                            N.push(comment)
+                        } else if (score.join('') === '001') {
+                            UE.push(comment)
+                        } else if (score.join('') === '010') {
+                            UQ.push(comment)
+                        } else if (score.join('') === '100') {
+                            UF.push(comment)
+                        } else {
+                            if (score[2] == '1') {
+                                ME.push(comment)
+                            }
+
+                            if (score[1] == '1') {
+                                MQ.push(comment)
+                            }
+
+                            if (score[0] == '1') {
+                                MF.push(comment)
+                            }
                         }
 
                         // TODO: check this code
@@ -1009,6 +1102,14 @@ function embedNbApp() {
                             this.notificationThreads.push(offlineNotification)
                             comment.associatedNotification = offlineNotification
                         }
+                    }
+
+                    if (this.currentConfigs.isExpClass && this.user.role !== 'instructor') {
+                        runExp([UE,ME], [UQ,MQ], [UF,MF], N, this.currentConfigs)
+                    }
+
+                    if (this.currentConfigs.isExpClass) {
+                        this.currentConfigs.isShowSpotlightControls = false
                     }
 
                     this.stillGatheringThreads = false
@@ -1443,13 +1544,14 @@ function embedNbApp() {
                     const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: this.sourceURL } }
                     const pageYOffset = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0)
                     const pageHeight = (document.documentElement.scrollHeight - document.documentElement.clientHeight)
+                    const spotlight =  (headComment && headComment.systemSpotlight) ? headComment.systemSpotlight : (headComment && headComment.spotlight) ? headComment.spotlight : null
 
                     axios.post(`/api/log/nb`, {
                         class_id: this.activeClass.id,
                         annotation_id: comment ? comment.id : null,
                         head_annotation_id: headComment ? headComment.id : null,
                         event: event.toUpperCase(),
-                        spotlight_type: (headComment && headComment.spotlight) ? headComment.spotlight.type.toUpperCase() : 'NONE',
+                        spotlight_type: (spotlight) ? spotlight.type.toUpperCase() : 'NONE',
                         order: this.nbLogEventsOrder,
                         initiator: initiator,
                         is_sync_annotation: comment ? comment.isSync : null,
@@ -1467,6 +1569,8 @@ function embedNbApp() {
                         applied_sort: this.currentConfigs.sortByConfig,
                         comment_endorsed: headComment ? headComment.isEndorsed() : null,
                         comment_followed: headComment ? headComment.isFollowed() : null,
+                        count_spotlights: this.totalSpotlights,
+                        spotlight_header_type: (headComment && headComment.systemSpotlight && headComment.systemSpotlight.headerType) ? headComment.systemSpotlight.headerType.toUpperCase() : null
                     }, config)
 
                     this.nbLogEventsOrder = this.nbLogEventsOrder + 1

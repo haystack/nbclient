@@ -54,8 +54,12 @@ export default {
                 this.ago = moment(this.time).fromNow();
             }, 1000)
             innotation.insertAdjacentHTML('afterbegin', `<span class="nb-innotation-block-time"> <b>${this.authorName}</b> @ <span id="nb-innotation-block-time-${this.thread.id}-${this.innoPos}">${this.ago}</span></span>`)
-         }
-        
+        }
+
+        if (this.spotlight.header && this.spotlight.header.length > 0) {
+            innotation.insertAdjacentHTML('afterbegin', `<span class="nb-innotation-block-header">${this.spotlight.header}</span>`)
+        }
+
         innotation.insertAdjacentHTML('beforeend', `${text}`)
         innotation.addEventListener('mouseenter', this.onMouseEnter)
         innotation.addEventListener('mouseleave', this.onMouseLeave)

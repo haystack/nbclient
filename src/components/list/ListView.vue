@@ -44,10 +44,10 @@
             </div>
             <div class="list-table" :style="style">
                 <div v-if="stillGatheringThreads">
-                    <p>Fetching Annotations</p>
+                    <p style="text-align: center;font-family: monospace;color: #666;">Fetching Annotations...</p>
                     <tile loading="true"></tile>
                 </div>
-                <list-row
+                <list-row v-else
                     v-for="thread in sorted"
                     :key="thread"
                     :thread="thread"
@@ -316,4 +316,7 @@ export default {
     color: #4a2270;
 }
 
+#nb-app-wrapper .spinner>div {
+    background-color: #4a2270;
+}
 </style>
