@@ -529,7 +529,7 @@ function embedNbApp() {
                     let hiddenItems = sortedItems.slice(maxThreads + 1)
 
                     let myHiddenItems = hiddenItems.filter(item => {
-                        if (item.hasUserPost(this.user.id) || item.hasInstructorPost()) return true
+                        if (item.hasUserPost(this.user.id) || item.hasInstructorPost() || item.systemSpotlight) return true
                         return false
                     })
 
