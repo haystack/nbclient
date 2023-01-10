@@ -1,4 +1,4 @@
-const isLog = true
+const isLog = false
 
 export function isDone([UE,ME], [UQ,MQ], [UF,MF], N) {
     isLog && console.log(`Are we done?`);

@@ -851,8 +851,8 @@ class NbComment {
 
         if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
 
-        const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
         const headComment = this.getHeadComment(this)
+        const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
