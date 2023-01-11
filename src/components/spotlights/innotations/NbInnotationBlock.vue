@@ -168,15 +168,18 @@ export default {
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-            axios.post(`/api/spotlights/log`, {
-                spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
-                action: 'CLICK', 
-                type: spotlightType.toUpperCase(), 
-                annotation_id: this.thread.id, 
-                class_id: this.activeClass.id,
-                role: this.user.role.toUpperCase() 
-            }, config)
             
+            try {
+                axios.post(`/api/spotlights/log`, {
+                    spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
+                    action: 'CLICK', 
+                    type: spotlightType.toUpperCase(), 
+                    annotation_id: this.thread.id, 
+                    class_id: this.activeClass.id,
+                    role: this.user.role.toUpperCase() 
+                }, config)
+            } catch (error) {}
+
             this.$emit('select-thread', this.thread, 'SPOTLIGHT')
         },
         realignInnotationCollections: function () {

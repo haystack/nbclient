@@ -856,14 +856,17 @@ class NbComment {
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-        axios.post(`/api/spotlights/log`, {
-            spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
-            action: event.toUpperCase(),
-            type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : spotlightType.toUpperCase(),
-            annotation_id: headComment.id,
-            class_id: activeClass.id,
-            role: user.role.toUpperCase()
-        }, config)
+
+        try {
+            axios.post(`/api/spotlights/log`, {
+                spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
+                action: event.toUpperCase(),
+                type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : spotlightType.toUpperCase(),
+                annotation_id: headComment.id,
+                class_id: activeClass.id,
+                role: user.role.toUpperCase()
+            }, config)
+        } catch (error) {}
     }
 
     getHeadComment(comment) {

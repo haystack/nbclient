@@ -267,14 +267,17 @@ export default {
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-            axios.post(`/api/spotlights/log`, {
-                spotlight_id: type === 'HIGHLIGHT' || this.thread.systemSpotlight ? null : this.spotlight.id,
-                action: 'CLICK', 
-                type: type, 
-                annotation_id: this.thread.id, 
-                class_id: this.activeClass.id,
-                role: this.user.role.toUpperCase()
-            }, config)
+
+            try {
+                axios.post(`/api/spotlights/log`, {
+                    spotlight_id: type === 'HIGHLIGHT' || this.thread.systemSpotlight ? null : this.spotlight.id,
+                    action: 'CLICK', 
+                    type: type, 
+                    annotation_id: this.thread.id, 
+                    class_id: this.activeClass.id,
+                    role: this.user.role.toUpperCase()
+                }, config)
+            } catch (error) {}
 
             this.logNbClick()
 
@@ -298,15 +301,19 @@ export default {
                 const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-                axios.post(`/api/spotlights/log`, {
-                    spotlight_id: null,
-                    action: 'CLICK', 
-                    type: 'NOTIFICATION_HIGHLIGHT', 
-                    annotation_id: this.thread.id, 
-                    class_id: this.activeClass.id,
-                    role: this.user.role.toUpperCase(),
-                    trigger: trigger_type
-                }, config)
+
+                try {
+                    axios.post(`/api/spotlights/log`, {
+                        spotlight_id: null,
+                        action: 'CLICK', 
+                        type: 'NOTIFICATION_HIGHLIGHT', 
+                        annotation_id: this.thread.id, 
+                        class_id: this.activeClass.id,
+                        role: this.user.role.toUpperCase(),
+                        trigger: trigger_type
+                    }, config)
+                } catch (error) {}
+
             }
         },
         getTooltipContent: function () {

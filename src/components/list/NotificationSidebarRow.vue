@@ -162,15 +162,19 @@ export default {
         const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
         const token = localStorage.getItem("nb.user");
         const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-        axios.post(`/api/spotlights/log`, {
-          spotlight_id: null,
-          action: 'CLICK', 
-          type: 'NOTIFICATION_POPUP', 
-          annotation_id: this.thread.id, 
-          class_id: this.activeClass.id,
-          role: this.user.role.toUpperCase(),
-          trigger: this.notification.trigger 
-        }, config)
+
+      try {
+            axios.post(`/api/spotlights/log`, {
+              spotlight_id: null,
+              action: 'CLICK', 
+              type: 'NOTIFICATION_POPUP', 
+              annotation_id: this.thread.id, 
+              class_id: this.activeClass.id,
+              role: this.user.role.toUpperCase(),
+              trigger: this.notification.trigger 
+            }, config)
+      } catch (error) {}
+        
     },
     onHoverNotification: function () {
         this.$emit('hover-thread', this.thread)   
