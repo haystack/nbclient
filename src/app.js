@@ -675,6 +675,75 @@ function embedNbApp() {
                         }
                     }
 
+                    if (this.syncConfig) {
+                        socket.on('connections', (data) => {
+                            console.log(`NB: Socket.IO connections`)
+                            let isInitConnection = this.onlineUsers.ids.length === 0
+                            this.onlineUsers = data.users
+            
+                            if (!isInitConnection) {
+                                this.onLogNb('SYNC_RECEIVED_CONNECTION')
+                            }
+                        })
+            
+                        socket.on('disconnect', (reason) => {
+                            console.log(`NB: Socket.IO disconnect:  ${reason}`)
+                            if (reason === "io server disconnect") {
+                                socket.connect();
+                            }
+                            setTimeout(() => {
+                                socket.emit('joined', { id: this.user.id, username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
+                            }, 1000);
+            
+                        })
+            
+                        socket.on("connect_error", () => {
+                            console.log('NB: Socket.IO connect_error')
+                            setTimeout(() => {
+                                socket.emit('joined', { id: this.user.id, username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
+                            }, 1000);
+                        });
+            
+                        socket.on("new_thread", (data) => {
+                            console.log(`NB: Socket.IO new_thread`)
+                            let userIdsSet = new Set(data.userIds)
+                            if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
+                                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                                    this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
+                                }
+                            }
+                        })
+            
+                        socket.on('thread-typing', (data) => {
+                            let thread = this.threads.find(x => x.id === data.threadId)
+                            if (thread !== undefined) {
+                                thread.usersTyping = data.usersTyping
+                            }
+                        })
+            
+                        socket.on('new_reply', (data) => {
+                            console.log(`NB: Socket.IO new_reply`)
+                            if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
+                                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                                    const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                                    if (canISeeIt) {
+                                        this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId)
+                                    }
+                                }
+                            }
+                        })
+            
+                        socket.on('update_thread', (data) => {
+                            console.log(`NB: Socket.IO update_thread`)
+                            if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
+                                const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                                if (canISeeIt) {
+                                    this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true)
+                                }
+                            }
+                        })
+                    }
+
                     if (this.currentConfigs.isFilterMaxThreads) {
                         this.filter.maxThreads = this.currentConfigs.filterMaxThreadsConfig
                     }
@@ -732,74 +801,6 @@ function embedNbApp() {
             const hypothesisAdder = document.getElementsByTagName('hypothesis-adder')
             hypothesisSidebar && hypothesisSidebar[0] && hypothesisSidebar[0].remove()
             hypothesisAdder && hypothesisAdder[0] && hypothesisAdder[0].remove()
-
-            socket.on('connections', (data) => {
-                console.log(`NB: Socket.IO connections`)
-                let isInitConnection = this.onlineUsers.ids.length === 0
-                this.onlineUsers = data.users
-
-                if (!isInitConnection) {
-                    this.onLogNb('SYNC_RECEIVED_CONNECTION')
-                }
-            })
-
-            socket.on('disconnect', (reason) => {
-                console.log(`NB: Socket.IO disconnect:  ${reason}`)
-                if (reason === "io server disconnect") {
-                    socket.connect();
-                }
-                setTimeout(() => {
-                    socket.emit('joined', { id: this.user.id, username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
-                }, 1000);
-
-            })
-
-            socket.on("connect_error", () => {
-                console.log('NB: Socket.IO connect_error')
-                setTimeout(() => {
-                    socket.emit('joined', { id: this.user.id, username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
-                }, 1000);
-            });
-
-            socket.on("new_thread", (data) => {
-                console.log(`NB: Socket.IO new_thread`)
-                let userIdsSet = new Set(data.userIds)
-                if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
-                    if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                        this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true) // data contains info about the thread and if the new thread as posted by an instructor
-                    }
-                }
-            })
-
-            socket.on('thread-typing', (data) => {
-                let thread = this.threads.find(x => x.id === data.threadId)
-                if (thread !== undefined) {
-                    thread.usersTyping = data.usersTyping
-                }
-            })
-
-            socket.on('new_reply', (data) => {
-                console.log(`NB: Socket.IO new_reply`)
-                if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
-                    if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                        const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
-                        if (canISeeIt) {
-                            this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId)
-                        }
-                    }
-                }
-            })
-
-            socket.on('update_thread', (data) => {
-                console.log(`NB: Socket.IO update_thread`)
-                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                    const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
-                    if (canISeeIt) {
-                        this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true)
-                    }
-                }
-            })
-
         },
         destroyed: function () {
             window.removeEventListener('scroll', this.handleScroll)

@@ -849,15 +849,15 @@ class NbComment {
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
         onLogNb(event, threadViewInitiator, comment)
 
-        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
-
-        const headComment = this.getHeadComment(this)
-        const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
-        const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
-        const token = localStorage.getItem("nb.user");
-        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-
         try {
+            if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
+
+            const headComment = this.getHeadComment(this)
+            const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
+            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+            const token = localStorage.getItem("nb.user");
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+
             axios.post(`/api/spotlights/log`, {
                 spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
                 action: event.toUpperCase(),

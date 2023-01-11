@@ -718,6 +718,7 @@
   right: 0;
   top: 0;
   display: flex;
+  background: #fffc;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr {
   display: flex;
