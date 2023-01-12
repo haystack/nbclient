@@ -177,7 +177,7 @@
   background: #fff;
   z-index: 99999;
   opacity: 0.97;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 #nb-app .nb-sidebar.animatable-width {
@@ -1636,4 +1636,13 @@ nb-innotation-controller {
 .spotlight-header-icon.general{
   color: #eee;
   background-color: #555;
+}
+
+
+
+/* UC Davis LibreTexts */
+@media (min-width: 83em) {
+  .elm-content-container {
+    padding: 1.3rem;                                                  
+  }
 }
