@@ -21,6 +21,7 @@ import NbHighlights from './components/highlights/NbHighlights.vue'
 import NbSidebar from './components/NbSidebar.vue'
 import NbNotificationSidebar from './components/NbNotificationSidebar.vue'
 import NbNoAccess from './components/NbNoAccess.vue'
+import NbLoading from './components/NbLoading.vue'
 import NbLogin from './components/NbLogin.vue'
 import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
@@ -114,6 +115,9 @@ function embedNbApp() {
         <div id="nb-app" :style="style" @mouseup="mouseUp" @mousemove="mouseMove" @mouseleave="mouseLeave">
             <div v-if="!user" class="nb-sidebar">
                 <nb-login @login="setUser"></nb-login>
+            </div>
+            <div v-else-if="isFetchingMyClassess">
+                <nb-loading :user="user" @logout="onLogout"></nb-loading>
             </div>
             <div v-else-if="myClasses.length < 1">
                 <nb-no-access :user="user" @logout="onLogout"></nb-no-acess>
@@ -272,6 +276,7 @@ function embedNbApp() {
         `,
         data: {
             user: null,
+            isFetchingMyClassess: false,
             myClasses: [],
             myfollowing: [],
             activeClass: {},
@@ -552,35 +557,42 @@ function embedNbApp() {
                 if (!newUser) return // logged out
                 if (newUser === oldUser) return // same user, do nothing
 
-                const source = window.location.origin + window.location.pathname
-                const token = localStorage.getItem("nb.user");
-                const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-                const myClasses = await axios.get('/api/annotations/myClasses', config)
+                this.isFetchingMyClassess = true
 
-                axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }}).then((res) => {
-                    this.myfollowing = res.data
-                })
-
-                if (myClasses.data.length > 0) {
-                    this.myClasses = myClasses.data
-                    if (this.myClasses.length === 1) {
-                        this.activeClass = this.myClasses[0]
-                    }
-                    this.sourceURL = source
-                } else {
-                    const sourceWithQuery = window.location.href // try the source with query params as well
-                    const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery } }
-                    const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
-                    if (myClassesWithQuery.data.length > 0) {
-                        this.myClasses = myClassesWithQuery.data
+                try {
+                    const source = window.location.origin + window.location.pathname
+                    const token = localStorage.getItem("nb.user");
+                    const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+                    const myClasses = await axios.get('/api/annotations/myClasses', config)
+    
+                    axios.get(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }}).then((res) => {
+                        this.myfollowing = res.data
+                    })
+    
+                    if (myClasses.data.length > 0) {
+                        this.myClasses = myClasses.data
                         if (this.myClasses.length === 1) {
                             this.activeClass = this.myClasses[0]
                         }
-                        this.sourceURL = sourceWithQuery
+                        this.sourceURL = source
                     } else {
-                        console.log("Sorry you don't have access");
+                        const sourceWithQuery = window.location.href // try the source with query params as well
+                        const configWithQuery = { headers: { Authorization: 'Bearer ' + token }, params: { url: sourceWithQuery } }
+                        const myClassesWithQuery = await axios.get('/api/annotations/myClasses', configWithQuery)
+                        if (myClassesWithQuery.data.length > 0) {
+                            this.myClasses = myClassesWithQuery.data
+                            if (this.myClasses.length === 1) {
+                                this.activeClass = this.myClasses[0]
+                            }
+                            this.sourceURL = sourceWithQuery
+                        } else {
+                            console.log("Sorry you don't have access");
+                        }
                     }
-                }
+    
+                } catch (error) {}
+
+                this.isFetchingMyClassess = false
             },
             activeClass: async function (newActiveClass, oldActiveClass) {
                 if (newActiveClass != {} && this.user) {
@@ -686,10 +698,10 @@ function embedNbApp() {
                             }
                         })
             
-                        socket.on('disconnect', (reason) => {
+                        socket.on('disconnect', async (reason) => {
                             console.log(`NB: Socket.IO disconnect:  ${reason}`)
                             if (reason === "io server disconnect") {
-                                socket.connect();
+                                await socket.connect();
                             }
                             setTimeout(() => {
                                 socket.emit('joined', { id: this.user.id, username: this.user.username, classId: this.activeClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
@@ -851,99 +863,97 @@ function embedNbApp() {
                 }
                 return false
             },
-            getSingleThread: function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null, isUpdatedComment = false) { // get single thread and add it to the list
+            getSingleThread: async function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null, isUpdatedComment = false) { // get single thread and add it to the list
                 const token = localStorage.getItem("nb.user");
                 const config = { headers: { Authorization: 'Bearer ' + token }, params: { source_url: sourceUrl, class_id: classId, thread_id: threadId } }
-                axios.get('/api/annotations/specific_thread', config)
-                    .then(res => {
-                        let item = res.data.headAnnotation
-                        try {
-                            item.range = deserializeNbRange(item.range)
-                        } catch (e) {
-                            console.warn(`Could not deserialize range for ${item.id}`)
-                        }
-                        if (oldHeadAnnotationId) { // if there exists an old thread we need to remove, then filter it out before adding a new one
-                            this.threads = this.threads.filter(x => x.id !== oldHeadAnnotationId) // filter out the thread
-                        }
+                const res = await axios.get('/api/annotations/specific_thread', config)
+                let item = res.data.headAnnotation
+                try {
+                    item.range = deserializeNbRange(item.range)
+                } catch (e) {
+                    console.warn(`Could not deserialize range for ${item.id}`)
+                }
+                if (oldHeadAnnotationId) { // if there exists an old thread we need to remove, then filter it out before adding a new one
+                    this.threads = this.threads.filter(x => x.id !== oldHeadAnnotationId) // filter out the thread
+                }
 
-                        // Nb Comment
-                        let comment = new NbComment(item, res.data.annotationsData)
-                        comment.hasSync = true
+                // Nb Comment
+                let comment = new NbComment(item, res.data.annotationsData)
+                comment.hasSync = true
 
-                        // if spotlight new sync thread
-                        if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread && !this.currentConfigs.isExpClass) {
-                            comment.systemSpotlight = this.currentConfigs.syncSpotlightNewThreadConfig
-                        }
+                // if spotlight new sync thread
+                if (isNewThread && this.currentConfigs.isSyncSpotlightNewThread && !this.currentConfigs.isExpClass) {
+                    comment.systemSpotlight = this.currentConfigs.syncSpotlightNewThreadConfig
+                }
 
-                        // if spotlight endorsed thread
-                        if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed && !this.currentConfigs.isExpClass) {
-                            comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
-                        }
+                // if spotlight endorsed thread
+                if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed && !this.currentConfigs.isExpClass) {
+                    comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                }
 
-                        // if spotlight question thread
-                        if (isNewThread && this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion() && !this.currentConfigs.isExpClass) {
-                            comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
-                        }
+                // if spotlight question thread
+                if (isNewThread && this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion() && !this.currentConfigs.isExpClass) {
+                    comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
+                }
 
-                        // if spotlight follow thread
-                        if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment) && !this.currentConfigs.isExpClass) {
-                            comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
-                        }
+                // if spotlight follow thread
+                if (isNewThread && this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment) && !this.currentConfigs.isExpClass) {
+                    comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
+                }
 
-                        // get the specific annotation that was recently posted
-                        let specificAnnotation = null
-                        if (replyAnnotationId !== null) {
-                            specificAnnotation = comment.getChildComment(replyAnnotationId)
-                            specificAnnotation.isSync = true
-                        }
+                // get the specific annotation that was recently posted
+                let specificAnnotation = null
+                if (replyAnnotationId !== null) {
+                    specificAnnotation = comment.getChildComment(replyAnnotationId)
+                    specificAnnotation.isSync = true
+                }
 
-                        // if this thread is open in the thread view, then refresh it
-                        if (this.threadSelected && this.threadSelected.id === oldHeadAnnotationId) {
-                            //this.threadSelected = comment
-                            // console.log(this.threadSelected);
-                            // console.log(comment);
-                            // this.threadSelected.children = comment.children
-                        }
+                // if this thread is open in the thread view, then refresh it
+                if (this.threadSelected && this.threadSelected.id === oldHeadAnnotationId) {
+                    //this.threadSelected = comment
+                    // console.log(this.threadSelected);
+                    // console.log(comment);
+                    // this.threadSelected.children = comment.children
+                }
 
-                        // set any type of notification
-                        let notification = null
+                // set any type of notification
+                let notification = null
 
-                        if (!isUpdatedComment) {
-                            if (taggedUsers && taggedUsers.includes(this.user.id)) { // user tagged in post
-                                notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
-                            } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
-                                notification = new NbNotification(comment, "question", true, specificAnnotation, false)
-                            } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
-                                notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
-                            } else if (this.iFollowThisUser(comment)) { // if this new comment of author i follow
-                                notification = new NbNotification(comment, "follow", true, specificAnnotation, false)
-                            } else if (replyAnnotationId && this.users[authorId].role === "instructor") { // instructor comment
-                                notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
-                            } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
-                                notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
-                            }
-                        } else {
-                            if (comment.endorsed && this.user.role !== 'instructor') { // instructor endorsed
-                                notification = new NbNotification(comment, "endorsed", true, specificAnnotation, false)
-                            }
-                        }
+                if (!isUpdatedComment) {
+                    if (taggedUsers && taggedUsers.includes(this.user.id)) { // user tagged in post
+                        notification = new NbNotification(comment, "tag", true, specificAnnotation, false)
+                    } else if ((isNewThread && comment.hasReplyRequests()) || (specificAnnotation !== null && specificAnnotation.hasReplyRequests())) { // new thread with reply request or the reply had a reply request
+                        notification = new NbNotification(comment, "question", true, specificAnnotation, false)
+                    } else if (specificAnnotation && specificAnnotation.parent && specificAnnotation.parent.author === this.user.id) { // if this new comment is a reply to the user
+                        notification = new NbNotification(comment, "reply", true, specificAnnotation, false)
+                    } else if (this.iFollowThisUser(comment)) { // if this new comment of author i follow
+                        notification = new NbNotification(comment, "follow", true, specificAnnotation, false)
+                    } else if (replyAnnotationId && this.users[authorId].role === "instructor") { // instructor comment
+                        notification = new NbNotification(comment, "instructor", true, specificAnnotation, false)
+                    } else if (this.user.role === 'instructor' && isNewThread) { // instructors will get all new threads and posts
+                        notification = new NbNotification(comment, "recent", true, specificAnnotation, false)
+                    }
+                } else {
+                    if (comment.endorsed && this.user.role !== 'instructor') { // instructor endorsed
+                        notification = new NbNotification(comment, "endorsed", true, specificAnnotation, false)
+                    }
+                }
 
-                        if (notification !== null) {
-                            this.notificationThreads.push(notification)
-                            comment.associatedNotification = notification
-                            this.triggerPopupNotification(notification)
-                            this.playNotificationSound()
-                        }
-                        this.notificationThreads.forEach((n, i) => {
-                            if (n.comment.id === comment.id) {
-                                this.notificationThreads[i].comment = comment // replace comment for existing notifications referring to old version of comment
-                            }
-                        })
+                if (notification !== null) {
+                    this.notificationThreads.push(notification)
+                    comment.associatedNotification = notification
+                    this.triggerPopupNotification(notification)
+                    this.playNotificationSound()
+                }
+                this.notificationThreads.forEach((n, i) => {
+                    if (n.comment.id === comment.id) {
+                        this.notificationThreads[i].comment = comment // replace comment for existing notifications referring to old version of comment
+                    }
+                })
 
-                        this.threads.push(comment)
-                        let syncLogEvent = isNewThread ? 'SYNC_RECEIVED_ANNOTATION' : 'SYNC_RECEIVED_REPLY'
-                        this.onLogNb(syncLogEvent, 'NONE', 'NONE', comment)
-                    })
+                this.threads.push(comment)
+                let syncLogEvent = isNewThread ? 'SYNC_RECEIVED_ANNOTATION' : 'SYNC_RECEIVED_REPLY'
+                this.onLogNb(syncLogEvent, 'NONE', 'NONE', comment)
             },
             triggerPopupNotification: function (notification) {
                 if (this.showSyncFeatures && notification.triggerPopup && this.currentConfigs.isSyncNotificationPopup && !this.notificationsMuted) {
@@ -1617,6 +1627,7 @@ function embedNbApp() {
             NbSidebar,
             NbLogin,
             NbNoAccess,
+            NbLoading,
             NbNotificationSidebar
         }
     })

@@ -60,13 +60,19 @@
 /* ... temporary workaround with plugin inheritting parent's style */
 
 #nb-app .login-form {
-  padding: 20px;
+  padding: 0;
 }
 #nb-app .login-form .title {
-  font-size: 20px;
-  padding-bottom: 10px;
-  border-bottom: solid 2px #aaa;
-  color: #666;
+  font-size: 18px;
+  padding: 10px;
+  border-bottom: initial;
+  color: #fff;
+  background: #4a2270;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 -10px;
 }
 #nb-app .login-form .group,
 #nb-app .login-form .buttons {
@@ -74,16 +80,21 @@
 }
 #nb-app .login-form .group {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   align-content: stretch;
+  flex-direction: column;
 }
 #nb-app .login-form .group label {
   padding-right: 10px;
+  margin-bottom: 5px;
+  color: #000;
+  font-family: monospace;
+  font-weight: bold;
 }
 #nb-app .login-form .group input {
   flex: 1;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 2px;
   border: solid 1px #ddd;
   padding: 6px;
 }
@@ -97,9 +108,9 @@
 #nb-app .login-form .buttons button.submit {
   width: 80px;
   padding: 6px;
-  border-radius: 5px;
-  background-color: #007bff;
-  border: solid 1px #007bff;
+  border-radius: 2px;
+  background-color: #4a2270;
+  border: solid 1px #3d195e;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
@@ -109,7 +120,7 @@
   opacity: 0.5;
 }
 #nb-app .login-form button.submit:enabled:hover {
-  background-color: #0069d9;
+  background-color: #3d195e;
 }
 
 #nb-app .nb-sync {
@@ -1077,7 +1088,16 @@
   }
 
 .nb-no-access-msg {
-    margin: 2.5em 0;
+    margin: 4.5em 0;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.nb-no-access-msg h1 {
+  color: #4a2270;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 #nb-menu {

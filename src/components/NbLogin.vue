@@ -1,6 +1,8 @@
 <template>
   <form class="login-form" @submit.prevent="login">
-    <div class='title'>Log in to NB</div>
+    <div class='title'>
+      <img src="https://nb.mit.edu/res/nb-logo.png" height="60"/>
+    </div>
     <div class='group'>
       <label for='login-username'>Username:</label>
       <input id='login-username' type='text' v-model.trim='username'>
