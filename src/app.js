@@ -721,7 +721,7 @@ function embedNbApp() {
                             let userIdsSet = new Set(data.userIds)
                             if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
                                 if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                                    this.sleepThenRun(this.random(1*1000, 10*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true))
+                                    this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true))
                                 }
                             }
                         })
@@ -739,7 +739,7 @@ function embedNbApp() {
                                 if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                                     const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
                                     if (canISeeIt) {
-                                        this.sleepThenRun(this.random(1*1000, 10*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId))
+                                        this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId))
                                     }
                                 }
                             }
@@ -750,7 +750,7 @@ function embedNbApp() {
                             if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
                                 const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
                                 if (canISeeIt) {
-                                    this.sleepThenRun(this.random(1*1000, 10*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true))
+                                    this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true))
                                 }
                             }
                         })
