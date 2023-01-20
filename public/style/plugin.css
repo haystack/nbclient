@@ -452,12 +452,13 @@
 #nb-app .nb-sidebar .list-view .list-row  .bottom-line {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 #nb-app .nb-sidebar .list-view .list-row  .bottom-line .time {
   font-size: 9px;
-  color: #666;
+  color: #aaa;
 }
 #nb-app .nb-sidebar .list-view .list-row #notification-row-flags{ /*only for notification row style*/
   justify-content: flex-start;

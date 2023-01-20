@@ -294,7 +294,7 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 0 5px;
-    color: #777;
+    color: #999;
 }
 
 #nb-app-wrapper .list-control-controls {
