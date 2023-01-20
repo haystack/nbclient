@@ -624,7 +624,7 @@ function embedNbApp() {
                     this.currentConfigs.isShowQuickEditor = configs['SHOW_QUICK_EDITOR'] === 'true' ? true : false
                     this.currentConfigs.sortByConfig = configs['CONFIG_SORT_BY'] ? configs['CONFIG_SORT_BY'] : 'recent'
                     this.currentConfigs.isFilterMaxThreads = configs['FILTER_MAX_THREADS'] === 'true' ? true : false
-                    this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? configs['CONFIG_FILTER_MAX_THREADS'] : null
+                    this.currentConfigs.filterMaxThreadsConfig = configs['CONFIG_FILTER_MAX_THREADS'] ? Number(configs['CONFIG_FILTER_MAX_THREADS']) : null
                     this.currentConfigs.isShowSpotlightControls = configs['SHOW_SPOTLIGHT_CONTROLS'] === 'false' ? false : true
                     this.currentConfigs.syncNotificationPopupTimerConfig = configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] ? configs['CONFIG_SYNC_NOTIFICATION_POPUP_TIMER'] : 60000
                     this.currentConfigs.isCommentMediaAudio = configs['COMMENT_MEDIA_AUDIO_STUDENT'] === 'true' ? true : false
