@@ -79,7 +79,7 @@ function embedNbApp() {
     loadCSS(`${PLUGIN_HOST_URL}/style/plugin.css`)
     loadCSS(`${PLUGIN_HOST_URL}/style/tooltip.css`)
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js')
-    loadScript(`https://kit.fontawesome.com/e2b88a9f3a.js`)
+    loadScript(`https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/fontawesome.min.js`)
     document.documentElement.setAttribute('style', 'overflow: overlay !important;')
     document.body.setAttribute('style', 'position: initial !important; margin: 0 325px 0 0 !important;')
     let element = document.createElement('div')
@@ -225,6 +225,7 @@ function embedNbApp() {
                     :sync-config="syncConfig"
                     :myfollowing="myfollowing"
                     :filter="filter"
+                    @handle-redraw-highlights="handleRedrawHighlights"
                     @follow-author="onFollowAuthor"
                     @unfollow-author="onUnfollowAuthor"
                     @log-nb="onLogNb"
@@ -1403,6 +1404,7 @@ function embedNbApp() {
                 this.showSpotlights = show
             },
             handleRedrawHighlights: function () {
+                console.log('handleRedrawHighlights');
                 // if (this.canRedrawHighlightsTimeout) {
                 //     clearTimeout(this.canRedrawHighlightsTimeout)
                 // }

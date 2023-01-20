@@ -27,6 +27,12 @@
                             <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
                         </span>
                    </span>
+                    <span v-tooltip="'redraw highlights'">
+                        <span @click="onHandleRedrawHighlights">
+                            <font-awesome-icon icon="redo" class="icon"></font-awesome-icon>
+                        </span>
+                   </span>
+
                 </div>
             </div>
             <div class="list-header">
@@ -236,6 +242,9 @@ export default {
         }
     },
     methods: {
+        onHandleRedrawHighlights: function () {
+            this.$emit('handle-redraw-highlights')
+        },
         toggleHighlights: function () {
             if( this.showHighlights ) {
                 this.onLogNb('HIDE_HIGHLIGHT')
@@ -310,6 +319,7 @@ export default {
     display: flex;
     width: 50px;
     justify-content: space-evenly;
+    cursor: pointer;
 }
 
 #nb-app-wrapper .list-control-controls span .toggle-on {

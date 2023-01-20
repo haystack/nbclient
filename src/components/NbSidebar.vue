@@ -79,6 +79,7 @@
             :myfollowing="myfollowing"
             :filter="filter"
             :is-editor-visible="editor.visible"
+            @handle-redraw-highlights="onHandleRedrawHighlights"
             @log-nb="onLogNb"
             @toggle-highlights="onToggleHighlights"
             @toggle-spotlights="onToggleSpotlights"
@@ -325,6 +326,9 @@ export default {
                 this.$emit('set-mouse-position', e.x)
                 this.$emit('dragging', true)
             }
+        },
+        onHandleRedrawHighlights: function () {
+            this.$emit('handle-redraw-highlights')
         },
         onSwitchClass: function (newClass) {
             this.$emit('switch-class', newClass)
