@@ -34,7 +34,7 @@ class NbComment {
      * @param {Blob} data.mediaBlob - blob of recoreded comment
      * @param {String} data.mediaPath - url of audio comment
      */
-    constructor(data, annotationsData) {
+    constructor(data, annotationsData, sessionUserId, sessionUserFollowings) {
         /**
          * ID of this comment. If this is a new comment,
          * null and set later in {@link NbComment#submitAnnotation}.
@@ -66,7 +66,7 @@ class NbComment {
          */
         this.children = []
         if (this.id) {
-            this.loadReplies(annotationsData)
+            this.loadReplies(annotationsData, sessionUserId, sessionUserFollowings)
         }
 
         /**
@@ -232,6 +232,14 @@ class NbComment {
 
         this.mediaBlob = data.mediaBlob
 
+        if (data.isNeedProcessingFromClientSide) {
+            this.replyRequestedByMe = data.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.upvotedByMe = data.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.seenByMe = data.SeenUsers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.bookmarked = data.Bookmarkers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.followed = sessionUserFollowings.reduce((bool, user) => bool || user.follower_id == this.author, false)
+        }
+
     }
 
     /**
@@ -344,11 +352,11 @@ class NbComment {
      * Async load replies to this comment and add to {@link NbComment#children}.
      * Replies are sorted in the ascending order of {@link NbComment#timestamp}.
      */
-    loadReplies(annotationsData) {
+    loadReplies(annotationsData, sessionUserId, sessionUserFollowings) {
         if (this.id in annotationsData) { // {thread_id: [children]}
             this.children = annotationsData[this.id].map(item => {
                 item.parent = this
-                return new NbComment(item, annotationsData)
+                return new NbComment(item, annotationsData, sessionUserId, sessionUserFollowings)
             })
             this.children.sort(compare('timestamp'))
         }

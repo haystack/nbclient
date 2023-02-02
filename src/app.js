@@ -721,9 +721,7 @@ function embedNbApp() {
                             console.log(`NB: Socket.IO new_thread`)
                             let userIdsSet = new Set(data.userIds)
                             if (data.authorId !== this.user.id && userIdsSet.has(this.user.id)) { // find if we are one of the target audiences w/ visibility + section permissions for this new_thread if current user, we already added new thread to their list
-                                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                                    this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, true))
-                                }
+                                this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.thread, data.authorId, data.taggedUsers, true))
                             }
                         })
             
@@ -737,22 +735,18 @@ function embedNbApp() {
                         socket.on('new_reply', (data) => {
                             console.log(`NB: Socket.IO new_reply`)
                             if (data.authorId !== this.user.id) { // if current user, we already added new reply to their list
-                                if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                                    const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
-                                    if (canISeeIt) {
-                                        this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId))
-                                    }
+                                const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                                if (canISeeIt) {
+                                    this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.thread, data.authorId, data.taggedUsers, false, data.newAnnotationId, data.headAnnotationId))
                                 }
                             }
                         })
             
                         socket.on('update_thread', (data) => {
                             console.log(`NB: Socket.IO update_thread`)
-                            if (this.activeClass && this.activeClass.id == data.classId && this.sourceURL === data.sourceUrl) {
-                                const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
-                                if (canISeeIt) {
-                                    this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.sourceUrl, data.classId, data.threadId, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true))
-                                }
+                            const canISeeIt = this.threads.filter(t => t.id === data.headAnnotationId).length > 0
+                            if (canISeeIt) {
+                                this.sleepThenRun(this.random(1*1000, 30*1000), () => this.getSingleThread(data.thread, data.authorId, data.taggedUsers, false, null, data.headAnnotationId, true))
                             }
                         })
                     }
@@ -864,11 +858,9 @@ function embedNbApp() {
                 }
                 return false
             },
-            getSingleThread: async function (sourceUrl, classId, threadId, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null, isUpdatedComment = false) { // get single thread and add it to the list
-                const token = localStorage.getItem("nb.user");
-                const config = { headers: { Authorization: 'Bearer ' + token }, params: { source_url: sourceUrl, class_id: classId, thread_id: threadId } }
-                const res = await axios.get('/api/annotations/specific_thread', config)
-                let item = res.data.headAnnotation
+            getSingleThread: async function (thread, authorId, taggedUsers, isNewThread, replyAnnotationId = null, oldHeadAnnotationId = null, isUpdatedComment = false) { // get single thread and add it to the list
+                const item = thread.headAnnotation
+                
                 try {
                     item.range = deserializeNbRange(item.range)
                 } catch (e) {
@@ -879,7 +871,7 @@ function embedNbApp() {
                 }
 
                 // Nb Comment
-                let comment = new NbComment(item, res.data.annotationsData)
+                let comment = new NbComment(item, thread.annotationsData, this.user.id, this.myfollowing)
                 comment.hasSync = true
 
                 // if spotlight new sync thread
