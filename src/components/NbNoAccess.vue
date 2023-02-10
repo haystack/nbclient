@@ -1,7 +1,10 @@
 <template>
     <div id="nb-sidebar" class="nb-sidebar">
         <nav-bar :me="user" @logout="$emit('logout')"></nav-bar>
-        <p class="nb-no-access-msg">This website doesn't seem to be part of any of your classes. Please make sure your enrolled to your class and using the correct URL. Contact your instructor for more informaiton.</p>
+        <div class="nb-no-access-msg">
+          <h1>You don't have access!</h1>
+          <p>website doesn't seem to be part of any of your classes. Please make sure your enrolled to your class and using the correct URL. Contact your instructor for more informaiton.</p>
+        </div>
     </div>
 </template>
 <script>

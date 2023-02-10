@@ -27,6 +27,12 @@
                             <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
                         </span>
                    </span>
+                    <span v-tooltip="'redraw highlights'">
+                        <span @click="onHandleRedrawHighlights">
+                            <font-awesome-icon icon="redo" class="icon"></font-awesome-icon>
+                        </span>
+                   </span>
+
                 </div>
             </div>
             <div class="list-header">
@@ -44,10 +50,10 @@
             </div>
             <div class="list-table" :style="style">
                 <div v-if="stillGatheringThreads">
-                    <p>Fetching Annotations</p>
+                    <p style="text-align: center;font-family: monospace;color: #666;">Fetching Annotations...</p>
                     <tile loading="true"></tile>
                 </div>
-                <list-row
+                <list-row v-else
                     v-for="thread in sorted"
                     :key="thread"
                     :thread="thread"
@@ -236,6 +242,9 @@ export default {
         }
     },
     methods: {
+        onHandleRedrawHighlights: function () {
+            this.$emit('handle-redraw-highlights')
+        },
         toggleHighlights: function () {
             if( this.showHighlights ) {
                 this.onLogNb('HIDE_HIGHLIGHT')
@@ -294,7 +303,7 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 0 5px;
-    color: #777;
+    color: #999;
 }
 
 #nb-app-wrapper .list-control-controls {
@@ -310,10 +319,14 @@ export default {
     display: flex;
     width: 50px;
     justify-content: space-evenly;
+    cursor: pointer;
 }
 
 #nb-app-wrapper .list-control-controls span .toggle-on {
     color: #4a2270;
 }
 
+#nb-app-wrapper .spinner>div {
+    background-color: #4a2270;
+}
 </style>

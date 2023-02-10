@@ -5,8 +5,9 @@
         @click="onClick()"
         @mouseenter="onHover(true)"
         @mouseleave="onHover(false)">
+            <span v-if="hasHeader" v-html="spotlight.header" class="nb-marginalia-header"></span>
             <span v-if="showTime" class="nb-marginalia-time"> <b>{{ authorName }}</b> @ {{ ago }}</span>
-            {{this.thread.text.length > 200 ? `${this.thread.text.substring(0, 400)}...` : this.thread.text}}
+            {{thread.text.length > 200 ? `${thread.text.substring(0, 400)}...` : thread.text}}
     </div>
 </template>
 
@@ -82,6 +83,9 @@ export default {
             }
             return this.thread.authorName
         },
+        hasHeader: function () {
+            return this.spotlight.header ? true : false
+        },
         showTime: function () {
             return (this.thread.systemSpotlight && this.thread.systemSpotlight.showTime) || (!this.thread.systemSpotlight && this.thread.spotlight.showTime)
         }
@@ -103,15 +107,18 @@ export default {
             const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
             const token = localStorage.getItem("nb.user");
             const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-            axios.post(`/api/spotlights/log`, {
-                spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
-                action: 'CLICK', 
-                type: spotlightType.toUpperCase(), 
-                annotation_id: this.thread.id, 
-                class_id: this.activeClass.id,
-                role: this.user.role.toUpperCase() 
-            }, config)
             
+            try {
+                axios.post(`/api/spotlights/log`, {
+                    spotlight_id: this.thread.systemSpotlight ? null : this.thread.spotlight.id,
+                    action: 'CLICK', 
+                    type: spotlightType.toUpperCase(), 
+                    annotation_id: this.thread.id, 
+                    class_id: this.activeClass.id,
+                    role: this.user.role.toUpperCase() 
+                }, config)
+            } catch (error) {}
+
             this.$emit('select-thread', this.thread, 'SPOTLIGHT')
         },
         onHover: function (state) {

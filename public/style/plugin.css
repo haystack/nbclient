@@ -60,13 +60,19 @@
 /* ... temporary workaround with plugin inheritting parent's style */
 
 #nb-app .login-form {
-  padding: 20px;
+  padding: 0;
 }
 #nb-app .login-form .title {
-  font-size: 20px;
-  padding-bottom: 10px;
-  border-bottom: solid 2px #aaa;
-  color: #666;
+  font-size: 18px;
+  padding: 10px;
+  border-bottom: initial;
+  color: #fff;
+  background: #4a2270;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 -10px;
 }
 #nb-app .login-form .group,
 #nb-app .login-form .buttons {
@@ -74,16 +80,21 @@
 }
 #nb-app .login-form .group {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   align-content: stretch;
+  flex-direction: column;
 }
 #nb-app .login-form .group label {
   padding-right: 10px;
+  margin-bottom: 5px;
+  color: #000;
+  font-family: monospace;
+  font-weight: bold;
 }
 #nb-app .login-form .group input {
   flex: 1;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 2px;
   border: solid 1px #ddd;
   padding: 6px;
 }
@@ -97,9 +108,9 @@
 #nb-app .login-form .buttons button.submit {
   width: 80px;
   padding: 6px;
-  border-radius: 5px;
-  background-color: #007bff;
-  border: solid 1px #007bff;
+  border-radius: 2px;
+  background-color: #4a2270;
+  border: solid 1px #3d195e;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
@@ -109,7 +120,7 @@
   opacity: 0.5;
 }
 #nb-app .login-form button.submit:enabled:hover {
-  background-color: #0069d9;
+  background-color: #3d195e;
 }
 
 #nb-app .nb-sync {
@@ -166,6 +177,7 @@
   background: #fff;
   z-index: 99999;
   opacity: 0.97;
+  overflow-y: auto;
 }
 
 #nb-app .nb-sidebar.animatable-width {
@@ -327,6 +339,8 @@
   border-radius: 0px;
   color: #000;
   font-size: 13px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 #nb-app-wrapper .filter-options-wrapper .filter-options .title {
   color: #444;
@@ -438,12 +452,13 @@
 #nb-app .nb-sidebar .list-view .list-row  .bottom-line {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 #nb-app .nb-sidebar .list-view .list-row  .bottom-line .time {
   font-size: 9px;
-  color: #666;
+  color: #aaa;
 }
 #nb-app .nb-sidebar .list-view .list-row #notification-row-flags{ /*only for notification row style*/
   justify-content: flex-start;
@@ -718,6 +733,7 @@
   right: 0;
   top: 0;
   display: flex;
+  background: #fffc;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.instr {
   display: flex;
@@ -888,15 +904,15 @@
   background-color: #444;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit {
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: #38155a;
+  border-color: #38155a;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 #nb-app .editor-view .footer .checkbox-buttons button.submit:enabled:hover {
-  background-color: #0069d9;
+  background-color: #2c0f48;
 }
 
 #nb-app .ql-toolbar {
@@ -1074,11 +1090,20 @@
   }
 
 .nb-no-access-msg {
-    margin: 2.5em 0;
+    margin: 4.5em 0;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.nb-no-access-msg h1 {
+  color: #4a2270;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 #nb-menu {
-    margin: 2.5em 0 0 0;
+    margin: 2.5em 0 -2em 0;
     display: flex;
     align-items: baseline;
 }
@@ -1481,8 +1506,20 @@ nb-innotation-controller {
   font-size: 0.8em;
 }
 
+.nb-marginalia-header {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #00000036;
+}
+
 .nb-innotation-block-time {
   font-size: 0.7em;
+}
+
+.nb-innotation-block-header {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #00000036;
 }
 
 #nb-app audio {
@@ -1495,7 +1532,7 @@ nb-innotation-controller {
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #333 #c9c9c9;
+  scrollbar-color: #999 #c9c9c9;
 }
 
 /* Chrome, Edge, and Safari */
@@ -1546,4 +1583,67 @@ nb-innotation-controller {
   box-shadow: initial;
   outline: initial;
 
+}
+
+.spotlight-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 11px;
+}
+
+.spotlight-header b {
+  margin: 0 2px;
+}
+
+.spotlight-header-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px 0 0;
+  border-radius: 5px;
+}
+
+
+.spotlight-header-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+  transform: initial;
+  font-size: 10px;
+}
+
+.spotlight-header-icon.endorsed{
+  color: #f4ad3e;
+  background-color: #fff;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid #f4ad3e;
+  width: 14px;
+  height: 14px;
+}
+
+.spotlight-header-icon.follow{
+  background-color: #fff;
+  color: #4a2270;
+  border: 1px solid #bbb;
+}
+
+.spotlight-header-icon.question{
+  color: #eee;
+  background-color: purple;
+}
+
+.spotlight-header-icon.general{
+  color: #eee;
+  background-color: #555;
+}
+
+
+
+/* UC Davis LibreTexts */
+@media (min-width: 83em) {
+  .elm-content-container {
+    padding: 1.3rem;                                                  
+  }
 }

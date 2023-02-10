@@ -1,17 +1,15 @@
 <template>
     <div class="online-control">
         <div class="online-control-header">
-            <font-awesome-icon icon="globe" class="icon"></font-awesome-icon>
+            CLASS
         </div>
         <div class="online-control-controls">
-            <span v-tooltip="'Check if you do not want to receive notifications from your classmates'">
-                <label style="font-family: monospace;">Focus</label>
-                <input type="checkbox"
-                    v-model="showSyncFeatures"
-                    :true-value="false" 
-                    :false-value="true"
-                    @change="onShowSyncFeaturesChange($event)"
-                >
+            <span v-tooltip="showSyncFeatures ? 'disable notifications' : 'enable notifications'">
+                <font-awesome-icon icon="bell" class="icon bell"></font-awesome-icon>
+                <span @click="onShowSyncFeaturesChange">
+                    <font-awesome-icon v-if="showSyncFeatures" icon="toggle-on" class="icon toggle-on"></font-awesome-icon>
+                    <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
+                </span>
             </span>
             <span v-if="showSyncFeatures" v-tooltip="'Users online'">
                 <font-awesome-icon icon="users" class="icon"></font-awesome-icon> 
@@ -85,6 +83,8 @@ export default {
     },
     methods: {
         onShowSyncFeaturesChange: function(event) {
+            console.log(this.showSyncFeatures);
+            this.showSyncFeatures = !this.showSyncFeatures
             this.$emit('show-sync-features', this.showSyncFeatures)
         },
         toggleMute: function () {
@@ -128,7 +128,9 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 0 5px;
+    font-size: 9px;
     color: #777;
+    font-family: monospace;
 }
 
 #nb-app-wrapper .online-control-controls {
@@ -137,7 +139,7 @@ export default {
     align-items: center;
     width: 100%;
     height: 22px;
-    margin: 0 4px 0 26px;
+    margin: 0 4px 0 40px;
 }
 
 #nb-app-wrapper .online-control-controls span {
@@ -155,5 +157,12 @@ export default {
 #nb-app-wrapper .online-control .overflow-icon {
     cursor: pointer;
 }
+#nb-app-wrapper .online-control-controls span .bell {
+    margin-right: 7px;
+}
+#nb-app-wrapper .online-control-controls span .toggle-on {
+    color: #4a2270;
+}
+
 </style>
 

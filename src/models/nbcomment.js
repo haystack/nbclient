@@ -34,7 +34,7 @@ class NbComment {
      * @param {Blob} data.mediaBlob - blob of recoreded comment
      * @param {String} data.mediaPath - url of audio comment
      */
-    constructor(data, annotationsData) {
+    constructor(data, annotationsData, sessionUserId, sessionUserFollowings) {
         /**
          * ID of this comment. If this is a new comment,
          * null and set later in {@link NbComment#submitAnnotation}.
@@ -66,7 +66,7 @@ class NbComment {
          */
         this.children = []
         if (this.id) {
-            this.loadReplies(annotationsData)
+            this.loadReplies(annotationsData, sessionUserId, sessionUserFollowings)
         }
 
         /**
@@ -232,6 +232,14 @@ class NbComment {
 
         this.mediaBlob = data.mediaBlob
 
+        if (data.isNeedProcessingFromClientSide) {
+            this.replyRequestedByMe = data.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.upvotedByMe = data.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.seenByMe = data.SeenUsers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.bookmarked = data.Bookmarkers.reduce((bool, user) => bool || user.id == sessionUserId, false)
+            this.followed = sessionUserFollowings.reduce((bool, user) => bool || user.follower_id == this.author, false)
+        }
+
     }
 
     /**
@@ -344,11 +352,11 @@ class NbComment {
      * Async load replies to this comment and add to {@link NbComment#children}.
      * Replies are sorted in the ascending order of {@link NbComment#timestamp}.
      */
-    loadReplies(annotationsData) {
+    loadReplies(annotationsData, sessionUserId, sessionUserFollowings) {
         if (this.id in annotationsData) { // {thread_id: [children]}
             this.children = annotationsData[this.id].map(item => {
                 item.parent = this
-                return new NbComment(item, annotationsData)
+                return new NbComment(item, annotationsData, sessionUserId, sessionUserFollowings)
             })
             this.children.sort(compare('timestamp'))
         }
@@ -611,6 +619,19 @@ class NbComment {
         return false
     }
 
+    /**
+     * Check if this comment has question (question requested or question tag).
+     * @return {Boolean} True if this comment (or descendant) is question
+     */
+
+    isQuestion() {
+        if (this.replyRequestCount > 0 || this.text.toLowerCase().includes('#question') || this.text.toLowerCase().includes('?')) {
+            return true
+        }
+
+        return false
+    }
+
     isEndorsed(){
         if(this.endorsed) { return true }
         for (let child of this.children) {
@@ -836,21 +857,24 @@ class NbComment {
     logNbEvent(event, comment, activeClass, user, threadViewInitiator, onLogNb = () => { }) {
         onLogNb(event, threadViewInitiator, comment)
 
-        if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
+        try {
+            if (['NEW_ANNOTATION', 'NEW_ANNOTATION_AUDIO', 'REPLY_AUDIO', 'PLAY_MEDIA_AUDIO'].includes(event)) { return } // no need to log it in spotlight log
 
-        const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
-        const headComment = this.getHeadComment(this)
-        const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
-        const token = localStorage.getItem("nb.user");
-        const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
-        axios.post(`/api/spotlights/log`, {
-            spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
-            action: event.toUpperCase(),
-            type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : spotlightType.toUpperCase(),
-            annotation_id: headComment.id,
-            class_id: activeClass.id,
-            role: user.role.toUpperCase()
-        }, config)
+            const headComment = this.getHeadComment(this)
+            const spotlightType = headComment.systemSpotlight ? headComment.systemSpotlight.type : headComment.spotlight.type
+            const source = window.location.pathname === '/nb_viewer.html' ? window.location.href : window.location.origin + window.location.pathname
+            const token = localStorage.getItem("nb.user");
+            const config = { headers: { Authorization: 'Bearer ' + token }, params: { url: source } }
+
+            axios.post(`/api/spotlights/log`, {
+                spotlight_id: threadViewInitiator !== 'SPOTLIGHT' || headComment.systemSpotlight ? null : headComment.spotlight.id,
+                action: event.toUpperCase(),
+                type: threadViewInitiator !== 'SPOTLIGHT' ? threadViewInitiator : spotlightType.toUpperCase(),
+                annotation_id: headComment.id,
+                class_id: activeClass.id,
+                role: user.role.toUpperCase()
+            }, config)
+        } catch (error) {}
     }
 
     getHeadComment(comment) {
