@@ -20,6 +20,10 @@
                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
                         i
                     </div>
+                    <div v-if="comment.ta" class="ta-icon" v-tooltip="'TA'">
+                        TA
+                    </div>
+
                     <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="setAnonymousAuthor(false)"  @mouseup="setAnonymousAuthor(true)" @mousemove="setAnonymousAuthor(true)">
                         <font-awesome-icon v-if="isHideAnonymousAuthor" icon="eye" class="icon"></font-awesome-icon>
                         <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>

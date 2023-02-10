@@ -37,7 +37,7 @@
             </div>
             <div class="list-header">
                 <span class="count">
-                    <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}">{{ currentThreadsCount }}</span> of {{ totalLabel }}
+                    <span v-bind:class="{ 'filterdThreads': currentThreadsCount !== totalCount}" v-tooltip="currentThreadsCount !== totalCount ? 'Filter applied' : undefined">{{ currentThreadsCount }}</span> of {{ totalLabel }}
                 </span>
                 <span class="sort">
                     Sort by:
@@ -276,8 +276,11 @@ export default {
 <style>
 #nb-app-wrapper .filterdThreads {
     background: yellow;
+    border: 2px red dotted;
+    border-radius: 3px;
     font-weight: bold;
     font-style: italic;
+    padding: 0 5px;
 }
 
 #nb-app-wrapper .list-control {

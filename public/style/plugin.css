@@ -97,6 +97,12 @@
   border-radius: 2px;
   border: solid 1px #ddd;
   padding: 6px;
+  background: #fff;
+  box-sizing: border-box;
+  color: #000;
+  margin: 0;
+  text-indent: .5em;
+  width: 100%;
 }
 #nb-app .login-form .message {
   color: #cf000f;
@@ -513,7 +519,12 @@
   width: 14px;
   height: 14px;
 }
-
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.ta {
+  background-color: #3e60f4;
+  color: #fff;
+  font-size: 9px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
   width: 16px;
   height: 16px;
@@ -697,9 +708,9 @@
   font-size: 1.1em;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
-  display: inline-block;
+  display: inline-flex;
   height: 16px;
-  padding: 0 6px;
+  width: 16px;
   border-radius: 3px;
   background-color: #f4ad3e;
   color: #fff;
@@ -708,6 +719,23 @@
   font-family: 'Verdana', 'Geneva', sans-serif;
   user-select: none;
   cursor: default;
+  align-items: center;
+  justify-content: center;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .ta-icon {
+  display: inline-flex;
+  height: 16px;
+  width: 16px;
+  border-radius: 3px;
+  background-color: #3e60f4;
+  color: #fff;
+  font-size: 9px;
+  vertical-align: bottom;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  user-select: none;
+  cursor: default;
+  align-items: center;
+  justify-content: center;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .smallCommentHeader .author .instr-icon {
   display: inline-block;
