@@ -20,9 +20,8 @@
                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
                         i
                     </div>
-                    <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
+                    <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}<span v-if="isShowAnonymousAuthorName" v-tooltip="comment.authorName" class="author-info"><font-awesome-icon icon="eye" class="icon"></font-awesome-icon></span>
                 </span>
-                <br/>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
                     <div v-if="comment.endorsed" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
@@ -295,14 +294,17 @@ export default {
     },
     computed: {
         authorName: function () {
-            if (
-                (this.comment.anonymity === CommentAnonymity.ANONYMOUS &&
-                this.me.role !== 'instructor') ||
-                this.comment.author === null
-            ) {
+            if ((this.comment.anonymity === CommentAnonymity.ANONYMOUS) || this.comment.author === null) {
                 return 'Anonymous'
             }
             return this.comment.authorName
+        },
+        isShowAnonymousAuthorName: function () {
+             if (this.comment.anonymity === CommentAnonymity.ANONYMOUS && this.me.role === 'instructor') {
+                return true
+            }
+
+            return false
         },
         mediaPath: function() {
             return `${BASE_HOST_URL}${this.comment.mediaPath}`
@@ -357,5 +359,16 @@ export default {
 <style>
 .thread-row .media audio {
     width: 100%;
+}
+
+.thread-row .author {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
+.thread-row .author .author-info{
+    color: #999;
 }
 </style>

@@ -250,8 +250,7 @@ export default {
             return ''
         },
         authorName: function () {
-            // console.log(this.thread)
-            if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS && this.user.role !== 'instructor') || this.thread.author === null ) {
+            if ((this.thread.anonymity === CommentAnonymity.ANONYMOUS) || this.thread.author === null ) {
                     return 'Anonymous'
             }
             return this.thread.authorName
