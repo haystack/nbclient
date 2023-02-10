@@ -17,10 +17,10 @@
                         v-on:click="followAuthor(comment)"
                         class="follow-icon">
                     </font-awesome-icon>
-                   <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
+                   <div v-if="comment.instructor && !comment.isAnonymous()" class="instr-icon" v-tooltip="'Instructor'">
                         i
                     </div>
-                    <div v-if="comment.ta" class="ta-icon" v-tooltip="'TA'">
+                    <div v-if="comment.ta  && !comment.isAnonymous()" class="ta-icon" v-tooltip="'TA'">
                         TA
                     </div>
 

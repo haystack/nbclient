@@ -415,7 +415,7 @@ function embedNbApp() {
                         items = items.filter(item => item.hasText(searchText))
                     }
                     if (this.filter.searchOption === 'author') {
-                        items = items.filter(item => item.hasAuthor(searchText))
+                        items = items.filter(item => item.hasAuthor(searchText) && !item.isAnonymous())
                     }
                 }
                 if (this.filter.bookmarks) {

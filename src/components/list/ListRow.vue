@@ -44,7 +44,6 @@
                         TA
                     </div>
                 </div>
-
                 <div v-if="currentConfigs.isShowIndicatorForFollowComment">
                     <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
                         <font-awesome-icon icon="user-check"></font-awesome-icon>
