@@ -30,7 +30,6 @@
                         (spotlight.type === "MARGIN" && "Ɱ") ||
                         (spotlight.type === "EM" && "❖")}}
                     </div>
-                    <div v-else class="placeholder inno"></div>
                 </div>
                 <div v-if="currentConfigs.isShowIndicatorForInstructorComment">
                     <div v-if="thread.hasInstructorPost()" v-tooltip="'Comment by an instructor'" class="icon-wrapper instr">
@@ -39,8 +38,13 @@
                     <div v-else-if="thread.isEndorsed()" v-tooltip="'Endorsed by an instructor'" class="icon-wrapper instr-endorsed">
                         i
                     </div>
-                    <div v-else class="placeholder instr"></div>
                 </div>
+                <div v-if="currentConfigs.isShowIndicatorForTAComment">
+                    <div v-if="thread.hasTAPost()" v-tooltip="'Comment by a TA'" class="icon-wrapper ta">
+                        TA
+                    </div>
+                </div>
+
                 <div v-if="currentConfigs.isShowIndicatorForFollowComment">
                     <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
                         <font-awesome-icon icon="user-check"></font-awesome-icon>

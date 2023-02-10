@@ -15,12 +15,14 @@ class NbComment {
      * @param {String} data.author - the author's user ID, sets {@link NbComment#author}
      * @param {String} data.authorName - the author's display name, sets {@link NbComment#authorName}
      * @param {Boolean} data.instructor - true if the author is an instructor, sets {@link NbComment#instructor}
+     * @param {Boolean} data.ta - true if the author is a ta, sets {@link NbComment#ta}
      * @param {String} data.html - HTML string of the comment content, sets {@link NbComment#html}
      * @param {Array<String>} data.hashtags - array of IDs for hashtags in this comment, sets {@link NbComment#hashtags}
      * @param {Array<String>} data.people - array of user IDs for people tagged in this comment, sets {@link NbComment#people}
      * @param {CommentVisibility} data.visibility - who can view this comment, sets {@link NbComment#visibility}
      * @param {CommentAnonymity} data.anonymity - how the author is identified, sets {@link NbComment#anonymity}
      * @param {Boolean} data.replyRequestedByMe - true if the current user requested reply for this comment, sets {@link NbComment#replyRequestedByMe}
+     * @param {Boolean} data.replyRequestedByTA - true if a TA requested reply for this comment, sets {@link NbComment#replyRequestedByTA}
      * @param {Number} data.replyRequestCount - total reply requests for this comment, sets {@link NbComment#replyRequestCount}
      * @param {Boolean} data.starredByMe - true if the current user upvoted this comment, sets {@link NbComment#upvotedByMe}
      * @param {Number} data.starCount - total upvotes for this comment, sets {@link NbComment#upvoteCount}
@@ -105,6 +107,13 @@ class NbComment {
         this.instructor = data.instructor
 
         /**
+         * Flag for ta comment. True if the author is a ta.
+         * @name NbComment#ta
+         * @type Boolean
+         */
+        this.ta = data.ta
+
+        /**
          * HTML string of this comment's content.
          * @name NbComment#html
          * @type String
@@ -160,6 +169,14 @@ class NbComment {
          * @type Boolean
          */
         this.replyRequestedByMe = data.replyRequestedByMe
+
+        /**
+         * Flag a TA's reply request.
+         * True if a TA requested reply for this comment.
+         * @name NbComment#replyRequestedByMe
+         * @type Boolean
+         */
+        this.replyRequestedByTA = data.replyRequestedByTA
 
         /**
          * Total number of reply requests for this comment.
@@ -514,6 +531,20 @@ class NbComment {
         return false
     }
 
+    /**
+     * Check recursively if this comment (or descendant) is authored by ta.
+     * @return {Boolean} True if this comment (or descendant) is authored by ta
+     */
+      hasTAPost() {
+        if (this.ta) { return true }
+        for (let child of this.children) {
+            if (child.hasTAPost()) {
+                return true
+            }
+        }
+        return false
+    }
+
     isSpotlighted() {
         if (this.systemSpotlight || this.spotlight) {
             return true
@@ -560,6 +591,20 @@ class NbComment {
         if (this.replyRequestedByMe) { return true }
         for (let child of this.children) {
             if (child.hasMyReplyRequests()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Check recursively if this comment (or descendant) has any reply requests by a TA.
+     * @return {Boolean} True if this comment (or descendant) has any reply requests by a TA.
+     */
+    hasTAReplyRequests() {
+        if (this.replyRequestedByTA) { return true }
+        for (let child of this.children) {
+            if (child.hasTAReplyRequests()) {
                 return true
             }
         }

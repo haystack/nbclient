@@ -129,6 +129,17 @@
                   instructors/endorsed
                 </label>
               </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="ta-comments"
+                    value="ta"
+                    v-model="filterComments"
+                    @change="onFilterChange('comments')">
+                <label for="ta-comments">
+                  TA
+                </label>
+              </div>
             </div>
             <div class="title">Reply Requests</div>
             <div class="reply-requests">
@@ -196,6 +207,30 @@
             </div>
             <div v-if="showAdvanced" class="title">Advanced</div>
             <div v-if="showAdvanced" class="advanced">
+              <div v-tooltip="'Pending and resolved'">
+                <input
+                    type="checkbox"
+                    id="ta-reply-reqs"
+                    style="width: 15px;"
+                    value="ta"
+                    v-model="filterReplyReqs"
+                    @change="onFilterChange('reply-reqs')">
+                <label for="ta-reply-reqs">
+                  All TA reply requests
+                </label>
+              </div>
+              <div v-tooltip="'TA reply request without instructor reply'">
+                <input
+                    type="checkbox"
+                    id="unhandled-reply-reqs"
+                    style="width: 15px;"
+                    value="unhandled"
+                    v-model="filterReplyReqs"
+                    @change="onFilterChange('reply-reqs')">
+                <label for="unhandled-reply-reqs">
+                  Pending TA reply requests
+                </label>
+              </div>
               <div>
                 <label for="min-words">
                   Min. # of words

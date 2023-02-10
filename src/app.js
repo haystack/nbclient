@@ -322,6 +322,7 @@ function embedNbApp() {
                 isShowNumberOfReplies: true,
                 isShowIndicatorForUnseenThread: true,
                 isShowIndicatorForInstructorComment: true,
+                isShowIndicatorForTAComment: true,
                 isShowIndicatorForFollowComment: true,
                 isShowIndicatorForSpotlitThread: true,
                 isShowIndicatorForNotifiedThread: false,
@@ -439,6 +440,9 @@ function embedNbApp() {
                         if (filterComments.includes('instructor') && (item.hasInstructorPost() || item.isEndorsed())) {
                             return true
                         }
+                        if (filterComments.includes('ta') && (item.hasTAPost())) {
+                            return true
+                        }
                         if (filterComments.includes('me') && item.hasUserPost(this.user.id)) {
                             return true
                         }
@@ -459,6 +463,12 @@ function embedNbApp() {
                             return true
                         }
                         if (filterReplyReqs.includes('me') && item.hasMyReplyRequests()) {
+                            return true
+                        }
+                        if (filterReplyReqs.includes('ta') && item.hasTAReplyRequests()) {
+                            return true
+                        }
+                        if (filterReplyReqs.includes('unhandled') && item.hasTAReplyRequests() && !item.hasInstructorPost()) {
                             return true
                         }
                         return false
@@ -609,6 +619,7 @@ function embedNbApp() {
                     this.currentConfigs.isShowNumberOfReplies = configs['SHOW_NUMBER_OF_REPLIES'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForUnseenThread = configs['SHOW_INDICATOR_FOR_UNSEEN_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForInstructorComment = configs['SHOW_INDICATOR_FOR_INSTRUCTOR_COMMENT'] === 'false' ? false : true
+                    this.currentConfigs.isShowIndicatorForTAComment = configs['SHOW_INDICATOR_FOR_TA_COMMENT'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForFollowComment = configs['SHOW_INDICATOR_FOR_FOLLOW_COMMENT'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForSpotlitThread = configs['SHOW_INDICATOR_FOR_SPOTLIT_THREAD'] === 'false' ? false : true
                     this.currentConfigs.isShowIndicatorForNotifiedThread = configs['SHOW_INDICATOR_FOR_NOTIFIED_THREAD'] === 'false' ? false : true
