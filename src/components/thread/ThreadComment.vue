@@ -20,7 +20,11 @@
                    <div v-if="comment.instructor" class="instr-icon" v-tooltip="'Instructor'">
                         i
                     </div>
-                    <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}<span v-if="isShowAnonymousAuthorName" v-tooltip="comment.authorName" class="author-info"><font-awesome-icon icon="eye" class="icon"></font-awesome-icon></span>
+                    <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="setAnonymousAuthor(false)"  @mouseup="setAnonymousAuthor(true)" @mousemove="setAnonymousAuthor(true)">
+                        <font-awesome-icon v-if="isHideAnonymousAuthor" icon="eye" class="icon"></font-awesome-icon>
+                        <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
+                    </span>
+                    <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
                 <div class="options">
@@ -205,7 +209,8 @@ export default {
     data () {
         return {
             showOverflow: false,
-            smallComment: ""
+            smallComment: "",
+            isHideAnonymousAuthor: true,
         }
     },
     mounted: function () {
@@ -288,15 +293,21 @@ export default {
             
             return false
         },
+        setAnonymousAuthor: function (state) {
+            this.isHideAnonymousAuthor = state
+        },
         onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
             this.$emit('log-nb', event, initiator, comment)
         }
     },
     computed: {
         authorName: function () {
-            if ((this.comment.anonymity === CommentAnonymity.ANONYMOUS) || this.comment.author === null) {
+            if ((this.comment.anonymity === CommentAnonymity.ANONYMOUS && this.me.role !== 'instructor')
+            || this.comment.author === null
+            || (this.comment.anonymity === CommentAnonymity.ANONYMOUS && this.me.role === 'instructor' && this.isHideAnonymousAuthor)) {
                 return 'Anonymous'
             }
+
             return this.comment.authorName
         },
         isShowAnonymousAuthorName: function () {
@@ -370,5 +381,7 @@ export default {
 
 .thread-row .author .author-info{
     color: #999;
+    cursor: pointer;
+    user-select: none;
 }
 </style>
