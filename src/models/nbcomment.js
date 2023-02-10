@@ -522,7 +522,7 @@ class NbComment {
      * @return {Boolean} True if this comment (or descendant) is authored by instructor
      */
     hasInstructorPost() {
-        if (this.instructor) { return true }
+        if (this.instructor && !this.isAnonymous()) { return true }
         for (let child of this.children) {
             if (child.hasInstructorPost()) {
                 return true
@@ -536,7 +536,7 @@ class NbComment {
      * @return {Boolean} True if this comment (or descendant) is authored by ta
      */
       hasTAPost() {
-        if (this.ta) { return true }
+        if (this.ta && !this.isAnonymous()) { return true }
         for (let child of this.children) {
             if (child.hasTAPost()) {
                 return true
@@ -671,6 +671,14 @@ class NbComment {
 
     isQuestion() {
         if (this.replyRequestCount > 0 || this.text.toLowerCase().includes('#question') || this.text.toLowerCase().includes('?')) {
+            return true
+        }
+
+        return false
+    }
+
+    isAnonymous() {
+        if (this.anonymity === 'ANONYMOUS') {
             return true
         }
 
