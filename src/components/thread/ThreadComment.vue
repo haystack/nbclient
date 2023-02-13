@@ -24,7 +24,7 @@
                         TA
                     </div>
 
-                    <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="setAnonymousAuthor(false)"  @mouseup="setAnonymousAuthor(true)" @mousemove="setAnonymousAuthor(true)">
+                    <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="toggleAnonymousAuthor()">
                         <font-awesome-icon v-if="isHideAnonymousAuthor" icon="eye" class="icon"></font-awesome-icon>
                         <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
                     </span>
@@ -297,8 +297,8 @@ export default {
             
             return false
         },
-        setAnonymousAuthor: function (state) {
-            this.isHideAnonymousAuthor = state
+        toggleAnonymousAuthor: function () {
+            this.isHideAnonymousAuthor = !this.isHideAnonymousAuthor
         },
         onLogNb: async function (event='NONE', initiator='NONE', comment = undefined) {
             this.$emit('log-nb', event, initiator, comment)
