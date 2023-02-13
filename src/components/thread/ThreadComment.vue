@@ -24,7 +24,7 @@
                         TA
                     </div>
 
-                    <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="setAnonymousAuthor(false)"  @mouseup="setAnonymousAuthor(true)" @mousemove="setAnonymousAuthor(true)">
+                    <span v-if="isShowAnonymousAuthorName" class="author-info" @mousedown="setAnonymousAuthor(false)" @touchstart="setAnonymousAuthor(false)"  @mouseup="setAnonymousAuthor(true)" @touchend="setAnonymousAuthor(true)" @mousemove="setAnonymousAuthor(true)"  @touchmove="setAnonymousAuthor(true)">
                         <font-awesome-icon v-if="isHideAnonymousAuthor" icon="eye" class="icon"></font-awesome-icon>
                         <font-awesome-icon v-else icon="eye-slash" class="icon"></font-awesome-icon>
                     </span>
