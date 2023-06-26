@@ -100,9 +100,9 @@
                 </span>
                 &nbsp;·&nbsp;
                 <span
-                    v-tooltip="comment.upvotedByMe ? 'undo upvote' : 'upvote'"
+                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo promote' : 'promote') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
                     @click="toggleUpvote(comment)">
-                <font-awesome-icon icon="thumbs-up" class="icon" :style="styleUpvote">
+                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'bullhorn' : 'thumbs-up'" class="icon" :style="styleUpvote">
                 </font-awesome-icon>
                 {{ comment.upvoteCount }}
                 </span>

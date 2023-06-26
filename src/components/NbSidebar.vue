@@ -46,6 +46,7 @@
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :sync-config="syncConfig"
+            :current-configs="currentConfigs"
             :filter="filter"
             @search-option="onSearchOption"
             @search-text="onSearchText"
