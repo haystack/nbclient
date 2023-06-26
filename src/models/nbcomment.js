@@ -811,6 +811,8 @@ class NbComment {
      * Toggle the upvote for this comment by the current user.
      */
     toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+        const currentClass = JSON.parse(localStorage.getItem("nbc.current.class"));
+
         if(!this.upvoteCount){
             this.upvoteCount = 0
         }
@@ -827,7 +829,11 @@ class NbComment {
         if (this.id) {
             const token = localStorage.getItem("nb.user");
             const headers = { headers: { Authorization: 'Bearer ' + token } }
-            axios.post(`/api/annotations/star/${this.id}`, { star: this.upvotedByMe }, headers)
+            axios.post(`/api/annotations/star/${this.id}`, { 
+                star: this.upvotedByMe,
+                url: currentClass.url,
+                class: currentClass.class
+             }, headers)
         }
     }
 

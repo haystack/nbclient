@@ -481,7 +481,7 @@ function embedNbApp() {
                 let filterUpvotes = this.filter.upvotes
                 if (filterUpvotes.length > 0) {
                     items = items.filter(item => {
-                        if (filterUpvotes.includes('anyone') && item.hasUpvotes()) {
+                        if ( (filterUpvotes.includes('anyone') && item.hasUpvotes()) || (this.currentConfigs.isExpClass && item.hasUserPost(this.user.id))) {
                             return true
                         }
                         if (filterUpvotes.includes('me') && item.hasMyUpvotes()) {
@@ -785,6 +785,11 @@ function embedNbApp() {
                             this.currentConfigs.isCommentMediaAudio = configs['COMMENT_MEDIA_AUDIO_INSTRUCTOR'] === 'true' ? true : false
                         }
 
+                        // For the promote experiment, only show upvoted comments.
+                        if (this.currentConfigs.isExpClass && this.user.role === 'student') {
+                            this.filter.upvotes.push('anyone')
+                        }
+
                         axios.get('/api/annotations/myCurrentSection', config).then(res => {
                             socket.emit('left', { id: this.user.id, username: this.user.username, classId: oldActiveClass.id, sectionId: this.currentSectionId, sourceURL: this.sourceURL, role: this.user.role })
                             this.currentSectionId = res.data
@@ -895,7 +900,7 @@ function embedNbApp() {
                 }
 
                 // if spotlight endorsed thread
-                if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed && !this.currentConfigs.isExpClass) {
+                if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed) {
                     comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
                 }
 
@@ -1028,22 +1033,8 @@ function embedNbApp() {
                 const config = { headers, params: { url: source, class: newActiveClass.id, sectioned: !this.currentConfigs.isIgnoreSectionsInClass } }
 
                 axios.get('/api/annotations/annotation', config).then(async res => {
-                    this.threads = []
-                    const UE = []
-                    const ME = []
-                    const UF = []
-                    const MF = []
-                    const UQ = []
-                    const MQ = []
-                    const N = []
 
                     for (const item of res.data.headAnnotations) {
-                        // 0 0 0
-                        // | | |
-                        // | | L--- Endorsed
-                        // | L----- Question
-                        // L------- Follow
-                        let score = `000`.split('')
 
                         try {
                             item.range = deserializeNbRange(item.range)
@@ -1063,56 +1054,17 @@ function embedNbApp() {
 
                         // if spotlight endorsed thread
                         if (this.currentConfigs.isSpotlightEndorsThread && comment.endorsed) {
-                            if (this.currentConfigs.isExpClass) {
-                                score[2] = 1
-                            } else {
                                 comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
-                            }
                         }
 
                         // if spotlight question thread
                         if (this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion()) {
-                            if (this.currentConfigs.isExpClass) {
-                                score[1] = 1   
-                            } else {
                                 comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
-                            }
                         }
 
                         // if spotlight follow thread
                         if (this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment)) {
-                            if (this.currentConfigs.isExpClass) {
-                                score[0] = 1
-                            } else {
                                 comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
-                            }
-                        }
-
-                        // Remove any of my comment to be spotlit
-                        if (comment.author === this.user.id) {
-                            score = `999`.split('')
-                        }
-
-                        if (score.join('') === '000') {
-                            N.push(comment)
-                        } else if (score.join('') === '001') {
-                            UE.push(comment)
-                        } else if (score.join('') === '010') {
-                            UQ.push(comment)
-                        } else if (score.join('') === '100') {
-                            UF.push(comment)
-                        } else {
-                            if (score[2] == '1') {
-                                ME.push(comment)
-                            }
-
-                            if (score[1] == '1') {
-                                MQ.push(comment)
-                            }
-
-                            if (score[0] == '1') {
-                                MF.push(comment)
-                            }
                         }
 
                         // TODO: check this code
@@ -1123,11 +1075,13 @@ function embedNbApp() {
                         }
                     }
 
-                    if (this.currentConfigs.isExpClass && this.user.role !== 'instructor') {
-                        runExp([UE,ME], [UQ,MQ], [UF,MF], N, this.currentConfigs)
-                    }
-
+                    // Add Exp settings
                     if (this.currentConfigs.isExpClass) {
+                        this.currentConfigs.isInnotation = true
+                        this.currentConfigs.isSpotlightEndorsThread = true
+                        this.currentConfigs.isSpotlightFollowThread = false
+                        this.currentConfigs.isSpotlightQuestionThread = false
+                        this.currentConfigs.isShowIndicatorForSpotlitThread = false 
                         this.currentConfigs.isShowSpotlightControls = false
                     }
 
@@ -1411,7 +1365,7 @@ function embedNbApp() {
                 this.showSpotlights = show
             },
             handleRedrawHighlights: function () {
-                console.log('handleRedrawHighlights');
+                //console.log('handleRedrawHighlights');
                 // if (this.canRedrawHighlightsTimeout) {
                 //     clearTimeout(this.canRedrawHighlightsTimeout)
                 // }

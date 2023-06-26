@@ -166,7 +166,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">Upvotes</div>
+            <div class="title">{{currentConfigs.isExpClass ? 'Promoted comments' : 'Upvotes'}}</div>
             <div class="upvotes">
               <div>
                 <input
@@ -425,6 +425,7 @@ export default {
     hashtags: Array,
     syncConfig: Boolean,
     filter: Object,
+    currentConfigs: Object,
   },
   data () {
     return {
@@ -443,7 +444,14 @@ export default {
       minReplies: null,
       minReplyReqs: null,
       minUpvotes: null,
-      pluginHostURL: PLUGIN_HOST_URL
+      pluginHostURL: PLUGIN_HOST_URL,
+      isInit: false,
+    }
+  },
+  updated: async function () {
+    if (this.currentConfigs.isExpClass && !this.isInit) {
+      this.isInit = true
+      this.filterUpvotes.push('anyone')
     }
   },
   watch: {
