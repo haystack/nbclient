@@ -754,7 +754,32 @@
   color: #444;
   cursor: default;
   user-select: none;
-
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .visibility {
+  font-size: 10px;
+  color: #444;
+  cursor: default;
+  user-select: none;
+  display: inline;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .visibility svg {
+  width: 13px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .visibility .INSTRUCTORS {
+  font-size: 0.85em;
+  font-weight: bold;
+  background: #f4af44;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-transform: lowercase;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .visibility .MYSELF {
+  font-size: 0.85em;
+  background: #494949;
+  color: #fff;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-transform: lowercase;
 }
 #nb-app .nb-sidebar .thread-view .thread-row .header .options {
   position: absolute;

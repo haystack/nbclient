@@ -449,7 +449,7 @@ export default {
     }
   },
   updated: async function () {
-    if (this.currentConfigs.isExpClass && !this.isInit) {
+    if (this.currentConfigs.isExpClass && !this.isInit && this.me.role === 'student') {
       this.isInit = true
       this.filterUpvotes.push('anyone')
     }

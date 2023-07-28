@@ -31,6 +31,7 @@
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
+                <div v-if="isShowVisibility" v-tooltip="visibilityText" class="visibility"> | <span :class="comment.visibility">{{ comment.visibility }}</span></div>
                 <div class="options">
                     <div v-if="comment.endorsed" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
                         i
@@ -166,6 +167,7 @@ import Vue from 'vue'
 import moment from 'moment-timezone'
 import {BASE_HOST_URL} from '../../app' 
 import { CommentAnonymity } from '../../models/enums.js'
+import { CommentVisibility } from '../../models/enums.js'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 
@@ -314,6 +316,13 @@ export default {
 
             return this.comment.authorName
         },
+        isShowVisibility: function() {
+            if (this.comment.visibility === CommentVisibility.INSTRUCTORS || this.comment.visibility === CommentVisibility.MYSELF) {
+                return true
+            }
+
+            return false
+        },
         isShowAnonymousAuthorName: function () {
              if (this.comment.anonymity === CommentAnonymity.ANONYMOUS && this.me.role === 'instructor') {
                 return true
@@ -329,6 +338,9 @@ export default {
         },
         timeFull: function () {
             return moment(this.comment.timestamp).tz(moment.tz.guess()).format("dddd, MMMM Do YYYY, h:mm:ss a (z)")
+        },
+        visibilityText: function () {
+            return `Only visible to ${this.comment.visibility.toLowerCase()}`
         },
         firstComment: function () {
             return !this.comment.parent
