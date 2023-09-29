@@ -36,6 +36,9 @@
                     <div v-if="comment.endorsed" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
                         i
                     </div>
+                    <div v-if="comment.taEndorsed" v-tooltip="'This comment has been endorsed by a TA'" class="icon-wrapper ta-endorsed">
+                        TA
+                    </div>
                     <span
                         class="bookmark"
                         v-tooltip="comment.bookmarked ? 'remove bookmark' : 'bookmark'"
@@ -101,9 +104,9 @@
                 </span>
                 &nbsp;·&nbsp;
                 <span
-                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo promote' : 'promote') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
+                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo discuss' : 'discuss') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
                     @click="toggleUpvote(comment)">
-                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'bullhorn' : 'thumbs-up'" class="icon" :style="styleUpvote">
+                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'comments' : 'thumbs-up'" class="icon" :style="styleUpvote">
                 </font-awesome-icon>
                 {{ comment.upvoteCount }}
                 </span>
@@ -262,11 +265,8 @@ export default {
         toggleBookmark: function (comment) {
             comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
-        toggleUpvote: function (comment) {
-            if (this.me.role === 'instructor'){
-                comment.toggleEndorsed();
-            }
-            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
+        toggleUpvote: async function (comment) {
+            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)            
         },
         toggleReplyRequest: function (comment) {
             comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)

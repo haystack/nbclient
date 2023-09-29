@@ -116,6 +116,7 @@
             :initial-visibility="editor.initialSettings.visibility"
             :initial-anonymity="editor.initialSettings.anonymity"
             :initial-reply-request="editor.initialSettings.replyRequested"
+            :initial-upvoted-by-me="editor.initialSettings.upvotedByMe"
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :is-submitting="editor.isSubmitting"
@@ -262,7 +263,8 @@ export default {
                 initialSettings: {
                     visibility: CommentVisibility.EVERYONE,
                     anonymity: CommentAnonymity.IDENTIFIED,
-                    replyRequested: false
+                    replyRequested: false,
+                    upvotedByMe: false
                 },
                 isEmpty: true,
                 isDraggable: false,
@@ -414,10 +416,12 @@ export default {
                 alert("You're already working on another comment. Please save or cancel it first.")
                 return
             }
+
             let settings = {
                 visibility: comment.visibility,
                 anonymity: comment.anonymity,
-                replyRequested: comment.replyRequestedByMe
+                replyRequested: comment.replyRequestedByMe,
+                upvotedByMe: comment.upvotedByMe
             }
             this.edittingComment = comment
             this.initEditor('Edit Comment', comment.html, settings, true)
@@ -479,10 +483,11 @@ export default {
         },
         onSubmitComment: async function (data) {
             this.editor.isSubmitting = true
+            let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
 
             try {
                 if (this.edittingComment) {
-                    this.edittingComment.saveUpdates(data)
+                    this.edittingComment.saveUpdates(data, this.activeClass.id, source)
                     this.edittingComment = null
                 } else {
                     let comment = new NbComment({
@@ -501,12 +506,11 @@ export default {
                         anonymity: data.anonymity,
                         replyRequestedByMe: data.replyRequested,
                         replyRequestCount: data.replyRequested ? 1 : 0,
-                        upvotedByMe: false,
-                        upvoteCount: 0,
+                        starredByMe: data.upvotedByMe,
+                        starCount: data.upvotedByMe ? 1 : 0,
                         seenByMe: true,
                         mediaBlob: data.mediaBlob,
                     })
-                    let source = this.sourceUrl.length > 0 ? this.sourceUrl : window.location.href.split('?')[0]
                     await comment.submitAnnotation(this.activeClass.id, source, this.threadViewInitiator, this.replyToComment, this.activeClass, this.user, this.onLogNb)
 
                     if (this.draftRange) {
@@ -550,7 +554,8 @@ export default {
             let defaultSettings = {
               visibility: CommentVisibility.EVERYONE,
               anonymity: CommentAnonymity.IDENTIFIED,
-              replyRequested: false
+              replyRequested: false,
+              upvotedByMe: false
             }
             this.editor.initialSettings = Object.assign(defaultSettings, settings)
             this.onEditorVisible(visible)

@@ -27,7 +27,6 @@ import axios from 'axios'
 import VueJwtDecode from "vue-jwt-decode";
 import io from "socket.io-client";
 import { Environments } from './environments'
-import { runExp } from './utils/exp-util'
 
 const currentEnv = Environments.dev
 
@@ -347,6 +346,8 @@ function embedNbApp() {
                 spotlightFollowThreadConfig: {},
                 isSpotlightEndorsThread: false,
                 spotlightEndorsThreadConfig: {},
+                isSpotlightTAEndorsThread: false,
+                spotlightTAEndorsThreadConfig: {},
                 isSpotlightQuestionThread: false,
                 spotlightQuestionThreadConfig: {},
                 spotlightGeneralThreadConfig: {},
@@ -648,6 +649,8 @@ function embedNbApp() {
                     this.currentConfigs.spotlightFollowThreadConfig = configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_FOLLOW_THREAD']) : {}
                     this.currentConfigs.isSpotlightEndorsThread = configs['SPOTLIGHT_ENDORS_THREAD'] === 'true' ? true : false
                     this.currentConfigs.spotlightEndorsThreadConfig = configs['CONFIG_SPOTLIGHT_ENDORS_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_ENDORS_THREAD']) : {}
+                    this.currentConfigs.isSpotlightTAEndorsThread = configs['SPOTLIGHT_TA_ENDORS_THREAD'] === 'true' ? true : false
+                    this.currentConfigs.spotlightTAEndorsThreadConfig = configs['CONFIG_SPOTLIGHT_TA_ENDORS_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_TA_ENDORS_THREAD']) : {}
                     this.currentConfigs.isSpotlightQuestionThread = configs['SPOTLIGHT_QUESTION_THREAD'] === 'true' ? true : false
                     this.currentConfigs.spotlightQuestionThreadConfig = configs['CONFIG_SPOTLIGHT_QUESTION_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_QUESTION_THREAD']) : {}
                     this.currentConfigs.spotlightGeneralThreadConfig = configs['CONFIG_SPOTLIGHT_GENERAL_THREAD'] ? JSON.parse(configs['CONFIG_SPOTLIGHT_GENERAL_THREAD']) : {}
@@ -899,6 +902,11 @@ function embedNbApp() {
                     comment.systemSpotlight = this.currentConfigs.syncSpotlightNewThreadConfig
                 }
 
+                // if spotlight TA endorsed thread
+                if (this.currentConfigs.isSpotlightTAEndorsThread && isUpdatedComment && comment.taEndorsed) {
+                    comment.systemSpotlight = this.currentConfigs.spotlightTAEndorsThreadConfig
+                }
+
                 // if spotlight endorsed thread
                 if (this.currentConfigs.isSpotlightEndorsThread && isUpdatedComment && comment.endorsed) {
                     comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
@@ -1036,6 +1044,17 @@ function embedNbApp() {
 
                     for (const item of res.data.headAnnotations) {
 
+                        // Add Exp settings
+                        if (this.currentConfigs.isExpClass) {
+                            this.currentConfigs.isInnotation = true
+                            this.currentConfigs.isSpotlightEndorsThread = true
+                            this.currentConfigs.isSpotlightTAEndorsThread = true
+                            this.currentConfigs.isSpotlightFollowThread = false
+                            this.currentConfigs.isSpotlightQuestionThread = false
+                            this.currentConfigs.isShowIndicatorForSpotlitThread = false 
+                            this.currentConfigs.isShowSpotlightControls = false
+                        }
+
                         try {
                             item.range = deserializeNbRange(item.range)
                         } catch (e) {
@@ -1052,19 +1071,24 @@ function embedNbApp() {
                             comment.followed = true
                         }
 
+                        // if spotlight TA endorsed thread
+                        if (this.currentConfigs.isSpotlightTAEndorsThread && comment.taEndorsed) {
+                            comment.systemSpotlight = this.currentConfigs.spotlightTAEndorsThreadConfig
+                        }
+
                         // if spotlight endorsed thread
                         if (this.currentConfigs.isSpotlightEndorsThread && comment.endorsed) {
-                                comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightEndorsThreadConfig
                         }
 
                         // if spotlight question thread
                         if (this.currentConfigs.isSpotlightQuestionThread && comment.isQuestion()) {
-                                comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightQuestionThreadConfig
                         }
 
                         // if spotlight follow thread
                         if (this.currentConfigs.isSpotlightFollowThread && this.iFollowThisUser(comment)) {
-                                comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
+                            comment.systemSpotlight = this.currentConfigs.spotlightFollowThreadConfig
                         }
 
                         // TODO: check this code
@@ -1075,15 +1099,7 @@ function embedNbApp() {
                         }
                     }
 
-                    // Add Exp settings
-                    if (this.currentConfigs.isExpClass) {
-                        this.currentConfigs.isInnotation = true
-                        this.currentConfigs.isSpotlightEndorsThread = true
-                        this.currentConfigs.isSpotlightFollowThread = false
-                        this.currentConfigs.isSpotlightQuestionThread = false
-                        this.currentConfigs.isShowIndicatorForSpotlitThread = false 
-                        this.currentConfigs.isShowSpotlightControls = false
-                    }
+                    
 
                     this.stillGatheringThreads = false
 
