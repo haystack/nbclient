@@ -156,6 +156,13 @@ class NbComment {
         this.endorsed = data.endorsed
 
         /**
+         * Flag for whether the comment has been endorsed by TA.
+         * @name NbComment#taEndorsed
+         * @type Boolean
+         */
+        this.taEndorsed = data.taEndorsed
+
+        /**
          * Flag for followed user. True if the current user's follows author of this comment.
          * @name NbComment#followed
          * @type Boolean
@@ -215,6 +222,7 @@ class NbComment {
         this.bookmarked = data.bookmarked
 
         this.instructorVotes = data.instructorVotes
+        this.taVotes = data.taVotes
 
         /**
          * This comment's content in plaintext, set in {@link NbComment#setText}.
@@ -285,7 +293,6 @@ class NbComment {
      * {@link NbComment#loadReplies} will be called to also load replies.
      */
     submitAnnotation(classId, sourceUrl, threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
-        console.log(this);
         const token = localStorage.getItem("nb.user");
         if (!this.parent) {
             const data = {
@@ -695,6 +702,16 @@ class NbComment {
         return false
     }
 
+    isTAEndorsed(){
+        if(this.taEndorsed) { return true }
+        for (let child of this.children) {
+          if (child.isTAEndorsed()) {
+            return true
+          }
+        }
+        return false
+    }
+
     getAllAuthors() {
         let authors = new Set([this.author])
         for (let child of this.children) {
@@ -810,7 +827,7 @@ class NbComment {
     /**
      * Toggle the upvote for this comment by the current user.
      */
-    toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
+    async toggleUpvote(threadViewInitiator = 'NONE', thread = {}, activeClass = {}, user = {}, onLogNb = () => { }) {
         const currentClass = JSON.parse(localStorage.getItem("nbc.current.class"));
 
         if(!this.upvoteCount){
@@ -829,11 +846,19 @@ class NbComment {
         if (this.id) {
             const token = localStorage.getItem("nb.user");
             const headers = { headers: { Authorization: 'Bearer ' + token } }
-            axios.post(`/api/annotations/star/${this.id}`, { 
+            await axios.post(`/api/annotations/star/${this.id}`, { 
                 star: this.upvotedByMe,
                 url: currentClass.url,
                 class: currentClass.class
              }, headers)
+        }
+
+        if (user.role === 'instructor'){
+            this.toggleEndorsed();
+        }
+
+        if (user.role === 'ta'){
+            this.toggleTAEndorsed();
         }
     }
 
@@ -877,19 +902,38 @@ class NbComment {
     * Toggle the endorsed for this comment by the current user.
     */
     toggleEndorsed() {
-        if (this.endorsed && this.upvotedByMe) {
+        if (this.endorsed && !this.upvotedByMe) {
             this.instructorVotes -= 1
             
             if (this.instructorVotes == 0){
                 this.endorsed = false
                 this.updateEndorsed()
             }
-        } else if (this.endorsed && !this.upvotedByMe) {
+        } else if (this.endorsed && this.upvotedByMe) {
             this.instructorVotes += 1
         } else {
             this.endorsed = true
             this.instructorVotes += 1
             this.updateEndorsed()
+        }
+  
+    }
+
+    /**
+    * Toggle the TA endorsed for this comment by the current user.
+    */
+    toggleTAEndorsed() {
+        if (this.taEndorsed && !this.upvotedByMe) {
+            this.taVotes -= 1
+            
+            if (this.taVotes == 0){
+                this.taEndorsed = false
+            }
+        } else if (this.taEndorsed && this.upvotedByMe) {
+            this.taVotes += 1
+        } else {
+            this.taEndorsed = true
+            this.taVotes += 1
         }
   
     }
@@ -954,7 +998,7 @@ class NbComment {
      * @param {Boolean} ddata.replyRequestedByMe - new reply request status by the current user,
      *   sets {@link NbComment#replyRequestedByMe} and {@link NbComment#replyRequestCount}
      */
-    saveUpdates(data) {
+    saveUpdates(data, classId, source) {
         this.timestamp = data.timestamp
         this.html = data.html
         this.hashtags = data.mentions.hashtags
@@ -966,18 +1010,27 @@ class NbComment {
             this.replyRequestedByMe = data.replyRequested
             this.replyRequestCount += data.replyRequested ? 1 : -1
         }
+        if (this.upvotedByMe !== data.upvotedByMe) {
+            this.upvotedByMe = data.upvotedByMe
+            this.upvoteCount += data.upvotedByMe ? 1 : -1
+        }
         this.setText()
         const token = localStorage.getItem("nb.user");
         const headers = { headers: { Authorization: 'Bearer ' + token } }
-        return axios.put(`/api/annotations/annotation/${this.id}`, {
+        const body = {
+            class: classId,
+            url: source,
             content: this.html,
             tags: this.hashtags,
             userTags: this.people,
             visibility: CommentVisibility[this.visibility],
             anonymity: CommentAnonymity[this.anonymity],
             endorsed: this.endorsed,
-            replyRequest: this.replyRequestedByMe
-        }, headers)
+            replyRequest: this.replyRequestedByMe,
+            starredByMe: this.upvotedByMe,
+        }
+
+        return axios.put(`/api/annotations/annotation/${this.id}`, body, headers)
     }
 
     /**

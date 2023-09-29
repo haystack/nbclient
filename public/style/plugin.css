@@ -525,6 +525,16 @@
   font-size: 9px;
   font-family: 'Verdana', 'Geneva', sans-serif;
 }
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.ta-endorsed {
+  color: #3e60f4;
+  background-color: #fff;
+  border-color: #3e60f4;
+  font-size: 9px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid;
+  width: 14px;
+  height: 14px;
+}
 #nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
   width: 16px;
   height: 16px;
@@ -820,6 +830,25 @@
   margin-right: 3px;
   margin-top: 0px;
   border-color: #f4ad3e;
+  border: 2px solid;
+  user-select: none;
+  cursor: default;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .icon-wrapper.ta-endorsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: #fff;
+  color: #3e60f4;
+  font-size: 9px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  padding: 0 3px;
+  margin-right: 3px;
+  margin-top: 0px;
+  border-color: #3e60f4;
   border: 2px solid;
   user-select: none;
   cursor: default;
@@ -1674,6 +1703,16 @@ nb-innotation-controller {
   border: 2px solid #f4ad3e;
   width: 14px;
   height: 14px;
+}
+
+.spotlight-header-icon.ta-endorsed{
+  color: #3e60f4;
+  background-color: #fff;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+  border: 2px solid #3e60f4;
+  width: 14px;
+  height: 14px;
+  font-size: 9px;
 }
 
 .spotlight-header-icon.follow{

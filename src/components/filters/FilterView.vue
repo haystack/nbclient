@@ -166,7 +166,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">{{currentConfigs.isExpClass ? 'Promoted comments' : 'Upvotes'}}</div>
+            <div class="title">{{currentConfigs.isExpClass ? 'Discussion comments' : 'Upvotes'}}</div>
             <div class="upvotes">
               <div>
                 <input
