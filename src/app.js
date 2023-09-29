@@ -612,6 +612,7 @@ function embedNbApp() {
             },
             activeClass: async function (newActiveClass, oldActiveClass) {
                 if (newActiveClass != {} && this.user) {
+                    this.resetNB()
                     const token = localStorage.getItem("nb.user");
                     const NbConfigReqconfig = { headers: { Authorization: 'Bearer ' + token }, params: { course: newActiveClass.id } }
                     const req = await axios.get('/api/nb/config', NbConfigReqconfig)
@@ -1493,16 +1494,24 @@ function embedNbApp() {
                 await this.onSessionEnd()
                 this.onUserLeft()
                 localStorage.removeItem("nb.user")
+                this.resetNB()
                 this.user = null
                 this.myClasses = []
                 this.activeClass = {}
+                window.removeEventListener('scroll', this.handleScroll)
+            },
+            resetNB: function () {
                 this.users = {}
                 this.hashtags = {}
                 this.threads = []
                 this.threadSelected = null
-                this.threadsHovered = []
+                this.threadsHovered = [], // in case of hover on overlapping highlights
+                this.notificationSelected = null
+                this.stillGatheringThreads = true
                 this.draftRange = null
                 this.isEditorEmpty = true
+                this.isEditorVisible = false
+                this.isInnotationHover = false
                 this.filter = {
                     searchOption: 'text',
                     searchText: '',
@@ -1518,12 +1527,73 @@ function embedNbApp() {
                     maxHashtags: null,
                     minReplies: 0,
                     minReplyReqs: 0,
-                    minUpvotes: 0
+                    minUpvotes: 0,
+                    maxThreads: null,
                 }
                 this.showHighlights = true
-                window.removeEventListener('scroll', this.handleScroll)
+                this.showSpotlights = true
+                this.threadViewInitiator = 'NONE',
+                this.nbConfigs = {}
+                this.currentConfigs = {
+                    isMarginalia: false,
+                    isInnotation: false,
+                    isEmphasize: false,
+                    isShowNumberOfReplies: true,
+                    isShowIndicatorForUnseenThread: true,
+                    isShowIndicatorForInstructorComment: true,
+                    isShowIndicatorForTAComment: true,
+                    isShowIndicatorForFollowComment: true,
+                    isShowIndicatorForSpotlitThread: true,
+                    isShowIndicatorForNotifiedThread: false,
+                    isShowIndicatorForQuestionedThread: true,
+                    isShowIndicatorForTime: false,
+                    isIgnoreSectionsInClass: false,
+                    isSyncNotificationAudio: false,
+                    isSyncNotificationPopup: false,
+                    isSyncSpotlightNewThread: false,
+                    isNbLog: false,
+                    nbLogEventsEnabled: [],
+                    syncSpotlightNewThreadConfig: {},
+                    nbLogScrollSpoConfig: 2000,
+                    isShowQuickEditor: false,
+                    sortByConfig: 'init',
+                    isFilterMaxThreads: false,
+                    filterMaxThreadsConfig: null,
+                    isShowSpotlightControls: false,
+                    syncNotificationPopupTimerConfig: 60000,
+                    isCommentMediaAudio: false,
+                    isSpotlightFollowThread: false,
+                    spotlightFollowThreadConfig: {},
+                    isSpotlightEndorsThread: false,
+                    spotlightEndorsThreadConfig: {},
+                    isSpotlightTAEndorsThread: false,
+                    spotlightTAEndorsThreadConfig: {},
+                    isSpotlightQuestionThread: false,
+                    spotlightQuestionThreadConfig: {},
+                    spotlightGeneralThreadConfig: {},
+                    isExpClass: false,
+                    expClassess: [],
+                    expCurrentShowingSpotlights: null,
+                }
+                this.syncConfig = false
+                this.isDragging = false, // indicates if there's a dragging happening in the UI
+                this.sidebarWidth = 300
+                this.mousePosition = null
+                this.redrawHighlightsKey = Date.now(), // work around to force redraw highlights
+                this.recentlyAddedThreads = []
+                this.showSyncFeatures = true
+                this.onlineUsers = { ids: [], instructors: [], students: [] }
+                this.currentSectionId = ""
+                this.notificationThreads = []
+                this.swalClicked = false
+                this.notificationsMuted = false
+                this.draggableNotificationsOpened = false
+                this.sidebarNotificationsOpened = false
+                this.playSoundNotification = true
+                this.nbLogEventsOrder = 0
+                this.filterLogTimer = null
+                this.scrollLogTimer = null
             },
-
             onLogNb: async function (event = 'NONE', initiator = 'NONE',  comment = undefined) {
 
                 if (this.currentConfigs.isNbLog && this.currentConfigs.nbLogEventsEnabled.includes(event)) {
