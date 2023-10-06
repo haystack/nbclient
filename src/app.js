@@ -155,6 +155,7 @@ function embedNbApp() {
                 <nb-highlights
                     :key="redrawHighlightsKey"
                     :threads="filteredThreads"
+                    :threads-hidden="hiddenThreads"
                     :thread-selected="threadSelected"
                     :threads-hovered="threadsHovered"
                     :draft-range="draftRange"
@@ -406,6 +407,10 @@ function embedNbApp() {
             },
             totalSpotlights: function () {
                 return this.threads.filter(t => (t.spotlight && t.spotlight.type && t.spotlight.type !== 'NONE') ||(t.systemSpotlight && t.systemSpotlight.type && t.systemSpotlight.type !== 'NONE')).length
+            },
+            hiddenThreads: function () {
+                let ht = this.threads.filter(t => !this.filteredThreads.includes(t))
+                return ht
             },
             filteredThreads: function () {
                 let items = this.threads

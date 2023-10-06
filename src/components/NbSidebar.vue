@@ -46,6 +46,7 @@
             :users="sortedUsers"
             :hashtags="sortedHashtags"
             :sync-config="syncConfig"
+            :filter-visible="filterVisible"
             :current-configs="currentConfigs"
             :filter="filter"
             @search-option="onSearchOption"
@@ -63,7 +64,9 @@
             @max-threads="onMaxThreads"
             @min-replies="onMinReplies"
             @min-reply-reqs="onMinReplyReqs"
-            @min-upvotes="onMinUpvotes">
+            @min-upvotes="onMinUpvotes"
+            @toggle-filters="onToggleFilters"
+            @filter-hide="onFilterHide">
         </filter-view>
         <list-view
             :threads="threads"
@@ -86,7 +89,8 @@
             @toggle-spotlights="onToggleSpotlights"
             @select-thread="onSelectThread"
             @hover-thread="onHoverThread"
-            @unhover-thread="onUnhoverThread">
+            @unhover-thread="onUnhoverThread"
+            @filter-show="onFilterShow">
         </list-view>
         <thread-view
             v-if="threadSelected"
@@ -252,6 +256,7 @@ export default {
     },
     data () {
         return {
+            filterVisible: false,
             replyToComment: null,
             edittingComment: null,
             editor: {
@@ -327,6 +332,15 @@ export default {
                 this.$emit('set-mouse-position', e.x)
                 this.$emit('dragging', true)
             }
+        },
+        onToggleFilters: function (event) {
+            this.filterVisible = !this.filterVisible
+        },
+        onFilterHide: function () {
+            this.filterVisible = false
+        },
+        onFilterShow: function () {
+            this.filterVisible = true
         },
         onHandleRedrawHighlights: function () {
             this.$emit('handle-redraw-highlights')

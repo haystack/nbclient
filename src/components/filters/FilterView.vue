@@ -43,12 +43,9 @@
         <span
             class="tooltip-target"
             v-tooltip="filterVisible ? 'hide' : 'show all filters'"
-            @click="toggleFilters">
-          <font-awesome-icon v-if="filterVisible"
-              icon="times-circle" class="icon">
-          </font-awesome-icon>
-          <font-awesome-icon v-else icon="search-plus" class="icon">
-          </font-awesome-icon>
+            @click="onToggleFilters">
+          <font-awesome-icon v-if="filterVisible" icon="times-circle" class="icon"></font-awesome-icon>
+          <font-awesome-icon v-else icon="filter" class="icon"></font-awesome-icon>
         </span>
         <template slot="popover">
           <div class="filter-options">
@@ -424,12 +421,15 @@ export default {
     users: Array,
     hashtags: Array,
     syncConfig: Boolean,
+    filterVisible: {
+        type: Boolean,
+        default: false
+    },
     filter: Object,
     currentConfigs: Object,
   },
   data () {
     return {
-      filterVisible: false,
       filterBookmarks: false,
       filterHashtags: [],
       filterUserTags: [],
@@ -459,7 +459,7 @@ export default {
           if (this.filter.maxThreads !== this.maxThreads) {
               this.maxThreads = this.filter.maxThreads
           }
-      }
+      },
   },
   computed: {
       currentMaxThread: function() {
@@ -503,11 +503,11 @@ export default {
       this.filterBookmarks = !this.filterBookmarks
       this.onFilterChange('bookmarks')
     },
-    toggleFilters: function (event) {
-      this.filterVisible = !this.filterVisible
-    },
     onFilterHide: function () {
-      this.filterVisible = false
+       this.$emit('filter-hide')
+    },
+    onToggleFilters: function () {
+      this.$emit('toggle-filters')
     },
     onFilterChange: function (type) {
       switch (type) {

@@ -36,6 +36,23 @@
     </g>
     <g
         class="nb-highlight"
+        v-else-if="isHidden"
+        :style="style"
+        v-tooltip.right="{content: getHiddenTooltipContent()}"
+        @click="$emit('select-thread',thread)"
+        @mouseenter="onHover(true)"
+        @mouseleave="onHover(false)">
+        <rect
+            v-for="(box, index) in bounds.boxes"
+            :key="index"
+            :x="bounds.offsetX"
+            :y="box.top + bounds.offsetY"
+            :height="box.height"
+            width="20">
+        </rect>
+    </g>
+    <g
+        class="nb-highlight"
         v-else
         :style="style"
         @click="$emit('select-thread',thread)"
@@ -47,7 +64,7 @@
             :x="bounds.offsetX"
             :y="box.top + bounds.offsetY"
             :height="box.height"
-            width="10">
+            width="20">
         </rect>
     </g>
 </template>
@@ -112,6 +129,10 @@ export default {
             type: Boolean,
             default: false
         }, 
+        isHidden: {
+            type: Boolean,
+            default: false
+        }, 
         currentConfigs: {
             type: Object,
             default: () => {}
@@ -168,6 +189,9 @@ export default {
             return this.thread.systemSpotlight ? this.thread.systemSpotlight : this.thread.spotlight
         },
         style: function () {
+            if (this.isHidden) {
+                return "fill: none; stroke: rgb(255 204 1 / 55%); stroke-dasharray: 3;"
+            }
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
             }
@@ -242,7 +266,7 @@ export default {
             return bounds
         },
         visible: function () {
-            return this.showHighlights || (this.thread === this.threadSelected) || (this.showSpotlights && this.spotlight  && this.spotlight.type === 'EM')
+            return !this.isHidden && (this.showHighlights || (this.thread === this.threadSelected) || (this.showSpotlights && this.spotlight  && this.spotlight.type === 'EM'))
         }
     },
     methods: {
@@ -315,6 +339,17 @@ export default {
                 } catch (error) {}
 
             }
+        },
+        getHiddenTooltipContent: function () {
+            let content = "<span>Filtered comment:</span>"
+            content += "<br>"
+            let text = this.thread.text
+            content += text.substring(0, 30)
+            if (text.length > 30) {
+                content += "..."
+            }
+            return content
+
         },
         getTooltipContent: function () {
             if (!this.thread || !this.showSyncFeatures) {
