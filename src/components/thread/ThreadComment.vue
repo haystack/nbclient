@@ -31,9 +31,13 @@
                     <b>{{ authorName }}</b>{{ comment.author === me.id ? " (me)" : "" }}
                 </span>
                 <span v-tooltip="timeFull" class="timestamp">{{ timeString }}</span>
+                <div v-if="isShowVisibility" v-tooltip="visibilityText" class="visibility"> | <span :class="comment.visibility">{{ comment.visibility }}</span></div>
                 <div class="options">
                     <div v-if="comment.endorsed" v-tooltip="'This comment has been endorsed by an instructor'" class="icon-wrapper instr-endorsed">
                         i
+                    </div>
+                    <div v-if="comment.taEndorsed" v-tooltip="'This comment has been endorsed by a TA'" class="icon-wrapper ta-endorsed">
+                        TA
                     </div>
                     <span
                         class="bookmark"
@@ -100,9 +104,9 @@
                 </span>
                 &nbsp;·&nbsp;
                 <span
-                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo promote' : 'promote') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
+                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo discuss' : 'discuss') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
                     @click="toggleUpvote(comment)">
-                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'bullhorn' : 'thumbs-up'" class="icon" :style="styleUpvote">
+                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'comments' : 'thumbs-up'" class="icon" :style="styleUpvote">
                 </font-awesome-icon>
                 {{ comment.upvoteCount }}
                 </span>
@@ -166,6 +170,7 @@ import Vue from 'vue'
 import moment from 'moment-timezone'
 import {BASE_HOST_URL} from '../../app' 
 import { CommentAnonymity } from '../../models/enums.js'
+import { CommentVisibility } from '../../models/enums.js'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 
@@ -260,11 +265,8 @@ export default {
         toggleBookmark: function (comment) {
             comment.toggleBookmark(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
         },
-        toggleUpvote: function (comment) {
-            if (this.me.role === 'instructor'){
-                comment.toggleEndorsed();
-            }
-            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
+        toggleUpvote: async function (comment) {
+            comment.toggleUpvote(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)            
         },
         toggleReplyRequest: function (comment) {
             comment.toggleReplyRequest(this.threadViewInitiator, this.comment, this.activeClass, this.me, this.onLogNb)
@@ -314,6 +316,13 @@ export default {
 
             return this.comment.authorName
         },
+        isShowVisibility: function() {
+            if (this.comment.visibility === CommentVisibility.INSTRUCTORS || this.comment.visibility === CommentVisibility.MYSELF) {
+                return true
+            }
+
+            return false
+        },
         isShowAnonymousAuthorName: function () {
              if (this.comment.anonymity === CommentAnonymity.ANONYMOUS && this.me.role === 'instructor') {
                 return true
@@ -329,6 +338,9 @@ export default {
         },
         timeFull: function () {
             return moment(this.comment.timestamp).tz(moment.tz.guess()).format("dddd, MMMM Do YYYY, h:mm:ss a (z)")
+        },
+        visibilityText: function () {
+            return `Only visible to ${this.comment.visibility.toLowerCase()}`
         },
         firstComment: function () {
             return !this.comment.parent

@@ -163,7 +163,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">{{currentConfigs.isExpClass ? 'Promoted comments' : 'Upvotes'}}</div>
+            <div class="title">{{currentConfigs.isExpClass ? 'Discussion comments' : 'Upvotes'}}</div>
             <div class="upvotes">
               <div>
                 <input
@@ -449,7 +449,7 @@ export default {
     }
   },
   updated: async function () {
-    if (this.currentConfigs.isExpClass && !this.isInit) {
+    if (this.currentConfigs.isExpClass && !this.isInit && this.me.role === 'student') {
       this.isInit = true
       this.filterUpvotes.push('anyone')
     }

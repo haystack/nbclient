@@ -31,8 +31,7 @@
       <div class="selections">
         Post to
         <select v-model="visibility" @change="onVisibilityChange($event)">
-          <option v-for="option in visibilityOptions" :key="option.value"
-              :value="option.value">
+          <option v-for="option in currentVisibilityOptions" :key="option.value" :value="option.value">
             {{ option.text }}
           </option>
         </select>
@@ -45,8 +44,9 @@
         </select>
       </div>
       <div class="checkbox-buttons">
-        <input type="checkbox" id="draft-request-reply" v-model="replyRequested">
-        <label for="draft-request-reply">Request replies</label>
+        <input type="checkbox" id="draft-request-reply" v-if="currentConfigs.isExpClass" v-model="upvotedByMe">
+        <input type="checkbox" id="draft-request-reply" v-else v-model="replyRequested">
+        <label for="draft-request-reply">{{ currentConfigs.isExpClass ? "Discuss with class" : "Request replies" }}</label>
         <div class="buttons">
           <button class="cancel" @click="cancel" :disabled='isSubmitting'>Cancel</button>
           <button class="submit" @click="submit" :disabled='isSubmitting || !canSubmit'>
@@ -130,6 +130,10 @@ export default {
       type: Boolean,
       default: false
     },
+    initialUpvotedByMe: {
+      type: Boolean,
+      default: false
+    },
     isSubmitting: {
       type: Boolean,
       default: false
@@ -179,6 +183,10 @@ export default {
         { text: 'Instructors and TAs', value: CommentVisibility.INSTRUCTORS },
         { text: 'Myself only', value: CommentVisibility.MYSELF }
       ],
+      visibilityOptionsExp: [
+        { text: 'Entire class', value: CommentVisibility.EVERYONE },
+        { text: 'Myself only', value: CommentVisibility.MYSELF }
+      ],
       anonymity: this.initialAnonymity,
       anonymityOptions: [
         { text: `${this.author.name.first} ${this.author.name.last}`, value: CommentAnonymity.IDENTIFIED, disabled: false },
@@ -186,6 +194,7 @@ export default {
       ],
       anonymousIdx: 1, // index for 'anonymous' in anonymityOptions
       replyRequested: this.initialReplyRequest,
+      upvotedByMe: this.initialUpvotedByMe,
       activeTab: 'text',
     }
   },
@@ -196,6 +205,13 @@ export default {
     },
     isEditorEmpty: function () {
       return htmlToText.fromString(this.content, { wordwrap: false }) === ''
+    },
+    currentVisibilityOptions: function () {
+      if (this.currentConfigs.isExpClass) {
+        return this.visibilityOptionsExp
+      }
+
+      return this.visibilityOptions
     }
   },
   watch: {
@@ -248,7 +264,8 @@ export default {
         mentions: this.extractMentions(),
         visibility: this.visibility,
         anonymity: this.anonymity,
-        replyRequested: this.replyRequested
+        replyRequested: this.replyRequested,
+        upvotedByMe: this.upvotedByMe
       }
       this.$emit('submit-comment', comment)
       this.resetPreferences()

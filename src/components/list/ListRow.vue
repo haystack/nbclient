@@ -43,6 +43,9 @@
                     <div v-if="thread.hasTAPost()" v-tooltip="'Comment by a TA'" class="icon-wrapper ta">
                         TA
                     </div>
+                    <div v-else-if="thread.isTAEndorsed()" v-tooltip="'Endorsed by a TA'" class="icon-wrapper ta-endorsed">
+                        TA
+                    </div>
                 </div>
                 <div v-if="currentConfigs.isShowIndicatorForFollowComment">
                     <div v-if="isFollowing" v-tooltip="'Comment by an author you follow'" class="icon-wrapper follow">
