@@ -916,7 +916,7 @@
 }
 #nb-app .nb-sidebar .thread-view .thread-row .footer > span .icon {
   height: 14px;
-  vertical-align: top;
+  vertical-align: bottom;
 }
 
 #nb-app-wrapper .thread-overflow-wrapper .tooltip-arrow {

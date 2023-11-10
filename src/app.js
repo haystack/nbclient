@@ -487,7 +487,9 @@ function embedNbApp() {
                 let filterUpvotes = this.filter.upvotes
                 if (filterUpvotes.length > 0) {
                     items = items.filter(item => {
-                        if ( (filterUpvotes.includes('anyone') && item.hasUpvotes()) || (this.currentConfigs.isExpClass && item.hasUserPost(this.user.id))) {
+                        if ( (filterUpvotes.includes('anyone') && item.hasUpvotes())
+                            || (this.currentConfigs.isExpClass && item.hasUserPost(this.user.id))
+                            || (this.currentConfigs.isExpClass && item.hasReplyRequests())) {
                             return true
                         }
                         if (filterUpvotes.includes('me') && item.hasMyUpvotes()) {

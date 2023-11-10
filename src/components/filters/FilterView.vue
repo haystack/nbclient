@@ -67,16 +67,41 @@
               </div>
             </div>
             <div class="title">Max. # of threads</div>
-             <div>
+            <div>
+              <input
+                  type="number"
+                  id="max-threads"
+                  placeholder="n/a"
+                  min="0"
+                  v-model="maxThreads"
+                  @keypress="event => validateNumber(event)"
+                  @change="onFilterChange('max-threads')">
+            </div>
+            <div class="title">{{currentConfigs.isExpClass ? `Looking for Classmates' Perspectives` : 'Upvotes'}}</div>
+            <div class="upvotes">
+              <div>
                 <input
-                    type="number"
-                    id="max-threads"
-                    placeholder="n/a"
-                    min="0"
-                    v-model="maxThreads"
-                    @keypress="event => validateNumber(event)"
-                    @change="onFilterChange('max-threads')">
+                    type="checkbox"
+                    id="anyone-upvotes"
+                    value="anyone"
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="anyone-upvotes">
+                  anyone
+                </label>
               </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="my-upvotes"
+                    value="me"
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="my-upvotes">
+                  me
+                </label>
+              </div>
+            </div>
             <div class="title">Users tagged</div>
             <div class="user-tags">
               <div>
@@ -163,31 +188,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">{{currentConfigs.isExpClass ? 'Discussion comments' : 'Upvotes'}}</div>
-            <div class="upvotes">
-              <div>
-                <input
-                    type="checkbox"
-                    id="anyone-upvotes"
-                    value="anyone"
-                    v-model="filterUpvotes"
-                    @change="onFilterChange('upvotes')">
-                <label for="anyone-upvotes">
-                  anyone
-                </label>
-              </div>
-              <div>
-                <input
-                    type="checkbox"
-                    id="my-upvotes"
-                    value="me"
-                    v-model="filterUpvotes"
-                    @change="onFilterChange('upvotes')">
-                <label for="my-upvotes">
-                  me
-                </label>
-              </div>
-            </div>
+            
             <div class="title">
               Others
             </div>

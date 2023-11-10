@@ -46,7 +46,9 @@
       <div class="checkbox-buttons">
         <input type="checkbox" id="draft-request-reply" v-if="currentConfigs.isExpClass" v-model="upvotedByMe">
         <input type="checkbox" id="draft-request-reply" v-else v-model="replyRequested">
-        <label for="draft-request-reply">{{ currentConfigs.isExpClass ? "Discuss with class" : "Request replies" }}</label>
+        <label for="draft-request-reply">{{ currentConfigs.isExpClass ? "Looking for Classmates' Perspectives" : "Request replies" }}</label>
+      </div>
+      <div class="checkbox-buttons">
         <div class="buttons">
           <button class="cancel" @click="cancel" :disabled='isSubmitting'>Cancel</button>
           <button class="submit" @click="submit" :disabled='isSubmitting || !canSubmit'>

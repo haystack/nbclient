@@ -190,7 +190,7 @@ export default {
         },
         style: function () {
             if (this.isHidden) {
-                return "fill: none; stroke: rgb(255 204 1 / 75%); stroke-dasharray: 3;"
+                return "fill: none; stroke: rgb(255 204 1 / 95%); stroke-dasharray: 3;"
             }
             if (!this.thread) {
                 return 'fill: rgb(231, 76, 60); fill-opacity: 0.3; cursor: pointer;'
