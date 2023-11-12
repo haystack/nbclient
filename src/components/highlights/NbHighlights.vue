@@ -19,6 +19,25 @@
             @new-recent-thread="$emit('new-recent-thread', thread)">
         </nb-highlight>
         <nb-highlight
+            v-for="thread in threadsHidden"
+            :key="thread"
+            :thread="thread"
+            :thread-selected="threadSelected"
+            :threads-hovered="threadsHovered"
+            :show-highlights="showHighlights"
+            :show-spotlights="showSpotlights"
+            :user="user"
+            :activeClass="activeClass"
+            :current-configs="currentConfigs"
+            :show-sync-features="showSyncFeatures"
+            :is-hidden="true"
+            @log-nb="onLogNb"
+            @select-thread="onSelectThread"
+            @hover-thread="$emit('hover-thread',thread)"
+            @unhover-thread="$emit('unhover-thread',thread)"
+            @new-recent-thread="$emit('new-recent-thread', thread)">
+        </nb-highlight>
+        <nb-highlight
             v-if="draftRange"
             :range="draftRange">
         </nb-highlight>
@@ -53,6 +72,10 @@ export default {
     name: 'nb-highlights',
     props: {
         threads: {
+            type: Array,
+            default: () => []
+        },
+        threadsHidden: {
             type: Array,
             default: () => []
         },

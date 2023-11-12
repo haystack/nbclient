@@ -104,11 +104,11 @@
                 </span>
                 &nbsp;·&nbsp;
                 <span
-                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? 'undo discuss' : 'discuss') : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
+                    v-tooltip="currentConfigs.isExpClass ? (comment.upvotedByMe ? `undo looking for classmates' perspectives` : `looking for classmates' perspectives`) : (comment.upvotedByMe ? 'undo upvote' : 'upvote')"
                     @click="toggleUpvote(comment)">
-                <font-awesome-icon :icon="currentConfigs.isExpClass ? 'comments' : 'thumbs-up'" class="icon" :style="styleUpvote">
-                </font-awesome-icon>
-                {{ comment.upvoteCount }}
+                    <span v-if="currentConfigs.isExpClass" class="icon" :style="styleUpvote">👁️‍🗨️</span>
+                    <font-awesome-icon v-else :icon="'thumbs-up'" class="icon" :style="styleUpvote"></font-awesome-icon>
+                    {{ comment.upvoteCount }}
                 </span>
                 &nbsp;·&nbsp;
                 <span

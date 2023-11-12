@@ -43,12 +43,9 @@
         <span
             class="tooltip-target"
             v-tooltip="filterVisible ? 'hide' : 'show all filters'"
-            @click="toggleFilters">
-          <font-awesome-icon v-if="filterVisible"
-              icon="times-circle" class="icon">
-          </font-awesome-icon>
-          <font-awesome-icon v-else icon="search-plus" class="icon">
-          </font-awesome-icon>
+            @click="onToggleFilters">
+          <font-awesome-icon v-if="filterVisible" icon="times-circle" class="icon"></font-awesome-icon>
+          <font-awesome-icon v-else icon="filter" class="icon"></font-awesome-icon>
         </span>
         <template slot="popover">
           <div class="filter-options">
@@ -70,16 +67,41 @@
               </div>
             </div>
             <div class="title">Max. # of threads</div>
-             <div>
+            <div>
+              <input
+                  type="number"
+                  id="max-threads"
+                  placeholder="n/a"
+                  min="0"
+                  v-model="maxThreads"
+                  @keypress="event => validateNumber(event)"
+                  @change="onFilterChange('max-threads')">
+            </div>
+            <div class="title">{{currentConfigs.isExpClass ? `Looking for Classmates' Perspectives` : 'Upvotes'}}</div>
+            <div class="upvotes">
+              <div>
                 <input
-                    type="number"
-                    id="max-threads"
-                    placeholder="n/a"
-                    min="0"
-                    v-model="maxThreads"
-                    @keypress="event => validateNumber(event)"
-                    @change="onFilterChange('max-threads')">
+                    type="checkbox"
+                    id="anyone-upvotes"
+                    value="anyone"
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="anyone-upvotes">
+                  anyone
+                </label>
               </div>
+              <div>
+                <input
+                    type="checkbox"
+                    id="my-upvotes"
+                    value="me"
+                    v-model="filterUpvotes"
+                    @change="onFilterChange('upvotes')">
+                <label for="my-upvotes">
+                  me
+                </label>
+              </div>
+            </div>
             <div class="title">Users tagged</div>
             <div class="user-tags">
               <div>
@@ -166,31 +188,7 @@
                 </label>
               </div>
             </div>
-            <div class="title">{{currentConfigs.isExpClass ? 'Discussion comments' : 'Upvotes'}}</div>
-            <div class="upvotes">
-              <div>
-                <input
-                    type="checkbox"
-                    id="anyone-upvotes"
-                    value="anyone"
-                    v-model="filterUpvotes"
-                    @change="onFilterChange('upvotes')">
-                <label for="anyone-upvotes">
-                  anyone
-                </label>
-              </div>
-              <div>
-                <input
-                    type="checkbox"
-                    id="my-upvotes"
-                    value="me"
-                    v-model="filterUpvotes"
-                    @change="onFilterChange('upvotes')">
-                <label for="my-upvotes">
-                  me
-                </label>
-              </div>
-            </div>
+            
             <div class="title">
               Others
             </div>
@@ -424,12 +422,15 @@ export default {
     users: Array,
     hashtags: Array,
     syncConfig: Boolean,
+    filterVisible: {
+        type: Boolean,
+        default: false
+    },
     filter: Object,
     currentConfigs: Object,
   },
   data () {
     return {
-      filterVisible: false,
       filterBookmarks: false,
       filterHashtags: [],
       filterUserTags: [],
@@ -459,7 +460,7 @@ export default {
           if (this.filter.maxThreads !== this.maxThreads) {
               this.maxThreads = this.filter.maxThreads
           }
-      }
+      },
   },
   computed: {
       currentMaxThread: function() {
@@ -503,11 +504,11 @@ export default {
       this.filterBookmarks = !this.filterBookmarks
       this.onFilterChange('bookmarks')
     },
-    toggleFilters: function (event) {
-      this.filterVisible = !this.filterVisible
-    },
     onFilterHide: function () {
-      this.filterVisible = false
+       this.$emit('filter-hide')
+    },
+    onToggleFilters: function () {
+      this.$emit('toggle-filters')
     },
     onFilterChange: function (type) {
       switch (type) {

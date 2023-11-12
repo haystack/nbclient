@@ -916,7 +916,7 @@
 }
 #nb-app .nb-sidebar .thread-view .thread-row .footer > span .icon {
   height: 14px;
-  vertical-align: top;
+  vertical-align: bottom;
 }
 
 #nb-app-wrapper .thread-overflow-wrapper .tooltip-arrow {
@@ -1731,7 +1731,49 @@ nb-innotation-controller {
   background-color: #555;
 }
 
+.empty-and-filterd {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+  text-align: center;
+}
 
+.empty-and-filterd .filter-icon svg {
+  font-size: 3em !important;
+  transform: initial;
+}
+
+.empty-and-filterd .text {
+  font-size: 1.5em;
+    color: #666;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.empty-and-filterd button {
+  color: #fff;
+    background: #4f2874;
+    height: 30px;
+    width: 100px;
+    font-size: 1.2em;
+    border-radius: 0;
+    border: initial;
+}
+
+.empty-and-filterd button:hover {
+    background: #431f64;
+    color: #fff;
+    border: initial;
+
+}
+
+div.trigger span {
+  display: flex;
+  height: 100%;
+}
 
 /* UC Davis LibreTexts */
 @media (min-width: 83em) {

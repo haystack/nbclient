@@ -53,6 +53,15 @@
                     <p style="text-align: center;font-family: monospace;color: #666;">Fetching Annotations...</p>
                     <tile loading="true"></tile>
                 </div>
+                <div
+                    v-else-if="isEmptyAndFiltered"
+                    class="empty-and-filterd">
+                    <div class="filter-icon">
+                        <font-awesome-icon icon="filter"></font-awesome-icon>
+                    </div>
+                    <div class="text">Filters are applied, edit filters to show more threads</div>
+                    <button @click="onFilterShow">Open Filters</button>
+                </div>
                 <list-row v-else
                     v-for="thread in sorted"
                     :key="thread"
@@ -189,6 +198,9 @@ export default {
 
             return ''
         },
+        isEmptyAndFiltered: function () {
+            return (this.currentThreadsCount === 0 && this.totalCount > 0)
+        },
         currentThreadsCount: function () {
             return this.threads.length
         },
@@ -244,6 +256,12 @@ export default {
     methods: {
         onHandleRedrawHighlights: function () {
             this.$emit('handle-redraw-highlights')
+        },
+        onFilterShow: function () {
+            this.$emit('filter-show')
+        },
+        onHandleClearFilters: function () {
+            this.$emit('handle-clear-filters')
         },
         toggleHighlights: function () {
             if( this.showHighlights ) {
